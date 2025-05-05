@@ -15,18 +15,36 @@ class PublisherAuthorController extends Controller
 
      public function store(Request $request)
      {
-         // Validate the request and set a custom message if the author exists
-         $validatedData = $request->validate([
-             'name' => 'required|string|max:255|unique:authors,name', 
-         ], [
-             'name.unique' => 'ეს ავტორი უკვე დარეგისტრირებულია.', // Custom message
-         ]);
+         try {
+             // Validate the input field
+             $validatedData = $request->validate([
+                 'new_author_name' => 'required|string|max:255|unique:authors,name',
+             ], [
+                 'new_author_name.unique' => 'ეს ავტორი უკვე დარეგისტრირებულია.', // Custom error message
+             ]);
      
-         // Create a new author if validation passes
-         Author::create($validatedData);
+             // Create the new author
+             $author = Author::create(['name' => $validatedData['new_author_name']]);
      
-         // Redirect back with a success message
-         return redirect()->route('publisher.dashboard')->with('success', 'ავტორი წარმატებით შეიქმნა.');
+             // Return JSON response for AJAX
+             return response()->json([
+                 'success' => true,
+                 'author' => $author,
+             ]);
+         } catch (\Illuminate\Validation\ValidationException $e) {
+             // Return validation errors
+             return response()->json([
+                 'success' => false,
+                 'errors' => $e->errors(),
+             ], 422);
+         } catch (\Exception $e) {
+             // Handle general errors
+             return response()->json([
+                 'success' => false,
+                 'message' => $e->getMessage(),
+             ], 500);
+         }
      }
+     
      
 }

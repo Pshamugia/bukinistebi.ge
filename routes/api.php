@@ -1,19 +1,12 @@
 <?php
-
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/api/admin-status', function () {
+    $isAdminOnline = \App\Models\User::where('role', 'admin')->whereNotNull('last_login_at')->exists();
+    return response()->json(['online' => $isAdminOnline]);
 });
+
+
+

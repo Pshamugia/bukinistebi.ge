@@ -18,7 +18,7 @@ class CartController extends Controller
     $cart = Auth::user()->cart()->with('cartItems.book.author')->first(); // Ensure you're getting a single cart instance
 
     $subtotal = 0;
-    $shipping = 0; // Example fixed shipping cost
+    $shipping = 5.00; // Example fixed shipping cost
 
     if ($cart) {
         $subtotal = $cart->cartItems->sum(function ($item) {
@@ -37,28 +37,24 @@ class CartController extends Controller
      */
     public function add(Request $request, Book $book)
 {
-    // Fetch the user's cart
     $cart = Auth::user()->cart()->firstOrCreate([
         'user_id' => Auth::id(),
     ]);
 
-    // Check if the book is already in the cart
+    $quantity = min($request->input('quantity', 1), $book->quantity); // Limit to max quantity available
     $cartItem = $cart->cartItems()->where('book_id', $book->id)->first();
 
     if ($cartItem) {
-        // If the book is already in the cart, update the quantity
-        $cartItem->quantity += $request->input('quantity', 1);
+        $cartItem->quantity = min($cartItem->quantity + $quantity, $book->quantity); // Don't exceed max quantity
         $cartItem->save();
     } else {
-        // Otherwise, add the book to the cart
         $cart->cartItems()->create([
             'book_id' => $book->id,
-            'quantity' => $request->input('quantity', 1),
+            'quantity' => $quantity,
             'price' => $book->price,
         ]);
     }
 
-    // Return the updated cart count
     return response()->json([
         'status' => 'added',
         'cartCount' => $cart->cartItems->count(),
@@ -75,7 +71,7 @@ class CartController extends Controller
         $cart = Auth::user()->cart;
 
         if (!$cart) {
-            return redirect()->route('cart.show')->with('error', 'შენი კალათა ცარიელია.');
+            return redirect()->route('cart.index')->with('error', 'შენი კალათა ცარიელია.');
         }
 
         // Find the cart item by book ID and remove it
@@ -85,31 +81,38 @@ class CartController extends Controller
             $cartItem->delete();
         }
 
-        return redirect()->route('cart.show')->with('success', 'წიგნი წაშლილია კალათიდან.');
+        return redirect()->route('cart.index')->with('success', 'წიგნი წაშლილია კალათიდან.');
     }
 
     /**
      * Update the quantity of a book in the cart.
      */
     public function updateQuantity(Request $request)
-    {
-        $cartItem = CartItem::where('book_id', $request->book_id)->first();
+{
+    $bookId = $request->input('book_id');
+    $action = $request->input('action');
 
-        if ($cartItem) {
-            if ($request->action === 'increase' && $cartItem->book->quantity > $cartItem->quantity) {
-                $cartItem->quantity += 1;
-            } elseif ($request->action === 'decrease' && $cartItem->quantity > 1) {
-                $cartItem->quantity -= 1;
-            }
-    
-            $cartItem->save();
-    
-            return response()->json(['success' => true]);
-        }
-    
-        return response()->json(['success' => false], 400);
-    
+    $cartItem = CartItem::where('book_id', $bookId)
+                        ->where('cart_id', Auth::user()->cart->id)
+                        ->first();
+
+    if (!$cartItem) {
+        return response()->json(['success' => false, 'message' => 'Item not found in cart.']);
     }
+
+    $book = Book::find($bookId);
+    if ($action === 'increase' && $cartItem->quantity < $book->quantity) {
+        $cartItem->quantity += 1;
+    } elseif ($action === 'decrease' && $cartItem->quantity > 1) {
+        $cartItem->quantity -= 1;
+    }
+
+    $cartItem->save();
+
+    return response()->json(['success' => true]);
+}
+
+    
 
     public function toggle(Request $request)
 {

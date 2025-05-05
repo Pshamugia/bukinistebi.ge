@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\CartItem;
@@ -16,19 +17,24 @@ class Book extends Model
     protected $fillable = [
         'title',
         'photo',
+        'photo_2',
+        'photo_3',
+        'photo_4',
         'description',
         'full',
         'category_id',
+        'genre_id',
         'author_id',
         'price',
-        'views', 
+        'views',
         'quantity',
         'status',
         'publishing_date',
         'pages',
         'cover',
         'hide',
-        'uploader_id'
+        'uploader_id',
+        'manual_created_at',
     ];
 
     // Relationships
@@ -36,6 +42,10 @@ class Book extends Model
     /**
      * Get the author of the book.
      */
+
+    protected $dates = ['manual_created_at'];  // To make sure it's treated as a date
+
+
     public function author()
     {
         return $this->belongsTo(Author::class);
@@ -64,4 +74,16 @@ class Book extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(ArticleRating::class, 'book_id');
+    }
+
+
+   public function genres()
+{
+    return $this->belongsToMany(Genre::class, 'book_genre');
+}
+    
 }

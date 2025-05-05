@@ -4,8 +4,8 @@
 
 @section('content')
     <div class="d-flex justify-content-between mb-3">
-        <h1>Authors</h1>
-        <a href="{{ route('admin.authors.create') }}" class="btn btn-primary">Add Author</a>
+        <h1>ავტორები</h1>
+        <a href="{{ route('admin.authors.create') }}" class="btn btn-primary">დაამატე ავტორი</a>
     </div>
 
     @if (session('success'))
@@ -18,8 +18,8 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th width="200px">Actions</th>
+                    <th>სახელი გვარი</th>
+                    <th width="200px">ქმედება</th>
                 </tr>
             </thead>
             <tbody>

@@ -4,7 +4,19 @@
  
 @section('content')
 
-<div class="container mt-5 col-md-6" style="position: relative; padding-top:10%; padding-bottom:5%;">
+<div class="container mt-5 col-md-6" style="position: relative; padding-top:10%; padding-bottom:5%; min-height: 400px">
+        @if(Auth::check() && Auth::user()->role === 'user' || (Auth::check() && Auth::user()->role === 'admin'))
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px">
+
+            <button type="button" class="btn btn-warning text-center">
+                <span>  თქვენ შესული ხართ მომხმარებლის ექაუნთით. ბუკინისტად დასარეგისტრირებლად საჭიროა, 
+                    ჯერ გამოხვიდეთ მომხმარებლის ანგარიშიდან და შემდეგ დარეგისტრირდეთ ბუკინისტად. </span>
+            </button>
+        </div>
+      @else
+   
+    
+
 
  <div>   <h4> თუ ჯერ არ ხარ დარეგისტრირებული, დარეგისტრირდი  <a href="{{ route('register.publisher.form')}}"> აქ </a> </h4> </div>
     <!-- Email Errors -->
@@ -29,20 +41,20 @@
 
             <!-- Email Address -->
             <div>
-                <x-input-label for="email" :value="__('ელფოსტა')" /> <br><br>
+                <span>  <x-input-label for="email" :value="__('ელფოსტა')" /> <br><br>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon1">@</span>
                     <input type="email" class="form-control" placeholder="ელფოსტა" aria-label="Email" aria-describedby="basic-addon1" name="email" :value="old('email')" required autofocus autocomplete="username">
-                </div>
+                </div> </span>
             </div>
 
             <!-- Password -->
             <div class="mt-4">
-                <x-input-label for="password" :value="__('პაროლი')" /> <br><br>
+                <span> <x-input-label for="password" :value="__('პაროლი')" /> <br><br>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span> <!-- Lock icon -->
                     <input type="password" class="form-control" placeholder="პაროლი" aria-label="Password" name="password" required autocomplete="current-password">
-                </div>
+                </div> </span>
             </div>
 
             <!-- Remember Me -->
@@ -56,7 +68,7 @@
             <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
                     <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('პაროლის აღდგენა') }}
+                        <span> {{ __('პაროლის აღდგენა') }} </span>
                     </a>
                 @endif
 
@@ -65,6 +77,8 @@
             </div>
         </form>
     </div>
+
+    @endif
 </div>
 
 @endsection

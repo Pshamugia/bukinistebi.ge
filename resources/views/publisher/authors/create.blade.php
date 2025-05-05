@@ -2,7 +2,7 @@
  
 @section('content')
 <div class="container">
-    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-top:55px; padding-bottom:25px; align-items: left">
+    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left">
         დაამატე ავტორი</h5>
 
         @if ($errors->any())
@@ -37,7 +37,7 @@
 
 
         
-        <button type="submit" class="btn btn-primary">Add Author</button>
+        <button type="submit" class="btn btn-primary">ავტორის დამატება</button>
     </form>
 </div>
 

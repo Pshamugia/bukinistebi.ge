@@ -3,7 +3,7 @@
 @section('title', 'რედაქტირება')
  
 @section('content')
-<div class="container" style="position: relative; padding-top:55px;">
+<div class="container" style="position: relative; ">
     <h5 class="section-title" style="position: relative; margin-bottom:25px;   padding-bottom:25px; align-items: left;
     justify-content: left;">        <strong>
             <i class="bi bi-person-fill-gear"></i> პროფილის რედაქტირება

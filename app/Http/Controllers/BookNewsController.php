@@ -18,6 +18,16 @@ class BookNewsController extends Controller
         return view('book_news.index', compact('news'));
     }
 
+    public function allbooksnews()
+    {
+        $news = BookNews::
+        where('title', '!=', 'წესები და პირობები')
+        ->where('title', '!=', 'ბუკინისტებისათვის')
+        ->orderBy('id', 'DESC')
+        ->paginate(10);
+        return view('all_book_news', compact('news'));
+    }
+
     public function show($id)
     {
         $book = BookNews::findOrFail($id);

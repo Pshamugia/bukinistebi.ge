@@ -4,8 +4,8 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2>Book News Management</h2>
-    <a href="{{ route('admin.book-news.create') }}" class="btn btn-success mb-3">Add New Book News</a>
+    <h2>ბუკინისტური ამბები</h2>
+    <a href="{{ route('admin.book-news.create') }}" class="btn btn-success mb-3">დაამატე ამბავი</a>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -14,9 +14,9 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
-                <th>Title</th>
-                <th>Image</th>
-                <th>Actions</th>
+                <th>სათაური</th>
+                <th>სურათი</th>
+                <th>ქმედება</th>
             </tr>
         </thead>
         <tbody>

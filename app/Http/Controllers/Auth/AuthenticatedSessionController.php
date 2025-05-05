@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Cache;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -23,28 +25,47 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+    public function store(Request $request): RedirectResponse
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
+    if (Auth::attempt($credentials)) {
         $request->session()->regenerate();
 
-        return redirect('/'); // Change this to your desired redirect path
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            Cache::put('admin_online', true, now()->addMinutes(5)); // Set admin online status
+        }
+
+        // Redirect to the desired page (e.g., homepage)
+        return redirect()->route('welcome');
     }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
+}
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+{
+    $user = Auth::user();
+    if ($user && $user->role === 'admin') {
+        Cache::forget('admin_online'); // Clear admin status
     }
+
+    Auth::guard('web')->logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/');
+}
 
 
     public function createPublisherLoginForm()
@@ -70,6 +91,14 @@ public function storePublisherLogin(Request $request)
     return back()->withErrors([
         'email' => 'The provided credentials do not match our records.',
     ]);
+}
+
+protected function authenticated(Request $request, $user)
+{
+    if ($user->role === 'admin') {
+        $user->last_login_at = now();
+        $user->save();
+    }
 }
 
 }

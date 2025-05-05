@@ -1,9 +1,9 @@
 @extends('layouts.app')
- 
+@section('title', 'ბუკინისტები | წესები და პირობები')
 @section('content')
 
      
-<h5 class="section-title" style="position: relative; margin-bottom:25px; padding-top:55px; padding-bottom:25px; align-items: left;
+<h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
     justify-content: left;">     <strong>
         <i class="bi bi-journal-text"></i>
         წესები და პირობები

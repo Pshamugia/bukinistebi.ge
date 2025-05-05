@@ -9,18 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::table('books', function (Blueprint $table) {
-        $table->boolean('hide')->default(false); // false = visible, true = hidden
-    });
-}
-
-public function down()
-{
-    Schema::table('books', function (Blueprint $table) {
-        $table->dropColumn('hide');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('books', function (Blueprint $table) {
+            if (!Schema::hasColumn('books', 'hide')) {
+                $table->tinyInteger('hide')->default(0);
+            }
+        });
+    }
+    
+    public function down(): void
+    {
+        Schema::table('books', function (Blueprint $table) {
+            if (Schema::hasColumn('books', 'hide')) {
+                $table->dropColumn('hide');
+            }
+        });
+    }
+    
 
 };

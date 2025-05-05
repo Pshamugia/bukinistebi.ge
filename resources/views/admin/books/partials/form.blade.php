@@ -13,7 +13,7 @@
 </div>
 
 <div class="mb-3">
-    <label for="photo" class="form-label">Photo</label>
+    <label for="photo" class="form-label">Photo 1</label>
     @if (isset($book) && $book->photo)
         <div class="mb-2">
             <img src="{{ asset('storage/'.$book->photo) }}" class="img-thumbnail" width="150" alt="{{ $book->title }}">
@@ -22,15 +22,59 @@
     <input type="file" name="photo" class="form-control" id="photo" {{ isset($book) ? '' : 'required' }}>
 </div>
 
+
+<div class="mb-3">
+    <label for="photo_2" class="form-label">Photo 2</label>
+    @if (isset($book) && $book->photo_2)
+        <div class="mb-2">
+            <img src="{{ asset('storage/'.$book->photo_2) }}" class="img-thumbnail" width="150" alt="{{ $book->title }}">
+        </div>
+    @endif
+    <input type="file" name="photo_2" class="form-control" id="photo" {{ isset($photo_2)}}>
+</div>
+
+
+<div class="mb-3">
+    <label for="photo_3" class="form-label">Photo 3</label>
+    @if (isset($book) && $book->photo_3)
+        <div class="mb-2">
+            <img src="{{ asset('storage/'.$book->photo_3) }}" class="img-thumbnail" width="150" alt="{{ $book->title }}">
+        </div>
+    @endif
+    <input type="file" name="photo_3" class="form-control" id="photo" {{ isset($photo_3) }}>
+</div>
+
+
+<div class="mb-3">
+    <label for="photo_4" class="form-label">Photo 4</label>
+    @if (isset($book) && $book->photo_4)
+        <div class="mb-2">
+            <img src="{{ asset('storage/'.$book->photo_4) }}" class="img-thumbnail" width="150" alt="{{ $book->title }}">
+        </div>
+    @endif
+    <input type="file" name="photo_4" class="form-control" id="photo" {{ isset($photo_4) }}>
+</div>
+
+
+
 <div class="mb-3">
     <label for="quantity" class="form-label">Quantity</label>
     <input type="number" name="quantity" class="form-control" id="quantity" value="{{ old('quantity', $book->quantity ?? '') }}" required>
 </div>
 
 <div class="mb-3">
-    <label for="Publishing_date" class="form-label">Publishing Date</label>
+    <label for="Publishing_date" class="form-label">წიგნის გამოცემის თარიღი</label>
     <input type="text" name="publishing_date" class="form-control" id="publishing_date" value="{{ old('publishing_date', $book->publishing_date ?? '') }}">
 </div>
+
+
+<div class="mb-3">
+    <label for="manual_created_at">საიტზე დადების დრო (თარიღი და დრო)</label>
+    <input type="datetime-local" name="manual_created_at" id="manual_created_at"
+    value="{{ old('manual_created_at', isset($book) && $book->manual_created_at ? \Carbon\Carbon::parse($book->manual_created_at)->format('Y-m-d\TH:i') : '') }}">
+</div>
+
+
 
 
 <div class="mb-3">
@@ -77,7 +121,7 @@
         </select>
     </div>
     
-<div class="mb-3">
+{{-- <div class="mb-3">
     <label for="category_id" class="form-label">Category</label>
     <select name="category_id" class="form-select" id="category_id" required>
         <option value="">Select Category</option>
@@ -87,6 +131,20 @@
             </option>
         @endforeach
     </select>
+</div> --}}
+
+<div class="mb-3">
+    <label>Genre</label>
+    <select name="genre_id[]" id="genre_id" class="genres form-control" multiple>
+        <option value="">მონიშნე ჟანრი (არასავალდებულო)</option>
+        @foreach ($genres as $genre)
+            <option value="{{ $genre->id }}"
+                {{ in_array($genre->id, old('genre_id', $book->genres->pluck('id')->toArray() ?? [])) ? 'selected' : '' }}>
+                {{ $genre->name }}
+            </option>
+        @endforeach
+    </select>
+
 </div>
 <!-- jQuery (Chosen requires jQuery) -->
  
@@ -102,6 +160,10 @@
 <script>
     $(document).ready(function() {
         $('.chosen-select').chosen({
+            no_results_text: "Oops, nothing found!"
+        });
+
+        $('.genres').chosen({
             no_results_text: "Oops, nothing found!"
         });
     });

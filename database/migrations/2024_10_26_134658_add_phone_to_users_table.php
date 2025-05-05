@@ -9,18 +9,23 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('phone')->nullable()->after('email'); // Add 'phone' column after 'email'
-        });
-    }
-    
-    public function down()
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('phone'); // Drop the 'phone' column if rolling back
-        });
-    }
+    public function up(): void
+{
+    Schema::table('users', function (Blueprint $table) {
+        if (!Schema::hasColumn('users', 'phone')) {
+            $table->string('phone', 15)->nullable()->after('email');
+        }
+    });
+}
+
+public function down(): void
+{
+    Schema::table('users', function (Blueprint $table) {
+        if (Schema::hasColumn('users', 'phone')) {
+            $table->dropColumn('phone');
+        }
+    });
+}
+
     
 };

@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\Publisher;
 
 use App\Models\Book;
-use App\Models\Author;
-use App\Models\Category;
+use App\Models\Genre;
+use App\Models\Author; 
+use App\Models\Subscriber; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use App\Mail\SubscriptionNotification;
+use Intervention\Image\Facades\Image; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+
 
 
 class PublisherBookController extends Controller
@@ -18,60 +24,116 @@ class PublisherBookController extends Controller
     public function create()
 {
     $authors = Author::all(); // Fetch authors
-    $categories = Category::all(); // Fetch categories
+    $genres = Genre::all();
+    
     $isHomePage = false;
-    return view('publisher.create', compact('authors', 'categories', 'isHomePage'));
+
+
+    return view('publisher.create', compact('authors', 'genres', 'isHomePage'));
 }
 
 
-    public function store(Request $request)
-{
-    Log::info('PublisherBookController store method called');
 
-    $validator = Validator::make($request->all(), [
+public function store(Request $request)
+{
+    // Validate the request
+    $validatedData = $request->validate([
         'title' => 'required|string|max:255',
         'price' => 'required|numeric',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'photo_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'photo_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'photo_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         'description' => 'required|string',
         'quantity' => 'integer|min:1',
-        'views' => 'nullable|integer',
-        'full' => 'required|string',
+        'full' => 'nullable|string',
         'author_id' => 'required|exists:authors,id',
-        'category_id' => 'required|exists:categories,id',
+        'genre_id' => 'nullable|array',
+        'genre_id.*' => 'exists:genres,id',
         'status' => 'nullable|string',
         'pages' => 'nullable|string|max:255',
         'publishing_date' => 'nullable|string',
         'cover' => 'nullable|string|max:255',
     ]);
 
-    if ($validator->fails()) {
-        Log::error('Validation failed:', $validator->errors()->toArray());
-        return back()->withErrors($validator)->withInput();
-    }
+    // Handle photo uploads and WebP conversion
+    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+        if ($request->hasFile($key)) {
+            $file = $request->file($key);
 
-    $validatedData = $validator->validated();
+            $uniqueFileName = time() . '_' . uniqid() . '.webp';
 
-    if ($request->hasFile('photo')) {
-        Log::info('Photo is being received');
-        $imageName = $request->file('photo')->hashName();
-        $path = $request->file('photo')->storeAs('uploads/books', $imageName, 'public');
-        if (!$path) {
-            Log::error('File could not be saved');
-            return back()->with('error', 'File could not be saved.');
+            $image = Image::make($file)
+                ->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })
+                ->encode('webp', 75);
+
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+            Storage::disk('public')->put($imagePath, $image);
+
+            $validatedData[$key] = $imagePath;
         }
-        $validatedData['photo'] = 'uploads/books/' . $imageName;
     }
 
-    $validatedData['hide'] = 1;
-    $validatedData['uploader_id'] = Auth::id();
+    // Add uploader information
+    $validatedData['uploader_id'] = auth()->id();
 
-    Log::info('Validated data:', $validatedData);
+    // Set the `hide` attribute based on role
+    $validatedData['hide'] = auth()->user()->role === 'publisher' ? '1' : '0';
 
-    Book::create($validatedData);
-    
+    // Remove genre_id from insertable fields
+    $bookData = $validatedData;
+    unset($bookData['genre_id']);
 
-    return redirect()->route('publisher.dashboard')->with('success', 'თქვენი წიგნი აიტვირთა და მოდერაციის დასრულების შემდეგ გამოჩნდება ვებგვერდზე.');
+    // Create the book
+    $book = Book::create($bookData);
+
+    // Attach genres via pivot table
+    if ($request->filled('genre_id')) {
+        $book->genres()->sync($request->genre_id);
+    }
+
+    // Clear cache
+    Cache::forget('home_books');
+    Cache::forget('popular_books');
+    Cache::forget('top_books');
+
+    // Notify subscribers
+    $this->notifySubscribers($book);
+
+    return redirect()->route('publisher.dashboard')->with(
+        'success',
+        'წიგნი წარმატებით აიტვირთა. მოდერაციის გავლის შემდეგ ის გამოჩნდება ჩვენს ვებსაიტზე'
+    );
 }
+
+
+
+
+ 
+
+
+
+
+
+
+protected function notifySubscribers($book)
+{
+    // Retrieve all subscribers
+    $subscribers = Subscriber::all();
+
+    // Prepare the email content
+    $messageContent = "ბუკინისტებზე დაემატა '{$book->title}'.";
+
+    foreach ($subscribers as $subscriber) {
+        Mail::to($subscriber->email)->send(new SubscriptionNotification($messageContent));
+    }
+}
+
+
+
+
 
 public function myBooks()
     {

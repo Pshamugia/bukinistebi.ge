@@ -10,7 +10,7 @@
     <!-- Display Author's Bio or Description if available -->
   
 
-    <h5 style="position: relative; padding-top: 65px; padding-bottom: 25px"> 
+    <h5 style="position: relative; padding-bottom: 25px"> 
         <i class="bi bi-person-circle"></i>
         {{ $author->name }}
     </h5>

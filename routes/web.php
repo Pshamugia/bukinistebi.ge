@@ -1,13 +1,22 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use App\Exports\UserTransactionsExport;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BookNewsController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Admin\GenreController;
+use App\Http\Controllers\TbcCheckoutController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
@@ -20,17 +29,70 @@ use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\TbcCheckoutController;
 
+
+ 
+//FOR COOKIES
+Route::post('/cookie-consent', [CookieConsentController::class, 'storeCookieConsent'])->name('cookie.consent');
+Route::post('/store-user-behavior', [CookieConsentController::class, 'store-user-behavior'])->name('store-user-behavior');
 
 
 // Home Route - Display all books
 Route::get('/', [BookController::class, 'welcome'])->name('welcome');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
 Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_news.show');
+Route::get('/all_book_news', [BookNewsController::class, 'allbooksnews'])->name('allbooksnews');
 Route::get('/full_author/{name}/{id}', [AuthorController::class, 'full_author'])->name('full_author');
 Route::get('/terms_conditions', [BookNewsController::class, 'terms'])->name('terms_conditions');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
+Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
+
+// Chat routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');
+    Route::post('/chats', [ChatController::class, 'store'])->name('chats.store');
+
+    // Endpoint to set admin login status
+    Route::get('/admin-login-status', function () {
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            Cache::put('admin_online', true, now()->addMinutes(5)); // Set admin online status
+        }
+        return response()->json(['status' => 'updated']);
+    });
+});
+
+// Admin status route
+Route::get('/admin-status', function () {
+    $user = Auth::user();
+
+    // Ensure the user is authenticated and has an admin role
+    $isAdminOnline = Auth::check() && $user && $user->role === 'admin';
+
+    return response()->json(['online' => $isAdminOnline]);
+});
+
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/admin-login-status', function () {
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            Cache::put('admin_online', true, now()->addMinutes(5)); // Admin is online
+        }
+        return response()->json(['status' => 'checked']);
+    });
+
+    // Clear cache when admin logs out
+    Route::get('/logout', function () {
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            Cache::forget('admin_online');
+        }
+        return redirect('/');
+    });
+});
 
 // Authentication Routes (Handled by Breeze)
 require __DIR__ . '/auth.php';
@@ -50,24 +112,47 @@ Route::get('/full_news/{title}/{id}', [BookNewsController::class, 'full_news'])-
 Route::get('/search', [BookController::class, 'search'])->name('search');
 Route::get('/books', [BookController::class, 'books'])->name('books');
 
+// send us book order
+Route::get('/order_us', [BookController::class, 'order_us'])->name('order_us');
+Route::post('/order_request_book', [BookController::class, 'sendRequest'])->name('order.request.book'); // Handle form submission
 
-//TBC E-COMEERCE ROUTES
+// podcast
+Route::get('/podcast', [BookController::class, 'podcast'])->name('podcast');
 
+//genre
+Route::get('/genres/{id}', [BookController::class, 'byGenre'])->name('genre.books');
+ 
+
+// TBC E-Commerce Routes within auth middleware
 Route::middleware('auth')->group(function () {
-    Route::get('/checkout', [TbcCheckoutController::class, 'showCheckoutPage'])->name('checkout');
-    Route::post('/checkout/create', [TbcCheckoutController::class, 'createOrder'])->name('checkout.create');
-    Route::get('/tbc/callback', [TbcCheckoutController::class, 'handleCallback'])->name('tbc.callback');
-     Route::post('/checkout', [TbcCheckoutController::class, 'createOrder'])->name('checkout');
-    Route::get('/callback', [TbcCheckoutController::class, 'handleCallback'])->name('callback');
+    // Initialize payment and show checkout page
+    Route::post('/tbc-checkout', [TbcCheckoutController::class, 'initializePayment'])->name('tbc-checkout');
+     Route::get('/tbc-checkout/{orderId}', [TbcCheckoutController::class, 'show'])->name('tbc.checkout');
 
+    // Process TBC payment
+     Route::post('/process-payment', [TbcCheckoutController::class, 'processPayment'])->name('process.payment');
+
+  
+    Route::get('/order-failed', function () {
+        return view('order.failed'); // Create a view named 'order.failed' or adjust to an appropriate view
+    })->name('order.failed');
+
+    Route::get('/order/success', function () {
+        return view('order.success');
+    })->name('order.success');
+    
 });
+
+  // Handle the TBC payment callback
+  Route::get('/tbc-callback', [TbcCheckoutController::class, 'handleCallback'])->name('tbc.callback');
+    
 
 
 // Cart Routes (Add 'auth' middleware to ensure only logged-in users can access the cart)
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{book}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove/{book}', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/cart/update/{book}', [CartController::class, 'updateQuantity'])->name('cart.update');
@@ -81,16 +166,19 @@ Route::middleware('auth')->group(function () {
     // Account Routes for editing user profile
     Route::get('/account/edit', [AccountController::class, 'edit'])->name('account.edit');
     Route::post('/account/update', [AccountController::class, 'update'])->name('account.update');
-    // Checkout
+    // order Checkout
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::get('/order-courier/{order}', [OrderController::class, 'orderCourier'])->name('order_courier');
+    Route::get('/order-courier/{orderId}', [OrderController::class, 'orderCourier'])->name('order_courier');
+
+    Route::get('/purchase-history', [OrderController::class, 'purchaseHistory'])->name('purchase.history')->middleware('auth');
+
 });
 
 
 
 // Publisher routes with 'publisher' role middleware
 Route::middleware(['auth', 'role:publisher'])->group(function () {
-    
+
     // Publisher dashboard
     Route::get('/publisher/dashboard', function () {
         return view('publisher.dashboard');
@@ -100,7 +188,7 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
     Route::match(['put', 'post'], '/publisher/account/update', [PublisherAccountController::class, 'update'])->name('publisher.account.update');
     Route::get('/publisher/my-books', [PublisherBookController::class, 'myBooks'])->name('publisher.my_books');
 
-    
+
     // Routes for Publisher's Book Upload
     Route::resource('publisher/books', PublisherBookController::class)->only(['create', 'store'])->names([
         'create' => 'publisher.books.create',
@@ -109,7 +197,8 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 
     // Routes for Publisher's Author Management
     Route::get('/publisher/authors/create', [PublisherAuthorController::class, 'create'])->name('publisher.authors.create');
-    Route::post('/publisher/authors', [PublisherAuthorController::class, 'store'])->name('publisher.authors.store');
+     Route::post('/publisher/authors/store', [PublisherAuthorController::class, 'store'])->name('publisher.authors.store');
+
 });
 
 // Publisher registration and login routes
@@ -133,28 +222,53 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 // Admin routes with admin middleware and prefix
 Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
-   // Admin dashboard route
-   Route::get('/', [DashboardController::class, 'index'])->name('admin');
-
-   // Publishers Activity Route
-   Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
-
-   // Authors CRUD routes (Admin)
-   Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']);
-
-   // Books CRUD routes (Admin)
-   Route::resource('books', AdminBookController::class, ['as' => 'admin']);
-
-   // Categories CRUD routes (Admin)
-   Route::resource('categories', AdminCategoryController::class, ['as' => 'admin']);
-
-   // Book News CRUD routes (Admin)
-   Route::resource('book-news', AdminBookNewsController::class, ['as' => 'admin']);
-   Route::post('/books/{id}/toggleVisibility', [AdminBookController::class, 'toggleVisibility'])->name('admin.books.toggleVisibility');
+    // Admin dashboard route
+    Route::get('/', [DashboardController::class, 'index'])->name('admin');
 
 
-   // FOR PUBLISHERS TO ALLOW HIDE/SHOW
-   Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
+    // Publishers Activity Route
+    Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
+
+    // Authors CRUD routes (Admin)
+    Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']); 
+
+   
+
+    // Books CRUD routes (Admin)
+    Route::resource('books', AdminBookController::class, ['as' => 'admin']);
+
+    // Categories CRUD routes (Admin)
+    Route::resource('categories', AdminCategoryController::class, ['as' => 'admin']);
+
+    Route::resource('genres', GenreController::class, ['as' => 'admin']);
+
+
+
+    // Book News CRUD routes (Admin)
+    Route::resource('book-news', AdminBookNewsController::class, ['as' => 'admin']);
+    Route::post('/books/{id}/toggleVisibility', [AdminBookController::class, 'toggleVisibility'])->name('admin.books.toggleVisibility');
+    Route::get('/user-keywords', [AdminPublisherController::class, 'showUserKeywords'])->name('admin.user.keywords');
+    Route::get('/subscribers', [SubscriptionController::class, 'subscribers'])->name('admin.subscribers');
+    Route::get('/top-rated-articles', [DashboardController::class, 'topRatedArticles'])->name('admin.topRatedArticles');
+
+    // Show User Preferences with Purchases
+    Route::get('/user-preferences-with-purchases', [CookieConsentController::class, 'showUserPreferencesWithPurchases'])->name('admin.user.preferences.purchases');
+
+
+    // FOR PUBLISHERS TO ALLOW HIDE/SHOW
+    Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
+
+//users transacions
+Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
+Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
+Route::get('/admin/users/transactions/export', function () {
+    return Excel::download(new UserTransactionsExport, 'user_transactions.xlsx');
+})->name('admin.users.transactions.export');
+Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
+
+Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
+Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
+Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
 
 });
 
@@ -166,4 +280,3 @@ Route::get('/test-role-middleware', function () {
         return redirect()->route('login.publisher.form')->withErrors(['access' => 'Only publishers can access this page.']);
     }
 });
-

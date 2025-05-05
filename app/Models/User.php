@@ -38,4 +38,12 @@ public function books()
     {
         return $this->hasMany(Book::class, 'uploader_id');
     }
+
+    public function userPreference()
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+    
+ 
+
 }

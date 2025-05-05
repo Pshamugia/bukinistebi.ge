@@ -6,6 +6,7 @@ use App\Models\BookNews;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
 class BookNewsController extends Controller
@@ -21,48 +22,10 @@ class BookNewsController extends Controller
         return view('admin.book-news.create');
     }
 
+    
+    
+    
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'full' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        // Handle image upload
-     // Check if the file is being received correctly
-    if ($request->hasFile('image')) {
-        $imageName = $request->file('image')->hashName();
-        
-        // Store the file in the "uploads/books" directory within "public"
-        $path = $request->file('image')->storeAs('uploads/books', $imageName, 'public');
-
-        // Check if file was stored
-        if (!$path) {
-            return back()->with('error', 'File could not be saved.');
-        }
-
-        $validatedData['image'] = 'uploads/books/' . $imageName; // Save the full path to the database
-    } else {
-        return back()->with('error', 'No photo uploaded.');
-    }
-
-        
-
-        BookNews::create($validatedData);
-
-        return redirect()->route('admin.book-news.index')->with('success', 'Book News created successfully.');
-    }
-
-    public function edit(BookNews $bookNews)
-    {
-        return view('admin.book-news.edit', compact('bookNews'));
-    }
-
-  
-
-public function update(Request $request, BookNews $bookNews)
 {
     $validatedData = $request->validate([
         'title' => 'required|string|max:255',
@@ -71,30 +34,85 @@ public function update(Request $request, BookNews $bookNews)
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 
-    // Handle image upload and delete old image
+    // Handle image upload
     if ($request->hasFile('image')) {
-        Log::info('Image upload detected.');
+        $file = $request->file('image');
 
-        // Delete old image if exists
-        if ($bookNews->image && Storage::disk('public')->exists($bookNews->image)) {
-            Storage::disk('public')->delete($bookNews->image);
-            Log::info('Old image deleted: ' . $bookNews->image);
-        }
+        // Generate a unique file name with WebP extension
+        $uniqueFileName = time() . '_' . uniqid() . '.webp';
 
-        // Upload new image
-        $imageName = time() . '.' . $request->image->extension();
-        $request->image->storeAs('uploads/book_news', $imageName, 'public');
-        $validatedData['image'] = 'uploads/book_news/' . $imageName;
+        // Resize and convert to WebP
+        $image = Image::make($file)
+            ->resize(800, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })
+            ->encode('webp', 75); // Convert to WebP format
 
-        Log::info('New image uploaded: ' . $validatedData['image']);
+        // Save the WebP image
+        $imagePath = 'uploads/book_news/' . $uniqueFileName;
+        Storage::disk('public')->put($imagePath, $image);
+
+        $validatedData['image'] = $imagePath; // Save the WebP image path in the database
     }
 
-    // Update the book news with the new data
+    BookNews::create($validatedData);
+
+    return redirect()->route('admin.book-news.index')->with('success', 'Book News created successfully.');
+}
+
+
+
+
+
+
+
+    public function edit(BookNews $bookNews)
+    {
+        return view('admin.book-news.edit', compact('bookNews'));
+    }
+
+  
+
+    public function update(Request $request, BookNews $bookNews)
+{
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'full' => 'required|string',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
+
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+
+        // Delete old image if it exists
+        if ($bookNews->image && Storage::disk('public')->exists($bookNews->image)) {
+            Storage::disk('public')->delete($bookNews->image);
+        }
+
+        // Generate a unique file name with WebP extension
+        $uniqueFileName = time() . '_' . uniqid() . '.webp';
+
+        // Resize and convert to WebP
+        $image = Image::make($file)
+            ->resize(800, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })
+            ->encode('webp', 75); // Convert to WebP format
+
+        // Save the WebP image
+        $imagePath = 'uploads/book_news/' . $uniqueFileName;
+        Storage::disk('public')->put($imagePath, $image);
+
+        $validatedData['image'] = $imagePath; // Save the WebP image path in the database
+    }
+
     $bookNews->update($validatedData);
-    Log::info('Book News updated successfully.');
 
     return redirect()->route('admin.book-news.index')->with('success', 'Book News updated successfully.');
 }
+
+    
 
 
 

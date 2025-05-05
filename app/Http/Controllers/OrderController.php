@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -43,10 +44,17 @@ class OrderController extends Controller
             return $item->price * $item->quantity;
         });
 
-        $shipping = 10.00; // Fixed shipping cost; adjust as needed
+       // Set shipping cost based on the city
+    
+
+        $city = session('city', 'No city selected');  // Default to 'No city selected' if not found in session
+
+        $shipping = ($city === 'თბილისი') ? 5.00 : 7.00;
+
         $total = $subtotal + $shipping;
 
-        return view('orders.create', compact('cart', 'subtotal', 'shipping', 'total'));
+        
+        return view('orders.create', compact('cart', 'subtotal', 'shipping', 'total', 'city'));
     }
 
     /**
@@ -135,7 +143,11 @@ class OrderController extends Controller
         'name' => 'required|string|max:255',
         'phone' => 'required|string|max:15',
         'address' => 'required|string|max:255',
+        'city' => 'required|string', // Validate the city field
+
     ]);
+
+    session(['city' => $validatedData['city']]);
 
     // Ensure the user has a cart
     $cart = Auth::user()->cart;
@@ -148,8 +160,18 @@ class OrderController extends Controller
     $subtotal = $cart->cartItems->sum(function ($item) {
         return $item->price * $item->quantity;
     });
-    $shipping = 10.00;
-    $total = $subtotal + $shipping;
+      // Dynamically set the shipping cost based on the selected city
+      $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00; // Tbilisi gets 5 Lari, others get 7 Lari
+      $total = $subtotal + $shipping; // Total = subtotal + shipping
+
+ 
+     // Check if there’s enough stock for each item in the cart
+    foreach ($cart->cartItems as $cartItem) {
+        $book = $cartItem->book;
+        if ($book->quantity < $cartItem->quantity) {
+            return back()->with('error', 'Not enough stock available for ' . $book->title);
+        }
+    }
 
     // Create the order
     $order = Order::create([
@@ -182,18 +204,36 @@ class OrderController extends Controller
     return redirect()->back()->with('success', 'Proceed with bank transfer.');
 }
 
-public function orderCourier($orderId)
+public function orderCourier($orderId, Request $request)
 {
-    // Retrieve the specific order by ID
-    $order = Order::where('id', $orderId)
+    $order = Order::with('orderItems.book') // Load order items and their related books
+                  ->where('id', $orderId)
                   ->where('user_id', Auth::id())
-                  ->with('orderItems.book') // Include order items and related books
                   ->firstOrFail();
 
-    return view('order_courier', compact('order'));
+           // Pass the order data to the view
+    $data = [
+        'order' => $order,
+    ];
+
+    
+ 
+    return view('order_courier', compact('order')); 
 }
 
 
+public function purchaseHistory()
+{
+    $userId = auth()->id(); // Get the authenticated user ID
+
+    // Fetch orders for the authenticated user, ordered by latest first
+    $orders = Order::with('orderItems') // Assuming you have a relationship defined
+                   ->where('user_id', $userId)
+                   ->orderBy('created_at', 'desc') // Order by creation date, latest first
+                   ->paginate(10); // Retrieve 10 orders per page 
+
+    return view('purchase-history', compact('orders'));
+}
 
 
 }

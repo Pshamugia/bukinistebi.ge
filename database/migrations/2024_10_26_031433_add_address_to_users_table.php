@@ -9,17 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('address')->nullable()->after('role');
-    });
-}
-
-public function down()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn('address');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'address')) {
+                $table->string('address')->nullable()->after('role');
+            }
+        });
+    }
+    
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            if (Schema::hasColumn('users', 'address')) {
+                $table->dropColumn('address');
+            }
+        });
+    }
 };

@@ -1,9 +1,11 @@
 @extends('layouts.app')
-
+@section('title', 'ბუკინისტები | ძიება')
 @section('content')
 
-<div class="container" style="position: relative; padding-top: 53px;">
+<div class="container" style="position: relative; ">
     
+    
+    <div style="background-color: #b1a9f7; padding:20px 20px 1px 20px; margin-bottom: 26px;">
     <h4> ძიების გაფილტვრა </h4>
     
     <!-- Filter Form -->
@@ -19,46 +21,57 @@
         <div class="col-md-2">
              <input type="number" name="price_to" class="form-control" id="price_to" placeholder="ფასი (მდე)" value="{{ request('price_to') }}">
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <input type="number" name="publishing_date" class="form-control" id="publishing_date" placeholder="გამოცემის წელი" min="1800" max="{{ date('Y') }}" value="{{ request('publishing_date') }}">
         </div>
         <div class="col-md-3">
 
-            <select name="category_id" class="form-select" id="category_id">
-                <option value="" style="color: #ccc"><span > --კატეგორია-- </span></option>
-                @foreach ($categories as $category)
-                <option value="{{ $category->id }}" {{ (request('category_id') == $category->id) ? 'selected' : '' }}>
-                    {{ $category->name }}
-                </option>
+            <select name="genre_id" class="form-select categoria" id="genre_id">
+                <option value="" style="color: #ccc"><span>კატეგორია</span></option>
+                @foreach ($genres as $genre)
+                    <option value="{{ $genre->id }}" {{ request('genre_id') == $genre->id ? 'selected' : '' }}>
+                        {{ $genre->name }}
+                    </option>
                 @endforeach
             </select>
-          
+
+            <script>
+                 $('.form-select').chosen({
+            no_results_text: "Oops, nothing found!"
+        });</script>
+
+
+       
             
         </div>
         <div class="col-md-12">
-            <button type="submit" class="btn btn-info"><span style="top: 3px !important; position: relative;">
-                გაფილტრე </span>
+            <button type="submit" class="btn btn-danger"><span style="top: 3px !important; position: relative;">
+                <i class="bi bi-filter"></i> გაფილტრე </span>
             </button>
         </div>
     </form>
-
+</div>
     <!-- Displaying Search Results -->
-    <p> 
+    <h4><p> 
         @if ($search_count>0)
-            მოიძებნა {{ $search_count }}
+        <i class="bi bi-check-square-fill"></i> 
+        მოიძებნა 
+        <span style="background-color: #dc3545; color:white; padding:4px 0px 0px 3px; border-radius: 3px; margin-right:5px">
+            {{ $search_count }} 
+        </span> 
             @if ($search_count == 1)
-                მასალა
+           მასალა
             @else
-                მასალა
+            მასალა
             @endif
         @else
-            {{ "ბაზაში ვერ მოიძებნა"}} 
-            <span style="background-color: red !important; color:white">
-                <b><u>{{ $searchTerm }}</u></b>
-            </span>
+        <i class="bi bi-dash-circle-fill"></i> {{ "ბაზაში ვერ მოიძებნა"}} 
+            <span style="background-color: rgb(177, 20, 20) !important; color:white; padding:6px;">
+                 {{ $searchTerm }} 
+            </span>  &nbsp; დარწმუნდი მართლწერის სისწორეში
         @endif
-    </p>
-    <hr>
+    </p></h4>
+ 
 
     <div class="row">
         @foreach ($books as $book)
@@ -66,25 +79,37 @@
             <div class="card book-card">
                 <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}" class="card-link">
                     @if (isset($book->photo))
-                        <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="cover" id="im">
+                        <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="cover" id="im" loading="lazy">
                     @endif
                 </a>
                 <div class="card-body">
                     <h4><strong> {{ $book->title }} </strong></h4>
                     <p style="font-size: 14px">
-                        <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => $book->author->name])}}" style="text-decoration: none">
-                            {{ $book->author->name }}
+                        <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)])}}" style="text-decoration: none">
+                            <span> {{ $book->author->name }} </span>
                         </a> 
                     </p>
-                    <p style="font-weight: bold; font-size: 18px" class="card-text">{{ number_format($book->price) }} <span style="color:#ccc"> &#x20BE; </span></p>
-                    @if (in_array($book->id, $cartItemIds))
-                        <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="true">
-                            <span style="top: 3px !important; position: relative;">დამატებულია</span>
-                        </button>
-                    @else
-                        <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="false">
-                            <span style="top: 3px !important; position: relative;">დაამატე კალათაში</span>
-                        </button>
+                    <p style="font-size: 18px; color: #333;">
+                        <strong> {{ number_format($book->price) }} <a style="color: #b8b5b5;">&#x20BE; </strong></a> 
+                        <span style="position: relative; top:5px">
+                        @if($book->quantity == 0)
+                        <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
+ @elseif($book->quantity == 1)
+ <span style="font-size: 13px; float: right;">მარაგშია 1 ცალი</span>
+ @else
+ <span style="font-size: 13px; float: right;">მარაგშია {{ $book->quantity }} ცალი</span>
+ @endif
+                        </span>  </p>
+                    @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                        @if (in_array($book->id, $cartItemIds))
+                            <button class="btn btn-success toggle-cart-btn w-100" data-product-id="{{ $book->id }}" data-in-cart="true">
+                              <i class="bi bi-check-circle"></i> დამატებულია 
+                            </button>
+                        @else
+                            <button class="btn btn-primary toggle-cart-btn w-100" data-product-id="{{ $book->id }}" data-in-cart="false">
+                                <i class="bi bi-cart-plus"></i> დაამატე კალათაში  
+                            </button>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -101,7 +126,6 @@
  
 @section('scripts')
 <script>
-    // AJAX for adding/removing from cart
     $(document).ready(function() {
         $('.toggle-cart-btn').click(function() {
             var button = $(this);
@@ -119,11 +143,11 @@
                     if (response.success) {
                         if (response.action === 'added') {
                             button.removeClass('btn-primary').addClass('btn-success');
-                            button.text('დამატებულია');
+                            button.html('<i class="bi bi-check-circle"></i> დამატებულია'); // Adds icon with text
                             button.data('in-cart', true);
                         } else if (response.action === 'removed') {
                             button.removeClass('btn-success').addClass('btn-primary');
-                            button.text('დაამატე კალათაში');
+                            button.html('<i class="bi bi-cart-plus"></i>  დაამატე კალათაში '); // Adds icon with text
                             button.data('in-cart', false);
                         }
 

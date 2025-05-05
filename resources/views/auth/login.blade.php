@@ -28,20 +28,22 @@
 
             <!-- Email Address -->
             <div>
+                <span>
                 <x-input-label for="email" :value="__('ელფოსტა')" /> <br><br>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon1">@</span>
                     <input type="email" class="form-control" placeholder="ელფოსტა" aria-label="Email" aria-describedby="basic-addon1" name="email" :value="old('email')" required autofocus autocomplete="username">
-                </div>
+                </div> </span>
             </div>
 
             <!-- Password -->
             <div class="mt-4">
+                <span>
                 <x-input-label for="password" :value="__('პაროლი')" /> <br><br>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span> <!-- Lock icon -->
                     <input type="password" class="form-control" placeholder="პაროლი" aria-label="Password" name="password" required autocomplete="current-password">
-                </div>
+                </div></span>
             </div>
 
             <!-- Remember Me -->

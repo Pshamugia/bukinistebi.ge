@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mt-5" style="min-height: 400px">
-    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-top:55px; padding-bottom:25px; align-items: left;
+    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
     justify-content: left;">     <strong>ჩემი ატვირთული წიგნები</h5>
     @if($books->isEmpty())
         <p>თქვენ ჯერ არ აგიტვირთავთ წიგნები. </p>
