@@ -6,25 +6,44 @@ use Illuminate\Http\Request;
 use App\Models\UserPreference;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class CookieConsentController extends Controller
 {
     // Display user preferences
+   
+    
+
+
+
     public function index(Request $request)
 {
-    $query = UserPreference::with('user')->orderBy('created_at', 'desc');
+    $rawVisits = UserPreference::with('user')->latest()->get();
 
-    // Filter if needed
-    if ($request->has('consent') && $request->consent !== 'all') {
-        $query->where('cookie_consent', $request->consent);
-    }
+    $grouped = $rawVisits->groupBy(function ($item) {
+        return $item->user?->email ?: 'guest-' . $item->guest_id;
+    });
 
-    // Paginate results
-    $userPreferences = $query->paginate(20);
+    $userPreferences = $grouped->map(function ($entries, $identifier) {
+        $latest = $entries->first();
 
-    // Add these two lines ↓↓↓
-    $acceptedCount = UserPreference::where('cookie_consent', 'accepted')->count();
-    $rejectedCount = UserPreference::where('cookie_consent', 'rejected')->count();
+        return (object)[
+            'identifier' => urlencode($identifier), // Required for route()
+            'label' => Str::startsWith($identifier, 'guest-')
+                ? 'Guest: ' . Str::replaceFirst('guest-', '', $identifier)
+                : $identifier,
+            'cookie_consent' => $latest->cookie_consent,
+            'page' => $latest->page,
+            'time_spent' => $latest->time_spent,
+            'date' => $latest->created_at->format('Y-m-d H:i'),
+            'visits' => $entries->count(),
+        ];
+    })->values();
+
+    $acceptedCount = $rawVisits->where('cookie_consent', 'accepted')->count();
+    $rejectedCount = $rawVisits->where('cookie_consent', 'rejected')->count();
 
     return view('admin.user_preferences_with_purchases', compact(
         'userPreferences',
@@ -32,7 +51,6 @@ class CookieConsentController extends Controller
         'rejectedCount'
     ));
 }
-
     
 
     
@@ -43,8 +61,6 @@ class CookieConsentController extends Controller
     // Store user behavior (including cookie consent)
     public function storeUserBehavior(Request $request)
 {
-    Log::info('Received request:', $request->all());
-
     $validated = $request->validate([
         'cookie_consent' => 'required|string',
         'time_spent' => 'required|integer',
@@ -52,8 +68,6 @@ class CookieConsentController extends Controller
         'user_name' => 'required|string',
         'date' => 'required|date',
     ]);
-
-    Log::info('Validated data:', $validated);
 
     UserPreference::create([
         'user_id' => Auth::id(),
@@ -65,23 +79,83 @@ class CookieConsentController extends Controller
         'date' => $validated['date'],
     ]);
 
-    return response()->json(['message' => 'User behavior data stored successfully.']);
+    return response()->json(['message' => 'Stored']);
 }
 
 
 
-    
-    
 
-    
-    
 
-public function showUserPreferencesWithPurchases()
+
+
+
+
+
+
+public function showUserJourney($identifier)
 {
-    $userPreferences = UserPreference::with('user')->paginate(10);
+    if (Str::startsWith($identifier, 'guest-')) {
+        $guestId = Str::replaceFirst('guest-', '', $identifier);
+        $logs = UserPreference::where('guest_id', $guestId)->orderBy('created_at')->get();
+        $userLabel = 'Guest: ' . $guestId;
+    } else {
+        $email = urldecode($identifier);
+        $logs = UserPreference::whereHas('user', function ($q) use ($email) {
+            $q->where('email', $email);
+        })->orderBy('created_at')->get();
+        $userLabel = $email;
+    }
 
-    $acceptedCount = UserPreference::where('cookie_consent', 'accepted')->count();
-    $rejectedCount = UserPreference::where('cookie_consent', 'rejected')->count();
+    return view('admin.user_preferences.journey', compact('logs', 'userLabel'));
+}
+
+    
+    
+
+    
+    
+
+public function showUserPreferencesWithPurchases(Request $request)
+{
+    $rawVisits = UserPreference::with('user')->latest()->get();
+
+    // Group by user email or guest ID
+    $grouped = $rawVisits->groupBy(function ($item) {
+        return $item->user?->email ?? 'guest-' . $item->guest_id;
+    });
+
+    // Map to summary data
+    $summaries = $grouped->map(function ($entries, $identifier) {
+        $latest = $entries->first();
+
+        return (object)[
+            'identifier' => urlencode($identifier),
+            'label' => Str::startsWith($identifier, 'guest-')
+                ? 'Guest: ' . Str::replaceFirst('guest-', '', $identifier)
+                : $identifier,
+            'cookie_consent' => $latest->cookie_consent,
+            'page' => $latest->page,
+            'time_spent' => $latest->time_spent,
+            'date' => $latest->created_at->format('Y-m-d H:i'),
+            'visits' => $entries->count(),
+        ];
+    })->values();
+
+    // Paginate manually
+    $perPage = 20;
+    $page = $request->input('page', 1);
+    $pagedData = $summaries->forPage($page, $perPage);
+    $userPreferences = new LengthAwarePaginator(
+        $pagedData,
+        $summaries->count(),
+        $perPage,
+        $page,
+        ['path' => $request->url(), 'query' => $request->query()]
+    );
+
+    // Chart counts
+    $acceptedCount = $rawVisits->where('cookie_consent', 'accepted')->count();
+    $rejectedCount = $rawVisits->where('cookie_consent', 'rejected')->count();
 
     return view('admin.user_preferences_with_purchases', compact(
         'userPreferences',
@@ -89,6 +163,21 @@ public function showUserPreferencesWithPurchases()
         'rejectedCount'
     ));
 }
+
+
+
+public function userPathChartData()
+{
+    $paths = UserPreference::select('page')
+        ->groupBy('page')
+        ->selectRaw('count(*) as count, page')
+        ->orderByDesc('count')
+        ->limit(10)
+        ->get();
+
+    return response()->json($paths);
+}
+
 
     
 }

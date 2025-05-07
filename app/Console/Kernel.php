@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('searchkeywords:clear-old')->monthly();
         $schedule->command('search:cleanup')->monthly();
+        $schedule->command('user-preferences:clean')->monthlyOn(1, '2:00');
+
 
     }
 
@@ -28,6 +30,7 @@ class Kernel extends ConsoleKernel
     }
     protected $commands = [
         \App\Console\Commands\GenerateSitemap::class,
+        \App\Console\Commands\DeleteOldUserPreferences::class, // ✅ Add this line
     ];
 }
 

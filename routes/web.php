@@ -251,9 +251,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/top-rated-articles', [DashboardController::class, 'topRatedArticles'])->name('admin.topRatedArticles');
 
     // Show User Preferences with Purchases
-    Route::get('/user-preferences-with-purchases', [CookieConsentController::class, 'showUserPreferencesWithPurchases'])->name('admin.user.preferences.purchases');
+    Route::get('/user-preferences-with-purchases', [CookieConsentController::class, 'showUserPreferencesWithPurchases'])
+    ->name('admin.user.preferences.purchases');
+        Route::get('/user-preferences/{identifier}', [CookieConsentController::class, 'showUserJourney'])
+    ->name('admin.user.preferences.journey'); // ✅ now route name exists
+    Route::get('/user-preferences-paths', [CookieConsentController::class, 'userPathChartData'])
+    ->name('admin.user.preferences.chartdata');
 
-
+    
     // FOR PUBLISHERS TO ALLOW HIDE/SHOW
     Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
 

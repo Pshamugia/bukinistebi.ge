@@ -5,28 +5,25 @@
 @section('content')
 
 
-<div style="max-width: 400px; margin: 0 auto;">
-    <canvas id="consentChart" height="200"></canvas>
+<div class="row">
+    <!-- Consent Pie Chart -->
+    <div class="col-md-6 d-flex flex-column align-items-center">
+        <h6 class="text-center">თანხმობის სტატუსი</h6>
+        <div style="width: 100%; max-width: 350px;">
+            <canvas id="consentChart"></canvas>
+        </div>
+    </div>
+
+    <!-- User Path Bar Chart -->
+    <div class="col-md-6">
+        <h6 class="text-center">ყველაზე ხშირად ნანახი გვერდები</h6>
+        <canvas id="userPathChart" height="300"></canvas>
+    </div>
 </div>
+ 
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('consentChart').getContext('2d');
 
-    const chart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['თანხმობა', 'უარყოფა'],
-            datasets: [{
-                label: 'Cookie Consent Breakdown',
-                data: [{{ $acceptedCount }}, {{ $rejectedCount }}],
-                backgroundColor: ['#28a745', '#dc3545']
-            }]
-        }
-    });
-});
-</script>
+
 
 <form method="GET" class="mb-3">
     <select name="consent" class="form-select w-auto d-inline">
@@ -49,26 +46,96 @@ document.addEventListener('DOMContentLoaded', function () {
     </thead>
     <tbody>
         @foreach($userPreferences as $pref)
-            <tr>
-                <td>{{ $pref->user->email ?? 'Guest: ' . $pref->guest_id }}</td>
-                <td>
-                    <span class="badge {{ $pref->cookie_consent == 'accepted' ? 'bg-success' : 'bg-danger' }}">
-                        {{ ucfirst($pref->cookie_consent) }}
-                    </span>
-                </td>
-                <td>{{ $pref->time_spent }} წამი</td>
-                <td>{{ $pref->page }}</td>
-                <td>{{ $pref->date }}</td>
-            </tr>
+        <tr>
+            <td>
+                @if(!empty($pref->identifier))
+                    <a href="{{ route('admin.user.preferences.journey', $pref->identifier) }}">
+                        {{ $pref->label }}
+                    </a>
+                @else
+                    <span class="text-danger">No Identifier</span>
+                @endif
+            </td>
+            <td>
+                <span class="badge {{ $pref->cookie_consent == 'accepted' ? 'bg-success' : 'bg-danger' }}">
+                    {{ ucfirst($pref->cookie_consent) }}
+                </span>
+            </td>
+            <td>{{ $pref->time_spent }} წამი</td>
+            <td>
+                <a href="{{ $pref->page }}" target="_blank">
+                    {{ Str::limit($pref->page, 50) }}
+                </a>
+            </td>
+            <td>{{ $pref->date }}</td>
+        </tr>
         @endforeach
     </tbody>
 </table>
 
-{{ $userPreferences->links() }}
+{{ $userPreferences->links('pagination.custom-pagination') }}
 
 
  
 @endsection
 
- 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Consent Chart
+    const consentCtx = document.getElementById('consentChart').getContext('2d');
+    new Chart(consentCtx, {
+        type: 'pie',
+        data: {
+            labels: ['თანხმობა', 'უარყოფა'],
+            datasets: [{
+                data: [{{ $acceptedCount }}, {{ $rejectedCount }}],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+
+    // Page Views Chart
+    fetch("{{ route('admin.user.preferences.chartdata') }}")
+        .then(res => res.json())
+        .then(data => {
+            const pathCtx = document.getElementById('userPathChart').getContext('2d');
+            new Chart(pathCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.page),
+                    datasets: [{
+                        label: 'გვერდზე ვიზიტების რაოდენობა',
+                        data: data.map(d => d.count),
+                        backgroundColor: '#007bff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+});
+</script>
 

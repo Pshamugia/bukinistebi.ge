@@ -191,7 +191,7 @@
 <div id="cookie-consent" class="cookie-bar shadow-lg" style="display: none;">
     <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-3">
         <div class="text-start text-dark">
-         ჩვენ ვიყენებთ ქუქიებს გამოცდილების გასაუმჯობესებლად. <a href="{{ route('terms_conditions') }}" class="text-primary text-decoration-underline">გაიგე მეტი</a>.
+         ჩვენ ვიყენებთ ქუქიებს გამოცდილების გასაუმჯობესებლად. <a href="{{ route('terms_conditions') }}" class="text-primary text-decoration-underline">ნახეთ წესები</a>.
         </div>
         <div class="mt-3 mt-md-0">
             <button id="accept-cookies" class="btn btn-success btn-sm me-2">თანხმობა</button>
