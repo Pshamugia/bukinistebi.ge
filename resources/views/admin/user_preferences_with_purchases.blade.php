@@ -40,7 +40,7 @@
             <th>მომხმარებელი</th>
             <th>სტატუსი</th>
             <th>დრო (წმ)</th>
-            <th>გვერდი</th>
+            <th>მთლიანი დრო</th>
             <th>თარიღი</th>
         </tr>
     </thead>
@@ -62,11 +62,8 @@
                 </span>
             </td>
             <td>{{ $pref->time_spent }} წამი</td>
-            <td>
-                <a href="{{ $pref->page }}" target="_blank">
-                    {{ Str::limit($pref->page, 50) }}
-                </a>
-            </td>
+            <td>{{ gmdate('H:i:s', $pref->total_time_spent ?? 0) }}</td>
+
             <td>{{ $pref->date }}</td>
         </tr>
         @endforeach

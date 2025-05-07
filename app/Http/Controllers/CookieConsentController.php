@@ -106,7 +106,10 @@ public function showUserJourney($identifier)
         $userLabel = $email;
     }
 
-    return view('admin.user_preferences.journey', compact('logs', 'userLabel'));
+    $totalTimeSpent = $logs->sum('time_spent'); // ✅ this line summarizes time
+
+
+    return view('admin.user_preferences.journey', compact('logs', 'userLabel', 'totalTimeSpent'));
 }
 
     
@@ -136,6 +139,7 @@ public function showUserPreferencesWithPurchases(Request $request)
             'cookie_consent' => $latest->cookie_consent,
             'page' => $latest->page,
             'time_spent' => $latest->time_spent,
+            'total_time_spent' => $entries->sum('time_spent'), // ✅ this is what was missing
             'date' => $latest->created_at->format('Y-m-d H:i'),
             'visits' => $entries->count(),
         ];
@@ -163,6 +167,7 @@ public function showUserPreferencesWithPurchases(Request $request)
         'rejectedCount'
     ));
 }
+
 
 
 
