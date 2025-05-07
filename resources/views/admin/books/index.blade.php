@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <h1>წიგნები</h1>
-        <a href="{{ route('admin.books.create') }}" class="btn btn-primary">დაამატე წიგნი</a>
+        <a href="{{ route('admin.books.create') }}" class="btn btn-primary"><i class="bi bi-book"></i> დაამატე წიგნი</a>
     </div>
 
     @if (session('success'))
@@ -15,17 +15,27 @@
 
     <!-- Filter Form -->
     <form method="GET" action="{{ route('admin.books.index') }}" class="mb-3">
-        <label for="quantity">{{ __('რაოდენობით გაფილტვრა:') }}</label>
-        <select name="quantity" id="quantity" class="form-control w-25">
-            <option value="">{{ __('მაჩვენე ყველა') }}</option>
-            <option value="0" {{ request('quantity') == '0' ? 'selected' : '' }}>{{ __('ამოწურულია (0)') }}</option>
-            <option value="1" {{ request('quantity') == '1' ? 'selected' : '' }}>{{ __('მარაგშია (1)') }}</option>
-            <option value="2" {{ request('quantity') == '2' ? 'selected' : '' }}>{{ __('მარაგშია (2)') }}</option>
-            <option value="3" {{ request('quantity') == '3' ? 'selected' : '' }}>{{ __('მარაგშია (3)') }}</option>
-            <!-- Add more options as needed -->
-        </select>
-        <button type="submit" class="btn btn-primary mt-2">{{ __('გაფილტრე') }}</button>
+        <label for="quantity" class="form-label me-2">{{ __('რაოდენობით გაფილტვრა:') }}</label>
+        <div class="d-flex align-items-end">
+            <select name="quantity" id="quantity" class="form-control me-2" style="width: auto; min-width: 150px;">
+                <option value="">{{ __('მაჩვენე ყველა') }}</option>
+                <option value="0" {{ request('quantity') == '0' ? 'selected' : '' }}>
+                    {{ __('ამოწურულია') }} ({{ $quantityCounts[0] ?? 0 }})
+                </option>
+                <option value="1" {{ request('quantity') == '1' ? 'selected' : '' }}>
+                    {{ __('მარაგშია (1)') }} ({{ $quantityCounts[1] ?? 0 }})
+                </option>
+                <option value="2" {{ request('quantity') == '2' ? 'selected' : '' }}>
+                    {{ __('მარაგშია (2)') }} ({{ $quantityCounts[2] ?? 0 }})
+                </option>
+                <option value="3" {{ request('quantity') == '3' ? 'selected' : '' }}>
+                    {{ __('მარაგშია (3)') }} ({{ $quantityCounts[3] ?? 0 }})
+                </option>
+            </select>
+            <button type="submit" class="btn btn-primary">{{ __('გაფილტრე') }}</button>
+        </div>
     </form>
+    
 
     @if ($books->count())
         <table class="table table-bordered table-hover">
@@ -34,7 +44,7 @@
                     <th>ფოტო</th>
                     <th>სახელწოდება</th>
                     <th>ავტორი</th>
-                    <th>კატეგორია / ჟანრი</th>
+                    <th>კატეგორია</th>
                     <th width="200px">ქმედება</th>
                 </tr>
             </thead>
@@ -77,7 +87,7 @@
                 @endforeach
             </tbody>
         </table>
-        <div> {{ $books->links('pagination.custom-pagination') }} </div>
+        <div> {{ $books->appends(['quantity' => request('quantity')])->links('pagination.custom-pagination') }} </div>
     @else
         <div class="alert alert-warning">No books available.</div>
     @endif

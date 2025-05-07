@@ -33,8 +33,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
  
 //FOR COOKIES
-Route::post('/cookie-consent', [CookieConsentController::class, 'storeCookieConsent'])->name('cookie.consent');
-Route::post('/store-user-behavior', [CookieConsentController::class, 'store-user-behavior'])->name('store-user-behavior');
+ Route::post('/store-cookie-consent', [CookieConsentController::class, 'storeUserBehavior'])->name('store-user-behavior');
 
 
 // Home Route - Display all books
@@ -120,7 +119,7 @@ Route::post('/order_request_book', [BookController::class, 'sendRequest'])->name
 Route::get('/podcast', [BookController::class, 'podcast'])->name('podcast');
 
 //genre
-Route::get('/genres/{id}', [BookController::class, 'byGenre'])->name('genre.books');
+Route::get('/genres/{id}-{slug}', [BookController::class, 'byGenre'])->name('genre.books');
  
 
 // TBC E-Commerce Routes within auth middleware
@@ -269,6 +268,7 @@ Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('adm
 Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
 Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
 Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
+Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
 
 });
 

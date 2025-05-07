@@ -187,71 +187,19 @@
 
 
 <!-- Cookie Consent Notification -->
- 
-
-
-<!-- cookie consent HTML -->
-<div id="cookie-consent" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #f8d7da; padding: 10px; text-align: center; z-index: 9999;">
-    <span>{{ __('ვებსაიტი იყენებს ქუქი ჩანაწერებს, რათა გავაუმჯობესოთ მომხმარებლის გამოცდილება') }}</span>
-    <button id="accept-cookies" style="margin-left: 10px;">{{ __('თანხმობა') }}</button>
-    <button id="reject-cookies" style="margin-left: 10px;">{{ __('უარყოფა') }}</button>
+  
+<div id="cookie-consent" class="cookie-bar shadow-lg" style="display: none;">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-3">
+        <div class="text-start text-dark">
+         ჩვენ ვიყენებთ ქუქიებს გამოცდილების გასაუმჯობესებლად. <a href="{{ route('terms_conditions') }}" class="text-primary text-decoration-underline">გაიგე მეტი</a>.
+        </div>
+        <div class="mt-3 mt-md-0">
+            <button id="accept-cookies" class="btn btn-success btn-sm me-2">თანხმობა</button>
+            <button id="reject-cookies" class="btn btn-outline-secondary btn-sm">უარყოფა</button>
+        </div>
+    </div>
 </div>
-
-<!-- Script to control the behavior of the consent popup -->
-<script>document.addEventListener('DOMContentLoaded', function () {
-    var userId = {{ Auth::check() ? Auth::id() : 'null' }};  // Get user ID if logged in
-
-    const consentPopup = document.getElementById('cookie-consent');  // Get the consent popup
-
-    if (userId !== null && !getCookie('cookie_consent')) {  // Check if user is logged in and no consent cookie
-        console.log("Cookie consent not found, showing popup.");
-        consentPopup.style.display = 'block';  // Show the popup
-    } else {
-        console.log("Cookie consent found, popup hidden.");
-    }
-
-    const acceptButton = document.getElementById('accept-cookies');
-    const rejectButton = document.getElementById('reject-cookies');
-
-    acceptButton.addEventListener('click', function () {
-        setCookie('cookie_consent', 'accepted', 30);
-        console.log('Accepted cookies. Cookie set as "accepted".');
-        consentPopup.style.display = 'none';
-        sendConsentToBackend('accepted');
-    });
-
-    rejectButton.addEventListener('click', function () {
-        setCookie('cookie_consent', 'rejected', 30);
-        console.log('Rejected cookies. Cookie set as "rejected".');
-        consentPopup.style.display = 'none';
-        sendConsentToBackend('rejected');
-    });
-
-    // Function to set a cookie
-    function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000)); // Set expiration time
-    const expires = "expires=" + d.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/"; // Set cookie for entire domain
-    console.log(`Cookie set: ${name}=${value}`);  // Log the cookie value
-}
-
-    // Function to get a cookie value
-    function getCookie(name) {
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i].trim();
-            if (c.indexOf(nameEQ) === 0) {
-                console.log(`Cookie found: ${name}=${c.substring(nameEQ.length, c.length)}`);
-                return c.substring(nameEQ.length, c.length); // Return cookie value
-            }
-        }
-        console.log("Cookie not found.");
-        return null; // Return null if cookie not found
-    }
-});
-</script>
+ 
 
 @endsection
 

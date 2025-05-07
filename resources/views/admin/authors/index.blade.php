@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <h1>ავტორები</h1>
-        <a href="{{ route('admin.authors.create') }}" class="btn btn-primary">დაამატე ავტორი</a>
+        <a href="{{ route('admin.authors.create') }}" class="btn btn-primary"><i class="bi bi-person"></i> დაამატე ავტორი</a>
     </div>
 
     @if (session('success'))

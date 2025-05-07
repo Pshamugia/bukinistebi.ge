@@ -48,7 +48,7 @@
                 </td>
                 <td>{{ $book->title }}</td>
                 <td>{{ $book->author->name }}</td>
-                <td>{{ $book->category->name }} /   @if ($book->genres && $book->genres->count())
+                <td> @if ($book->genres && $book->genres->count())
                     <br>
                     <small>ჟანრი: 
                         {{ $book->genres->pluck('name')->implode(', ') }}

@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <h1>კატეგორიები</h1>
-        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">დაამატე კატეგორია</a>
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary"><i class="bi bi-folder"></i> დაამატე კატეგორია</a>
     </div>
 
     @if (session('success'))

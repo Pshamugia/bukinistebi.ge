@@ -4,34 +4,52 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Subscriber;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
     public function subscribe(Request $request)
-    {
-        // Validate the email input with the correct table name
-        $request->validate([
-            'email' => 'required|email|unique:subscribers,email', // Correct table: subscribers
-        ], [
-            'email.required' => 'სწორად ჩაწერე ელფოსტა.',
-            'email.email' => 'ჩაწერე არსებული ელფოსტა.',
-            'email.unique' => 'ეს ელფოსტა უკვე რეგისტრირებულია ჩვენს ბაზაში.',
-        ]);
+{
+    $disposableDomains = [
+        'dont-reply.me', 'mailinator.com', 'tempmail.com', 'yopmail.com',
+        'trashmail.com', 'guerrillamail.com', '10minutemail.com', 'fakeinbox.com'
+    ];
 
-        // Store the email in the database
-        Subscriber::create([
-            'email' => $request->email,
-        ]);
+    $validator = Validator::make($request->all(), [
+        'email' => [
+            'required',
+            'email',
+            'unique:subscribers,email',
+            function ($attribute, $value, $fail) use ($disposableDomains) {
+                $domain = strtolower(substr(strrchr($value, "@"), 1));
+                if (in_array($domain, $disposableDomains)) {
+                    $fail('დროებითი ელფოსტები არ არის დაშვებული.');
+                }
+            },
+        ],
+    ], [
+        'email.required' => 'სწორად ჩაწერე ელფოსტა.',
+        'email.email' => 'ჩაწერე არსებული ელფოსტა.',
+        'email.unique' => 'ეს ელფოსტა უკვე რეგისტრირებულია ჩვენს ბაზაში.',
+    ]);
 
-        // Redirect back with a success message
-        return redirect()->back()->with('subscription_success', 'მადლობა გამოწერისთვის!');
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
 
+    Subscriber::create([
+        'email' => $request->email,
+    ]);
 
-    public function subscribers()
-    {
-$subscribers = Subscriber::all();
+    return redirect()->back()->with('subscription_success', 'მადლობა გამოწერისთვის!');
+}
 
-        return view('admin.subscribers', compact('subscribers'));
-    }
+public function subscribers()
+{
+    $subscribers = Subscriber::all();
+    return view('admin.subscribers', compact('subscribers'));
+}
 }

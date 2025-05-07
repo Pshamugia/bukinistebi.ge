@@ -3,70 +3,61 @@ document.addEventListener('DOMContentLoaded', function () {
     const acceptButton = document.getElementById('accept-cookies');
     const rejectButton = document.getElementById('reject-cookies');
 
-    // Check if user has already given consent
+    const config = window.cookieConsentConfig || {};
+    const pageStartTime = Date.now();
+
     if (!getCookie('cookie_consent')) {
-        consentPopup.style.display = 'block';  // Show the consent popup
+        consentPopup.style.display = 'block';
     }
 
-    // Handle Accept button click
-    acceptButton.addEventListener('click', function () {
-        setCookie('cookie_consent', 'accepted', 30);  // Set the consent cookie for 30 days
-        consentPopup.style.display = 'none';  // Hide the consent popup
-        sendConsentToBackend('accepted');  // Send consent to the backend
+    acceptButton?.addEventListener('click', function () {
+        setCookie('cookie_consent', 'accepted', 30);
+        consentPopup.style.display = 'none';
+        sendConsent('accepted');
     });
 
-    // Handle Reject button click
-    rejectButton.addEventListener('click', function () {
-        setCookie('cookie_consent', 'rejected', 30);  // Set the reject cookie
-        consentPopup.style.display = 'none';  // Hide the consent popup
-        sendConsentToBackend('rejected');  // Send rejection to the backend
+    rejectButton?.addEventListener('click', function () {
+        setCookie('cookie_consent', 'rejected', 30);
+        consentPopup.style.display = 'none';
+        sendConsent('rejected');
     });
 
-    // Function to send data to the backend
-    function sendConsentToBackend(consent) {
-        let pageStartTime = Date.now();
+    function sendConsent(value) {
+        const timeSpent = Math.floor((Date.now() - pageStartTime) / 1000);
 
-        window.addEventListener('beforeunload', function() {
-            let timeSpent = Date.now() - pageStartTime;
-
-            fetch("{{ route('store-user-behavior') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    cookie_consent: consent,  // Consent value
-                    time_spent: timeSpent,    // Time spent on the page
-                    page: window.location.href,  // Page URL
-                    date: new Date().toISOString(),  // Current date
-                    user_name: '{{ Auth::check() ? Auth::user()->name : "Guest" }}',  // Send the user name or "Guest"
-                })
-            }).then(response => {
-                console.log('Consent and user behavior data sent:', consent);
-            }).catch(error => {
-                console.error('Error sending data:', error);
-            });
-        });
+        fetch(config.storeUrl || '/store-cookie-consent', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": config.csrf
+            },
+            body: JSON.stringify({
+                cookie_consent: value,
+                time_spent: timeSpent,
+                page: window.location.href,
+                date: new Date().toISOString().split('T')[0],
+                user_name: config.user_name || 'Guest'
+            })
+        })
+        .then(res => res.json())
+        .then(data => console.log('Saved:', data))
+        .catch(err => console.error('Consent error:', err));
     }
 
-    // Function to set a cookie
     function setCookie(name, value, days) {
         const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000)); // Set expiration time
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
         const expires = "expires=" + d.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";  // Set cookie
+        document.cookie = `${name}=${value};${expires};path=/`;
     }
 
-    // Function to get a cookie value
     function getCookie(name) {
         const nameEQ = name + "=";
         const ca = document.cookie.split(';');
         for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            let c = ca[i].trim();
             if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
         }
-        return null;  // Return null if cookie is not found
+        return null;
     }
 });

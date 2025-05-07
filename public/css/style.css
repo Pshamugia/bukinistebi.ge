@@ -98,6 +98,15 @@
 }
 
 
+.cookie-bar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ccc;
+    z-index: 9999;
+    font-size: 14px;
+}
 
 
 /* Adjust the dropdown button height */

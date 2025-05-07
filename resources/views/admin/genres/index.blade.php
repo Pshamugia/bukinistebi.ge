@@ -5,7 +5,7 @@
 @section('content')
     <div class="d-flex justify-content-between mb-3">
         <h1>ჟანრები</h1>
-        <a href="{{ route('admin.genres.create') }}" class="btn btn-primary">დაამატე ჟანრი</a>
+        <a href="{{ route('admin.genres.create') }}" class="btn btn-primary"><i class="bi bi-tags"></i> დაამატე ჟანრი</a>
     </div>
 
     @if (session('success'))

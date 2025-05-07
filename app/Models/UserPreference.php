@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserPreference extends Model
 {
-  protected $fillable = [
-        'user_id', 
-        'cookie_consent', 
-        'time_spent', 
-        'page', 
-        'user_name', 
-        'guest_id', // make sure this column is present in your table
-    ];    
+    protected $fillable = [
+        'user_id',
+        'guest_id',
+        'cookie_consent',
+        'time_spent',
+        'page',
+        'user_name',
+        'date', // ← ADD THIS
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -3,13 +3,14 @@
 @section('title', 'Manage Book News')
 
 @section('content')
-<div class="container mt-5">
-    <h2>ბუკინისტური ამბები</h2>
-    <a href="{{ route('admin.book-news.create') }}" class="btn btn-success mb-3">დაამატე ამბავი</a>
+<div class="d-flex justify-content-between mb-3">
+    <h1>ბუკინისტური ამბები</h1>
+    <a href="{{ route('admin.book-news.create') }}" class="btn btn-primary"><i class="bi bi-megaphone"></i> დაამატე ამბავი</a>
+</div>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+@if (session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
 
     <table class="table table-bordered table-hover">
         <thead>
@@ -29,7 +30,7 @@
                 @endif
                 </td>
                 <td>
-                    <a href="{{ route('admin.book-news.edit', $item->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="{{ route('admin.book-news.edit', $item->id) }}" class="btn btn-info btn-sm">Edit</a>
                     <form action="{{ route('admin.book-news.destroy', $item->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')

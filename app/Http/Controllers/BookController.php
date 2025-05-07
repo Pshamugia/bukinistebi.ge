@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Author;
 use App\Models\BookNews;
 use App\Models\Category;
+use App\Models\BookOrder;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ArticleRating;
@@ -155,34 +156,46 @@ public function byGenre($id)
         'author' => 'required|string|max:255',
         'publishing_year' => 'nullable|string|max:4',
         'comment' => 'required|string',
- 
     ]);
 
-  // Check if user is logged in
-  $user = Auth::user();
-  $userEmail = $user ? $user->email : 'no-email@example.com'; // Default if not logged in
+    // Logged in user info
+    $user = Auth::user();
+    $userEmail = $user ? $user->email : 'no-email@example.com';
 
+    // Save to database
+    BookOrder::create([
+        'user_id' => $user ? $user->id : null,
+        'title' => $request->title,
+        'author' => $request->author,
+        'publishing_year' => $request->publishing_year,
+        'comment' => $request->comment,
+        'email' => $userEmail,
+    ]);
+
+    // Send Email
     $data = [
-        'title' => $request->input('title'),
-        'author' => $request->input('author'),
-        'publishing_year' => $request->input('publishing_year'),
-        'comment' => $request->input('comment'),
+        'title' => $request->title,
+        'author' => $request->author,
+        'publishing_year' => $request->publishing_year,
+        'comment' => $request->comment,
         'email' => $userEmail,
     ];
 
-      
-
-
-    // Send email
-    Mail::send('order_request_book', $data, function ($message) use ($data) {
-        $message->to(['pshamugia@gmail.com', 'bukinistebishop@gmail.com'])
-                ->replyTo($data['email']) // Reply to user email if available
-                ->subject('წიგნის შეკვეთა მოვიდა');
-    });
+    // Mail::send('order_request_book', $data, function ($message) use ($data) {
+    //     $message->to(['pshamugia@gmail.com', 'bukinistebishop@gmail.com'])
+    //             ->replyTo($data['email'])
+    //             ->subject('წიგნის შეკვეთა მოვიდა');
+    // });
 
     return redirect()->back()->with('success', '<i class="bi bi-check-circle-fill"></i> შენი შეკვეთა მიღებულია. ჩვენ ვიზრუნებთ შენი სურვილის შესრულებაზე!');
 }
 
+
+public function adminBookOrders()
+{
+    $orders = BookOrder::latest()->paginate(10); // 10 orders per page
+    return view('admin.book_orders', compact('orders'));
+}
 
 
     public function books()

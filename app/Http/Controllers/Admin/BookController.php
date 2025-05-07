@@ -23,24 +23,30 @@ use Intervention\Image\Facades\Image; // Add this at the top of your controller
 
 class BookController extends Controller
 {
+
     public function index(Request $request)
-    {
-        // Get the quantity filter from the request (default is all quantities)
-        $quantityFilter = $request->input('quantity', '');
+{
+    $query = Book::orderBy('id', 'DESC');
 
-        // Start the query for books
-        $query = Book::orderBy('id', 'DESC');
-
-        // Apply the filter for quantity if it's set
-        if ($quantityFilter !== '') {
-            $query->where('quantity', '=', $quantityFilter);
-        }
-
-        // Paginate the results
-        $books = $query->paginate(10);
-
-        return view('admin.books.index', compact('books', 'quantityFilter'));
+    if ($request->filled('quantity')) {
+        $query->where('quantity', $request->input('quantity'));
     }
+
+    $books = $query->paginate(10);
+
+    // Count how many books exist per quantity value
+    $quantityCounts = Book::selectRaw('quantity, COUNT(*) as count')
+        ->groupBy('quantity')
+        ->pluck('count', 'quantity'); // returns [quantity => count]
+
+    return view('admin.books.index', [
+        'books' => $books,
+        'quantityFilter' => $request->input('quantity'),
+        'quantityCounts' => $quantityCounts
+    ]);
+}
+
+    
 
     public function create()
     {

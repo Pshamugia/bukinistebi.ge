@@ -47,6 +47,9 @@
             margin-top: auto;
             /* Push the footer to the bottom of the page */
         }
+        .btn.btn-primary {
+    height: 40px !important;
+}
     </style>
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 <form method="GET" action="{{ route('admin.search') }}">

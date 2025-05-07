@@ -212,7 +212,25 @@
                             </tr>
                         </tbody>
                     </table>
-
+                    @if($book->genres->count())
+                    <div class="mt-4">
+                      
+                    
+                        <div class="d-flex flex-wrap gap-2">
+                            
+                            @foreach($book->genres as $genre)
+                                <a href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genre->name)]) }}"
+                                   class="text-decoration-none">
+                                    <span class="badge rounded-pill bg-light border border-dark text-dark px-3 py-2 shadow-sm">
+                                        <i class="bi bi-tag"></i> {{ $genre->name }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                @endif
+                
                 </div>
             </div>
         </div>

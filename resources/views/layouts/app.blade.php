@@ -3,7 +3,13 @@
 <!DOCTYPE html>
 <html lang="ka">
 <script src="{{ asset('js/cookieConsent.js') }}"></script>
-
+<script>
+    window.cookieConsentConfig = {
+        csrf: '{{ csrf_token() }}',
+        user_name: '{{ Auth::check() ? Auth::user()->name : 'Guest' }}',
+        storeUrl: '{{ route('store-user-behavior') }}'
+    };
+</script>
 <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
@@ -161,7 +167,7 @@
                             @foreach ($genres as $genre)
                                 <li class="genre-item" data-name="{{ $genre->name }}">
                                     <a class="dropdown-item"
-                                        href="{{ route('genre.books', $genre->id) }}">{{ $genre->name }}</a>
+                                        href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genre->name)]) }}"">{{ $genre->name }}</a>
                                 </li>
                             @endforeach
                         </ul>
