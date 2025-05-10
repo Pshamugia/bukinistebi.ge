@@ -180,7 +180,12 @@ public function userPathChartData()
         ->limit(10)
         ->get();
 
-    return response()->json($paths);
+        $paths = $paths->map(function ($item) {
+            $item->page = parse_url($item->page, PHP_URL_PATH); // Keep only the path (e.g. /books/123)
+            return $item;
+        });
+        
+        return response()->json($paths);
 }
 
 

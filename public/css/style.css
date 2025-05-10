@@ -108,6 +108,18 @@
     font-size: 14px;
 }
 
+.genre-badge:hover {
+    background-color: #dff0ff !important; /* change to any color */
+    color: #000 !important; /* make sure text stays readable */
+    border-color: #007bff !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
 
 /* Adjust the dropdown button height */
 .chosen-container-single .chosen-single {
@@ -141,6 +153,8 @@
         background-size: auto !important; /* Adjust background size on mobile */
     }
 }
+
+
 
 .hero-section::before {
     content: '';
@@ -789,7 +803,7 @@ div .rame
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-    padding: 15px;
+ 
     text-align: center;
     position: fixed;
     bottom: 0;

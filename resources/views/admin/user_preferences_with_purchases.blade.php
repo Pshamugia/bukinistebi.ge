@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
             new Chart(pathCtx, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => d.page),
+                    labels: data.map(d => d.page.replace(/^https?:\/\/[^\/]+/, '')),
                     datasets: [{
                         label: 'გვერდზე ვიზიტების რაოდენობა',
                         data: data.map(d => d.count),

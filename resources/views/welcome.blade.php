@@ -189,9 +189,9 @@
 <!-- Cookie Consent Notification -->
   
 <div id="cookie-consent" class="cookie-bar shadow-lg" style="display: none;">
-    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-3">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-2">
         <div class="text-start text-dark">
-         ჩვენ ვიყენებთ ქუქიებს გამოცდილების გასაუმჯობესებლად. <a href="{{ route('terms_conditions') }}" class="text-primary text-decoration-underline">ნახეთ წესები</a>.
+         ჩვენ ვიყენებთ ქუქიებს სერვისის გასაუმჯობესებლად. <a href="{{ route('terms_conditions') }}" class="text-primary text-decoration-underline">ნახეთ წესები</a>.
         </div>
         <div class="mt-3 mt-md-0">
             <button id="accept-cookies" class="btn btn-success btn-sm me-2">თანხმობა</button>
@@ -220,11 +220,10 @@
 
  
 <script>
-    $(document).ready(function() {
-        $('.toggle-cart-btn').click(function() {
+   $(document).ready(function () {
+        $('.toggle-cart-btn').click(function () {
             var button = $(this);
             var bookId = button.data('product-id');
-            var inCart = button.data('in-cart');
 
             $.ajax({
                 url: '{{ route("cart.toggle") }}',
@@ -233,23 +232,30 @@
                     _token: '{{ csrf_token() }}',
                     book_id: bookId
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         if (response.action === 'added') {
                             button.removeClass('btn-primary').addClass('btn-success');
-                            button.html('<i class="bi bi-check-circle"></i> დამატებულია'); // Adds icon with text
+                            button.html('<i class="bi bi-check-circle"></i> დამატებულია');
                             button.data('in-cart', true);
                         } else if (response.action === 'removed') {
                             button.removeClass('btn-success').addClass('btn-primary');
-                            button.html('<i class="bi bi-cart-plus"></i>  დაამატე კალათაში '); // Adds icon with text
+                            button.html('<i class="bi bi-cart-plus"></i> დაამატე კალათაში');
                             button.data('in-cart', false);
                         }
 
-                        // Update the cart count in the navbar
+                        // ✅ Update the cart count in the navbar
                         $('#cart-count').text(response.cart_count);
+
+                        // ✅ Manage the abandoned cart cookie
+                        if (response.cart_count > 0) {
+                            document.cookie = "abandoned_cart=true; max-age=86400; path=/";
+                        } else {
+                            document.cookie = "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        }
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('AJAX Error:', error);
                     alert('კალათის გამოსაყენებლად გაიარეთ ავტორიზაცია');
                 }
@@ -258,6 +264,35 @@
     });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Show banner only if cookie doesn't exist
+    if (!document.cookie.includes('abandoned_cart')) {
+        document.cookie = "abandoned_cart=true; path=/; max-age=86400"; // 1 day
 
+        const banner = document.createElement('div');
+        banner.id = 'abandoned-cart-banner';
+        banner.className = 'alert alert-warning alert-dismissible fade show d-flex justify-content-between align-items-center text-center';
+        banner.style.position = 'fixed';
+        banner.style.bottom = '10px';
+        banner.style.left = '10px';
+        banner.style.right = '10px';
+        banner.style.zIndex = '1000';
+
+        banner.innerHTML = `
+            <div class="flex-grow-1">
+                <i class="bi bi-cart-fill me-2"></i> თქვენ გაქვთ წიგნები კალათაში!
+                <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
+            </div>
+            <button type="button" class="btn-close ms-2" aria-label="Close" onclick="document.getElementById('abandoned-cart-banner').remove();"></button>
+        `;
+
+        document.body.appendChild(banner);
+    }
+});
+
+    </script>
 
 @endsection
+
+ 

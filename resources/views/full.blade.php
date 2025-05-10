@@ -195,11 +195,15 @@
 
                         <tbody>
                             <tr>
-                                <td><strong> გვერდების რაოდენობა</strong></td>
+                                <td class="nowrap"><strong> ფასი</strong></td>
+                                <td>{{ number_format($book->price) }} ლარი </td>
+                            </tr>
+                            <tr>
+                                <td class="nowrap"><strong> გვერდების რაოდენობა</strong></td>
                                 <td>{{ $book->pages }}</td>
                             </tr>
                             <tr>
-                                <td><strong>გამოცემის თარიღი</strong></td>
+                                <td class="nowrap"><strong>გამოცემის თარიღი</strong></td>
                                 <td>{{ $book->publishing_date }} წელი </td>
                             </tr>
                             <tr>
@@ -214,20 +218,18 @@
                     </table>
                     @if($book->genres->count())
                     <div class="mt-4">
-                      
-                    
-                        <div class="d-flex flex-wrap gap-2">
-                            
+           
+                        <div class="d-flex flex-wrap gap-2 tags">
                             @foreach($book->genres as $genre)
                                 <a href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genre->name)]) }}"
                                    class="text-decoration-none">
-                                    <span class="badge rounded-pill bg-light border border-dark text-dark px-3 py-2 shadow-sm">
+                                    <span class="badge genre-badge bg-light border border-dark text-dark px-3 py-2 shadow-sm">
                                         <i class="bi bi-tag"></i> {{ $genre->name }}
                                     </span>
                                 </a>
                             @endforeach
                         </div>
-                    </div>
+                        
                     
                 @endif
                 
@@ -264,7 +266,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> </div>
 
     <!-- JavaScript -->
     <script>

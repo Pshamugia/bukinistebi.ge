@@ -9,7 +9,7 @@
         @csrf
         @method('PUT')
         @include('admin.books.partials.form')
-        <button class="btn btn-primary">Update</button>
-        <a href="{{ route('admin.books.index') }}" class="btn btn-secondary">Back</a>
+        <button class="btn btn-primary">მასალის განახლება</button>
+        <a href="{{ route('admin.books.index') }}" class="btn btn-secondary">უკან</a>
     </form>
 @endsection

@@ -198,6 +198,8 @@ class OrderController extends Controller
 
     // Redirect based on payment method
     if ($validatedData['payment_method'] === 'courier') {
+        cookie()->queue(cookie()->forget('abandoned_cart'));
+        
         return redirect()->route('order_courier', ['order' => $order->id])->with('success', 'Your order has been received. Pay with the courier.');
     }
 
