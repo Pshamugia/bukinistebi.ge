@@ -145,7 +145,7 @@
             <!-- User details -->
             <div class="mt-4">
                 <div class="mb-3">
-                    <label for="name" class="form-label"><h4><strong>სახელი და გვარი</strong></h4></label>
+                    <label for="name" class="form-label"><h4 style="position:relative; top:12px"><strong>სახელი და გვარი</strong></h4></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
                         <input type="text" class="form-control" placeholder="სახელი გვარი" id="name" name="name" required>
@@ -154,7 +154,7 @@
               
                 
                 <div class="mb-3">
-                    <label for="phone" class="form-label"><h4><strong>ტელეფონის ნომერი</strong></h4></label>
+                    <label for="phone" class="form-label"><h4 style="position:relative; top:12px"><strong>ტელეფონის ნომერი</strong></h4></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-telephone"></i></span>
                         <input type="text" class="form-control" id="phone" placeholder="შენი ტელეფონი" name="phone" required>
@@ -163,7 +163,7 @@
 
 
                 <div class="mb-3">
-                    <label for="city" class="form-label"><h4><strong>ქალაქი</strong></h4></label>
+                    <label for="city" class="form-label"><h4 style="position:relative; top:12px"><strong>ქალაქი</strong></h4></label>
                     <div class="input-group">
                      <select name="city" class="form-control chosen-select" id="city" data-placeholder="მონიშნე ქალაქი" required style="height: 50px">
                         <option value="">მონიშნე ქალაქი</option> 
@@ -244,7 +244,7 @@
 
                  <!-- Address -->
             <div class="mb-3">
-                <label for="address" class="form-label"><h4><strong>მისამართი</strong></h4></label>
+                <label for="address" class="form-label"><h4><strong style="position:relative; top:12px">მისამართი</strong></h4></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-house-door"></i></span>
                     <input type="text" class="form-control" id="address" name="address" placeholder="ზუსტი მისამართი" required>

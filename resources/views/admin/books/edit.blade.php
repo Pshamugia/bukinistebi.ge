@@ -3,7 +3,7 @@
 @section('title', 'Edit Book')
 
 @section('content')
-    <h1>Edit Book</h1>
+    <h1>რედაქტირება</h1>
 
     <form action="{{ route('admin.books.update', $book) }}" method="POST" enctype="multipart/form-data">
         @csrf

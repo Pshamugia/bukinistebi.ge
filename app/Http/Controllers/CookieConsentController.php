@@ -96,21 +96,21 @@ public function showUserJourney($identifier)
 {
     if (Str::startsWith($identifier, 'guest-')) {
         $guestId = Str::replaceFirst('guest-', '', $identifier);
-        $logs = UserPreference::where('guest_id', $guestId)->orderBy('created_at')->get();
+        $logs = UserPreference::where('guest_id', $guestId)->orderByDesc('id')->get();
         $userLabel = 'Guest: ' . $guestId;
     } else {
         $email = urldecode($identifier);
         $logs = UserPreference::whereHas('user', function ($q) use ($email) {
             $q->where('email', $email);
-        })->orderBy('created_at')->get();
+        })->orderByDesc('id')->get();
         $userLabel = $email;
     }
 
-    $totalTimeSpent = $logs->sum('time_spent'); // ✅ this line summarizes time
-
+    $totalTimeSpent = $logs->sum('time_spent');
 
     return view('admin.user_preferences.journey', compact('logs', 'userLabel', 'totalTimeSpent'));
 }
+
 
     
     

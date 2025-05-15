@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
@@ -157,7 +158,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/update/{book}', [CartController::class, 'updateQuantity'])->name('cart.update');
     Route::post('/cart/toggle', [CartController::class, 'toggle'])->name('cart.toggle');
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
-
+    Route::get('/cart/count', function () {
+        $items = session('cart.items', []); // adjust this path as needed
+        $count = is_array($items) ? count($items) : 0;
+    
+        return response()->json([
+            'count' => $count
+        ]);
+    });
 
     // Orders Routes
     Route::resource('orders', OrderController::class)->only(['index', 'create', 'store', 'show', 'destroy']);

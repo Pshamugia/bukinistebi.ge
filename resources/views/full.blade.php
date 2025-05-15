@@ -80,7 +80,7 @@
 
 
                 <!-- Display average rating -->
-                <div style="border:1px solid #ccc; border-radius:5px; padding:15px"> 
+                <div style="border:1px solid #ccc; border-radius:5px; padding:15px; margin-bottom:20px"> 
 @if($averageRating)
 <p> {{ number_format($averageRating) }} / 5 ({{ $ratingCount }} მომხ.)</p>
 @else

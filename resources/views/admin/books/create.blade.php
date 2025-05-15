@@ -3,7 +3,7 @@
 @section('title', 'Add Book')
 
 @section('content')
-    <h1>Add Book</h1>
+    <h1>დაამატე წიგნი</h1>
 
     <form action="{{ route('admin.books.store') }}" method="POST" enctype="multipart/form-data">
         @csrf

@@ -399,7 +399,7 @@
 
                 <!-- Terms and Conditions Column -->
                 <div class="col-lg-3 offset-lg-1 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">მოხმარებლებისთვის</h5>
+                    <h5 class="text-uppercase">მომხმარებლებისთვის</h5>
                     <p>
                         <a href="{{ route('terms_conditions') }}" class="text-white text-decoration-none">
                             <span>წესები და პირობები</span>
