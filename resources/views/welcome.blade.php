@@ -57,7 +57,7 @@
                                     class="text-dark fw-semibold" style="position: relative; top:3px;">
                                     {{ number_format($book->price) }}
                                 </span>
-                                <span style="position: relative; ">
+                                <span style="position: relative; top:5px; ">
                                     @if ($book->quantity == 0)
                                         <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
                                             ამოწურულია</span>

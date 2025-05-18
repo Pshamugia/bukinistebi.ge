@@ -18,7 +18,7 @@
         <tbody>
             @foreach($publishers as $publisher)
                 <tr>
-                    <td>{{ $publisher->name }}</td>
+                    <td>{{ $loop->iteration }}. {{ $publisher->name }}</td>
                     <td> <i class="bi bi-envelope-fill"></i> {{ $publisher->email }} 
                         <br> <i class="bi bi-telephone-fill"></i> {{ $publisher->phone ?? 'N/A' }}</td>
                  

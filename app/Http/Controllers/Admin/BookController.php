@@ -311,31 +311,31 @@ class BookController extends Controller
     }
 
     public function usersTransactions()
-    {
-        // Fetch users and their total items, including the latest order's amount
-        $users = User::withCount(['orders as total_items' => function ($query) {
+{
+    $users = User::whereHas('orders') // ✅ Only include users who have at least one order
+        ->withCount(['orders as total_items' => function ($query) {
             $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                ->selectRaw('sum(order_items.quantity)'); // Sum the quantities from order_items
+                ->selectRaw('sum(order_items.quantity)');
         }])
-            ->select('users.*')
-            ->addSelect([
-                'last_order_total' => Order::select('total')
-                    ->whereColumn('orders.user_id', 'users.id')
-                    ->orderBy('created_at', 'desc') // Get the total of the latest order regardless of status
-                    ->limit(1), // Get the total of the latest order
-                'last_order_date' => Order::select('created_at')
-                    ->whereColumn('orders.user_id', 'users.id')
-                    ->orderBy('created_at', 'desc')
-                    ->limit(1), // Get the date of the last order
-            ])
-            ->orderByDesc('last_order_date') // Sort users based on the last order date
-            ->paginate(10); // Paginate users
+        ->select('users.*')
+        ->addSelect([
+            'last_order_total' => \App\Models\Order::select('total')
+                ->whereColumn('orders.user_id', 'users.id')
+                ->orderBy('created_at', 'desc')
+                ->limit(1),
+            'last_order_date' => \App\Models\Order::select('created_at')
+                ->whereColumn('orders.user_id', 'users.id')
+                ->orderBy('created_at', 'desc')
+                ->limit(1),
+        ])
+        ->orderByDesc('last_order_date')
+        ->paginate(10);
 
-            $publishers = User::where('role', 'publisher')->with('books')->paginate(10); 
+    $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
 
+    return view('admin.users_transactions', compact('users', 'publishers'));
+}
 
-        return view('admin.users_transactions', compact('users', 'publishers'));
-    }
 
 
 

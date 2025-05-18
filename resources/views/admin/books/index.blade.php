@@ -63,7 +63,11 @@
                             <small>ჟანრი: 
                                 {{ $book->genres->pluck('name')->implode(', ') }}
                             </small>
-                        @endif</td>
+                        @endif
+                        <br>
+                        <small style="position: relative; top:10px">
+                      ნახვა:  {{ $book->views }} </small>
+                    </td>
                         <td>
                             <form action="{{ route('admin.books.toggleVisibility', $book->id) }}" method="POST" style="display:inline;">
                                 @csrf
