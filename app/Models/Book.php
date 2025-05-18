@@ -85,5 +85,12 @@ class Book extends Model
 {
     return $this->belongsToMany(Genre::class, 'book_genre');
 }
-    
+
+
+public function publisher()
+{
+    return $this->belongsTo(User::class, 'uploader_id')->where('role', 'publisher');
+}
+
+
 }

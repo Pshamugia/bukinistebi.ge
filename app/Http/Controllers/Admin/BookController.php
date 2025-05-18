@@ -304,6 +304,9 @@ class BookController extends Controller
             ->where('role', '!=', 'admin')
             ->paginate(10);
 
+                        $publishers = User::where('role', 'publisher')->with('books')->get();
+
+
         return view('admin.users_list', compact('users'));
     }
 
@@ -328,7 +331,10 @@ class BookController extends Controller
             ->orderByDesc('last_order_date') // Sort users based on the last order date
             ->paginate(10); // Paginate users
 
-        return view('admin.users_transactions', compact('users'));
+            $publishers = User::where('role', 'publisher')->with('books')->paginate(10); 
+
+
+        return view('admin.users_transactions', compact('users', 'publishers'));
     }
 
 
@@ -356,25 +362,29 @@ class BookController extends Controller
 
 
     public function showUserDetails($id)
-    {
-        // Fetch user by ID and eager load their orders sorted by created_at
-        $user = User::with(['orders' => function ($query) {
-            $query->orderBy('created_at', 'desc'); // Order by latest first
-        }, 'orders.orderItems'])->findOrFail($id); // Eager load orders and order items
+{
+    // Fetch user with orders, order items, books, and publishers
+    $user = User::with([
+        'orders' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        },
+        'orders.orderItems.book.publisher'
+    ])->findOrFail($id);
 
-        // Initialize variables
-        $newPurchaseTotal = 0;
-        $oldTotal = 0;
+    // Calculate totals
+    $newPurchaseTotal = 0;
+    $oldTotal = 0;
 
-        // Check if the user has orders
-        if ($user->orders->isNotEmpty()) {
-            $newPurchaseTotal = $user->orders->first()->total; // New purchase is from the latest order
-            $oldTotal = $user->orders->sum('total') - $newPurchaseTotal; // Calculate old total
-        }
-
-        return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal'));
+    if ($user->orders->isNotEmpty()) {
+        $newPurchaseTotal = $user->orders->first()->total;
+        $oldTotal = $user->orders->sum('total') - $newPurchaseTotal;
     }
 
+    // (Optional) You can still load all publishers for another use if needed
+    $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
+
+    return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal', 'publishers'));
+}
 
 
     public function adminsearch(Request $request)

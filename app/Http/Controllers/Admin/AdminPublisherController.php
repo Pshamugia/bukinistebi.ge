@@ -16,14 +16,15 @@ class AdminPublisherController extends Controller
 {
     public function activity()
     {
-        $publishers = User::where('role', 'publisher')->with('books')->get();
-    
-        // Log publisher data for debugging
-        Log::info('Publishers and Books:', $publishers->toArray());
+        $publishers = User::where('role', 'publisher')
+            ->with('books')
+            ->withCount('books') // Add this line to count the books
+            ->orderByDesc('books_count') // Sort by number of uploaded books (desc)
+            ->get();
     
         return view('admin.publishers.activity', compact('publishers'));
     }
-
+    
 
     public function toggleVisibility($id)
     {

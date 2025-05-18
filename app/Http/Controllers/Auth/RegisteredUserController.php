@@ -62,7 +62,9 @@ class RegisteredUserController extends Controller
         'email' => 'required|string|email|max:255|unique:users',
         'phone' => 'required|string|max:15',
         'password' => 'required|string|min:8|confirmed',
-        'address' => 'required|string|max:255'
+        'address' => 'required|string|max:255',
+        'iban' => 'required|string|max:34', // IBANs can be up to 34 characters
+
     ]);
 
     $user = User::create([
@@ -71,6 +73,7 @@ class RegisteredUserController extends Controller
         'phone' => $validatedData['phone'],
         'password' => Hash::make($validatedData['password']),
         'address' => $validatedData['address'],
+        'iban' => $validatedData['iban'], // ✅ store IBAN
         'role' => 'publisher'
     ]);
 

@@ -58,6 +58,13 @@
             <input type="text" name="address" value="{{ old('address', $publisher->address ?? '') }}" class="form-control">
         </div>
 
+
+            <!-- IBAN Field -->
+            <div class="mb-3">
+                <label for="iban" class="form-label">საბანკო ანგარიში</label>
+                <input type="text" name="iban" value="{{ old('iban', $publisher->iban ?? '') }}" class="form-control">
+            </div>
+
         <!-- Password Fields -->
         <div class="mb-3">
             <label for="password" class="form-label">პაროლის განახლება (თუ გჭირდება)</label>

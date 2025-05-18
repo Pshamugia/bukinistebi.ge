@@ -29,13 +29,17 @@ class PublisherAccountController extends Controller
             'address' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
+            'iban' => 'nullable|string|max:34',
         ]);
 
         $publisher = Auth::user();
         $publisher->name = $request->name;
         $publisher->email = $request->email;
         $publisher->address = $request->address;
+        
         $publisher->phone = $request->phone;
+        $publisher->iban = $request->iban; // ✅ Save IBAN
+
 
         if ($request->filled('password')) {
             $publisher->password = Hash::make($request->password);

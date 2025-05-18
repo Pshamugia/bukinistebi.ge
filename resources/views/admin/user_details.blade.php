@@ -32,15 +32,14 @@
 
     <br>
 
-    <h3>{{ __('შენაძენები') }}</h3>
-    <table class="table">
+     <table class="table">
         <thead>
             <tr>
                 <th>{{ __('შეკვეთების ID') }}</th>
                 <th>{{ __('ჯამი') }}</th>
                 <th>{{ __('თარიღი') }}</th>
                 <th>{{ __('სტატუსი') }}</th>
-                <th>{{ __('პროდუქტები') }}</th>
+                <th>{{ __('პროდუქტი') }}</th> 
             </tr>
         </thead>
         <tbody>
@@ -56,9 +55,18 @@
                         <td>
                             <ul>
                                 @foreach($order->orderItems as $item)
-                                    <li>{{ $item->book->title }} ({{ $item->quantity }})</li>
+                                    <li>
+                                        {{ $item->book->title }} ({{ $item->quantity }})
+                                        @if($item->book->publisher)
+                                           <Span style="color:red; font-weight: bold"> — <small>ბუკინისტი: {{ $item->book->publisher->name }}</small> </Span>
+                                        @else
+                                            — <small>ჩემი წიგნებიდან</small>
+                                        @endif
+                                    </li>
                                 @endforeach
                             </ul>
+                        </td>
+                             
                         </td>
                     </tr>
                 @endforeach
@@ -67,7 +75,7 @@
     </table>
 
     
-    <a href="{{ route('admin.users_transactions') }}" class="btn btn-primary">{{ __('ბრუნდით უკან') }}</a>
+    <a href="{{ route('admin.users_transactions') }}" class="btn btn-primary">{{ __('დაბრუნდით უკან') }}</a>
 </div>
 
 @endsection

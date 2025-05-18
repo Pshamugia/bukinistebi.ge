@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'address', 'phone',
+        'name', 'email', 'password', 'role', 'address', 'phone', 'iban',
     ];
 
     // Relationship with the Cart model (one cart per user)
