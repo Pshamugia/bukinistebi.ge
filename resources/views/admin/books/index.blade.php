@@ -42,9 +42,10 @@
             <thead class="table-dark">
                 <tr>
                     <th>ფოტო</th>
-                    <th>სახელწოდება</th>
-                    <th>ავტორი</th>
+                    <th>სახელწოდება / ავტორი</th> 
                     <th>კატეგორია</th>
+                    <th>ბუკინისტი</th> <!-- New Column -->
+
                     <th width="200px">ქმედება</th>
                 </tr>
             </thead>
@@ -56,8 +57,7 @@
                             <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="img-fluid" width="150">
                         @endif
                         </td>
-                        <td>{{ $book->title }}</td>
-                        <td>{{ $book->author->name }}</td>
+                        <td>{{ $book->title }} <BR> {{ $book->author->name }}</td> 
                         <td> @if ($book->genres && $book->genres->count())
                            
                             <small>ჟანრი: 
@@ -67,6 +67,14 @@
                         <br>
                         <small style="position: relative; top:10px">
                       ნახვა:  {{ $book->views }} </small>
+                    </td>
+
+                    <td>
+                        @if ($book->publisher && $book->publisher->role === 'publisher')
+                            {{ $book->publisher->name }}
+                        @else
+                            —
+                        @endif
                     </td>
                         <td>
                             <form action="{{ route('admin.books.toggleVisibility', $book->id) }}" method="POST" style="display:inline;">

@@ -13,6 +13,9 @@ class BookNews extends Model
         'title',
         'image',
         'description',
-        'full' 
+        'full',
+        'title_en', 
+        'description_en', 
+        'full_en',
     ];
 }

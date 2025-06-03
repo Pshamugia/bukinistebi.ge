@@ -34,6 +34,9 @@ class BookNewsController extends Controller
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'full' => 'required|string',
+                'title_en' => 'nullable|string|max:255',
+                'description_en' => 'nullable|string',
+                'full_en' => 'nullable|string', 
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             ]);
     
@@ -81,6 +84,9 @@ class BookNewsController extends Controller
         'title' => 'required|string|max:255',
         'description' => 'required|string',
         'full' => 'required|string',
+        'title_en' => 'nullable|string|max:255',
+        'description_en' => 'nullable|string',
+        'full_en' => 'nullable|string',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     ]);
 

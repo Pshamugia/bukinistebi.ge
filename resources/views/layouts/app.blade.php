@@ -1,7 +1,7 @@
 @php $isHomePage = $isHomePage ?? false; @endphp
 
 <!DOCTYPE html>
-<html lang="ka">
+<html lang="{{ app()->getLocale() }}">
 <script src="{{ asset('js/cookieConsent.js') }}"></script>
 <script>
     window.cookieConsentConfig = {
@@ -50,7 +50,9 @@
         content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
     <meta name="author" content="{{ $book->author->name ?? 'Unknown Author' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    @if(app()->getLocale() === 'en')
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+@endif
     <title>@yield('title', 'Bukinistebi.ge')</title>
 
     <!-- Twitter Card Meta Tags (Optional) -->
@@ -83,7 +85,16 @@
 
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 
-
+    @if(app()->getLocale() === 'en')
+    <style>
+        .navbar-nav .nav-link,
+        .dropdown-menu .dropdown-item,
+        .btn,
+        body {
+            font-family: 'Noto Serif', serif;
+        }
+    </style>
+@endif
     @if (isset($book))
         <script type="application/ld+json">
         {
@@ -128,59 +139,101 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
+
+            
+
+
             <a class="navbar-brand" href="{{ url('/') }}"><img
                     src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
                     style="position:relative; top:8px" loading="lazy" alt="bukinstebi_logo"></a>
+
+ 
+                    <!-- ✅ Mobile Language Switcher Floating Top-Right -->
+        <!-- ✅ Mobile Language Switcher (Fixed Alignment) -->
+        <div class="d-lg-none position-absolute" style="top: 26px; right: 78px; z-index: 1055;">
+            <div class="dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="mobileLangDropdown"
+            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" height="14" class="me-1">
+            {{ strtoupper(app()->getLocale()) }}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="mobileLangDropdown">
+            <li>
+                <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('ka')">
+                    <img src="{{ asset('images/flags/ka.svg') }}" width="20" height="14" class="me-2"> ქართული
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('en')">
+                    <img src="{{ asset('images/flags/en.svg') }}" width="20" height="14" class="me-2"> English
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
             <button style="position: relative; top: 9px;" class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            
             <div class="collapse navbar-collapse" id="navbarNav">
+
+                
                 <ul class="navbar-nav ms-auto" style="position: relative; top: 10px">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}">საწყისი</a>
+                        <a class="nav-link" href="{{ url('/') }}">{{ __('messages.home') }}</a>
                     </li>
 
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            კატეგორიები
+                            {{ __('messages.categories') }}
                         </a>
                         <ul class="dropdown-menu genre-scroll" aria-labelledby="genreDropdown"
                             style="max-height: 300px; overflow-y: auto; min-width: 250px;">
                             <li class="px-3 py-2">
                                 <input type="text" class="form-control" id="genreSearchInput"
-                                    placeholder="მოძებნე კატეგორიით...">
+                                    placeholder="{{ __('messages.searchcategory') }}...">
                             </li>
 
 
-                            <li class="genre-item all-item" data-name="ყველა">
-                                <a class="dropdown-item" href="{{ route('books') }}">ყველა</a>
+                            <li class="genre-item all-item" data-name="{{ __('messages.all') }}">
+                                <a class="dropdown-item" href="{{ route('books') }}">{{ __('messages.all') }}</a>
                             </li>
+                            
 
                             <li id="noResultsMessage" class="text-muted px-3 py-2" style="display: none;">
-                                შედეგი ვერ მოიძებნა.
+                                {{ __('messages.noresult') }}
                             </li>
 
                             @foreach ($genres as $genre)
-                                <li class="genre-item" data-name="{{ $genre->name }}">
-                                    <a class="dropdown-item"
-                                        href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genre->name)]) }}"">{{ $genre->name }}</a>
-                                </li>
-                            @endforeach
+                            @php
+                                $genreName = app()->getLocale() === 'en' && $genre->name_en ? $genre->name_en : $genre->name;
+                            @endphp
+                            <li class="genre-item" data-name="{{ $genreName }}">
+                                <a class="dropdown-item"
+                                   href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
+                                    {{ $genreName }}
+                                </a>
+                            </li>
+                        @endforeach
+                        
                         </ul>
 
                     </li>
 
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('order_us') }}">შეგვიკვეთე</a>
+                        <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('podcast') }}">პოდკასტი</a>
+                        <a class="nav-link" href="{{ route('podcast') }}">{{ __('messages.podcast') }}</a>
                     </li>
 
 
@@ -194,7 +247,8 @@
                             @endphp
                             <!-- Cart Link in the Navbar -->
                             <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                                კალათა
+                                {{ __('messages.cart') }} 
+
                                 <div class="custom-bubble">
                                     <span id="cart-count"
                                         style="position: relative; top: 1px;">{{ $cartCount }}</span>
@@ -211,7 +265,7 @@
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false" v-pre>
                                 <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                                შესვლა
+                                {{ __('messages.login') }}
                             </a>
 
                             <!-- Dropdown with Tabs -->
@@ -223,14 +277,14 @@
                                         <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
                                             data-bs-target="#login" type="button" role="tab" aria-controls="login"
                                             aria-selected="true">
-                                            მომხმარებელი
+                                            {{ __('messages.user') }}
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="register-tab" data-bs-toggle="tab"
                                             data-bs-target="#register" type="button" role="tab"
                                             aria-controls="register" aria-selected="false">
-                                            ბუკინისტი
+                                            {{__('messages.bookseller')}}
                                         </button>
                                     </li>
                                 </ul>
@@ -243,11 +297,11 @@
                                         aria-labelledby="login-tab">
 
                                         <a class="nav-link mt-3" href="{{ route('login') }}">
-                                            <i class="bi bi-key"></i> {{ __('ავტორიზაცია') }}
+                                            <i class="bi bi-key"></i>    {{__('messages.authorization')}}
                                         </a>
                                         @if (Route::has('register'))
                                             <a class="nav-link mt-3" href="{{ route('register') }}">
-                                                <i class="bi bi-person-fill-add"></i> {{ __('რეგისტრაცია') }}</a>
+                                                <i class="bi bi-person-fill-add"></i> {{__('messages.registration')}}</a>
                                         @endif
                                     </div>
 
@@ -257,11 +311,11 @@
 
 
                                         <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
-                                            <i class="bi bi-box-arrow-in-right"></i> {{ __('ბუკინისტის ავტორიზაცია') }}
+                                            <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
                                         </a>
                                         @if (Route::has('register'))
                                             <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
-                                                <i class="bi bi-person-plus"></i> {{ __('ბუკინისტის რეგისტრაცია') }}</a>
+                                                <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
                                         @endif
                                     </div>
                                 </div>
@@ -280,23 +334,23 @@
                                 @if (Auth::user()->role === 'publisher')
                                     <li style="margin-top:15px;"><a class="dropdown-item"
                                             href="{{ route('publisher.dashboard') }}">
-                                            <i class="bi bi-door-open"></i> &nbsp;{{ __('ბუკინისტის ოთახი') }}
+                                            <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
                                         </a></li>
                                     <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
-                                            <i class="bi bi-book"></i> &nbsp;ჩემი ატვირთული წიგნები
+                                            <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
                                         </a></li>
                                     <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
-                                            <i class="bi bi-pencil"></i> &nbsp;პროფილის რედაქტირება
+                                            <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
                                         </a></li>
                                 @else
                                     <li style="margin-top:15px;">
                                         <a class="dropdown-item" href="{{ route('purchase.history') }}">
-                                            <i class="bi bi-credit-card-2-front"></i> &nbsp;{{ __('შენაძენის ისტორია') }}
+                                            <i class="bi bi-credit-card-2-front"></i> &nbsp;{{ __('messages.purchaseHistory') }}
                                         </a>
                                     </li>
                                     <li style="margin-top:15px; padding-bottom:10px;">
                                         <a class="dropdown-item" href="{{ route('account.edit') }}">
-                                            <i class="bi bi-pencil"></i> &nbsp;{{ __('პროფილის რედაქტირება') }}
+                                            <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
                                         </a>
                                     </li>
                                 @endif
@@ -306,7 +360,7 @@
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
                              this.closest('form').submit();">
-                                            <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('გამოსვლა') }}
+                                            <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
                                         </a>
                                     </form>
                                 </li>
@@ -353,10 +407,41 @@
 
 
 
+
+<!-- Language Switch Dropdown -->
+<li class="nav-item dropdown d-none d-lg-block">
+    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" height="14" class="me-1">
+        {{ strtoupper(app()->getLocale()) }}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li>
+            <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('ka')">
+                <img src="{{ asset('images/flags/ka.svg') }}" width="20" height="14" class="me-2"> ქართული
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('en')">
+                <img src="{{ asset('images/flags/en.svg') }}" width="20" height="14" class="me-2"> English
+            </a>
+        </li>
+    </ul>
+</li>
+
+<script>
+    function switchLanguage(locale) {
+        fetch(`/lang/${locale}`)
+            .then(() => {
+                location.reload(true); // force full reload
+            });
+    }
+</script>
+
+
                     <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
                         onsubmit="return validateSearch()" style="position: relative; top:-3px;">
                         <input class="form-control me-2 styled-input" name="title" type="search"
-                            value="{{ request()->get('title') }}" placeholder="წიგნების ძიება..."
+                            value="{{ request()->get('title') }}" placeholder="{{__('messages.booksearch')}}..."
                             aria-label="Search" id="searchInput">
                         <button class="btn btn-outline-success submit-search" type="submit"
                             style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
@@ -394,22 +479,22 @@
                 <!-- Column 1 -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">Bukinistebi.ge</h5>
-                    <p><span style="padding-right:33px">#1 ბუკინისტური ონლაინ მაღაზია საქართველოში</span></p>
+                    <p><span style="padding-right:33px">{{ __('messages.numberone')}}</span></p>
                 </div>
 
                 <!-- Terms and Conditions Column -->
                 <div class="col-lg-3 offset-lg-1 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">მომხმარებლებისთვის</h5>
+                    <h5 class="text-uppercase">{{ __('messages.forcustomers')}}</h5>
                     <p>
                         <a href="{{ route('terms_conditions') }}" class="text-white text-decoration-none">
-                            <span>წესები და პირობები</span>
+                            <span>{{ __('messages.terms')}}</span>
                         </a>
                     </p>
                 </div>
 
                 <!-- Column 3 -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">კონტაქტი</h5>
+                    <h5 class="text-uppercase">{{ __('messages.contact')}}</h5>
                     <ul class="list-unstyled">
                         <span>bukinistebishop@gmail.com</span>
                     </ul>
@@ -417,12 +502,12 @@
 
                 <!-- Column 4 -->
                 <div class="col-lg-2 col-md-5 mb-4 mb-md-0">
-                    <h5>სიახლეების გამოწერა</h5>
+                    <h5>{{ __('messages.newsletter')}}</h5>
                     <form id="subscriptionForm" method="POST" action="{{ route('subscribe') }}">
                         @csrf
-                        <input type="email" name="email" class="form-control mb-2" placeholder="ჩაწერე ელფოსტა"
+                        <input type="email" name="email" class="form-control mb-2" placeholder="{{ __('messages.entermail')}}"
                             required>
-                        <button type="submit" class="btn btn-primary w-100">გამოწერა</button>
+                        <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe')}}</button>
                     </form>
 
                     <!-- Hidden input for success -->
@@ -494,7 +579,7 @@
                 <div class="row mt-4">
                     <!-- Social Media -->
                     <div class="col text-center">
-                        <h5 class="text-uppercase" style="position: relative; left:-15px">გვალაიქე</h5>
+                        <h5 class="text-uppercase" style="position: relative; left:-15px">{{ __('messages.follow')}}</h5>
                         <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon" target="blank"><i
                                 class="bi bi-facebook fs-5"></i></a>
                         <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank"><i
@@ -647,6 +732,18 @@
     })();
 </script>
    End of Tawk.to Script-->
+
+
+   @if(Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
+    <div class="sticky-cart-summary d-block d-md-none">
+        <a href="{{ route('cart.index') }}" class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი გაქვს </span>
+            <span>ნახე კალათა</span>
+        </a>
+    </div>
+@endif
+@stack('scripts'):
+
 </body>
 
 </html>

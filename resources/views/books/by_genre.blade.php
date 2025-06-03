@@ -5,17 +5,26 @@
 @section('content')
 
 
-<h5 class="section-title" style="position: relative; margin-bottom:25px; top:-10px; padding-bottom:25px; align-items: left;
-    justify-content: left;">     <strong>
-        <i class="bi bi-bookmarks-fill"></i> კატეგორია: {{ $genre->name }}
-    </strong>
-</h5> 
+    <h5 class="section-title"
+        style="position: relative; margin-bottom:25px; top:-10px; padding-bottom:25px; align-items: left;
+    justify-content: left;">
+        <strong>
+            <i class="bi bi-bookmarks-fill"></i> {{ __('messages.category') }}:
+            {{ app()->getLocale() === 'en' ? $genre->name_en : $genre->name }}
+        </strong>
+    </h5>
 
-     <!-- Featured Books -->
-<div class="container mt-5" style="position:relative; margin-top: -15px !important">
-  
-    <div class="row">
-        @foreach ($books as $book)
+    <!-- Featured Books -->
+    <div class="container mt-5" style="position:relative; margin-top: -15px !important">
+        <div class="mb-4">
+            <label>
+                <h6 btn btn-primary toggle-cart-btn w-100> <input type="checkbox" id="excludeSoldOut"
+                        {{ request('exclude_sold') ? 'checked' : '' }}>
+                    {{ __('messages.instock') }}</h6>
+            </label>
+        </div>
+        <div class="row">
+            @foreach ($books as $book)
                 <div class="col-md-3" style="position: relative; padding-bottom: 25px;">
                     <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
                         <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
@@ -34,7 +43,7 @@
                                 <i class="bi bi-person"></i>
                                 <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                                     class="text-decoration-none text-primary">
-                                    {{ $book->author->name }}
+                                    {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
                                 </a>
                             </p>
                             <p style="font-size: 18px; color: #333;">
@@ -44,82 +53,125 @@
                                 </span>
                                 <span style="position: relative; top:5px">
                                     @if ($book->quantity == 0)
-                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი ამოწურულია</span>
+                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
+                                            ამოწურულია</span>
                                     @elseif($book->quantity == 1)
                                         <span class="badge bg-warning text-dark"
-                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
                                     @else
                                         <span class="badge bg-success"
-                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია
-                                            {{ $book->quantity }} ცალი</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}
+                                            {{ $book->quantity }} {{ __('messages.copies') }}</span>
                                     @endif
                                 </span>
                             </p>
 
                             {{-- Cart Buttons --}}
                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                            @if (in_array($book->id, $cartItemIds))
-                                <button class="btn btn-success toggle-cart-btn w-100"
-                                    data-product-id="{{ $book->id }}" data-in-cart="true">
-                                    <i class="bi bi-check-circle"></i> დამატებულია
-                                </button>
-                            @else
-                                <button class="btn btn-primary toggle-cart-btn w-100"
-                                    data-product-id="{{ $book->id }}" data-in-cart="false">
-                                    <i class="bi bi-cart-plus"></i> დაამატე კალათაში
-                                </button>
+                                @if (in_array($book->id, $cartItemIds))
+                                    <button class="btn btn-success toggle-cart-btn w-100"
+                                        data-product-id="{{ $book->id }}" data-in-cart="true">
+                                        <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
+                                            data-state="added"></span>
+                                    </button>
+                                @else
+                                    <button class="btn btn-primary toggle-cart-btn w-100"
+                                        data-product-id="{{ $book->id }}" data-in-cart="false">
+                                        <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                                    </button>
+                                @endif
                             @endif
-                        @endif
                         </div>
                     </div>
                 </div>
             @endforeach
 
-       
+
+        </div>
     </div>
-</div>
-    {{ $books->links('pagination.custom-pagination') }}
+    {{ $books->appends(request()->query())->links('pagination.custom-pagination') }}
+
 
 
     <script>
         $(document).ready(function() {
-          $('.toggle-cart-btn').click(function() {
-              var button = $(this);
-              var bookId = button.data('product-id');
-              var inCart = button.data('in-cart');
-      
-              $.ajax({
-                  url: '{{ route("cart.toggle") }}',
-                  method: 'POST',
-                  data: {
-                      _token: '{{ csrf_token() }}',
-                      book_id: bookId
-                  },
-                  success: function(response) {
-                      if (response.success) {
-                          if (response.action === 'added') {
-                              button.removeClass('btn-primary').addClass('btn-success');
-                              button.html('<i class="bi bi-check-circle"></i> დამატებულია'); // Adds icon with text
-                              button.data('in-cart', true);
-                          } else if (response.action === 'removed') {
-                              button.removeClass('btn-success').addClass('btn-primary');
-                              button.html('<i class="bi bi-cart-plus"></i>  დაამატე კალათაში '); // Adds icon with text
-                              button.data('in-cart', false);
-                          }
-      
-                          // Update the cart count in the navbar
-                          $('#cart-count').text(response.cart_count);
-                      }
-                  },
-                  error: function(xhr, status, error) {
-                      console.error('AJAX Error:', error);
-                      alert('კალათის გამოსაყენებლად გაიარეთ ავტორიზაცია');
-                  }
-              });
-          });
-      });
-      
-      
-      
-      </script>
+            const translations = {
+    added: @json(__('messages.added')),
+    addToCart: @json(__('messages.addtocart'))
+};
+            $('.toggle-cart-btn').click(function() {
+                var button = $(this);
+                var bookId = button.data('product-id');
+                var inCart = button.data('in-cart');
+
+                $.ajax({
+                    url: '{{ route('cart.toggle') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        book_id: bookId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            if (response.action === 'added') {
+                                button.removeClass('btn-primary').addClass('btn-success');
+                                button.find('i').removeClass('bi-cart-plus').addClass(
+                                    'bi-check-circle');
+                                button.find('.cart-btn-text').text(translations.added);
+                                button.data('in-cart', true);
+                            } else if (response.action === 'removed') {
+                                button.removeClass('btn-success').addClass('btn-primary');
+                                button.find('i').removeClass('bi-check-circle').addClass(
+                                    'bi-cart-plus');
+                                button.find('.cart-btn-text').text(translations.addToCart);
+                                button.data('in-cart', false);
+                            }
+
+                            // ✅ Update the cart count in the navbar
+                            $('#cart-count').text(response.cart_count);
+
+                            // ✅ Manage the abandoned cart cookie
+                            if (response.cart_count > 0) {
+                                document.cookie = "abandoned_cart=true; max-age=86400; path=/";
+                            } else {
+                                document.cookie =
+                                    "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert(translations.alert);
+                    }
+                });
+            });
+        });
+
+        document.getElementById('excludeSoldOut').addEventListener('change', function() {
+            const url = new URL(window.location.href);
+            if (this.checked) {
+                url.searchParams.set('exclude_sold', '1');
+            } else {
+                url.searchParams.delete('exclude_sold');
+            }
+            window.location.href = url.toString();
+        });
+    </script>
+    <script>
+        const translations = {
+            added: @json(__('messages.added')),
+            addToCart: @json(__('messages.addtocart'))
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.cart-btn-text').forEach(function(el) {
+                const state = el.getAttribute('data-state');
+                if (state === 'added') {
+                    el.textContent = translations.added;
+                } else {
+                    el.textContent = translations.addToCart;
+                }
+            });
+        });
+    </script>
 @endsection

@@ -12,7 +12,7 @@ class SubscriptionController extends Controller
     public function subscribe(Request $request)
 {
     $disposableDomains = [
-        'dont-reply.me', 'mailinator.com', 'tempmail.com', 'yopmail.com',
+        'dont-reply.me', 'testform.xyz', 'mailinator.com', 'tempmail.com', 'yopmail.com',
         'trashmail.com', 'guerrillamail.com', '10minutemail.com', 'fakeinbox.com', 'formtest.guru'
     ];
 

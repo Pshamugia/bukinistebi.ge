@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use App\Models\BookNews; 
-use App\Models\Author; 
+use App\Models\BookNews;
+use App\Models\Author;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class BookNewsController extends Controller
@@ -20,13 +20,22 @@ class BookNewsController extends Controller
 
     public function allbooksnews()
     {
-        $news = BookNews::
-        where('title', '!=', 'წესები და პირობები')
-        ->where('title', '!=', 'ბუკინისტებისათვის')
-        ->orderBy('id', 'DESC')
-        ->paginate(10);
+        $locale = app()->getLocale();
+
+        $news = BookNews::when($locale === 'en', function ($query) {
+            return $query->whereNotNull('title_en');
+        })
+            ->when($locale !== 'en', function ($query) {
+                return $query
+                    ->where('title', '!=', 'წესები და პირობები')
+                    ->where('title', '!=', 'ბუკინისტებისათვის');
+            })
+            ->orderBy('id', 'DESC')
+            ->paginate(10);
+
         return view('all_book_news', compact('news'));
     }
+
 
     public function show($id)
     {
@@ -39,27 +48,28 @@ class BookNewsController extends Controller
         $terms = BookNews::where('title', 'წესები და პირობები')->first();
         $bukinistebisatvis = BookNews::where('title', 'ბუკინისტებისათვის')->first();
 
-return view('terms_conditions', compact('terms', 'bukinistebisatvis'));
-
+        return view('terms_conditions', compact('terms', 'bukinistebisatvis'));
     }
-    
+
 
 
     public function full_news($title, $id)
-{
-    // Fetch the news article by ID
-    $booknews = BookNews::findOrFail($id);  // Change $book to $newsItem
+    {
+        $booknews = BookNews::findOrFail($id);
 
-    // Optionally, ensure the title in the URL matches the news item's actual title
-    $slug = Str::slug($booknews->title);
+        // Determine the correct localized title for slug
+        $locale = app()->getLocale();
+        $actualTitle = $locale === 'en' && $booknews->title_en ? $booknews->title_en : $booknews->title;
 
-    if ($slug !== $title) {
-        // Redirect to the correct URL if the slug in the URL doesn't match the actual news title
-        return redirect()->route('full_news', ['title' => $slug, 'id' => $booknews->id]);
+        $slug = Str::slug($actualTitle);
+
+        // Redirect if slug doesn't match locale-based title
+        if ($slug !== $title) {
+            return redirect()->route('full_news', ['title' => $slug, 'id' => $booknews->id]);
+        }
+
+        $isHomePage = false;
+
+        return view('full_news', compact('booknews', 'isHomePage'));
     }
-
-    $isHomePage = false;
-    // Pass the newsItem to the view
-    return view('full_news', compact('booknews', 'isHomePage'));
-}
 }

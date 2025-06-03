@@ -6,33 +6,39 @@
     
     
     <div style="background-color: #b1a9f7; padding:20px 20px 1px 20px; margin-bottom: 26px;">
-    <h4> ძიების გაფილტვრა </h4>
+    <h4> {{ __('messages.filtersearch')}} </h4>
     
     <!-- Filter Form -->
     <form action="{{ route('search') }}" method="GET" class="row g-3 mb-4">
 
         <div class="col-md-2">
-            <input class="form-control me-2 styled-input" name="title" type="search" value="{{ request()->get('title') }}" placeholder="საძიებო სიტყვა..." aria-label="Search" id="searchInput">
+            <input class="form-control me-2 styled-input" name="title" type="search" value="{{ request()->get('title') }}" placeholder="{{ __('messages.searchword')}} ..." aria-label="Search" id="searchInput">
         </div>
 
         <div class="col-md-2">
-             <input type="number" name="price_from" class="form-control" id="price_from" placeholder="ფასი (დან)" value="{{ request('price_from') }}">
+             <input type="number" name="price_from" class="form-control" id="price_from" placeholder="{{ __('messages.pricefrom')}}" value="{{ request('price_from') }}">
         </div>
         <div class="col-md-2">
-             <input type="number" name="price_to" class="form-control" id="price_to" placeholder="ფასი (მდე)" value="{{ request('price_to') }}">
+             <input type="number" name="price_to" class="form-control" id="price_to" placeholder="{{ __('messages.priceto')}}" value="{{ request('price_to') }}">
         </div>
         <div class="col-md-3">
-            <input type="number" name="publishing_date" class="form-control" id="publishing_date" placeholder="გამოცემის წელი" min="1800" max="{{ date('Y') }}" value="{{ request('publishing_date') }}">
+            <input type="number" name="publishing_date" class="form-control" id="publishing_date" placeholder="{{ __('messages.yearofpublicaion')}}" min="1800" max="{{ date('Y') }}" value="{{ request('publishing_date') }}">
         </div>
         <div class="col-md-3">
 
             <select name="genre_id" class="form-select categoria" id="genre_id">
-                <option value="" style="color: #ccc"><span>კატეგორია</span></option>
+                <option value="" style="color: #ccc"><span>{{ __('messages.category')}}</span></option>
                 @foreach ($genres as $genre)
+                @php
+                $genreName = app()->getLocale() === 'en' && $genre->name_en ? $genre->name_en : $genre->name;
+            @endphp
                     <option value="{{ $genre->id }}" {{ request('genre_id') == $genre->id ? 'selected' : '' }}>
-                        {{ $genre->name }}
+                        {{ $genreName }}
                     </option>
                 @endforeach
+
+
+                 
             </select>
 
             <script>
@@ -45,8 +51,19 @@
             
         </div>
         <div class="col-md-12">
+            <div class="form-check" style="margin-top: 10px;">
+                <input class="form-check-input" type="checkbox" name="exclude_sold" id="excludeSoldOut" value="1" {{ request('exclude_sold') ? 'checked' : '' }}>
+                <label class="form-check-label" for="excludeSoldOut">
+                    {{ __('messages.instock')}} 
+                </label>
+            </div>
+        </div>
+
+        
+
+        <div class="col-md-12">
             <button type="submit" class="btn btn-danger"><span style="top: 3px !important; position: relative;">
-                <i class="bi bi-filter"></i> გაფილტრე </span>
+                <i class="bi bi-filter"></i>    {{ __('messages.filter')}}  </span>
             </button>
         </div>
     </form>
@@ -55,20 +72,20 @@
     <h4><p> 
         @if ($search_count>0)
         <i class="bi bi-check-square-fill"></i> 
-        მოიძებნა 
+        {{ __('messages.found') }} 
         <span style="background-color: #dc3545; color:white; padding:4px 0px 0px 3px; border-radius: 3px; margin-right:5px">
             {{ $search_count }} 
         </span> 
             @if ($search_count == 1)
-           მასალა
+            {{ __('messages.item') }}
             @else
-            მასალა
+            {{ __('messages.items') }}
             @endif
         @else
-        <i class="bi bi-dash-circle-fill"></i> {{ "ბაზაში ვერ მოიძებნა"}} 
+        <i class="bi bi-dash-circle-fill"></i> {{ __('messages.notfound')}} 
             <span style="background-color: rgb(177, 20, 20) !important; color:white; padding:6px;">
                  {{ $searchTerm }} 
-            </span>  &nbsp; დარწმუნდი მართლწერის სისწორეში
+            </span>  &nbsp; {{ __('messages.spelling')}}
         @endif
     </p></h4>
  
@@ -86,7 +103,9 @@
                     <h4><strong> {{ $book->title }} </strong></h4>
                     <p style="font-size: 14px">
                         <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)])}}" style="text-decoration: none">
-                            <span> {{ $book->author->name }} </span>
+                            <span>  
+                                {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
+                            </span>
                         </a> 
                     </p>
                     <p style="font-size: 18px; color: #333;">
@@ -95,19 +114,22 @@
                         @if($book->quantity == 0)
                         <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
  @elseif($book->quantity == 1)
- <span style="font-size: 13px; float: right;">მარაგშია 1 ცალი</span>
+ <span style="font-size: 13px; float: right;">{{ __('messages.available')}} {{ $book->quantity }} {{ __('messages.items')}}</span>
  @else
- <span style="font-size: 13px; float: right;">მარაგშია {{ $book->quantity }} ცალი</span>
+ <span style="font-size: 13px; float: right;">{{ __('messages.available')}} {{ $book->quantity }} {{ __('messages.items')}}</span>
  @endif
                         </span>  </p>
-                    @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                        @if (!auth()->check() || auth()->user()->role !== 'publisher')
                         @if (in_array($book->id, $cartItemIds))
-                            <button class="btn btn-success toggle-cart-btn w-100" data-product-id="{{ $book->id }}" data-in-cart="true">
-                              <i class="bi bi-check-circle"></i> დამატებულია 
+                            <button class="btn btn-success toggle-cart-btn w-100"
+                                data-product-id="{{ $book->id }}" data-in-cart="true">
+                                <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
+                                    data-state="added"></span>
                             </button>
                         @else
-                            <button class="btn btn-primary toggle-cart-btn w-100" data-product-id="{{ $book->id }}" data-in-cart="false">
-                                <i class="bi bi-cart-plus"></i> დაამატე კალათაში  
+                            <button class="btn btn-primary toggle-cart-btn w-100"
+                                data-product-id="{{ $book->id }}" data-in-cart="false">
+                                <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
                             </button>
                         @endif
                     @endif
@@ -141,18 +163,28 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        if (response.action === 'added') {
-                            button.removeClass('btn-primary').addClass('btn-success');
-                            button.html('<i class="bi bi-check-circle"></i> დამატებულია'); // Adds icon with text
-                            button.data('in-cart', true);
-                        } else if (response.action === 'removed') {
-                            button.removeClass('btn-success').addClass('btn-primary');
-                            button.html('<i class="bi bi-cart-plus"></i>  დაამატე კალათაში '); // Adds icon with text
-                            button.data('in-cart', false);
-                        }
+                    if (response.action === 'added') {
+                        button.removeClass('btn-primary').addClass('btn-success');
+                        button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                        button.find('.cart-btn-text').text(translations.added);
+                        button.data('in-cart', true);
+                    } else if (response.action === 'removed') {
+                        button.removeClass('btn-success').addClass('btn-primary');
+                        button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                        button.find('.cart-btn-text').text(translations.addToCart);
+                        button.data('in-cart', false);
+                    }
 
-                        // Update the cart count in the navbar
+                        // ✅ Update the cart count in the navbar
                         $('#cart-count').text(response.cart_count);
+
+                        // ✅ Manage the abandoned cart cookie
+                        if (response.cart_count > 0) {
+                            document.cookie = "abandoned_cart=true; max-age=86400; path=/";
+                        } else {
+                            document.cookie =
+                                "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        }
                     }
                 },
                 error: function(xhr, status, error) {
@@ -160,6 +192,23 @@
                     alert('კალათის გამოსაყენებლად გაიარეთ ავტორიზაცია');
                 }
             });
+        });
+    });
+</script>
+<script>
+    const translations = {
+        added: @json(__('messages.added')),
+        addToCart: @json(__('messages.addtocart'))
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.cart-btn-text').forEach(function (el) {
+            const state = el.getAttribute('data-state');
+            if (state === 'added') {
+                el.textContent = translations.added;
+            } else {
+                el.textContent = translations.addToCart;
+            }
         });
     });
 </script>

@@ -42,7 +42,7 @@
 
         <!-- Book Details -->
         <div class="col-md-7" style="position: relative; margin-top:-6px">
-            <h2 style="padding-bottom: 7px">{{ $booknews->title }}</h2>
+            <h2 style="padding-bottom: 7px">{{ app()->getLocale() === 'en' ? $booknews->title_en : $booknews->title }}</h2>
             
              <p>{{ \Carbon\Carbon::parse($booknews->date_added)->format('d/m/Y') }}</p>
 
@@ -55,7 +55,7 @@
             <!-- Book Description -->
             <div class="mt-4">
                 
-                <p>{!! $booknews->full ?? 'ტექსტი არ არის დამატებული.' !!}</p>
+                <p>{!! app()->getLocale() === 'en' ? $booknews->full_en : $booknews->full !!}</p>
 
                  
 

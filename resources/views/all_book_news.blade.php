@@ -10,7 +10,7 @@
 
         
 
-        <h1> <i class="bi bi-bookmarks-fill"></i>ბუკინისტური ამბები</h1> 
+        <h1> <i class="bi bi-bookmarks-fill"></i>{{ __('messages.bookstories')}}</h1> 
  
 
     </div>
@@ -31,7 +31,7 @@
                         </div>
                     @endif
                     <div class="card-body">
-                        <h4 class="card-title text-dark">{{ $item->title }}</h4> <!-- Limit title length -->
+                        <h4 class="card-title text-dark">{{ app()->getLocale() === 'en' ? $item->title_en : $item->title }}</h4> <!-- Limit title length -->
                     </div>
                 </a>
             </div>

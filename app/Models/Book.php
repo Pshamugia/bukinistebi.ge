@@ -15,6 +15,7 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = [
+        'language',
         'title',
         'photo',
         'photo_2',

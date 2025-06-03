@@ -11,8 +11,9 @@
 
 
 
-            <h1>ბუკინისტური მაღაზია</h1>
-            <h5><a href="{{ route('books') }}" class="btn btn-outline-light" style="font-size: 18px">რასაც ეძებ - აქაა</a></h5>
+            <h1>{{ __('messages.bookstore') }}</h1>
+            <h5><a href="{{ route('books') }}" class="btn btn-outline-light"
+                    style="font-size: 18px">{{ __('messages.searchfor') }}</a></h5>
 
         </div>
     </div>
@@ -23,7 +24,7 @@
         <div class="hr-with-text" style="position: relative; margin-top:-54px; top:-10px">
             <h2 style="position: relative; font-size: 26px; ">
 
-                ახალი დამატებული </h2>
+                {{ __('messages.recently') }} </h2>
         </div>
 
 
@@ -49,7 +50,8 @@
                                 <i class="bi bi-person"></i>
                                 <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                                     class="text-decoration-none text-primary">
-                                    {{ $book->author->name }}
+                                    {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
+
                                 </a>
                             </p>
                             <p style="font-size: 18px; color: #333;">
@@ -59,15 +61,15 @@
                                 </span>
                                 <span style="position: relative; top:5px; ">
                                     @if ($book->quantity == 0)
-                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
-                                            ამოწურულია</span>
+                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">
+                                            {{ __('messages.outofstock') }} </span>
                                     @elseif($book->quantity == 1)
                                         <span class="badge bg-warning text-dark"
-                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }} </span>
                                     @else
                                         <span class="badge bg-success"
-                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია
-                                            {{ $book->quantity }} ცალი</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">
+                                            {{ __('messages.available') }} {{ $book->quantity }} {{ __('messages.items') }}</span>
                                     @endif
                                 </span>
                             </p>
@@ -77,15 +79,17 @@
                                 @if (in_array($book->id, $cartItemIds))
                                     <button class="btn btn-success toggle-cart-btn w-100"
                                         data-product-id="{{ $book->id }}" data-in-cart="true">
-                                        <i class="bi bi-check-circle"></i> დამატებულია
+                                        <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
+                                            data-state="added"></span>
                                     </button>
                                 @else
                                     <button class="btn btn-primary toggle-cart-btn w-100"
                                         data-product-id="{{ $book->id }}" data-in-cart="false">
-                                        <i class="bi bi-cart-plus"></i> დაამატე კალათაში
+                                        <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
                                     </button>
                                 @endif
                             @endif
+
                         </div>
                     </div>
                 </div>
@@ -103,19 +107,19 @@
             style="background: url('{{ asset('uploads/book1.webp') }}') no-repeat center center; background-size: cover; background-attachment: fixed;">
         </div>
         <div class="overlay-content">
-            <h2>გახდი ჩვენი პარტნიორი</h2>
-            <p><span style="font-size: 20px"> გაყიდე ბუკინისტური წიგნები ჩვენი პლატფორმიდან </span></p>
+            <h2>{{ __('messages.becomepartner') }}</h2>
+            <p><span style="font-size: 20px"> {{ __('messages.sellfrom') }} </span></p>
             <h2>
 
 
 
                 @if (Auth::check() && Auth::user()->role === 'publisher')
                     <a href="{{ route('publisher.dashboard') }}" class="btn btn-outline-light" style="font-size: 2vw">
-                        ბუკინისტის ოთახი
+                        {{ __('messages.booksellersRoom') }}
                     </a>
                 @else
                     <a href="{{ route('login.publisher') }}" class="btn btn-outline-light" style="font-size: 2vw">
-                        დარეგისტრირდი
+                        {{ __('messages.register') }}
                     </a>
                 @endif
             </h2>
@@ -130,7 +134,7 @@
             <div class="col-md-8">
                 <div class="hr-with-text" style="position: relative; top:-12px">
                     <h2 style="position: relative; font-size: 26px;">
-                        ბუკინისტური ამბები
+                        {{ __('messages.bookstories') }}
                     </h2>
                 </div>
 
@@ -138,7 +142,7 @@
                     @foreach ($news as $item)
                         <div class="col-md-6 col-lg-6"> <!-- Adjusted columns for responsiveness -->
                             <div class="card mb-4 shadow-sm border-0"> <!-- Added shadow and border styling -->
-                                <a href="{{ route('full_news', ['title' => Str::slug($item->title), 'id' => $item->id]) }}"
+                                <a href="{{ route('full_news', ['title' => Str::slug(app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title), 'id' => $item->id]) }}"
                                     class="card-link text-decoration-none">
                                     @if (isset($item->image))
                                         <div class="image-container">
@@ -148,7 +152,8 @@
                                         </div>
                                     @endif
                                     <div class="card-body">
-                                        <h4 class="card-title text-dark">{{ $item->title }}</h4>
+                                        <h4 class="card-title text-dark">    {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
+                                        </h4>
                                         <!-- Limit title length -->
                                     </div>
                                 </a>
@@ -163,7 +168,7 @@
                 <div class="text-center mt-4" style="position: relative; top:-22px">
                     <a href="{{ route('allbooksnews') }}" class="btn  btn-outline-secondary btn-lg"
                         style="font-size: 18px; ">
-                        <span> <i class="bi bi-newspaper"></i> წაიკითხე მეტი </span>
+                        <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} </span>
                     </a>
                 </div>
             </div>
@@ -174,11 +179,14 @@
                 <h5 class="section-title"
                     style="position: relative; margin-bottom: 20px; padding-bottom:20px; align-items: left;
     justify-content: left;">
-                    <i class="bi bi-fire"></i> ხშირად ნანახი
+                    <i class="bi bi-fire"></i> {{ __('messages.viewed') }}
                 </h5>
                 <div class="card mb-3 p-3">
+                    @if ($topRatedArticle->isEmpty())
+    <p style="color:red;">No English books found in top-rated.</p>
+@endif
                     @foreach ($topRatedArticle as $book)
-                        <!-- ბესტსელერებზე უნდა იყოს $topBooks -->
+                    
                         <div class="popular-book-item mb-2">
                             <div class="book-details">
                                 <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
@@ -191,14 +199,15 @@
                                     @endif
 
                                     <span class="book-title" style="color:black">{{ $book->title }}</span> <br>
-
-                                    <span>{{ $book->author->name }}</span>
+                                    <span>
+                                        {{ app()->getLocale() === 'en' && $book->author->name_en ? $book->author->name_en : $book->author->name }}
+                                    </span>
                                 </a>
                             </div>
                         </div>
 
                         @if (!$loop->last)
-                            <hr> <!-- Add horizontal line between books -->
+                            <hr>
                         @endif
                     @endforeach
                 </div>
@@ -245,6 +254,10 @@
 
     <script>
         $(document).ready(function() {
+            const translations = {
+    added: @json(__('messages.added')),
+    addToCart: @json(__('messages.addtocart'))
+};
             $('.toggle-cart-btn').click(function() {
                 var button = $(this);
                 var bookId = button.data('product-id');
@@ -260,11 +273,15 @@
                         if (response.success) {
                             if (response.action === 'added') {
                                 button.removeClass('btn-primary').addClass('btn-success');
-                                button.html('<i class="bi bi-check-circle"></i> დამატებულია');
+                                button.find('i').removeClass('bi-cart-plus').addClass(
+                                    'bi-check-circle');
+                                button.find('.cart-btn-text').text(translations.added);
                                 button.data('in-cart', true);
                             } else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
-                                button.html('<i class="bi bi-cart-plus"></i> დაამატე კალათაში');
+                                button.find('i').removeClass('bi-check-circle').addClass(
+                                    'bi-cart-plus');
+                                button.find('.cart-btn-text').text(translations.addToCart);
                                 button.data('in-cart', false);
                             }
 
@@ -282,8 +299,9 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error:', error);
-                        alert('კალათის გამოსაყენებლად გაიარეთ ავტორიზაცია');
+                        alert(translations.alert);
                     }
+
                 });
             });
         });
@@ -329,5 +347,23 @@
             </script>
         @endif
     @endif
+
+    <script>
+        const translations = {
+            added: @json(__('messages.added')),
+            addToCart: @json(__('messages.addtocart'))
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.cart-btn-text').forEach(function(el) {
+                const state = el.getAttribute('data-state');
+                if (state === 'added') {
+                    el.textContent = translations.added;
+                } else {
+                    el.textContent = translations.addToCart;
+                }
+            });
+        });
+    </script>
 
 @endsection

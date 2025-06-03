@@ -77,13 +77,13 @@ class OrderController extends Controller
         $shipping = 10.00; // Fixed shipping cost; adjust as needed
         $total = $subtotal + $shipping;
 
-        // Create the order
         $order = Order::create([
             'user_id' => Auth::id(),
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'total' => $total,
             'status' => 'pending',
+            'city' => session('city'), // fallback from session
         ]);
 
         // Create order items based on the cart items
@@ -174,13 +174,19 @@ class OrderController extends Controller
     }
 
     // Create the order
-    $order = Order::create([
-        'user_id' => Auth::id(),
-        'subtotal' => $subtotal,
-        'shipping' => $shipping,
-        'total' => $total,
-        'status' => 'pending',  // Adjust status as needed
-    ]);
+$order = Order::create([
+    'user_id' => Auth::id(),
+    'subtotal' => $subtotal,
+    'shipping' => $shipping,
+    'total' => $total,
+    'status' => 'pending',
+    'name' => $validatedData['name'],
+    'phone' => $validatedData['phone'],
+    'address' => $validatedData['address'],
+    'city' => $validatedData['city'], // ✅ Save city to database
+    'payment_method' => $validatedData['payment_method'],
+]);
+
 
     // Create order items
     foreach ($cart->cartItems as $cartItem) {

@@ -9,6 +9,8 @@
         @csrf
         @method('PUT')
         @include('admin.books.partials.form')
+        <input type="hidden" name="lang" id="langInput" value="{{ $locale }}">
+
         <button class="btn btn-primary">მასალის განახლება</button>
         <a href="{{ route('admin.books.index') }}" class="btn btn-secondary">უკან</a>
     </form>

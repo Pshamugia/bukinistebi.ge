@@ -13,7 +13,7 @@
     <h5 class="section-title" style="position: relative;  padding-bottom:20px; align-items: left;
     justify-content: left;">
         <strong>
-            <i class="bi bi-cart-check-fill"></i> შენი კალათა
+            <i class="bi bi-cart-check-fill"></i> {{ __('messages.yourCart')}}
         </strong>
     </h5>
 
@@ -24,10 +24,10 @@
     @if(!$cart || $cart->cartItems->isEmpty())
     <div class="empty-cart text-center" style="padding: 50px;">
         <i class="bi bi-cart-x-fill" style="font-size: 64px; color: #ff6b6b;"></i> <!-- Cart icon from Bootstrap Icons -->
-        <h3 style="color: #2c3e50; margin-top: 20px;">შენი კალათა ცარიელია.</h3>
-        <p style="color: #7f8c8d;">შეგიძლია დაამატო წიგნები კალათაში</p>
+        <h3 style="color: #2c3e50; margin-top: 20px;"> {{ __('messages.emptyCart')}}</h3>
+        <p style="color: #7f8c8d;">{{ __('messages.canAdd')}}</p>
         <a href="{{ route('books') }}" class="btn btn-primary mt-3">
-            წიგნების ნახვა
+            {{ __('messages.seeBooks')}}
         </a>
     </div>
     @else
@@ -38,10 +38,10 @@
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th style="text-align: left; vertical-align: middle;">პროდუქცია</th>
-                    <th style="text-align: center; vertical-align: middle;">რაოდენობა</th>
-                    <th style="text-align: center; vertical-align: middle;">ფასი</th>
-                    <th class="d-none d-md-table-cell" style="text-align: center; vertical-align: middle;">ქმედება</th> <!-- Hidden on mobile -->
+                    <th style="text-align: left; vertical-align: middle;">{{ __('messages.product')}}</th>
+                    <th style="text-align: center; vertical-align: middle;">{{ __('messages.quantity')}}</th>
+                    <th style="text-align: center; vertical-align: middle;">{{ __('messages.price')}}</th>
+                    <th class="d-none d-md-table-cell" style="text-align: center; vertical-align: middle;">{{ __('messages.action')}}</th> <!-- Hidden on mobile -->
                 </tr>
             </thead>
             <tbody>
@@ -69,11 +69,11 @@
                                     @if($item->book->quantity == 0)
                                     <span style="color:red;"> 
                                        <b> <i class="bi bi-x-circle text-danger"></i> </b>
-                                        ამ წიგნის მარაგი ამოწურულია</span>
+                                       {{ __('messages.outofstock')}}</span>
                                     @elseif($item->book->quantity == 1)
-                                    <span>მარაგშია 1 ცალი</span>
+                                    <span>{{ __('messages.available')}} 1 {{ __('messages.item')}}</span>
                                     @else
-                                    <span>მარაგშია {{ $item->book->quantity }} ცალი</span>
+                                    <span>{{ __('messages.available')}} {{ $item->book->quantity }} {{ __('messages.item')}}</span>
                                     @endif 
                                 </span>
                             </div>
@@ -87,12 +87,12 @@
        
                             
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ number_format($item->price * $item->quantity) }} ლარი</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ number_format($item->price * $item->quantity) }} {{ __('messages.lari')}}</td>
                         <!-- Remove button on larger screens, hidden on mobile -->
                         <td class="d-none d-md-table-cell" style="text-align: center; vertical-align: middle;">
                             <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}" method="POST" onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-danger btn-sm">წაშლა კალათიდან</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart')}}</button>
                             </form>
                         </td>
                     </tr>
@@ -101,17 +101,17 @@
                 <tr style="background-color: #000000; color:white">
                     <td colspan="2" style="text-align: right; vertical-align: middle;"> 
                         <div style="color:wheat"> 
-                            <span> პროდუქციის ფასი: <span id="product-price">{{ $total - 5 }}</span> ლარი </span> 
+                            <span> {{ __('messages.productPrice')}}: <span id="product-price">{{ $total - 5 }}</span> {{ __('messages.lari')}} </span> 
                         </div>
                         <!-- Initially hide the delivery price section -->
                         <div style="color:wheat; display:none;" id="delivery-price-container">
-                            <span> მიწოდების ფასი: <span id="delivery-price">5</span> ლარი </span> 
+                            <span> {{ __('messages.deliveryPrice')}}  : <span id="delivery-price">5</span> {{ __('messages.lari')}}  </span> 
                         </div> 
                     </td>
                     <td rowspan="{{ $cart->cartItems->count() }}" style="text-align: center; vertical-align: middle;">
                         <!-- Initially hide the total price -->
                         <h3 id="total-price" style="text-align: center; vertical-align: middle; top:2px; position: relative; font-size: 16px; color:wheat; display:none;">
-                            <span> ჯამური: {{ number_format($total) }} ლარი</span>
+                            <span> {{ __('messages.total')}}: {{ number_format($total) }} {{ __('messages.lari')}}</span>
                         </h3>
                     </td>
                 </tr>
@@ -129,111 +129,111 @@
         <!-- Payment Method and Personal Info Form -->
         <form action="{{ route('tbc-checkout') }}" method="POST" id="checkoutForm">
             @csrf
-            <h4 class="mt-4"><strong> მონიშნე გადახდის ფორმა </strong></h4>
+            <h4 class="mt-4"><strong> {{ __('messages.choosePayment')}} </strong></h4>
         
             <!-- Radio buttons for payment -->
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment_method" id="payment_courier" value="courier" required>
                 <label class="form-check-label" for="payment_courier">
-                     <i class="bi bi-truck"></i> გადახდა კურიერთან</label>
+                     <i class="bi bi-truck"></i> {{ __('messages.payDelivery')}}</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment_method" id="payment_bank" value="bank_transfer" required>
-                <label class="form-check-label" for="payment_bank"> <i class="bi bi-credit-card"></i> საბანკო გადარიცხვა</label>
+                <label class="form-check-label" for="payment_bank"> <i class="bi bi-credit-card"></i> {{ __('messages.payBankTransfer')}}</label>
             </div>
         
             <!-- User details -->
             <div class="mt-4">
                 <div class="mb-3">
-                    <label for="name" class="form-label"><h4 style="position:relative; top:12px"><strong>სახელი და გვარი</strong></h4></label>
+                    <label for="name" class="form-label"><h4 style="position:relative; top:12px"><strong>{{ __('messages.nameSurname')}}</strong></h4></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control" placeholder="სახელი გვარი" id="name" name="name" required>
+                        <input type="text" class="form-control" placeholder="{{ __('messages.nameSurname')}}" id="name" name="name" required>
                     </div>
                 </div>
               
                 
                 <div class="mb-3">
-                    <label for="phone" class="form-label"><h4 style="position:relative; top:12px"><strong>ტელეფონის ნომერი</strong></h4></label>
+                    <label for="phone" class="form-label"><h4 style="position:relative; top:12px"><strong>{{ __('messages.phoneNumber')}}</strong></h4></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" class="form-control" id="phone" placeholder="შენი ტელეფონი" name="phone" required>
+                        <input type="text" class="form-control" id="phone" placeholder="{{ __('messages.phoneNumber')}}" name="phone" required>
                     </div>
                 </div>
 
 
                 <div class="mb-3">
-                    <label for="city" class="form-label"><h4 style="position:relative; top:12px"><strong>ქალაქი</strong></h4></label>
+                    <label for="city" class="form-label"><h4 style="position:relative; top:12px"><strong>{{ __('messages.city')}}</strong></h4></label>
                     <div class="input-group">
-                     <select name="city" class="form-control chosen-select" id="city" data-placeholder="მონიშნე ქალაქი" required style="height: 50px">
-                        <option value="">მონიშნე ქალაქი</option> 
-                        <option value="თბილისი">თბილისი</option>
-                        <option value="ბათუმი">ბათუმი</option>
-                        <option value="ქუთაისი">ქუთაისი</option>
-                        <option value="გურჯაანის მუნიციპალიტეტი">გურჯაანის მუნიციპალიტეტი</option>
-                        <option value="თელავის მუნიციპალიტეტი">თელავის მუნიციპალიტეტი</option>
-                        <option value="ზუგდიდის მუნიციპალიტეტი">ზუგდიდის მუნიციპალიტეტი</option>
-                        <option value="ბაკურიანი">ბაკურიანი</option>
-                        <option value="გორის მუნიციპალიტეტი">გორის მუნიციპალიტეტი</option>
-                        <option value="რუსთავი">რუსთავი</option>
-                        <option value="ფოთი">ფოთი</option>
-                        <option value="აბაშის მუნიციპალიტეტი">აბაშის მუნიციპალიტეტი</option>
-                        <option value="ადიგენის მუნიციპალიტეტი">ადიგენის მუნიციპალიტეტი</option>
-                        <option value="ამბროლაურის მუნიციპალიტეტი">ამბროლაურის მუნიციპალიტეტი</option>
-                        <option value="ასპინძის მუნიციპალიტეტი">ასპინძის მუნიციპალიტეტი</option>
-                        <option value="ახალგორის მუნიციპალიტეტი">ახალგორის მუნიციპალიტეტი</option>
-                        <option value="ახალქალაქის მუნიციპალიტეტი">ახალქალაქის მუნიციპალიტეტი</option>
-                        <option value="ახალციხის მუნიციპალიტეტი">ახალციხის მუნიციპალიტეტი</option>
-                        <option value="ახმეტის მუნიციპალიტეტი">ახმეტის მუნიციპალიტეტი</option>
-                        <option value="ბაღდათის მუნიციპალიტეტი">ბაღდათის მუნიციპალიტეტი</option>
-                        <option value="ბოლნისის მუნიციპალიტეტი">ბოლნისის მუნიციპალიტეტი</option>
-                        <option value="ბორჯომის მუნიციპალიტეტი">ბორჯომის მუნიციპალიტეტი</option>
-                        <option value="გარდაბნის მუნიციპალიტეტი">გარდაბნის მუნიციპალიტეტი</option>
-                        <option value="დედოფლისწყაროს მუნიციპალიტეტი">დედოფლისწყაროს მუნიციპალიტეტი</option>
-                        <option value="დმანისის მუნიციპალიტეტი">დმანისის მუნიციპალიტეტი</option>
-                        <option value="დუშეთის მუნიციპალიტეტი">დუშეთის მუნიციპალიტეტი</option>
-                        <option value="ვანის მუნიციპალიტეტი">ვანის მუნიციპალიტეტი</option>
-                        <option value="ზესტაფონის მუნიციპალიტეტი">ზესტაფონის მუნიციპალიტეტი</option>
-                        <option value="თეთრი წყაროს მუნიციპალიტეტი">თეთრი წყაროს მუნიციპალიტეტი</option>
-                        <option value="თერჯოლის მუნიციპალიტეტი">თერჯოლის მუნიციპალიტეტი</option>
-                        <option value="თიანეთის მუნიციპალიტეტი">თიანეთის მუნიციპალიტეტი</option>
-                        <option value="კასპის მუნიციპალიტეტი">კასპის მუნიციპალიტეტი</option>
-                        <option value="ლაგოდეხის მუნიციპალიტეტი">ლაგოდეხის მუნიციპალიტეტი</option>
-                        <option value="ლანჩხუთის მუნიციპალიტეტი">ლანჩხუთის მუნიციპალიტეტი</option>
-                        <option value="ლენტეხის მუნიციპალიტეტი">ლენტეხის მუნიციპალიტეტი</option>
-                        <option value="მარნეულის მუნიციპალიტეტი">მარნეულის მუნიციპალიტეტი</option>
-                        <option value="მარტვილის მუნიციპალიტეტი">მარტვილის მუნიციპალიტეტი</option>
-                        <option value="მესტიის მუნიციპალიტეტი">მესტიის მუნიციპალიტეტი</option>
-                        <option value="მცხეთის მუნიციპალიტეტი">მცხეთის მუნიციპალიტეტი</option>
-                        <option value="ნინოწმინდის მუნიციპალიტეტი">ნინოწმინდის მუნიციპალიტეტი</option>
-                        <option value="ოზურგეთის მუნიციპალიტეტი">ოზურგეთის მუნიციპალიტეტი</option>
-                        <option value="ონის მუნიციპალიტეტი">ონის მუნიციპალიტეტი</option>
-                        <option value="საგარეჯოს მუნიციპალიტეტი">საგარეჯოს მუნიციპალიტეტი</option>
-                        <option value="სამტრედიის მუნიციპალიტეტი">სამტრედიის მუნიციპალიტეტი</option>
-                        <option value="საჩხერის მუნიციპალიტეტი">საჩხერის მუნიციპალიტეტი</option>
-                        <option value="სენაკის მუნიციპალიტეტი">სენაკის მუნიციპალიტეტი</option>
-                        <option value="სიღნაღის მუნიციპალიტეტი">სიღნაღის მუნიციპალიტეტი</option>
-                        <option value="ტყიბულის მუნიციპალიტეტი">ტყიბულის მუნიციპალიტეტი</option>
-                        <option value="ქარელის მუნიციპალიტეტი">ქარელის მუნიციპალიტეტი</option>
-                        <option value="ქედის მუნიციპალიტეტი">ქედის მუნიციპალიტეტი</option>
-                        <option value="ქობულეთის მუნიციპალიტეტი">ქობულეთის მუნიციპალიტეტი</option>
-                        <option value="ყაზბეგის მუნიციპალიტეტი">ყაზბეგის მუნიციპალიტეტი</option>
-                        <option value="ყვარლის მუნიციპალიტეტი">ყვარლის მუნიციპალიტეტი</option>
-                        <option value="შუახევის მუნიციპალიტეტი">შუახევის მუნიციპალიტეტი</option>
-                        <option value="ჩოხატაურის მუნიციპალიტეტი">ჩოხატაურის მუნიციპალიტეტი</option>
-                        <option value="ჩხოროწყუს მუნიციპალიტეტი">ჩხოროწყუს მუნიციპალიტეტი</option>
-                        <option value="ცაგერის მუნიციპალიტეტი">ცაგერის მუნიციპალიტეტი</option>
-                        <option value="წალენჯიხის მუნიციპალიტეტი">წალენჯიხის მუნიციპალიტეტი</option>
-                        <option value="წალკის მუნიციპალიტეტი">წალკის მუნიციპალიტეტი</option>
-                        <option value="წყალტუბოს მუნიციპალიტეტი">წყალტუბოს მუნიციპალიტეტი</option>
-                        <option value="ჭიათურის მუნიციპალიტეტი">ჭიათურის მუნიციპალიტეტი</option>
-                        <option value="ხარაგაულის მუნიციპალიტეტი">ხარაგაულის მუნიციპალიტეტი</option>
-                        <option value="ხაშურის მუნიციპალიტეტი">ხაშურის მუნიციპალიტეტი</option>
-                        <option value="ხელვაჩაურის მუნიციპალიტეტი">ხელვაჩაურის მუნიციპალიტეტი</option>
-                        <option value="ხობის მუნიციპალიტეტი">ხობის მუნიციპალიტეტი</option>
-                        <option value="ხონის მუნიციპალიტეტი">ხონის მუნიციპალიტეტი</option>
-                        <option value="ხულოს მუნიციპალიტეტი">ხულოს მუნიციპალიტეტი</option>
-                        <option value="ჯავის მუნიციპალიტეტი">ჯავის მუნიციპალიტეტი</option> 
+                     <select name="city" class="form-control chosen-select" id="city" data-placeholder="{{ __('messages.browseCity')}}" required style="height: 50px">
+                        <option value="">{{ __('messages.browseCity')}}</option> 
+                        <option value="თბილისი">{{ __('messages.tbilisi')}}</option>
+                        <option value="ბათუმი">{{ __('messages.batumi')}}</option>
+                        <option value="ქუთაისი">{{ __('messages.kutaisi')}}</option>
+                        <option value="გურჯაანის მუნიციპალიტეტი">{{ __('messages.gurjaani')}}</option>
+                        <option value="თელავის მუნიციპალიტეტი">{{ __('messages.telavi')}}</option>
+                        <option value="ზუგდიდის მუნიციპალიტეტი">{{ __('messages.zugdidi')}}</option>
+                        <option value="ბაკურიანი">{{ __('messages.bakuriani')}}</option>
+                        <option value="გორის მუნიციპალიტეტი">{{ __('messages.gori')}}</option>
+                        <option value="რუსთავი">{{ __('messages.rustavi')}}</option>
+                        <option value="ფოთი">{{ __('messages.poti')}}</option>
+                        <option value="აბაშის მუნიციპალიტეტი">{{ __('messages.abasha')}}</option>
+                        <option value="ადიგენის მუნიციპალიტეტი">{{ __('messages.adigeni')}}</option>
+                        <option value="ამბროლაურის მუნიციპალიტეტი">{{ __('messages.ambrolauri')}}</option>
+                        <option value="ასპინძის მუნიციპალიტეტი">{{ __('messages.aspindza')}}</option>
+                        <option value="ახალგორის მუნიციპალიტეტი">{{ __('messages.akhalgori')}}</option>
+                        <option value="ახალქალაქის მუნიციპალიტეტი">{{ __('messages.akhalkalaki')}}</option>
+                        <option value="ახალციხის მუნიციპალიტეტი">{{ __('messages.akhaltsikhe')}}</option>
+                        <option value="ახმეტის მუნიციპალიტეტი">{{ __('messages.akhmeta')}}</option>
+                        <option value="ბაღდათის მუნიციპალიტეტი">{{ __('messages.bagdati')}}</option>
+                        <option value="ბოლნისის მუნიციპალიტეტი">{{ __('messages.bolnisi')}}</option>
+                        <option value="ბორჯომის მუნიციპალიტეტი">{{ __('messages.borjomi')}}</option>
+                        <option value="გარდაბნის მუნიციპალიტეტი">{{ __('messages.gardabani')}}</option>
+                        <option value="დედოფლისწყაროს მუნიციპალიტეტი">{{ __('messages.dedoflistskaro')}}</option>
+                        <option value="დმანისის მუნიციპალიტეტი">{{ __('messages.dmanisi')}}</option>
+                        <option value="დუშეთის მუნიციპალიტეტი">{{ __('messages.dusheti')}}</option>
+                        <option value="ვანის მუნიციპალიტეტი">{{ __('messages.vani')}}</option>
+                        <option value="ზესტაფონის მუნიციპალიტეტი">{{ __('messages.zestafoni')}}</option>
+                        <option value="თეთრი წყაროს მუნიციპალიტეტი">{{ __('messages.tetritskaro')}}</option>
+                        <option value="თერჯოლის მუნიციპალიტეტი">{{ __('messages.terjola')}}</option>
+                        <option value="თიანეთის მუნიციპალიტეტი">{{ __('messages.tianeti')}}</option>
+                        <option value="კასპის მუნიციპალიტეტი">{{ __('messages.kaspi')}}</option>
+                        <option value="ლაგოდეხის მუნიციპალიტეტი">{{ __('messages.lagodekhi')}}</option>
+                        <option value="ლანჩხუთის მუნიციპალიტეტი">{{ __('messages.lanchkhuti')}}</option>
+                        <option value="ლენტეხის მუნიციპალიტეტი">{{ __('messages.lentekhi')}}</option>
+                        <option value="მარნეულის მუნიციპალიტეტი">{{ __('messages.marneuli')}}</option>
+                        <option value="მარტვილის მუნიციპალიტეტი">{{ __('messages.martvili')}}</option>
+                        <option value="მესტიის მუნიციპალიტეტი">{{ __('messages.mestia')}}</option>
+                        <option value="მცხეთის მუნიციპალიტეტი">{{ __('messages.mtskheta')}}</option>
+                        <option value="ნინოწმინდის მუნიციპალიტეტი">{{ __('messages.ninotsminda')}}</option>
+                        <option value="ოზურგეთის მუნიციპალიტეტი">{{ __('messages.ozurgeti')}}</option>
+                        <option value="ონის მუნიციპალიტეტი">{{ __('messages.oni')}}</option>
+                        <option value="საგარეჯოს მუნიციპალიტეტი">{{ __('messages.sagarejo')}}</option>
+                        <option value="სამტრედიის მუნიციპალიტეტი">{{ __('messages.samtredia')}}</option>
+                        <option value="საჩხერის მუნიციპალიტეტი">{{ __('messages.sachkhere')}}</option>
+                        <option value="სენაკის მუნიციპალიტეტი">{{ __('messages.senaki')}}</option>
+                        <option value="სიღნაღის მუნიციპალიტეტი">{{ __('messages.signagi')}}</option>
+                        <option value="ტყიბულის მუნიციპალიტეტი">{{ __('messages.tkibuli')}}</option>
+                        <option value="ქარელის მუნიციპალიტეტი">{{ __('messages.kareli')}}</option>
+                        <option value="ქედის მუნიციპალიტეტი">{{ __('messages.keda')}}</option>
+                        <option value="ქობულეთის მუნიციპალიტეტი">{{ __('messages.kobuleti')}}</option>
+                        <option value="ყაზბეგის მუნიციპალიტეტი">{{ __('messages.kazbegi')}}</option>
+                        <option value="ყვარლის მუნიციპალიტეტი">{{ __('messages.kvareli')}}</option>
+                        <option value="შუახევის მუნიციპალიტეტი">{{ __('messages.shuakhevi')}}</option>
+                        <option value="ჩოხატაურის მუნიციპალიტეტი">{{ __('messages.chokhatauri')}}</option>
+                        <option value="ჩხოროწყუს მუნიციპალიტეტი">{{ __('messages.chkhorotsku')}}</option>
+                        <option value="ცაგერის მუნიციპალიტეტი">{{ __('messages.tsageri')}}</option>
+                        <option value="წალენჯიხის მუნიციპალიტეტი">{{ __('messages.tsalejikha')}}</option>
+                        <option value="წალკის მუნიციპალიტეტი">{{ __('messages.tsalka')}}</option>
+                        <option value="წყალტუბოს მუნიციპალიტეტი">{{ __('messages.tskaltubo')}}</option>
+                        <option value="ჭიათურის მუნიციპალიტეტი">{{ __('messages.chiatura')}}</option>
+                        <option value="ხარაგაულის მუნიციპალიტეტი">{{ __('messages.kharagauli')}}</option>
+                        <option value="ხაშურის მუნიციპალიტეტი">{{ __('messages.khashuri')}}</option>
+                        <option value="ხელვაჩაურის მუნიციპალიტეტი">{{ __('messages.khelvachaui')}}</option>
+                        <option value="ხობის მუნიციპალიტეტი">{{ __('messages.khobi')}}</option>
+                        <option value="ხონის მუნიციპალიტეტი">{{ __('messages.khoni')}}</option>
+                        <option value="ხულოს მუნიციპალიტეტი">{{ __('messages.khulo')}}</option>
+                        <option value="ჯავის მუნიციპალიტეტი">{{ __('messages.java')}}</option> 
 
 
 
@@ -244,10 +244,10 @@
 
                  <!-- Address -->
             <div class="mb-3">
-                <label for="address" class="form-label"><h4><strong style="position:relative; top:12px">მისამართი</strong></h4></label>
+                <label for="address" class="form-label"><h4><strong style="position:relative; top:12px">{{ __('messages.address')}}</strong></h4></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-house-door"></i></span>
-                    <input type="text" class="form-control" id="address" name="address" placeholder="ზუსტი მისამართი" required>
+                    <input type="text" class="form-control" id="address" name="address" placeholder="{{ __('messages.preciseAddress')}}" required>
                 </div>
             </div>
         </div>
@@ -256,7 +256,7 @@
         
            <!-- Submit button -->
         <div class="mt-4 text-center">
-            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> შეკვეთა</button>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> {{ __('messages.orderProduct')}}</button>
         </div>
     </form>
 </div>

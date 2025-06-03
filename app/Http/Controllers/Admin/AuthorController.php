@@ -23,28 +23,35 @@ class AuthorController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'name_en' => 'nullable|string|max:255',
         ]);
 
-        Author::create($request->all());
+        Author::create($request->only('name', 'name_en'));
 
         return redirect()->route('admin.authors.index')->with('success', 'Author created successfully.');
     }
 
+
+    
     public function edit(Author $author)
     {
         return view('admin.authors.edit', compact('author'));
     }
 
+
+
     public function update(Request $request, Author $author)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'name_en' => 'nullable|string|max:255',
         ]);
 
-        $author->update($request->all());
+        $author->update($request->only('name', 'name_en'));
 
         return redirect()->route('admin.authors.index')->with('success', 'Author updated successfully.');
     }
+
 
     public function destroy(Author $author)
     {

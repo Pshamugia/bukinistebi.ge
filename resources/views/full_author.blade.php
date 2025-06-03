@@ -26,16 +26,16 @@
             @endif
                 </a>
             <div class="card-body">
-                <h5 class="card-title">{{ $book->title }}</h5>
-                <p class="card-text">{{ number_format($book->price) }} ლარი</p>
+                <h5 class="card-title">{{ app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title }}</h5>
+                <p class="card-text">{{ number_format($book->price) }} {{ __('messages.lari')}}</p>
 
                 @if (in_array($book->id, $cartItemIds))
     <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="true">
-        დამატებულია
+        {{ __('messages.added')}}
     </button>
 @else
     <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="false">
-        დაამატე კალათაში
+        {{ __('messages.addtocart')}}
     </button>
 @endif
  

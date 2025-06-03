@@ -7,11 +7,24 @@
 @section('content')
  
 <div class="container">
-    <h2>{{ __('მომხმარებლების აქტივობები') }}</h2>
+    <h2>{{ __('ტრანზაქციები') }}</h2>
      <!-- Add the download button -->
-     <a href="{{ route('admin.users.transactions.export') }}" class="btn btn-success mb-3">
-        {{ __('გადმოწერე ტრანზაქციები Excel ფორმატში') }}
-    </a>
+     <form method="GET" action="{{ route('admin.users.transactions.export') }}" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label for="from_date" class="form-label">დან</label>
+            <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request('from_date') }}">
+        </div>
+    
+        <div class="col-md-3">
+            <label for="to_date" class="form-label">მდე</label>
+            <input type="date" id="to_date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+        </div>
+    
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">ტრანზაქციების გადმოწერა</button>
+        </div>
+    </form>
+    
     <table class="table table-bordered table-hover">
         <thead>
             <tr>

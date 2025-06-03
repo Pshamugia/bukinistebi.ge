@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User; // Include the User model
 use App\Models\Order; // Make sure to include your Order model
 use Intervention\Image\Facades\Image; // Add this at the top of your controller
+use App\Exports\UserTransactionsExport; 
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class BookController extends Controller
@@ -48,15 +50,30 @@ class BookController extends Controller
 
     
 
-    public function create()
-    {
-        $authors = Author::all(); 
-        $books = Book::all();
-        $genres = Genre::all();
-        $book = new \App\Models\Book(); // ✅ Add this line
+public function create(Request $request)
+{
+    $locale = $request->get('lang', app()->getLocale());
+    app()->setLocale($locale);
 
-        return view('admin.books.create', compact('authors',  'books', 'genres', 'book'));
+    // ✅ Load all authors with either Georgian or English name
+    $authors = Author::where(function ($query) {
+        $query->whereNotNull('name')->orWhereNotNull('name_en');
+    })->get();
+
+    // ✅ Load all genres (same as before)
+    if ($locale === 'en') {
+        $genres = Genre::whereNotNull('name_en')->get();
+    } else {
+        $genres = Genre::whereNotNull('name')->get();
     }
+
+    return view('admin.books.create', compact('authors', 'genres', 'locale'));
+}
+
+
+
+
+
 
 
 
@@ -65,6 +82,7 @@ class BookController extends Controller
         // Step 1: Validate incoming data
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'language' => 'required|in:ka,en',
             'price' => 'required|numeric',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'photo_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -199,6 +217,7 @@ class BookController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
+            'language' => 'required|in:ka,en',
             'price' => 'required|numeric',
             'manual_created_at' => 'nullable|date_format:Y-m-d\TH:i',
             'description' => 'required|string',
@@ -262,13 +281,34 @@ class BookController extends Controller
 
 
     public function edit(Book $book)
-    {
-        $authors = Author::all();
-        $categories = Category::all();
-        $genres = Genre::all();
-        return view('admin.books.edit', compact('book', 'authors', 'categories', 'genres'));
-    }
+{
+    $locale = app()->getLocale();
 
+    // Load genres relation so we can detect which ones are already assigned
+    $book->load('genres');
+
+    $authors = Author::query();
+    if ($locale === 'en') {
+        $authors = $authors->whereNotNull('name_en');
+    } else {
+        $authors = $authors->whereNotNull('name');
+    }
+    $authors = $authors->get();
+
+    $genres = Genre::query();
+    if ($locale === 'en') {
+        $genres = $genres->whereNotNull('name_en');
+    } else {
+        $genres = $genres->whereNotNull('name');
+    }
+    $genres = $genres->get();
+
+    $categories = Category::all();
+
+    return view('admin.books.edit', compact('book', 'authors', 'categories', 'genres', 'locale'));
+}
+
+    
 
 
     public function destroy(Book $book)
@@ -446,4 +486,12 @@ class BookController extends Controller
         // Return the view with all required data
         return view('admin.search', compact('books', 'authors', 'searchTerm',  'search_count', 'categories'));
     }
+
+    public function exportUserTransactions(Request $request)
+{
+    $from = $request->from_date;
+    $to = $request->to_date;
+
+    return Excel::download(new UserTransactionsExport($from, $to), 'user_transactions.xlsx');
+}
 }

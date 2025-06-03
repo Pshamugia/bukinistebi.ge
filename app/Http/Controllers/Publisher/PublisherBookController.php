@@ -21,16 +21,32 @@ use Illuminate\Support\Facades\Validator;
 
 class PublisherBookController extends Controller
 {
-    public function create()
-{
-    $authors = Author::all(); // Fetch authors
-    $genres = Genre::all();
     
+    
+    public function create(Request $request)
+{
+    $locale = $request->get('lang', app()->getLocale());
+    app()->setLocale($locale); // set locale dynamically for consistency
+
+    $authors = Author::query();
+    $genres = Genre::query();
+
+    if ($locale === 'en') {
+        $authors = $authors->whereNotNull('name_en');
+        $genres = $genres->whereNotNull('name_en');
+    } else {
+        $authors = $authors->whereNotNull('name');
+        $genres = $genres->whereNotNull('name');
+    }
+
+    $authors = $authors->get();
+    $genres = $genres->get();
     $isHomePage = false;
 
-
-    return view('publisher.create', compact('authors', 'genres', 'isHomePage'));
+    return view('publisher.create', compact('authors', 'genres', 'isHomePage', 'locale'));
 }
+
+
 
 
 
@@ -54,6 +70,7 @@ public function store(Request $request)
         'pages' => 'nullable|string|max:255',
         'publishing_date' => 'nullable|string',
         'cover' => 'nullable|string|max:255',
+        'language' => 'required|in:ka,en',
     ]);
 
     // Handle photo uploads and WebP conversion
@@ -78,6 +95,7 @@ public function store(Request $request)
 
     // Add uploader information
     $validatedData['uploader_id'] = auth()->id();
+    $validatedData['language'] = $request->language;
 
     // Set the `hide` attribute based on role
     $validatedData['hide'] = auth()->user()->role === 'publisher' ? '1' : '0';

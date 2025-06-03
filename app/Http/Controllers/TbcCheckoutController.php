@@ -48,6 +48,7 @@ class TbcCheckoutController extends Controller
             'name' => $validatedData['name'],
             'phone' => $validatedData['phone'],
             'address' => $validatedData['address'],
+            'city' => $validatedData['city'], // ✅ 
         ]);
 
         // Create order items

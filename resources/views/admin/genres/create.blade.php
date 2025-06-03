@@ -10,12 +10,16 @@
     <form action="{{ route('admin.genres.store') }}" method="POST">
         @csrf
 
+          <!-- Georgian Name -->
+          <div class="mb-3">
+            <label for="name" class="form-label">სახელი (ქართული)</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+
+        <!-- English Name -->
         <div class="mb-3">
-            <label>დასახელება</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
-            @error('name')
-                <small class="text-danger">{{ $message }}</small>
-            @enderror
+            <label for="name_en" class="form-label">Name (English)</label>
+            <input type="text" class="form-control" id="name_en" name="name_en">
         </div>
 
         <button type="submit" class="btn btn-success">შენახვა</button>

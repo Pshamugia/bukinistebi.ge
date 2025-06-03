@@ -29,20 +29,20 @@
             <!-- Email Address -->
             <div>
                 <span>
-                <x-input-label for="email" :value="__('ელფოსტა')" /> <br><br>
-                <div class="input-group mb-3">
+                    <x-input-label for="email" :value="__('messages.email')" /> <br><br>
+                    <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon1">@</span>
-                    <input type="email" class="form-control" placeholder="ელფოსტა" aria-label="Email" aria-describedby="basic-addon1" name="email" :value="old('email')" required autofocus autocomplete="username">
+                    <input type="email" class="form-control" placeholder="{{ __('messages.email')}}" aria-label="Email" aria-describedby="basic-addon1" name="email" :value="old('email')" required autofocus autocomplete="username">
                 </div> </span>
             </div>
 
             <!-- Password -->
             <div class="mt-4">
                 <span>
-                <x-input-label for="password" :value="__('პაროლი')" /> <br><br>
+                <x-input-label for="password" :value="__('messages.password')" /> <br><br>
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span> <!-- Lock icon -->
-                    <input type="password" class="form-control" placeholder="პაროლი" aria-label="Password" name="password" required autocomplete="current-password">
+                    <input type="password" class="form-control" placeholder="{{ __('messages.password')}}" aria-label="Password" name="password" required autocomplete="current-password">
                 </div></span>
             </div>
 
@@ -50,19 +50,19 @@
             <div class="block mt-4">
                 <label for="remember_me" class="inline-flex items-center">
                     <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                    <span class="ms-2 text-sm text-gray-600">{{ __('დამახსოვრება') }}</span>
+                    <span class="ms-2 text-sm text-gray-600">{{ __('messages.remember')}}</span>
                 </label>
             </div>
 
             <div class="flex items-center justify-end mt-4">
                 @if (Route::has('password.request'))
                     <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                        {{ __('პაროლის აღდგენა') }}
+                        {{ __('messages.reset') }}
                     </a>
                 @endif
 
                 <button type="submit" class="btn btn-primary" style="margin-left:5%">
-                    {{ __('შესვლა') }} </button>
+                    {{ __('messages.login') }} </button>
             </div>
         </form>
     </div>

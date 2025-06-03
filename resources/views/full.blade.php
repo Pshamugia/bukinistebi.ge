@@ -3,6 +3,13 @@
 @section('title', $book->title)
 
 @section('content')
+@php
+    $jsTranslations = [
+        'added' => __('messages.added'),
+        'addToCart' => __('messages.addtocart'),
+        'loginRequired' => __('messages.loginrequired'),
+    ];
+@endphp
     <div class="container mt-5" style="position: relative; padding-bottom: 5%">
         <div class="row">
             <!-- Book Image -->
@@ -82,9 +89,9 @@
                 <!-- Display average rating -->
                 <div style="border:1px solid #ccc; border-radius:5px; padding:15px; margin-bottom:20px"> 
 @if($averageRating)
-<p> {{ number_format($averageRating) }} / 5 ({{ $ratingCount }} მომხ.)</p>
+<p> {{ number_format($averageRating) }} / 5 ({{ $ratingCount }} {{__('messages.userRating')}})</p>
 @else
-<p>ჯერ არაა რეიტინგი.</p>
+<p>{{__('messages.notRated')}}</p>
 @endif
 
 <!-- Display individual star ratings (if needed) -->
@@ -97,13 +104,13 @@
 <!-- Rating Form -->
 <form id="rating-form" method="POST" action="{{ route('article.rate', $book->id) }}">
 @csrf
-<label for="rating">შეფასება:</label>
+<label for="rating">{{__('messages.rate')}}</label>
 <input type="radio" name="rating" value="1"> 1
 <input type="radio" name="rating" value="2"> 2
 <input type="radio" name="rating" value="3"> 3
 <input type="radio" name="rating" value="4"> 4
 <input type="radio" name="rating" value="5"> 5
-<button type="submit">მიბმა</button>
+<button type="submit">{{__('messages.submit')}}</button>
 </form>
 
 
@@ -129,16 +136,19 @@
             <!-- Book Details -->
             <div class="col-md-7">
                 <h2>{{ $book->title }}</h2>
-                <p class="text-muted">ავტორი:
+                <p class="text-muted">{{__('messages.author')}}:
                     <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                         style="text-decoration: none">
-                        <span> {{ $book->author->name }} </span>
+                        @php
+                        $authorName = app()->getLocale() === 'en' ? ($book->author->name_en ?? $book->author->name) : $book->author->name;
+                    @endphp
+                    <span> {{ $authorName }} </span>
                     </a>
                 </p>
                 @if ($book->quantity > 0)
                     <p><strong>
                             <h4><span style="font-size: 20px" id="price">{{ number_format($book->price) }} </span>
-                                <span> ლარი </h4> </span>
+                                <span> {{__('messages.lari')}} </h4> </span>
                         </strong> </p>
                         @else
                         <div class="alert alert-warning mt-3"> <i class="bi bi-x-circle text-danger"></i> ამ წიგნის
@@ -167,51 +177,51 @@
                 <!-- Add to Cart Button -->
                 <!-- Add to Cart Button -->
                 @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                    @if (in_array($book->id, $cartItemIds))
-                        <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
-                            data-in-cart="true" style="width: 200px; font-size: 15px">
-                            <i class="bi bi-check-circle"></i> დამატებულია
-                        </button>
-                    @else
-                        <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
-                            data-in-cart="false" style="width: 200px; font-size: 15px">
-                            <i class="bi bi-cart-plus"></i> დაამატე კალათაში
-                        </button>
-                    @endif
+                @if (in_array($book->id, $cartItemIds))
+                <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
+                    data-in-cart="true" style="width: 200px; font-size: 15px">
+                    <i class="bi bi-check-circle"></i> <span class="cart-btn-text">{{ __('messages.added') }}</span>
+                </button>
+            @else
+                <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
+                    data-in-cart="false" style="width: 200px; font-size: 15px">
+                    <i class="bi bi-cart-plus"></i> <span class="cart-btn-text">{{ __('messages.addtocart') }}</span>
+                </button>
+            @endif
                 @endif
 
                 <!-- Book Description -->
                 <div class="mt-4">
-                    <h4 style="position: relative; top: 8px"><i class="bi bi-file-text"></i> აღწერა</h4>
+                    <h4 style="position: relative; top: 8px"><i class="bi bi-file-text"></i> {{ __('messages.description')}}</h4>
                     <p style="border:1px solid rgb(202, 200, 200); padding: 20px; margin-top:20px; border-radius: 3px">
                         <span>
                             {{ $book->description ?? 'აღწერა არ არის დამატებული.' }}
                         </span>
                     </p>
 
-                    <h4 style="position: relative; top: 8px"><i class="bi bi-clipboard-data"></i> დეტალები </h4>
+                    <h4 style="position: relative; top: 8px"><i class="bi bi-clipboard-data"></i> {{ __('messages.details')}} </h4>
 
                     <table class="table table-bordered table-hover" style="margin-top:20px; position: relative;">
 
                         <tbody>
                             <tr>
-                                <td class="nowrap"><strong> ფასი</strong></td>
-                                <td>{{ number_format($book->price) }} ლარი </td>
+                                <td class="nowrap"><strong> {{ __('messages.price')}}</strong></td>
+                                <td>{{ number_format($book->price) }} {{ __('messages.lari')}} </td>
                             </tr>
                             <tr>
-                                <td class="nowrap"><strong> გვერდების რაოდენობა</strong></td>
+                                <td class="nowrap"><strong> {{ __('messages.numberOfPages')}}</strong></td>
                                 <td>{{ $book->pages }}</td>
                             </tr>
                             <tr>
-                                <td class="nowrap"><strong>გამოცემის თარიღი</strong></td>
-                                <td>{{ $book->publishing_date }} წელი </td>
+                                <td class="nowrap"><strong>{{ __('messages.yearofpublicaion')}}</strong></td>
+                                <td>{{ $book->publishing_date }}  </td>
                             </tr>
                             <tr>
-                                <td><strong>გარეკანი</strong></td>
+                                <td><strong>{{ __('messages.cover')}}</strong></td>
                                 <td>{{ $book->cover }}</td>
                             </tr>
                             <tr>
-                                <td><strong>მდგომარეობა</strong></td>
+                                <td><strong>{{ __('messages.bookCondition')}}</strong></td>
                                 <td>{{ $book->status }}</td>
                             </tr>
                         </tbody>
@@ -221,13 +231,16 @@
            
                         <div class="d-flex flex-wrap gap-2 tags">
                             @foreach($book->genres as $genre)
-                                <a href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genre->name)]) }}"
-                                   class="text-decoration-none">
-                                    <span class="badge genre-badge bg-light border border-dark text-dark px-3 py-2 shadow-sm">
-                                        <i class="bi bi-tag"></i> {{ $genre->name }}
-                                    </span>
-                                </a>
-                            @endforeach
+                            @php
+                                $genreName = app()->getLocale() === 'en' ? ($genre->name_en ?? $genre->name) : $genre->name;
+                            @endphp
+                            <a href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}"
+                               class="text-decoration-none">
+                                <span class="badge genre-badge bg-light border border-dark text-dark px-3 py-2 shadow-sm">
+                                    <i class="bi bi-tag"></i> {{ $genreName }}
+                                </span>
+                            </a>
+                        @endforeach
                         </div>
                         
                     
@@ -236,6 +249,82 @@
                 </div>
             </div>
         </div>
+
+
+
+        @if($relatedBooks->count())
+    <div class="container mt-5" style="position: relative; top:-30px">
+        <h2 class="mb-3">
+            <i class="bi bi-book-half me-1"></i>  {{ __('messages.related')}}
+        </h2>
+        <div class="row">
+            @foreach ($relatedBooks as $related)
+                <div class="col-md-3" style="position: relative; ">
+                    <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
+                        <a href="{{ route('full', ['title' => Str::slug($related->title), 'id' => $related->id]) }}"
+                            class="card-link">
+                            <div class="image-container"
+                                style="background-image: url('{{ asset('images/default_image.png') }}');">
+                                <img src="{{ asset('storage/' . $related->photo) }}" alt="{{ $related->title }}"
+                                    class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
+                                    onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';">
+                            </div>
+                        </a>
+                        <div class="card-body">
+                            <h4 class="font-weight-bold">{{ \Illuminate\Support\Str::limit($related->title, 18) }}</h4>
+                            {{-- Author --}}
+                            <p class="text-muted mb-2" style="font-size: 14px;">
+                                <i class="bi bi-person"></i>
+                                <a href="{{ route('full_author', ['id' => $related->author_id, 'name' => Str::slug($related->author->name)]) }}"
+                                    class="text-decoration-none text-primary">
+                                    @php
+                                    $relatedAuthorName = app()->getLocale() === 'en' ? ($related->author->name_en ?? $related->author->name) : $related->author->name;
+                                @endphp
+                                {{ $relatedAuthorName }}
+                                </a>
+                            </p>
+                            <p style="font-size: 18px; color: #333;">
+                                <img src="{{ asset('images/GEL.png') }}" width="23px"> <span
+                                    class="text-dark fw-semibold" style="position: relative; top:3px;">
+                                    {{ number_format($related->price) }}
+                                </span>
+                                <span style="position: relative; top:5px; ">
+                                    @if ($related->quantity == 0)
+                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
+                                            ამოწურულია</span>
+                                    @elseif($related->quantity == 1)
+                                        <span class="badge bg-warning text-dark"
+                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია</span>
+                                    @else
+                                        <span class="badge bg-success"
+                                            style="font-size: 13px; font-weight: 100; float: right;">მარაგშია
+                                            {{ $related->quantity }} ცალი</span>
+                                    @endif
+                                </span>
+                            </p>
+
+                            {{-- Cart Buttons --}}
+                            @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                            @if (in_array($related->id, $cartItemIds))
+                            <button class="btn btn-success toggle-cart-btn w-100"
+                                data-product-id="{{ $related->id }}" data-in-cart="true">
+                                <i class="bi bi-check-circle"></i> {{ __('messages.added') }}
+                            </button>
+                        @else
+                            <button class="btn btn-primary toggle-cart-btn w-100"
+                                data-product-id="{{ $related->id }}" data-in-cart="false">
+                                <i class="bi bi-cart-plus"></i> {{ __('messages.addtocart') }}
+                            </button>
+                        @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
     </div>
 
 
@@ -268,7 +357,16 @@
         </div>
     </div> </div>
 
+
+    @push('scripts')
     <!-- JavaScript -->
+    <script>
+        const translations = {
+            added: @json(__('messages.added')),
+            addToCart: @json(__('messages.addtocart'))
+        };
+    </script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // List of all images to navigate through
@@ -402,44 +500,55 @@
     </script>
 
     <!-- Toggle Cart Button Script -->
-
-    <script>
-        $(document).ready(function() {
-            $('.toggle-cart-btn').click(function() {
-                var button = $(this);
-                var bookId = button.data('product-id');
-                var inCart = button.data('in-cart');
-                var quantity = parseInt($('#quantity').val()); // Get the selected quantity
-
-                $.ajax({
-                    url: '{{ route('cart.toggle') }}',
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        book_id: bookId,
-                        quantity: quantity // Pass the quantity to the server
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            if (response.action === 'added') {
-                                button.removeClass('btn-primary').addClass('btn-success');
-                                button.html('<i class="bi bi-check-circle"></i> დამატებულია');
-                                button.data('in-cart', true);
-                            } else if (response.action === 'removed') {
-                                button.removeClass('btn-success').addClass('btn-primary');
-                                button.html(
-                                    '<i class="bi bi-cart-plus"></i>  დაამატე კალათაში ');
-                                button.data('in-cart', false);
-                            }
-                            $('#cart-count').text(response.cart_count);
+<script>
+    $(document).ready(function () {
+        console.log("jQuery loaded"); // ✅ Check if this prints
+    
+        $('.toggle-cart-btn').click(function () {
+            console.log("Button clicked"); // ✅ Check if this prints
+    
+            var button = $(this);
+            var bookId = button.data('product-id');
+            var inCart = button.data('in-cart');
+            var quantity = parseInt($('#quantity').val());
+    
+            console.log("Sending AJAX...", { bookId, quantity });
+    
+            $.ajax({
+                url: '{{ route('cart.toggle') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    book_id: bookId,
+                    quantity: quantity
+                },
+                success: function (response) {
+                    console.log("Response received", response);
+    
+                    if (response.success) {
+                        if (response.action === 'added') {
+                            button.removeClass('btn-primary').addClass('btn-success');
+                            button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                            button.find('.cart-btn-text').text(translations.added);
+                            button.data('in-cart', true);
+                        } else if (response.action === 'removed') {
+                            button.removeClass('btn-success').addClass('btn-primary');
+                            button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                            button.find('.cart-btn-text').text(translations.addToCart);
+                            button.data('in-cart', false);
                         }
-                    },
-                    error: function(xhr) {
-                        alert('Please log in to use the cart');
+    
+                        $('#cart-count').text(response.cart_count);
                     }
-                });
+                },
+                error: function () {
+                    alert('{{ __('messages.loginrequired') }}');
+                }
             });
         });
+    });
     </script>
-
+    
+    
+@endpush
 @endsection

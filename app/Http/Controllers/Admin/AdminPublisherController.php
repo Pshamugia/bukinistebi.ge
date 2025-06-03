@@ -17,10 +17,14 @@ class AdminPublisherController extends Controller
     public function activity()
     {
         $publishers = User::where('role', 'publisher')
-            ->with('books')
-            ->withCount('books') // Add this line to count the books
-            ->orderByDesc('books_count') // Sort by number of uploaded books (desc)
-            ->get();
+        
+            ->with(['books' => function ($query) {
+                $query->latest(); // get the latest book for sorting
+            }])
+            ->get()
+            ->sortByDesc(function ($publisher) {
+                return $publisher->books->first()->created_at ?? now()->subYears(10); // push oldest to bottom
+            });
     
         return view('admin.publishers.activity', compact('publishers'));
     }

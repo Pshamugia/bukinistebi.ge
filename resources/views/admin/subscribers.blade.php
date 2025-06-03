@@ -14,7 +14,7 @@
         <tbody>
             @foreach($subscribers as $subscriber)
                 <tr>
-                     <td>{{ $subscriber->email }}</td>
+                     <td>{{ $loop->iteration }}. {{ $subscriber->email }}</td>
                      
                     
                 </tr>

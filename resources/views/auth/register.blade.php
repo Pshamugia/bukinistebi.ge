@@ -45,7 +45,7 @@
             <div class="mt-4">
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input type="text" class="form-control" placeholder="სახელი" aria-label="Name" name="name" :value="old('name')" required autofocus autocomplete="name">
+                    <input type="text" class="form-control" placeholder="{{ __('messages.name')}}" aria-label="Name" name="name" :value="old('name')" required autofocus autocomplete="name">
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
             <div class="mt-4">
                 <div class="input-group mb-3">
                     <span class="input-group-text">@</span>
-                    <input type="email" class="form-control" placeholder="ელფოსტა" aria-label="Email" name="email" :value="old('email')" required autocomplete="username">
+                    <input type="email" class="form-control" placeholder="{{ __('messages.email')}}" aria-label="Email" name="email" :value="old('email')" required autocomplete="username">
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
             <div class="mt-4">
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" placeholder="პაროლი" aria-label="Password" name="password" required autocomplete="new-password">
+                    <input type="password" class="form-control" placeholder="{{ __('messages.password')}}" aria-label="Password" name="password" required autocomplete="new-password">
                 </div>
             </div>
 
@@ -69,17 +69,17 @@
             <div class="mt-4">
                 <div class="input-group mb-3">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" placeholder="გაიმეორეთ პაროლი" aria-label="Confirm Password" name="password_confirmation" required autocomplete="new-password">
+                    <input type="password" class="form-control" placeholder="{{ __('messages.confirm')}}" aria-label="Confirm Password" name="password_confirmation" required autocomplete="new-password">
                 </div>
             </div>
 
             <div class="flex items-center justify-end mt-4">
                 <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                    <span>  {{ __('უკვე რეგისტრირებული ხარ?') }} </span>
+                    <span>  {{ __('messages.alreadyRegstered') }} </span>
                 </a>
 
                 <button type="submit" class="btn btn-success" style="margin-left:5%">
-                    {{ __('რეგისტრაცია') }}
+                    {{ __('messages.register') }}
                 </button>
             </div>
         </form>

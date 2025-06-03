@@ -6,7 +6,7 @@
 @section('content')
 <div class="container mt-5 col-md-4" style="position: relative; padding-top:10%; padding-bottom:5%;">
     <div class="mb-4 text-sm text-gray-600">
-        {{ __('დაგავიწყდა პაროლი? ჩაწერე ქვედა ველში შენი ელფოსტა და მოგივა პაროლის აღდგენის ლინკი, სადაც შეძლებ პაროლის შეცვლას.') }}
+        {{ __('messages.forgot') }}
     </div>
 
     <!-- Session Status -->
@@ -17,7 +17,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('ელფოსტა')" />
+            <x-input-label for="email" :value="__('messages.email')" />
             <br><br>
             
             <input type="email" id="email" class="form-control" name="email" :value="old('email')" required autofocus aria-describedby="emailHelp" placeholder="Enter email">
@@ -26,7 +26,7 @@
 
         <div class="flex items-center justify-end mt-4">
             <button type="submit" class="btn btn-success">
-                {{ __('ელფოსტაზე გაგზავნა') }}
+                {{ __('messages.send') }}
             </button>
         </div>
     </form> 

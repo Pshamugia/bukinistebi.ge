@@ -9,22 +9,22 @@
      
 <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
     justify-content: left;">     <strong>
-        <i class="bi bi-bookmarks-fill"></i> შენაძენის ისტორია
+        <i class="bi bi-bookmarks-fill"></i> {{ __('messages.purchaseHistory')}}
     </strong>
 </h5>
 <div class="container mt-5" style="position:relative; margin-top: -15px !important">
 
      @if($orders->isEmpty())
-        <p>{{ __('თქვენ ჯერ არაფერი გაქვთ შეძენილი.') }}</p>
+        <p>{{ __('messages.nothingPuchased') }}</p>
     @else
         <table class="table">
             <thead>
                 <tr>
                     <th>{{ __('ID') }}</th>
-                    <th>{{ __('თარიღი') }}</th>
-                    <th>{{ __('ჯამი') }}</th>
-                    <th>{{ __('სტატუსი') }}</th>
-                    <th>{{ __('პროდუქტები') }}</th>
+                    <th>{{ __('messages.date') }}</th>
+                    <th>{{ __('messages.total') }}</th>
+                    <th>{{ __('messages.status') }}</th>
+                    <th>{{ __('messages.products') }}</th>
                 </tr>
             </thead>
             <tbody>

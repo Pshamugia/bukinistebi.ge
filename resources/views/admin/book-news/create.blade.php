@@ -29,19 +29,39 @@
         @csrf
 
         <div class="form-group mt-3">
-            <label for="title">Title</label>
+            <label for="title">სათაური</label>
             <input type="text" class="form-control" name="title" required value="{{ old('title') }}">
         </div>
+
+
+        {{-- English Title --}}
+<div class="form-group mt-3">
+    <label for="title_en">Title (English)</label>
+    <input type="text" class="form-control" name="title_en" value="{{ old('title_en') }}">
+</div>
 
         <div class="form-group mt-3">
             <label for="description">აღწერა</label>
             <textarea class="form-control" name="description" rows="5" required>{{ old('description') }}</textarea>
         </div>
 
+        {{-- English Description --}}
+<div class="form-group mt-3">
+    <label for="description_en">Description (English)</label>
+    <textarea class="form-control" name="description_en" rows="5">{{ old('description_en') }}</textarea>
+</div>
+
         <div class="form-group mt-3">
-            <label for="full">Full</label>
+            <label for="full">Full (ქართულად)</label>
             <textarea class="form-control" name="full" id="full-editor" rows="5">{{ old('full') }}</textarea>
         </div>
+
+
+        {{-- English Full --}}
+<div class="form-group mt-3">
+    <label for="full_en">Full (English)</label>
+    <textarea class="form-control" name="full_en" id="full-editor-en" rows="5">{{ old('full_en') }}</textarea>
+</div>
 
         <div class="form-group mt-3">
             <label for="image">Image</label>
@@ -63,6 +83,19 @@
         on: {
             instanceReady: function () {
                 // Sync content for required validation
+                this.updateElement();
+            },
+            change: function () {
+                this.updateElement();
+            }
+        }
+    });
+</script>
+<script>
+    // Initialize second CKEditor for English full
+    CKEDITOR.replace('full-editor-en', {
+        on: {
+            instanceReady: function () {
                 this.updateElement();
             },
             change: function () {

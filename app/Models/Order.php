@@ -10,7 +10,7 @@ class Order extends Model
     use HasFactory;
 
     // Define the fillable properties
-    protected $fillable = ['user_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'address', 'name', 'phone', 'payment_method'];
+    protected $fillable = ['user_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'address', 'name', 'phone', 'payment_method', 'city',];
 
     // Relationship with OrderItem model
     public function orderItems()

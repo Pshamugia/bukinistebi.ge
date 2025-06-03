@@ -7,7 +7,9 @@
 @section('content')
 
 <div class="container">
-
+    @php
+    $latestOrder = $user->orders->first(); // 👈 This is where latestOrder is defined
+@endphp
     <h2>{{ __('მომხმარებლის დეტალები') }}</h2>
     
     <h4>{{ __('სახელი:') }} {{ $user->name }}</h4>
@@ -17,7 +19,7 @@
         $latestOrder = $user->orders->first(); // Get the latest order
     @endphp
     <p>{{ __('ტელეფონი:') }} {{ $latestOrder->phone }}</p>
-    <p>{{ __('მისამართი:') }} {{ $latestOrder->address }}</p>
+    <p>{{ __('მისამართი:') }} {{ $latestOrder->city }},  {{ $latestOrder->address }}</p>
 @else
     <p>{{ __('ტელეფონი:') }} {{ __('არ არის ხელმისაწვდომი') }}</p>
     <p>{{ __('მისამართი:') }} {{ __('არ არის ხელმისაწვდომი') }}</p>
@@ -56,7 +58,9 @@
                             <ul>
                                 @foreach($order->orderItems as $item)
                                     <li>
-                                        {{ $item->book->title }} ({{ $item->quantity }})
+                                        <a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}" target="_blank">
+                                            {{ $item->book->title }}
+                                        </a> ({{ $item->quantity }})
                                         @if($item->book->publisher)
                                            <Span style="color:red; font-weight: bold"> — <small>ბუკინისტი: {{ $item->book->publisher->name }}</small> </Span>
                                         @else

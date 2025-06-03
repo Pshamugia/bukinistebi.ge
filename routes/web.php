@@ -30,12 +30,19 @@ use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-
+use Illuminate\Support\Facades\Artisan;
 
  
 //FOR COOKIES
  Route::post('/store-cookie-consent', [CookieConsentController::class, 'storeUserBehavior'])->name('store-user-behavior');
 
+ Route::get('/clear-all-cache', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return '✅ All caches cleared';
+});
 
 // Home Route - Display all books
 Route::get('/', [BookController::class, 'welcome'])->name('welcome');
@@ -48,20 +55,14 @@ Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('s
 Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
 
-// Chat routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');
-    Route::post('/chats', [ChatController::class, 'store'])->name('chats.store');
+// 
+Route::get('lang/{locale}', [App\Http\Controllers\BookController::class, 'setLocale'])->name('setLocale');
 
-    // Endpoint to set admin login status
-    Route::get('/admin-login-status', function () {
-        $user = Auth::user();
-        if ($user && $user->role === 'admin') {
-            Cache::put('admin_online', true, now()->addMinutes(5)); // Set admin online status
-        }
-        return response()->json(['status' => 'updated']);
-    });
+Route::get('/lang-test', function () {
+    return 'Current language is: ' . app()->getLocale();
 });
+
+
 
 // Admin status route
 Route::get('/admin-status', function () {
@@ -273,9 +274,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 //users transacions
 Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
 Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
-Route::get('/admin/users/transactions/export', function () {
-    return Excel::download(new UserTransactionsExport, 'user_transactions.xlsx');
-})->name('admin.users.transactions.export');
+Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
+    ->name('admin.users.transactions.export');
 Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
 
 Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
