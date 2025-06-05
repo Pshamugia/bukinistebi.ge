@@ -14,20 +14,34 @@ use Carbon\Carbon;
 
 class AdminPublisherController extends Controller
 {
-    public function activity()
-    {
-        $publishers = User::where('role', 'publisher')
-        
-            ->with(['books' => function ($query) {
-                $query->latest(); // get the latest book for sorting
-            }])
-            ->get()
-            ->sortByDesc(function ($publisher) {
-                return $publisher->books->first()->created_at ?? now()->subYears(10); // push oldest to bottom
-            });
     
-        return view('admin.publishers.activity', compact('publishers'));
-    }
+    
+    public function activity(Request $request)
+{
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $publishers = User::where('role', 'publisher')
+        ->with(['books.orderItems' => function ($query) use ($startDate, $endDate) {
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+        }])
+        ->get()
+        ->map(function ($publisher) {
+            $publisher->total_earned = $publisher->books->sum(function ($book) {
+                return $book->orderItems->sum(function ($item) {
+                    return $item->price * $item->quantity;
+                });
+            });
+            return $publisher;
+        })
+        ->sortByDesc(fn($publisher) => $publisher->books->first()->created_at ?? now()->subYears(10));
+
+    return view('admin.publishers.activity', compact('publishers', 'startDate', 'endDate'));
+}
+
+    
     
 
     public function toggleVisibility($id)

@@ -118,9 +118,9 @@
                         {{ __('messages.booksellersRoom') }}
                     </a>
                 @else
-                    <a href="{{ route('login.publisher') }}" class="btn btn-outline-light" style="font-size: 2vw">
-                        {{ __('messages.register') }}
-                    </a>
+                <p>  <a href="{{ route('login.publisher') }}" class="btn btn-outline-light" >
+                    <span style="font-size: 20px">   {{ __('messages.register') }} </span>
+                    </a></p>
                 @endif
             </h2>
         </div>
@@ -182,9 +182,7 @@
                     <i class="bi bi-fire"></i> {{ __('messages.viewed') }}
                 </h5>
                 <div class="card mb-3 p-3">
-                    @if ($topRatedArticle->isEmpty())
-    <p style="color:red;">No English books found in top-rated.</p>
-@endif
+                 
                     @foreach ($topRatedArticle as $book)
                     
                         <div class="popular-book-item mb-2">

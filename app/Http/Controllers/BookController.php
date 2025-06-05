@@ -50,6 +50,8 @@ class BookController extends Controller
 $news = BookNews::query()
     ->when($locale === 'en', fn($q) => $q->whereNotNull('title_en'))
     ->when($locale === 'ka', fn($q) => $q->whereNotNull('title'))
+    ->where('title', '!=', 'წესები და პირობები')
+    ->where('title', '!=', 'ბუკინისტებისათვის')
     ->latest()
     ->paginate(6);
 
@@ -80,6 +82,7 @@ $news = BookNews::query()
             $query = DB::table('article_ratings')
                 ->join('books', 'article_ratings.book_id', '=', 'books.id')
                 ->select('books.id as book_id', DB::raw('AVG(article_ratings.rating) as avg_rating'))
+                ->where('books.quantity', '>', 0)
                 ->groupBy('books.id')
                 ->orderByDesc('avg_rating')
                 ->limit(10);

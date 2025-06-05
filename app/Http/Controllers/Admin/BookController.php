@@ -28,25 +28,39 @@ class BookController extends Controller
 
     public function index(Request $request)
 {
-    $query = Book::orderBy('id', 'DESC');
+    $query = Book::with(['author', 'genres', 'publisher']);
 
+    // ✅ Apply quantity filter
     if ($request->filled('quantity')) {
-        $query->where('quantity', $request->input('quantity'));
+        if ($request->quantity === '3plus') {
+            $query->where('quantity', '>', 3);
+        } else {
+            $query->where('quantity', $request->quantity);
+        }
     }
 
-    $books = $query->paginate(10);
+    // ✅ Sort by most viewed if checkbox is selected
+    if ($request->sort === 'views') {
+        $query->orderByDesc('views');
+    } else {
+        $query->latest(); // default sort by created_at
+    }
 
-    // Count how many books exist per quantity value
+    // ✅ Get paginated books
+    $books = $query->paginate(10)->appends($request->all());
+
+    // ✅ For dropdown counts
     $quantityCounts = Book::selectRaw('quantity, COUNT(*) as count')
         ->groupBy('quantity')
-        ->pluck('count', 'quantity'); // returns [quantity => count]
+        ->pluck('count', 'quantity');
 
-    return view('admin.books.index', [
-        'books' => $books,
-        'quantityFilter' => $request->input('quantity'),
-        'quantityCounts' => $quantityCounts
-    ]);
+    // ✅ Add 3+ count manually
+    $quantityCounts['3plus'] = Book::where('quantity', '>=', 3)->count();
+
+    return view('admin.books.index', compact('books', 'quantityCounts'));
 }
+
+    
 
     
 

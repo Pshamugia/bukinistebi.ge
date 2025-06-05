@@ -47,7 +47,7 @@ class BookNewsController extends Controller
     {
         $terms = BookNews::where('title', 'წესები და პირობები')->first();
         $bukinistebisatvis = BookNews::where('title', 'ბუკინისტებისათვის')->first();
-
+    
         return view('terms_conditions', compact('terms', 'bukinistebisatvis'));
     }
 

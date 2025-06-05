@@ -20,7 +20,7 @@ return [
     'booksellerreg' => 'Bookseller registration',
     'booksearch' => 'Book search',
     'bookstore' => 'Antiquarian Bookstore',
-    'searchfor' => 'What you seek is here',
+    'searchfor' => 'Rare, old and new books',
     'recently' => 'Recently Added',
     'author' => 'Author',
     'lari' => 'GEL',
@@ -218,4 +218,9 @@ return [
     'notRated' => 'Not rated yet',
     'rate' => 'Rate',
     'submit' => 'Submit',
+    'useOrder' => 'This book is out of stock. You can use',
+    'theOrder' => 'the order',
+    'feature' => 'feature',
+    'forUsers' => 'For users',
+    'forBooksellers' => 'For booksellers',
 ];

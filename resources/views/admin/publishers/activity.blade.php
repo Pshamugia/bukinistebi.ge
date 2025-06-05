@@ -17,6 +17,20 @@
 </style>
     <div class="container" style="position: relative; margin-top:55px;">
         <h1>ბუკინისტები</h1>
+
+        <form method="GET" action="{{ route('admin.publishers.activity') }}" class="row mb-4">
+            <div class="col-md-3">
+                <label>ამ თარიღიდან</label>
+                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label>ამ თარიღამდე</label>
+                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-primary">ფილტრი</button>
+            </div>
+        </form>
         <table class="table table-bordered  table-hover">
             <thead>
                 <tr>
@@ -24,6 +38,7 @@
                     <th>საკოტაქტო</th>
                     <th>მისამართი</th>
                     <th>საბანკო ანგარიში</th>
+                    <th>ნავაჭრი</th>
                     <th>ატვირთული</th>
                 </tr>
             </thead>
@@ -37,6 +52,12 @@
 
                         <td> {{ $publisher->address ?? 'N/A' }} </td>
                         <td> {{ $publisher->iban ?? 'N/A' }} </td>
+                        <td>
+                            <strong>{{ number_format($publisher->total_earned, 2) }} ლარი</strong>
+                            @if(request('start_date') && request('end_date'))
+                                <br><small>{{ request('start_date') }} - {{ request('end_date') }}</small>
+                            @endif
+                        </td>
                         <td>
                             @if ($publisher->books->isNotEmpty())
                                 <ul class="list-group list-group-flush" id="books-list-{{ $publisher->id }}">
