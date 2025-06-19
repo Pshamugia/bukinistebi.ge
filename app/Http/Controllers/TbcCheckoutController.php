@@ -34,7 +34,7 @@ class TbcCheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        $subtotal = $cart->cartItems->sum(fn ($item) => $item->price * $item->quantity);
+        $subtotal = $cart->cartItems->sum(fn($item) => $item->price * $item->quantity);
         $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00; // Tbilisi gets 5 Lari, others get 7 Lari
         $total = $subtotal + $shipping; // Total = subtotal + shipping
 
@@ -373,30 +373,30 @@ class TbcCheckoutController extends Controller
                 $parts = explode('-', $merchantPaymentId);
                 $userId = $parts[2] ?? null;
                 $auctionId = $parts[3] ?? null;
-            
+
                 if ($userId && $auctionId) {
                     $user = \App\Models\User::find($userId);
                     if ($user && !$user->has_paid_auction_fee) {
                         $user->has_paid_auction_fee = true;
                         $user->save();
-            
+
                         Log::info("✅ User {$userId} paid the 1₾ auction access fee for auction {$auctionId}");
-            
+
                         // Force-authenticate to make sure session has correct user
                         if (!Auth::check() || Auth::id() !== $user->id) {
                             Auth::login($user);
                         }
-            
+
                         return redirect()->route('auction.show', ['auction' => $auctionId])
                             ->with('success', 'საფასური გადახდილია, ახლა შეგიძლიათ ბიჯის გაკეთება.');
                     }
                 }
-            
+
                 Log::warning("⚠️ Could not handle AUC-FEE callback correctly", compact('userId', 'auctionId'));
                 return redirect()->route('home')->with('error', 'გადახდა განხორციელდა, მაგრამ აუქციონის დეტალები ვერ მოიძებნა.');
             }
-            
-            
+
+
 
 
             if (str_starts_with($merchantPaymentId, 'AUC-')) {
@@ -468,42 +468,41 @@ class TbcCheckoutController extends Controller
 
 
     public function payAuctionFee(Request $request)
-{
-    $user = Auth::user();
-    $auctionId = $request->input('auction_id'); // Capture auction ID
-    $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
+    {
+        $user = Auth::user();
+        $auctionId = $request->input('auction_id'); // Capture auction ID
+        $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
 
-    $payload = [
-        'amount' => [
-            'currency' => 'GEL',
-            'total' => '1',
-        ],
-        'returnurl' => route('tbc.callback'), // will redirect here
-        'description' => 'Auction Access Fee',
-        'merchantPaymentId' => $paymentId,
-    ];
+        $payload = [
+            'amount' => [
+                'currency' => 'GEL',
+                'total' => '1',
+            ],
+            'returnurl' => route('tbc.callback'), // will redirect here
+            'description' => 'Auction Access Fee',
+            'merchantPaymentId' => $paymentId,
+        ];
 
-    $token = $this->getAccessToken();
-    if (!$token) {
-        Log::error('❌ Token fetch failed for auction fee');
-        return back()->with('error', 'Failed to get token.');
-    }
+        $token = $this->getAccessToken();
+        if (!$token) {
+            Log::error('❌ Token fetch failed for auction fee');
+            return back()->with('error', 'Failed to get token.');
+        }
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $token,
-        'apikey' => env('TBC_API_KEY'),
-        'Content-Type' => 'application/json',
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'apikey' => env('TBC_API_KEY'),
+            'Content-Type' => 'application/json',
         ])->post(env('TBC_BASE_URL') . '/v1/tpay/payments', $payload);
 
-    if ($response->successful()) {
-        return redirect($response['links'][1]['uri']);
+        if ($response->successful()) {
+            return redirect($response['links'][1]['uri']);
+        }
+
+        session(['auction_id' => $auctionId]);
+
+
+        Log::error('❌ Auction fee payment failed', ['response' => $response->json()]);
+        return back()->with('error', 'Auction fee payment failed.');
     }
-
-    session(['auction_id' => $auctionId]);
-
-    
-    Log::error('❌ Auction fee payment failed', ['response' => $response->json()]);
-    return back()->with('error', 'Auction fee payment failed.');
-}
-
 }
