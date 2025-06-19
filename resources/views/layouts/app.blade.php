@@ -10,6 +10,7 @@
         storeUrl: '{{ route('store-user-behavior') }}'
     };
 </script>
+
 <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
@@ -50,9 +51,9 @@
         content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
     <meta name="author" content="{{ $book->author->name ?? 'Unknown Author' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @if(app()->getLocale() === 'en')
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
-@endif
+    @if (app()->getLocale() === 'en')
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+    @endif
     <title>@yield('title', 'Bukinistebi.ge')</title>
 
     <!-- Twitter Card Meta Tags (Optional) -->
@@ -85,16 +86,16 @@
 
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 
-    @if(app()->getLocale() === 'en')
-    <style>
-        .navbar-nav .nav-link,
-        .dropdown-menu .dropdown-item,
-        .btn,
-        body {
-            font-family: 'Noto Serif', serif;
-        }
-    </style>
-@endif
+    @if (app()->getLocale() === 'en')
+        <style>
+            .navbar-nav .nav-link,
+            .dropdown-menu .dropdown-item,
+            .btn,
+            body {
+                font-family: 'Noto Serif', serif;
+            }
+        </style>
+    @endif
     @if (isset($book))
         <script type="application/ld+json">
         {
@@ -120,303 +121,320 @@
         </script>
     @endif
 
-  <!-- Meta Pixel Code -->
-<script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1049503350038938');
-    fbq('track', 'PageView');
+    <!-- Meta Pixel Code -->
+    <script>
+        ! function(f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function() {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1049503350038938');
+        fbq('track', 'PageView');
     </script>
     <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1"
-    /></noscript>
+            src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1" /></noscript>
     <!-- End Meta Pixel Code -->
 </head>
 
-<body> 
+<body>
 
     <!-- ✅ Top Navbar: right -->
     <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
         <div class="container d-flex justify-content-between align-items-center">
-       
 
-        <!-- Right Side: Cart, Login, Language, Search -->
-        <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
-            <div class="col text-center">
-                
-                 <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon-top" target="blank"><i
-                        class="bi bi-facebook fs-5"></i></a>
-                <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon-top" target="blank"><i
-                        class="bi bi-instagram fs-5"></i></a>
-                
+
+            <!-- Right Side: Cart, Login, Language, Search -->
+            <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
+                <div class="col text-center">
+
+                    <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon-top" target="blank"><i
+                            class="bi bi-facebook fs-5"></i></a>
+                    <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon-top" target="blank"><i
+                            class="bi bi-instagram fs-5"></i></a>
+
+                </div>
             </div>
-        </div>
 
             <!-- Right Side: Cart, Login, Language -->
-        <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
+            <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
 
-            <!-- Cart -->
-            @if (!auth()->check() || auth()->user()->role !== 'publisher')
-            <li class="nav-item">
-                @php
-                    $cartCount = 0;
-                    if (Auth::check() && Auth::user()->cart) {
-                        $cartCount = Auth::user()->cart->cartItems->count();
-                    }
-                @endphp
-                <!-- Cart Link in the Navbar -->
-                <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    {{ __('messages.cart') }} 
-
-                    <div class="custom-bubble">
-                        <span id="cart-count"
-                            style="position: relative; top: 1px;">{{ $cartCount }}</span>
-                    </div>
-                </a>
-
-            </li>
-        @endif
-
-
-        <!-- Right Side of Navbar -->
-        @guest
-            <li class="nav-item dropdown" style="z-index: 1000000">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                    {{ __('messages.login') }}
-                </a>
-
-                <!-- Dropdown with Tabs -->
-                <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
-                    style="width: 350px; z-index: 1000000;" id="dropdown-menu">
-                    <!-- Tab Navigation -->
-                    <ul class="nav nav-tabs" id="authTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
-                                data-bs-target="#login" type="button" role="tab" aria-controls="login"
-                                aria-selected="true">
-                                {{ __('messages.user') }}
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="register-tab" data-bs-toggle="tab"
-                                data-bs-target="#register" type="button" role="tab"
-                                aria-controls="register" aria-selected="false">
-                                {{__('messages.bookseller')}}
-                            </button>
-                        </li>
-                    </ul>
-
-                    <!-- Tab Content -->
-                    <div class="tab-content" id="authTabsContent">
-                        <!-- Users Login Tab -->
-
-                        <div class="tab-pane fade show active" id="login" role="tabpanel"
-                            aria-labelledby="login-tab">
-
-                            <a class="nav-link mt-2" href="{{ route('login') }}">
-                                <i class="bi bi-key"></i>    {{__('messages.authorization')}}
-                            </a>
-                            @if (Route::has('register'))
-                                <a class="nav-link mt-3" href="{{ route('register') }}">
-                                    <i class="bi bi-person-fill-add"></i> {{__('messages.registration')}}</a>
-                            @endif
-                        </div>
-
-                        <!-- Bukinist login Tab -->
-                        <div class="tab-pane fade" id="register" role="tabpanel"
-                            aria-labelledby="register-tab">
-
-
-                            <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
-                            </a>
-                            @if (Route::has('register'))
-                                <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
-                                    <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
-                            @endif
-                        </div>
-                    </div>
-                </ul>
-            </li>
-        @else
-            <li class="nav-item dropdown" style="z-index: 1000000">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                    {{ Auth::user()->name }}
-                </a>
-
-                <!-- Dropdown Menu for Logged-In Users -->
-                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
-                    @if (Auth::user()->role === 'publisher')
-                        <li style="margin-top:15px;"><a class="dropdown-item"
-                                href="{{ route('publisher.dashboard') }}">
-                                <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
-                            </a></li>
-                        <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
-                                <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
-                            </a></li>
-                        <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
-                                <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
-                            </a></li>
-                    @else
-                        <li style="margin-top:15px;">
-                            <a class="dropdown-item" href="{{ route('purchase.history') }}">
-                                <i class="bi bi-credit-card-2-front"></i> &nbsp;{{ __('messages.purchaseHistory') }}
-                            </a>
-                        </li>
-                        <li style="margin-top:15px; padding-bottom:10px;">
-                            <a class="dropdown-item" href="{{ route('account.edit') }}">
-                                <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
-                            </a>
-                        </li>
-
-                        <li style="padding-bottom:10px;">
-                            <a class="dropdown-item" href="{{ route('my.bids') }}">
-                                <i class="bi bi-hammer"></i> &nbsp;{{ __('messages.myAuctions') }}
-                            </a>
-                        </li>
-                    @endif
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a class="dropdown-item" href="{{ route('logout') }}"
-                                onclick="event.preventDefault();
-                 this.closest('form').submit();">
-                                <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
-                            </a>
-                        </form>
-                    </li>
-                </ul>
-            </li>
-        @endguest
-
-            <!-- Language -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" class="me-1">
-                    {{ strtoupper(app()->getLocale()) }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
-                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
-                </ul>
-            </li>
-
-        </ul>
-        </div>
-</nav>
-
-
-
-<div style="position: relative; z-index: 10050; ">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style=" position: relative;height: 80px; ">
-        <div class="container" style="position: relative; top:-7px;">
-
-            
-
-
-            <a class="navbar-brand" href="{{ url('/') }}"><img
-                    src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
-                    style="position:relative; top:8px" loading="lazy" alt="bukinstebi_logo"></a>
-
- 
-                    <!-- ✅ Mobile Language Switcher Floating Top-Right -->
-       
-
-            <button style="position: relative; top: 9px;" class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-
-                
-                <ul class="navbar-nav ms-auto" style="position: relative; top: 10px; z-index: 100000;">
+                <!-- Cart -->
+                @if (!auth()->check() || auth()->user()->role !== 'publisher')
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}">{{ __('messages.home') }}</a>
-                    </li>
+                        @php
+                            $cartCount = 0;
+                            if (Auth::check() && Auth::user()->cart) {
+                                $cartCount = Auth::user()->cart->cartItems->count();
+                            }
+                        @endphp
+                        <!-- Cart Link in the Navbar -->
+                        <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
+                            {{ __('messages.cart') }}
 
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ __('messages.categories') }}
+                            <div class="custom-bubble">
+                                <span id="cart-count" style="position: relative; top: 1px;">{{ $cartCount }}</span>
+                            </div>
                         </a>
-                        <ul class="dropdown-menu genre-scroll" aria-labelledby="genreDropdown"
-                            style="max-height: 300px; overflow-y: auto; min-width: 250px;">
-                            <li class="px-3 py-2">
-                                <input type="text" class="form-control" id="genreSearchInput"
-                                    placeholder="{{ __('messages.searchcategory') }}...">
-                            </li>
+
+                    </li>
+                @endif
 
 
-                            <li class="genre-item all-item" data-name="{{ __('messages.all') }}">
-                                <a class="dropdown-item" href="{{ route('books') }}">{{ __('messages.all') }}</a>
-                            </li>
-                            
+                <!-- Right Side of Navbar -->
+                @guest
+                    <li class="nav-item dropdown" style="z-index: 1000000">
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                            {{ __('messages.login') }}
+                        </a>
 
-                            <li id="noResultsMessage" class="text-muted px-3 py-2" style="display: none;">
-                                {{ __('messages.noresult') }}
-                            </li>
+                        <!-- Dropdown with Tabs -->
+                        <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
+                            style="width: 350px; z-index: 1000000;" id="dropdown-menu">
+                            <!-- Tab Navigation -->
+                            <ul class="nav nav-tabs" id="authTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
+                                        data-bs-target="#login" type="button" role="tab" aria-controls="login"
+                                        aria-selected="true">
+                                        {{ __('messages.user') }}
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="register-tab" data-bs-toggle="tab"
+                                        data-bs-target="#register" type="button" role="tab"
+                                        aria-controls="register" aria-selected="false">
+                                        {{ __('messages.bookseller') }}
+                                    </button>
+                                </li>
+                            </ul>
 
-                            @foreach ($genres as $genre)
-                            @php
-                                $genreName = app()->getLocale() === 'en' && $genre->name_en ? $genre->name_en : $genre->name;
-                            @endphp
-                            <li class="genre-item" data-name="{{ $genreName }}">
-                                <a class="dropdown-item"
-                                   href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
-                                    {{ $genreName }}
-                                </a>
-                            </li>
-                        @endforeach
-                        
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="authTabsContent">
+                                <!-- Users Login Tab -->
+
+                                <div class="tab-pane fade show active" id="login" role="tabpanel"
+                                    aria-labelledby="login-tab">
+
+                                    <a class="nav-link mt-2" href="{{ route('login') }}">
+                                        <i class="bi bi-key"></i> {{ __('messages.authorization') }}
+                                    </a>
+                                    @if (Route::has('register'))
+                                        <a class="nav-link mt-3" href="{{ route('register') }}">
+                                            <i class="bi bi-person-fill-add"></i> {{ __('messages.registration') }}</a>
+                                    @endif
+                                </div>
+
+                                <!-- Bukinist login Tab -->
+                                <div class="tab-pane fade" id="register" role="tabpanel"
+                                    aria-labelledby="register-tab">
+
+
+                                    <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
+                                        <i class="bi bi-box-arrow-in-right"></i> {{ __('messages.booksellerauth') }}
+                                    </a>
+                                    @if (Route::has('register'))
+                                        <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
+                                            <i class="bi bi-person-plus"></i> {{ __('messages.booksellerreg') }}</a>
+                                    @endif
+                                </div>
+                            </div>
                         </ul>
-
                     </li>
+                @else
+                    <li class="nav-item dropdown" style="z-index: 1000000">
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                            {{ Auth::user()->name }}
+                        </a>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
+                        <!-- Dropdown Menu for Logged-In Users -->
+                        <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
+                            @if (Auth::user()->role === 'publisher')
+                                <li style="margin-top:15px;"><a class="dropdown-item"
+                                        href="{{ route('publisher.dashboard') }}">
+                                        <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
+                                    </a></li>
+                                <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
+                                        <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
+                                    </a></li>
+                                <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
+                                        <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
+                                    </a></li>
+                            @else
+                                <li style="margin-top:15px;">
+                                    <a class="dropdown-item" href="{{ route('purchase.history') }}">
+                                        <i class="bi bi-credit-card-2-front"></i>
+                                        &nbsp;{{ __('messages.purchaseHistory') }}
+                                    </a>
+                                </li>
+                                <li style="margin-top:15px; padding-bottom:10px;">
+                                    <a class="dropdown-item" href="{{ route('account.edit') }}">
+                                        <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
+                                    </a>
+                                </li>
+
+                                <li style="padding-bottom:10px;">
+                                    <a class="dropdown-item" href="{{ route('my.bids') }}">
+                                        <i class="bi bi-hammer"></i> &nbsp;{{ __('messages.myAuctions') }}
+                                    </a>
+                                </li>
+                            @endif
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault();
+                 this.closest('form').submit();">
+                                        <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
+                                    </a>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
+                @endguest
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('podcast') }}">{{ __('messages.podcast') }}</a>
-                    </li>
+                <!-- Language -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                        data-bs-toggle="dropdown">
+                        <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20"
+                            class="me-1">
+                        {{ strtoupper(app()->getLocale()) }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
+                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
+                    </ul>
+                </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
-                    </li>
-                 
-
-                    <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
-                    onsubmit="return validateSearch()" style="position: relative; top:-3px;">
-                    <input class="form-control me-2 styled-input" name="title" type="search"
-                        value="{{ request()->get('title') }}" placeholder="{{__('messages.booksearch')}}..."
-                        aria-label="Search" id="searchInput">
-                    <button class="btn btn-outline-success submit-search" type="submit"
-                        style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
-                            class="bi bi-search" style="position: relative; top: 2px"></i></button>
-                </form>
-                   
-
-                </ul>
-
-
-            </div>
+            </ul>
         </div>
     </nav>
-</div>
+
+
+
+    <div style="position: relative; z-index: 10050; ">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style=" position: relative;">
+            <div class="container" style="position: relative;  ">
+
+
+
+
+                <a class="navbar-brand" href="{{ url('/') }}"><img
+                        src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
+                        style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
+
+
+                <!-- ✅ Mobile Language Switcher Floating Top-Right -->
+
+
+                <button style="position: relative;  " class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+
+
+                    <ul class="navbar-nav ms-auto" style="position: relative;   z-index: 100000;">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/') }}">{{ __('messages.home') }}</a>
+                        </li>
+
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ __('messages.categories') }}
+                            </a>
+                            <ul class="dropdown-menu genre-scroll" aria-labelledby="genreDropdown"
+                                style="max-height: 300px; overflow-y: auto; min-width: 250px;">
+                                <li class="px-3 py-2">
+                                    <input type="text" class="form-control" id="genreSearchInput"
+                                        placeholder="{{ __('messages.searchcategory') }}...">
+                                </li>
+
+
+                                <li class="genre-item all-item" data-name="{{ __('messages.all') }}">
+                                    <a class="dropdown-item"
+                                        href="{{ route('books') }}">{{ __('messages.all') }}</a>
+                                </li>
+
+
+                                <li id="noResultsMessage" class="text-muted px-3 py-2" style="display: none;">
+                                    {{ __('messages.noresult') }}
+                                </li>
+
+                                @foreach ($genres as $genre)
+                                    @php
+                                        $genreName =
+                                            app()->getLocale() === 'en' && $genre->name_en
+                                                ? $genre->name_en
+                                                : $genre->name;
+                                    @endphp
+                                    <li class="genre-item" data-name="{{ $genreName }}">
+                                        <a class="dropdown-item"
+                                            href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
+                                            {{ $genreName }}
+                                        </a>
+                                    </li>
+                                @endforeach
+
+                            </ul>
+
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('podcast') }}">{{ __('messages.podcast') }}</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
+                        </li>
+
+
+                        <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
+                            onsubmit="return validateSearch()" style="position: relative;  ">
+                            <input class="form-control me-2 styled-input" name="title" type="search"
+                                value="{{ request()->get('title') }}"
+                                placeholder="{{ __('messages.booksearch') }}..." aria-label="Search"
+                                id="searchInput">
+                            <button class="btn btn-outline-success submit-search" type="submit"
+                                style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
+                                    class="bi bi-search" style="position: relative;  "></i></button>
+                        </form>
+
+
+                    </ul>
+
+
+                </div>
+            </div>
+        </nav>
+    </div>
     <!-- Main Content -->
     <div class="container mt-5">
         @yield('content') <!-- Page-specific content goes here -->
@@ -430,22 +448,22 @@
                 <!-- Column 1 -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">Bukinistebi.ge</h5>
-                    <p><span style="padding-right:33px">{{ __('messages.numberone')}}</span></p>
+                    <p><span style="padding-right:33px">{{ __('messages.numberone') }}</span></p>
                 </div>
 
                 <!-- Terms and Conditions Column -->
                 <div class="col-lg-3 offset-lg-1 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">{{ __('messages.forcustomers')}}</h5>
+                    <h5 class="text-uppercase">{{ __('messages.forcustomers') }}</h5>
                     <p>
                         <a href="{{ route('terms_conditions') }}" class="text-white text-decoration-none">
-                            <span>{{ __('messages.terms')}}</span>
+                            <span>{{ __('messages.terms') }}</span>
                         </a>
                     </p>
                 </div>
 
                 <!-- Column 3 -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">{{ __('messages.contact')}}</h5>
+                    <h5 class="text-uppercase">{{ __('messages.contact') }}</h5>
                     <ul class="list-unstyled">
                         <span>bukinistebishop@gmail.com</span>
                     </ul>
@@ -453,12 +471,12 @@
 
                 <!-- Column 4 -->
                 <div class="col-lg-2 col-md-5 mb-4 mb-md-0">
-                    <h5>{{ __('messages.newsletter')}}</h5>
+                    <h5>{{ __('messages.newsletter') }}</h5>
                     <form id="subscriptionForm" method="POST" action="{{ route('subscribe') }}">
                         @csrf
-                        <input type="email" name="email" class="form-control mb-2" placeholder="{{ __('messages.entermail')}}"
-                            required>
-                        <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe')}}</button>
+                        <input type="email" name="email" class="form-control mb-2"
+                            placeholder="{{ __('messages.entermail') }}" required>
+                        <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe') }}</button>
                     </form>
 
                     <!-- Hidden input for success -->
@@ -530,7 +548,8 @@
                 <div class="row mt-4">
                     <!-- Social Media -->
                     <div class="col text-center">
-                        <h5 class="text-uppercase" style="position: relative; left:-15px">{{ __('messages.follow')}}</h5>
+                        <h5 class="text-uppercase" style="position: relative; left:-15px">{{ __('messages.follow') }}
+                        </h5>
                         <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon" target="blank"><i
                                 class="bi bi-facebook fs-5"></i></a>
                         <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank"><i
@@ -553,64 +572,64 @@
 
 
 
-    
-<script>
-    function switchLanguage(locale) {
-    fetch(`/lang/${locale}`)
-    .then(() => {
-        location.reload(true); // force full reload
-    });
-    }
+
+    <script>
+        function switchLanguage(locale) {
+            fetch(`/lang/${locale}`)
+                .then(() => {
+                    location.reload(true); // force full reload
+                });
+        }
     </script>
-    
-    
-          
-    
-            <script>
-                function validateSearch() {
-                    var searchInput = document.getElementById('searchInput').value.trim();
-                    if (searchInput === "") {
-                        return false; // Prevent form submission
-                    }
-                    return true;
+
+
+
+
+    <script>
+        function validateSearch() {
+            var searchInput = document.getElementById('searchInput').value.trim();
+            if (searchInput === "") {
+                return false; // Prevent form submission
+            }
+            return true;
+        }
+    </script>
+
+    <!-- Add this JavaScript at the bottom of your Blade layout -->
+    <script>
+        // Prevent the dropdown from closing when interacting with tabs or dropdown content
+        document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent the default dropdown close behavior
+            });
+        });
+
+        const input = document.getElementById('genreSearchInput');
+        const items = document.querySelectorAll('.genre-item');
+        const noResults = document.getElementById('noResultsMessage');
+
+        input.addEventListener('keyup', function() {
+            const filter = input.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            items.forEach(function(item) {
+                const name = item.getAttribute('data-name').toLowerCase();
+
+                // Hide "ყველა" when searching
+                if (item.classList.contains('all-item') && filter !== '') {
+                    item.style.display = 'none';
+                } else if (name.includes(filter)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
                 }
-            </script>
-    
-        <!-- Add this JavaScript at the bottom of your Blade layout -->
-        <script>
-            // Prevent the dropdown from closing when interacting with tabs or dropdown content
-            document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-                dropdown.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevent the default dropdown close behavior
-                });
             });
 
-            const input = document.getElementById('genreSearchInput');
-            const items = document.querySelectorAll('.genre-item');
-            const noResults = document.getElementById('noResultsMessage');
-
-            input.addEventListener('keyup', function() {
-                const filter = input.value.trim().toLowerCase();
-                let visibleCount = 0;
-
-                items.forEach(function(item) {
-                    const name = item.getAttribute('data-name').toLowerCase();
-
-                    // Hide "ყველა" when searching
-                    if (item.classList.contains('all-item') && filter !== '') {
-                        item.style.display = 'none';
-                    } else if (name.includes(filter)) {
-                        item.style.display = '';
-                        visibleCount++;
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-
-                // Show/hide the "no results" message
-                noResults.style.display = visibleCount === 0 ? '' : 'none';
-            });
-        </script>
+            // Show/hide the "no results" message
+            noResults.style.display = visibleCount === 0 ? '' : 'none';
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -654,10 +673,10 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const topNavbar = document.getElementById('topStickyNavbar');
-        
-            window.addEventListener('scroll', function () {
+
+            window.addEventListener('scroll', function() {
                 if (window.scrollY > 10) {
                     topNavbar.classList.add('scrolled');
                 } else {
@@ -665,8 +684,8 @@
                 }
             });
         });
-        </script>
-        
+    </script>
+
 
     <script>
         // Lazy load images and videos using IntersectionObserver
@@ -747,15 +766,17 @@
    End of Tawk.to Script-->
 
 
-   @if(Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
-    <div class="sticky-cart-summary d-block d-md-none">
-        <a href="{{ route('cart.index') }}" class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი გაქვს </span>
-            <span>ნახე კალათა</span>
-        </a>
-    </div>
-@endif
-@stack('scripts'):
+    @if (Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
+        <div class="sticky-cart-summary d-block d-md-none">
+            <a href="{{ route('cart.index') }}"
+                class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი
+                    გაქვს </span>
+                <span>ნახე კალათა</span>
+            </a>
+        </div>
+    @endif
+    @stack('scripts'):
 
 </body>
 
