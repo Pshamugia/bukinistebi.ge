@@ -1,54 +1,87 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- Display messages -->
+<style>
+    .modal-backdrop {
+    z-index: 104044 !important;
+}
 
+.modal {
+    z-index: 105044 !important;
+}
+
+.alert-danger {
+    z-index: 999944 !important;
+    position: relative;
+}
+
+    </style>
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+@if (session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
 <div class="container">
     <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left; justify-content: left;">
         <strong><i class="bi bi-stack-overflow"></i> {{ __('messages.uploadBook') }}</strong>
     </h5>
 
-    <!-- Display messages -->
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+    
 
     <!-- Book Upload Form -->
     <form action="{{ route('publisher.books.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
+<!-- Language Select with Icon -->
+<div class="mb-3">
+    <label for="language" class="form-label">{{ __('messages.language') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-translate"></i> {{-- Language icon --}}
+        </span>
+        <select name="language" id="language" class="form-select" required>
+            <option value="ka" {{ request('lang') == 'ka' ? 'selected' : '' }}>ქართული</option>
+            <option value="en" {{ request('lang') == 'en' ? 'selected' : '' }}>English</option>
+        </select>
+    </div>
+</div>
 
-        <div class="mb-3">
-            <label for="language" class="form-label">{{ __('messages.language') }}</label>
-            <select name="language" id="language" class="form-control" required>
-                <option value="ka" {{ request('lang') == 'ka' ? 'selected' : '' }}>ქართული</option>
-                <option value="en" {{ request('lang') == 'en' ? 'selected' : '' }}>English</option>
-            </select>
-        </div>
+<!-- Book Title Input with Icon -->
+<div class="mb-3">
+    <label for="title" class="form-label">{{ __('messages.bookTitle') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-book"></i> {{-- Book icon --}}
+        </span>
+        <input type="text" name="title" class="form-control" id="title" value="{{ old('title') }}" required>
+    </div>
+</div>
 
-        
-        <div class="mb-3">
-            <label for="title" class="form-label">{{ __('messages.bookTitle') }}</label>
-            <input type="text" name="title" class="form-control" id="title" value="{{ old('title') }}" required>
-        </div>
 
-        <div class="mb-3">
-            <label for="description" class="form-label">{{ __('messages.brief') }}</label>
-            <textarea name="description" class="form-control" id="description" required>{{ old('description') }}</textarea>
-        </div>
+<div class="mb-3">
+    <label for="description" class="form-label">{{ __('messages.brief') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-card-text"></i> {{-- Text icon --}}
+        </span>
+        <textarea name="description" class="form-control" id="description" required>{{ old('description') }}</textarea>
+    </div>
+</div>
 
-        <div style="border:1px solid #c0c0c0; border-radius:5px; padding:25px; margin:20px 0px 20px 0px">
+ 
+
+    <div style="border:1px solid #c0c0c0; border-radius:5px; padding:25px; margin:20px 0px 20px 0px">
             <div class="mb-3">
                 <label for="photo" class="form-label">{{ __('messages.coverPhoto') }}</label>
                 <input type="file" name="photo" class="form-control" id="photo">
@@ -67,41 +100,89 @@
             </div>
         </div>
 
+
+
         <div class="mb-3">
             <label for="cover" class="form-label">{{ __('messages.coverType') }}</label>
-            <select name="cover" class="form-control" id="cover" required>
-                <option value="" disabled selected>{{ __('messages.chooseCover') }}</option>
-                <option value="რბილი" {{ old('cover') == 'რბილი' ? 'selected' : '' }}>{{ __('messages.softCover') }}</option>
-                <option value="მაგარი" {{ old('cover') == 'მაგარი' ? 'selected' : '' }}>{{ __('messages.hardCover') }}</option>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-journal-bookmark-fill"></i> {{-- Cover type icon --}}
+                </span>
+                <select name="cover" class="form-select" id="cover" required>
+                    <option value="" disabled selected>{{ __('messages.chooseCover') }}</option>
+                    <option value="რბილი" {{ old('cover') == 'რბილი' ? 'selected' : '' }}>{{ __('messages.softCover') }}</option>
+                    <option value="მაგარი" {{ old('cover') == 'მაგარი' ? 'selected' : '' }}>{{ __('messages.hardCover') }}</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Additional Fields -->
-        <div class="mb-3">
-            <label for="price" class="form-label">{{ __('messages.price') }}</label>
-            <input type="number" name="price" class="form-control" id="price" value="{{ old('price') }}" required>
-        </div>
-        <div class="mb-3">
-            <label for="quantity" class="form-label">{{ __('messages.quantity') }}</label>
-            <input type="number" name="quantity" class="form-control" id="quantity" value="{{ old('quantity') }}" required>
-        </div>
-        <div class="mb-3">
-            <label for="publishing_date" class="form-label">{{ __('messages.yearofpublicaion') }}</label>
-            <input type="text" name="publishing_date" class="form-control" id="publishing_date" value="{{ old('publishing_date') }}">
-        </div>
-        <div class="mb-3">
-            <label for="pages" class="form-label"> {{ __('messages.numberOfPages') }} </label>
-            <input type="number" name="pages" class="form-control" id="pages" value="{{ old('pages') }}">
-        </div>
-        <div class="mb-3">
-            <label for="status" class="form-label">{{ __('messages.bookCondition') }} </label>
-            <input type="text" name="status" class="form-control" id="status" value="{{ old('status') }}">
-        </div>
+        
+
+     <!-- Price -->
+<div class="mb-3">
+    <label for="price" class="form-label">{{ __('messages.price') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-currency-exchange"></i>
+        </span>
+        <input type="number" name="price" class="form-control" id="price" value="{{ old('price') }}" required>
+    </div>
+</div>
+
+<!-- Quantity -->
+<div class="mb-3">
+    <label for="quantity" class="form-label">{{ __('messages.quantity') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-123"></i>
+        </span>
+        <input type="number" name="quantity" class="form-control" id="quantity" value="{{ old('quantity') }}" required>
+    </div>
+</div>
+
+<!-- Publishing Date -->
+<div class="mb-3">
+    <label for="publishing_date" class="form-label">{{ __('messages.yearofpublicaion') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-calendar-event"></i>
+        </span>
+        <input type="text" name="publishing_date" class="form-control" id="publishing_date" value="{{ old('publishing_date') }}">
+    </div>
+</div>
+
+<!-- Pages -->
+<div class="mb-3">
+    <label for="pages" class="form-label">{{ __('messages.numberOfPages') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-file-earmark-text"></i>
+        </span>
+        <input type="number" name="pages" class="form-control" id="pages" value="{{ old('pages') }}">
+    </div>
+</div>
+
+<!-- Book Condition -->
+<div class="mb-3">
+    <label for="status" class="form-label">{{ __('messages.bookCondition') }}</label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-info-circle"></i>
+        </span>
+        <input type="text" name="status" class="form-control" id="status" value="{{ old('status') }}">
+    </div>
+</div>
+
+         
+        
+  
+
 
         <!-- Author Selection with Popup Form -->
 <!-- Author Dropdown -->
 <div class="mb-3">
     <label for="author_id" class="form-label">{{ __('messages.author') }}</label>
+     
     <select name="author_id" class="form-control chosen-select" id="author_id" data-placeholder="{{ __('messages.selectAuthor') }}" required>
         <option value="">{{ __('messages.selectAuthor') }}</option>
         @foreach ($authors as $author)
@@ -111,7 +192,7 @@
 @endforeach
 
     </select>
-    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addAuthorModal">{{ __('messages.addAuthor') }}</button>
+    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addAuthorModal">  <i class="bi bi-plus-circle"></i> {{ __('messages.addAuthor') }}</button>
 </div>
 
         <div class="mb-3">
@@ -134,8 +215,10 @@
         });</script>
         </div>
 
-        <button type="submit" class="btn btn-primary">{{ __('messages.upload') }}</button>
-    </form>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-cloud-upload-fill"></i> {{ __('messages.upload') }}
+        </button>
+            </form>
 </div>
 
 <!-- Add Author Modal -->

@@ -223,4 +223,7 @@ return [
     'feature' => 'feature',
     'forUsers' => 'For users',
     'forBooksellers' => 'For booksellers',
+    'auctions' => 'Auctions',
+    'myAuctions' => 'My auctions',
+    'bookAuctions' => 'Book Auctions',
 ];

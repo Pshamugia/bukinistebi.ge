@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Auction;
 use App\Models\OrderItem;
+use Illuminate\Support\Str;
 use App\Mail\OrderPurchased;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +17,8 @@ class TbcCheckoutController extends Controller
 {
     public function initializePayment(Request $request)
     {
+
+
         // Validate user inputs
         $validatedData = $request->validate([
             'payment_method' => 'required|string',
@@ -88,6 +92,62 @@ class TbcCheckoutController extends Controller
             // Send Bank Transfer Email
             //Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer')); // Send bank transfer email
             return $this->processPayment($total, $order->order_id);  // Process payment for bank transfer
+        }
+    }
+
+
+
+
+    public function initializeAuctionPayment(Request $request)
+    {
+        if ($request->has('auction_id')) {
+            $auction = \App\Models\Auction::with('book')->find($request->auction_id);
+
+            if (!$auction || $auction->winner_id !== Auth::id()) {
+                return back()->with('error', 'Unauthorized auction payment.');
+            }
+
+            $paymentId = 'AUC-' . $auction->id . '-' . rand(1000, 9999);
+
+            $payload = [
+                'amount' => [
+                    'currency' => 'GEL',
+                    'total' => number_format($auction->current_price, 0, '.', ''), // real amount
+                ],
+                'returnurl' => 'https://bukinistebi.ge/tbc-callback',
+                'description' => 'Auction Payment', // ≤ 30 characters!
+                'merchantPaymentId' => $paymentId,
+            ];
+
+            $tokenResponse = Http::asForm()->withHeaders([
+                'apikey' => 'rg9NENtqGGQHAvAVQ8wl7oePb8AjgPV5',
+            ])->post('https://api.tbcbank.ge/v1/tpay/access-token', [
+                'client_id' => '7002051',
+                'client_secret' => '4fdynf4ExqNpuWXD',
+            ]);
+
+            $accessToken = $tokenResponse->json()['access_token'] ?? null;
+
+            if (!$accessToken) {
+                Log::error('❌ Auction token fetch failed', ['response' => $tokenResponse->json()]);
+                return back()->with('error', 'Could not get token.');
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'apikey' => 'rg9NENtqGGQHAvAVQ8wl7oePb8AjgPV5',
+                'Content-Type' => 'application/json',
+            ])->post('https://api.tbcbank.ge/v1/tpay/payments', $payload);
+
+            if ($response->successful()) {
+                return redirect($response['links'][1]['uri']);
+            } else {
+                Log::error('❌ Auction Payment Failed', [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ]);
+                return back()->with('error', 'Auction payment failed.');
+            }
         }
     }
 
@@ -270,9 +330,9 @@ class TbcCheckoutController extends Controller
                     $cart->cartItems()->delete();
                     $cart->delete();
 
-                    
-        // ✅ Forget cart cookie
-        cookie()->queue(cookie()->forget('abandoned_cart'));
+
+                    // ✅ Forget cart cookie
+                    cookie()->queue(cookie()->forget('abandoned_cart'));
                 }
 
                 // Send email
@@ -297,7 +357,7 @@ class TbcCheckoutController extends Controller
             'Accept' => 'application/json',
             'apikey' => env('TBC_API_KEY'),
             'Authorization' => 'Bearer ' . $token,
-        ])->get(env('TBC_BASE_URL') . '/v1/tpay/payments/' . $payId);
+        ])->get(env('TBC_BASE_URL') . '/v1/tpay/payments/' . $payId); // ✅ სწორი მეთოდი და URL
 
         Log::info('💳 Callback response:', ['status' => $response->status(), 'body' => $response->json()]);
 
@@ -306,6 +366,52 @@ class TbcCheckoutController extends Controller
 
             // Match by order_id
             $merchantPaymentId = $paymentData['merchantPaymentId'] ?? null;
+            // ✅ Handle auction payments
+
+            // ✅ Auction Access Fee Payment (1₾)
+            if (str_starts_with($merchantPaymentId, 'AUC-FEE-')) {
+                $parts = explode('-', $merchantPaymentId);
+                $userId = $parts[2] ?? null;
+                $auctionId = $parts[3] ?? null;
+            
+                if ($userId && $auctionId) {
+                    $user = \App\Models\User::find($userId);
+                    if ($user && !$user->has_paid_auction_fee) {
+                        $user->has_paid_auction_fee = true;
+                        $user->save();
+            
+                        Log::info("✅ User {$userId} paid the 1₾ auction access fee for auction {$auctionId}");
+            
+                        // Force-authenticate to make sure session has correct user
+                        if (!Auth::check() || Auth::id() !== $user->id) {
+                            Auth::login($user);
+                        }
+            
+                        return redirect()->route('auction.show', ['auction' => $auctionId])
+                            ->with('success', 'საფასური გადახდილია, ახლა შეგიძლიათ ბიჯის გაკეთება.');
+                    }
+                }
+            
+                Log::warning("⚠️ Could not handle AUC-FEE callback correctly", compact('userId', 'auctionId'));
+                return redirect()->route('home')->with('error', 'გადახდა განხორციელდა, მაგრამ აუქციონის დეტალები ვერ მოიძებნა.');
+            }
+            
+            
+
+
+            if (str_starts_with($merchantPaymentId, 'AUC-')) {
+                $auctionId = str_replace('AUC-', '', $merchantPaymentId);
+                $auction = Auction::find($auctionId);
+
+                if ($auction && !$auction->is_paid && Auth::id() === $auction->winner_id) {
+                    $auction->is_paid = true;
+                    $auction->save();
+                    Log::info("✅ Auction {$auction->id} marked as paid.");
+                    return redirect()->route('auction.show', $auction->id)->with('success', 'Auction payment successful.');
+                }
+            }
+
+
             if (!$merchantPaymentId) {
                 Log::error('❌ Missing merchantPaymentId from response');
                 return redirect()->route('order.failed')->with('error', 'Payment verified but order reference missing.');
@@ -358,4 +464,46 @@ class TbcCheckoutController extends Controller
 
         return view('tbc-checkout', compact('order', 'city'));
     }
+
+
+
+    public function payAuctionFee(Request $request)
+{
+    $user = Auth::user();
+    $auctionId = $request->input('auction_id'); // Capture auction ID
+    $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
+
+    $payload = [
+        'amount' => [
+            'currency' => 'GEL',
+            'total' => '1',
+        ],
+        'returnurl' => route('tbc.callback'), // will redirect here
+        'description' => 'Auction Access Fee',
+        'merchantPaymentId' => $paymentId,
+    ];
+
+    $token = $this->getAccessToken();
+    if (!$token) {
+        Log::error('❌ Token fetch failed for auction fee');
+        return back()->with('error', 'Failed to get token.');
+    }
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $token,
+        'apikey' => env('TBC_API_KEY'),
+        'Content-Type' => 'application/json',
+        ])->post(env('TBC_BASE_URL') . '/v1/tpay/payments', $payload);
+
+    if ($response->successful()) {
+        return redirect($response['links'][1]['uri']);
+    }
+
+    session(['auction_id' => $auctionId]);
+
+    
+    Log::error('❌ Auction fee payment failed', ['response' => $response->json()]);
+    return back()->with('error', 'Auction fee payment failed.');
+}
+
 }

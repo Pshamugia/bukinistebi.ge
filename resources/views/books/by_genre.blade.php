@@ -119,6 +119,8 @@
                                     'bi-check-circle');
                                 button.find('.cart-btn-text').text(translations.added);
                                 button.data('in-cart', true);
+                                // 📦 Facebook AddToCart Pixel trigger
+                                fbq('track', 'AddToCart');
                             } else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
                                 button.find('i').removeClass('bi-check-circle').addClass(

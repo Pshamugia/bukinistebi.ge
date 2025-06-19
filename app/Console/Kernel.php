@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('searchkeywords:clear-old')->monthly();
         $schedule->command('search:cleanup')->monthly();
         $schedule->command('user-preferences:clean')->monthlyOn(1, '2:00');
+        $schedule->command('auctions:close-expired')->everyMinute();
+
 
 
     }

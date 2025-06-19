@@ -116,11 +116,29 @@
     cursor: pointer;
 }
 
+
+.genre-scroll.dropdown-menu {
+    z-index: 1050 !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    background-color: white !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
 .nowrap {
     white-space: nowrap;
 }
 
 
+/* Flip the dropdown arrow when open */
+.nav-link.dropdown-toggle::after {
+    transition: transform 0.3s ease;
+}
+
+.nav-link.dropdown-toggle.show::after {
+    transform: rotate(180deg);
+}
 
 /* Adjust the dropdown button height */
 .chosen-container-single .chosen-single {
@@ -548,6 +566,56 @@ h4  {
     transform: scale(1.2); /* Slightly increase the size on hover */
 }
 
+
+.fb-icon-top {
+    color:#504646;
+    margin-right: 10px;
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.fb-icon-top:hover {
+    color: blue; /* Change to your desired hover color */
+    transform: scale(1.2); /* Slightly increase the size on hover */
+}
+
+.insta-icon-top {
+    color:#504646;
+    margin-right: 10px;
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.insta-icon-top:hover {
+    background: #833ab4;
+    background: linear-gradient(
+      to right,
+      #833ab4,#fd1d1d,#fcb045
+    );    transform: scale(1.2); /* Slightly increase the size on hover */
+}
+
+@media (max-width: 991.98px) {
+    /* Show mobile dropdown menu above hero */
+    .navbar-collapse { 
+        background-color: #F3F4F6 !important;
+        position: relative; 
+        margin-top: 10px; /* 👈 Prevents upward shift */
+        padding: 10px 10px 15px 10px;
+    }
+
+ 
+}
+
+.youtube-icon-top {
+    color:#504646;
+    margin-right: 10px;
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.youtube-icon-top:hover {
+    color: #FF0000; /* Change to your desired hover color */
+    transform: scale(1.2); /* Slightly increase the size on hover */
+}
+
+
 .insta-icon {
     color:white;
     margin-right: 10px;
@@ -616,19 +684,20 @@ h4  {
 
 .custom-bubble {
     position: absolute;
-    top: -7px; /* Move it upwards */
+    top: -3px; /* Move it upwards */
     right: 0px; /* Move it to the right */
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background-color: transparent; /* Background color of the bubble */
-    color: rgb(187, 31, 31); /* Text color */
+    color: #d80303; /* Text color */
     border-radius: 0px 4px; /* Rounded corners */
     padding: 0px 0px 0px 0px; /* Adjust padding as needed */
-    font-size: 10px; /* Font size */
+    font-size: 9px; /* Font size */
     font-weight: bold;
     border:1px solid #5e5b5b;
-    min-width: 17px;
+    min-width: 15px;
+    max-height: 13px;
     text-align: center;
 }
 
@@ -637,7 +706,7 @@ h4  {
     content: "";
     position: absolute;
     bottom: -5px; /* Position below the bubble */
-    left: 52%;
+    left: 55%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
@@ -647,6 +716,60 @@ h4  {
 }
 
  
+.genre-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+}
+
+.genre-scroll::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+/* Fix dropdown hidden issue */
+.navbar .dropdown-menu {
+z-index: 9999 !important;
+position: absolute !important;
+top: 100%;
+background-color: white !important;
+
+}
+
+/* Ensure all parent containers allow visibility */
+.navbar,
+.navbar-nav,
+.container,
+body { 
+position: relative !important;
+z-index: auto !important;
+}
+
+/* Ensure second navbar does not overlap */
+.navbar + .navbar {
+z-index: 1 !important;
+position: relative !important;
+}
+#topStickyNavbar {
+position: fixed !important;
+top: 0;
+left: 0;
+width: 100%;
+z-index: 1055559999 !important;
+background-color: #212529;
+transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#topStickyNavbar.scrolled {
+background-color: #ffffff !important;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+padding-top: 54px !important;
+}
+
 
 /* Flexbox to center the image and text vertically and align them horizontally */
 .book-item {
@@ -882,6 +1005,17 @@ div .rame
     border-color: #8a93b9; /* Hover border */
 }
 
+
+
+.pagination-wrapper {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.pagination-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+
 .small-thumbnail:hover{
 
     border: 2px solid rgb(77, 120, 184);
@@ -897,24 +1031,32 @@ div .rame
     border-radius: 0 0 5px 5px;
 }
 
-.chat-message {
-    margin: 5px 0;
-    padding: 5px;
-    border-radius: 5px;
+
+
+@media (max-width: 768px) {
+    .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: -100px !important;
+        right: auto !important;
+        z-index: 9999 !important;
+        margin-top: 0.5rem;
+        max-height: 300px;
+        overflow-y: auto; /* Enables scroll */
+        background: white;
+        border-radius: 6px;
+    }
+
+    .navbar,
+    #topStickyNavbar,
+    nav.navbar {
+        overflow: visible !important;
+    }
+
+    .nav-item.dropdown {
+        position: relative !important;
+    }
 }
 
-.chat-message.user {
-    background-color: #007bff;
-    color: white;
-    text-align: right;
-}
 
-.chat-message.admin {
-    background-color: #f1f1f1;
-    color: black;
-    text-align: left;
-}
-#chat-widget {
-    display: block !important; /* Ensure it overrides any other styles */
-    visibility: visible !important;
-}
+ 

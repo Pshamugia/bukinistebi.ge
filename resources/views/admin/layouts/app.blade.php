@@ -7,7 +7,8 @@
     <!-- Compiled CSS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css"> 
  
@@ -67,6 +68,8 @@
      <footer class="text-center text-white bg-dark" style="width: 100%; padding: 1rem;">
         <p>© bukinistebi.ge </p>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.js"></script>
+
 </body>
 
 </html>
@@ -89,3 +92,4 @@
         });
     });
 </script>
+

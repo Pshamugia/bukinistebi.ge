@@ -42,7 +42,7 @@
                         </div>
                     </li>
                 
-                    <li><a class="nav-link text-white" href="{{ route('admin.categories.index') }}"> <i class="bi bi-folder"></i> კატეგორიები</a></li>
+                    <li><a class="nav-link text-white" href="{{ route('admin.auctions.index') }}"> <i class="bi bi-hammer"></i> აუქციონი !! </a></li>
                     <li><a class="nav-link text-white" href="{{ route('admin.genres.index') }}"><i class="bi bi-tags"></i> ჟანრები</a></li>
                     <li><a class="nav-link text-white" href="{{ route('admin.authors.index') }}"><i class="bi bi-person"></i> ავტორები</a></li>
                 

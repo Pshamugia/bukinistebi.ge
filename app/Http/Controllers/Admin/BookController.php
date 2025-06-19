@@ -147,8 +147,7 @@ public function create(Request $request)
             $book->genres()->sync($request->input('genre_id'));
         }
 
-        // Step 6: Notify + cache
-        $this->notifySubscribers($book);
+        // Step 6: Notify + cache 
         $this->rebuildHomePageCache();
 
         return redirect()->route('admin.books.index')->with('success', 'წიგნი დამატებულია წარმატებით.');
@@ -207,25 +206,7 @@ public function create(Request $request)
     }
 
 
-
-
-    protected function notifySubscribers($book)
-    {
-        // Retrieve all subscribers
-        $subscribers = Subscriber::all();
-
-        // Prepare the email content
-        $messageContent = "ბუკინისტებზე დაემატა ახალი წიგნი '{$book->title}'.";
-
-        foreach ($subscribers as $subscriber) {
-            Mail::to($subscriber->email)->send(new SubscriptionNotification($messageContent));
-        }
-    }
-
-
-
-
-
+ 
 
     public function update(Request $request, Book $book)
     {

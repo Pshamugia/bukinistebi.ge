@@ -120,25 +120,206 @@
         </script>
     @endif
 
+  <!-- Meta Pixel Code -->
+<script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1049503350038938');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 </head>
 
-<body>
-    <style>
-        .genre-scroll {
-            max-height: 300px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 5px;
-        }
+<body> 
 
-        .genre-scroll::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 3px;
-        }
-    </style>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
+    <!-- ✅ Top Navbar: right -->
+    <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
+        <div class="container d-flex justify-content-between align-items-center">
+       
+
+        <!-- Right Side: Cart, Login, Language, Search -->
+        <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
+            <div class="col text-center">
+                
+                 <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon-top" target="blank"><i
+                        class="bi bi-facebook fs-5"></i></a>
+                <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon-top" target="blank"><i
+                        class="bi bi-instagram fs-5"></i></a>
+                
+            </div>
+        </div>
+
+            <!-- Right Side: Cart, Login, Language -->
+        <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
+
+            <!-- Cart -->
+            @if (!auth()->check() || auth()->user()->role !== 'publisher')
+            <li class="nav-item">
+                @php
+                    $cartCount = 0;
+                    if (Auth::check() && Auth::user()->cart) {
+                        $cartCount = Auth::user()->cart->cartItems->count();
+                    }
+                @endphp
+                <!-- Cart Link in the Navbar -->
+                <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
+                    {{ __('messages.cart') }} 
+
+                    <div class="custom-bubble">
+                        <span id="cart-count"
+                            style="position: relative; top: 1px;">{{ $cartCount }}</span>
+                    </div>
+                </a>
+
+            </li>
+        @endif
+
+
+        <!-- Right Side of Navbar -->
+        @guest
+            <li class="nav-item dropdown" style="z-index: 1000000">
+                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                    {{ __('messages.login') }}
+                </a>
+
+                <!-- Dropdown with Tabs -->
+                <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
+                    style="width: 350px; z-index: 1000000;" id="dropdown-menu">
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
+                                data-bs-target="#login" type="button" role="tab" aria-controls="login"
+                                aria-selected="true">
+                                {{ __('messages.user') }}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="tab"
+                                data-bs-target="#register" type="button" role="tab"
+                                aria-controls="register" aria-selected="false">
+                                {{__('messages.bookseller')}}
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Users Login Tab -->
+
+                        <div class="tab-pane fade show active" id="login" role="tabpanel"
+                            aria-labelledby="login-tab">
+
+                            <a class="nav-link mt-2" href="{{ route('login') }}">
+                                <i class="bi bi-key"></i>    {{__('messages.authorization')}}
+                            </a>
+                            @if (Route::has('register'))
+                                <a class="nav-link mt-3" href="{{ route('register') }}">
+                                    <i class="bi bi-person-fill-add"></i> {{__('messages.registration')}}</a>
+                            @endif
+                        </div>
+
+                        <!-- Bukinist login Tab -->
+                        <div class="tab-pane fade" id="register" role="tabpanel"
+                            aria-labelledby="register-tab">
+
+
+                            <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
+                                <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
+                            </a>
+                            @if (Route::has('register'))
+                                <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
+                                    <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
+                            @endif
+                        </div>
+                    </div>
+                </ul>
+            </li>
+        @else
+            <li class="nav-item dropdown" style="z-index: 1000000">
+                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                    {{ Auth::user()->name }}
+                </a>
+
+                <!-- Dropdown Menu for Logged-In Users -->
+                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
+                    @if (Auth::user()->role === 'publisher')
+                        <li style="margin-top:15px;"><a class="dropdown-item"
+                                href="{{ route('publisher.dashboard') }}">
+                                <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
+                            </a></li>
+                        <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
+                                <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
+                            </a></li>
+                        <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
+                                <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
+                            </a></li>
+                    @else
+                        <li style="margin-top:15px;">
+                            <a class="dropdown-item" href="{{ route('purchase.history') }}">
+                                <i class="bi bi-credit-card-2-front"></i> &nbsp;{{ __('messages.purchaseHistory') }}
+                            </a>
+                        </li>
+                        <li style="margin-top:15px; padding-bottom:10px;">
+                            <a class="dropdown-item" href="{{ route('account.edit') }}">
+                                <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
+                            </a>
+                        </li>
+
+                        <li style="padding-bottom:10px;">
+                            <a class="dropdown-item" href="{{ route('my.bids') }}">
+                                <i class="bi bi-hammer"></i> &nbsp;{{ __('messages.myAuctions') }}
+                            </a>
+                        </li>
+                    @endif
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a class="dropdown-item" href="{{ route('logout') }}"
+                                onclick="event.preventDefault();
+                 this.closest('form').submit();">
+                                <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
+                            </a>
+                        </form>
+                    </li>
+                </ul>
+            </li>
+        @endguest
+
+            <!-- Language -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" class="me-1">
+                    {{ strtoupper(app()->getLocale()) }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
+                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
+                </ul>
+            </li>
+
+        </ul>
+        </div>
+</nav>
+
+
+
+<div style="position: relative; z-index: 10050; ">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style=" position: relative;height: 80px; ">
+        <div class="container" style="position: relative; top:-7px;">
 
             
 
@@ -149,29 +330,7 @@
 
  
                     <!-- ✅ Mobile Language Switcher Floating Top-Right -->
-        <!-- ✅ Mobile Language Switcher (Fixed Alignment) -->
-        <div class="d-lg-none position-absolute" style="top: 26px; right: 78px; z-index: 1055;">
-            <div class="dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="mobileLangDropdown"
-            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" height="14" class="me-1">
-            {{ strtoupper(app()->getLocale()) }}
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="mobileLangDropdown">
-            <li>
-                <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('ka')">
-                    <img src="{{ asset('images/flags/ka.svg') }}" width="20" height="14" class="me-2"> ქართული
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('en')">
-                    <img src="{{ asset('images/flags/en.svg') }}" width="20" height="14" class="me-2"> English
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
-
+       
 
             <button style="position: relative; top: 9px;" class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
@@ -183,7 +342,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
 
                 
-                <ul class="navbar-nav ms-auto" style="position: relative; top: 10px">
+                <ul class="navbar-nav ms-auto" style="position: relative; top: 10px; z-index: 100000;">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url('/') }}">{{ __('messages.home') }}</a>
                     </li>
@@ -227,237 +386,29 @@
 
                     </li>
 
-
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
+                        <a class="nav-link" href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('podcast') }}">{{ __('messages.podcast') }}</a>
                     </li>
 
-
-                    @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                        <li class="nav-item">
-                            @php
-                                $cartCount = 0;
-                                if (Auth::check() && Auth::user()->cart) {
-                                    $cartCount = Auth::user()->cart->cartItems->count();
-                                }
-                            @endphp
-                            <!-- Cart Link in the Navbar -->
-                            <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                                {{ __('messages.cart') }} 
-
-                                <div class="custom-bubble">
-                                    <span id="cart-count"
-                                        style="position: relative; top: 1px;">{{ $cartCount }}</span>
-                                </div>
-                            </a>
-
-                        </li>
-                    @endif
-
-
-                    <!-- Right Side of Navbar -->
-                    @guest
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                                <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                                {{ __('messages.login') }}
-                            </a>
-
-                            <!-- Dropdown with Tabs -->
-                            <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
-                                style="width: 300px;" id="dropdown-menu">
-                                <!-- Tab Navigation -->
-                                <ul class="nav nav-tabs" id="authTabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
-                                            data-bs-target="#login" type="button" role="tab" aria-controls="login"
-                                            aria-selected="true">
-                                            {{ __('messages.user') }}
-                                        </button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="register-tab" data-bs-toggle="tab"
-                                            data-bs-target="#register" type="button" role="tab"
-                                            aria-controls="register" aria-selected="false">
-                                            {{__('messages.bookseller')}}
-                                        </button>
-                                    </li>
-                                </ul>
-
-                                <!-- Tab Content -->
-                                <div class="tab-content" id="authTabsContent">
-                                    <!-- Users Login Tab -->
-
-                                    <div class="tab-pane fade show active" id="login" role="tabpanel"
-                                        aria-labelledby="login-tab">
-
-                                        <a class="nav-link mt-3" href="{{ route('login') }}">
-                                            <i class="bi bi-key"></i>    {{__('messages.authorization')}}
-                                        </a>
-                                        @if (Route::has('register'))
-                                            <a class="nav-link mt-3" href="{{ route('register') }}">
-                                                <i class="bi bi-person-fill-add"></i> {{__('messages.registration')}}</a>
-                                        @endif
-                                    </div>
-
-                                    <!-- Bukinist login Tab -->
-                                    <div class="tab-pane fade" id="register" role="tabpanel"
-                                        aria-labelledby="register-tab">
-
-
-                                        <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
-                                            <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
-                                        </a>
-                                        @if (Route::has('register'))
-                                            <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
-                                                <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
-                                        @endif
-                                    </div>
-                                </div>
-                            </ul>
-                        </li>
-                    @else
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                                <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                                {{ Auth::user()->name }}
-                            </a>
-
-                            <!-- Dropdown Menu for Logged-In Users -->
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                @if (Auth::user()->role === 'publisher')
-                                    <li style="margin-top:15px;"><a class="dropdown-item"
-                                            href="{{ route('publisher.dashboard') }}">
-                                            <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
-                                        </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
-                                            <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
-                                        </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
-                                            <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
-                                        </a></li>
-                                @else
-                                    <li style="margin-top:15px;">
-                                        <a class="dropdown-item" href="{{ route('purchase.history') }}">
-                                            <i class="bi bi-credit-card-2-front"></i> &nbsp;{{ __('messages.purchaseHistory') }}
-                                        </a>
-                                    </li>
-                                    <li style="margin-top:15px; padding-bottom:10px;">
-                                        <a class="dropdown-item" href="{{ route('account.edit') }}">
-                                            <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
-                                        </a>
-                                    </li>
-                                @endif
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <a class="dropdown-item" href="{{ route('logout') }}"
-                                            onclick="event.preventDefault();
-                             this.closest('form').submit();">
-                                            <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
-                                        </a>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    @endguest
-
-                    <!-- Add this JavaScript at the bottom of your Blade layout -->
-                    <script>
-                        // Prevent the dropdown from closing when interacting with tabs or dropdown content
-                        document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-                            dropdown.addEventListener('click', function(e) {
-                                e.stopPropagation(); // Prevent the default dropdown close behavior
-                            });
-                        });
-
-                        const input = document.getElementById('genreSearchInput');
-                        const items = document.querySelectorAll('.genre-item');
-                        const noResults = document.getElementById('noResultsMessage');
-
-                        input.addEventListener('keyup', function() {
-                            const filter = input.value.trim().toLowerCase();
-                            let visibleCount = 0;
-
-                            items.forEach(function(item) {
-                                const name = item.getAttribute('data-name').toLowerCase();
-
-                                // Hide "ყველა" when searching
-                                if (item.classList.contains('all-item') && filter !== '') {
-                                    item.style.display = 'none';
-                                } else if (name.includes(filter)) {
-                                    item.style.display = '';
-                                    visibleCount++;
-                                } else {
-                                    item.style.display = 'none';
-                                }
-                            });
-
-                            // Show/hide the "no results" message
-                            noResults.style.display = visibleCount === 0 ? '' : 'none';
-                        });
-                    </script>
-
-
-
-
-
-<!-- Language Switch Dropdown -->
-<li class="nav-item dropdown d-none d-lg-block">
-    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" height="14" class="me-1">
-        {{ strtoupper(app()->getLocale()) }}
-    </a>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-        <li>
-            <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('ka')">
-                <img src="{{ asset('images/flags/ka.svg') }}" width="20" height="14" class="me-2"> ქართული
-            </a>
-        </li>
-        <li>
-            <a class="dropdown-item d-flex align-items-center" href="#" onclick="switchLanguage('en')">
-                <img src="{{ asset('images/flags/en.svg') }}" width="20" height="14" class="me-2"> English
-            </a>
-        </li>
-    </ul>
-</li>
-
-<script>
-    function switchLanguage(locale) {
-        fetch(`/lang/${locale}`)
-            .then(() => {
-                location.reload(true); // force full reload
-            });
-    }
-</script>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
+                    </li>
+                 
 
                     <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
-                        onsubmit="return validateSearch()" style="position: relative; top:-3px;">
-                        <input class="form-control me-2 styled-input" name="title" type="search"
-                            value="{{ request()->get('title') }}" placeholder="{{__('messages.booksearch')}}..."
-                            aria-label="Search" id="searchInput">
-                        <button class="btn btn-outline-success submit-search" type="submit"
-                            style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
-                                class="bi bi-search" style="position: relative; top: 2px"></i></button>
-                    </form>
-
-                    <script>
-                        function validateSearch() {
-                            var searchInput = document.getElementById('searchInput').value.trim();
-                            if (searchInput === "") {
-                                return false; // Prevent form submission
-                            }
-                            return true;
-                        }
-                    </script>
-
+                    onsubmit="return validateSearch()" style="position: relative; top:-3px;">
+                    <input class="form-control me-2 styled-input" name="title" type="search"
+                        value="{{ request()->get('title') }}" placeholder="{{__('messages.booksearch')}}..."
+                        aria-label="Search" id="searchInput">
+                    <button class="btn btn-outline-success submit-search" type="submit"
+                        style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
+                            class="bi bi-search" style="position: relative; top: 2px"></i></button>
+                </form>
+                   
 
                 </ul>
 
@@ -465,7 +416,7 @@
             </div>
         </div>
     </nav>
-
+</div>
     <!-- Main Content -->
     <div class="container mt-5">
         @yield('content') <!-- Page-specific content goes here -->
@@ -600,6 +551,67 @@
     </footer><!-- Script -->
 
 
+
+
+    
+<script>
+    function switchLanguage(locale) {
+    fetch(`/lang/${locale}`)
+    .then(() => {
+        location.reload(true); // force full reload
+    });
+    }
+    </script>
+    
+    
+          
+    
+            <script>
+                function validateSearch() {
+                    var searchInput = document.getElementById('searchInput').value.trim();
+                    if (searchInput === "") {
+                        return false; // Prevent form submission
+                    }
+                    return true;
+                }
+            </script>
+    
+        <!-- Add this JavaScript at the bottom of your Blade layout -->
+        <script>
+            // Prevent the dropdown from closing when interacting with tabs or dropdown content
+            document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent the default dropdown close behavior
+                });
+            });
+
+            const input = document.getElementById('genreSearchInput');
+            const items = document.querySelectorAll('.genre-item');
+            const noResults = document.getElementById('noResultsMessage');
+
+            input.addEventListener('keyup', function() {
+                const filter = input.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                items.forEach(function(item) {
+                    const name = item.getAttribute('data-name').toLowerCase();
+
+                    // Hide "ყველა" when searching
+                    if (item.classList.contains('all-item') && filter !== '') {
+                        item.style.display = 'none';
+                    } else if (name.includes(filter)) {
+                        item.style.display = '';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show/hide the "no results" message
+                noResults.style.display = visibleCount === 0 ? '' : 'none';
+            });
+        </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Handle subscription success modal
@@ -642,18 +654,19 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navbar = document.querySelector('.navbar');
-
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 50) {
-                    navbar.classList.add('scrolled');
+        document.addEventListener('DOMContentLoaded', function () {
+            const topNavbar = document.getElementById('topStickyNavbar');
+        
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 10) {
+                    topNavbar.classList.add('scrolled');
                 } else {
-                    navbar.classList.remove('scrolled');
+                    topNavbar.classList.remove('scrolled');
                 }
             });
         });
-    </script>
+        </script>
+        
 
     <script>
         // Lazy load images and videos using IntersectionObserver

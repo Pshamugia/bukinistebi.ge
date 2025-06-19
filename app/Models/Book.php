@@ -94,4 +94,10 @@ public function publisher()
 }
 
 
+public function auction()
+{
+    return $this->hasOne(Auction::class);
+}
+
+
 }

@@ -40,6 +40,8 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\CheckPostSize::class,
+
 
         ],
 
@@ -72,6 +74,10 @@ class Kernel extends HttpKernel
         app(TbcCheckoutController::class)->getAccessToken();
     })->everyTwentyThreeHours();
     
+      // ✅ Close expired auctions every minute
+      $schedule->call(function () {
+        app(\App\Http\Controllers\AuctionFrontController::class)->closeExpiredAuctions();
+    })->everyMinute();
 }
 
     /**

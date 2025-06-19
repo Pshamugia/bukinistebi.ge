@@ -2,6 +2,19 @@
 <html>
 <head>
     <title>Order_Courier Request</title>
+    <!-- ✅ Facebook Pixel should be loaded -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1049503350038938'); // ჩასვი შენი Pixel ID
+        fbq('track', 'PageView');
+    </script>
 </head>
 <body>
     <p> გადახდა კურიერთან </p>
@@ -25,5 +38,11 @@
             </li>
         @endforeach
     </ul>
+    <script>
+        fbq('track', 'Purchase', {
+          value: {{ $order->total ?? 0 }},
+          currency: 'GEL'
+        });
+      </script>
 </body>
 </html>

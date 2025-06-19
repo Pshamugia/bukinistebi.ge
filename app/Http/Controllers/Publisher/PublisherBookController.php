@@ -16,7 +16,7 @@ use App\Mail\SubscriptionNotification;
 use Intervention\Image\Facades\Image; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Crypt; 
 
 
 class PublisherBookController extends Controller
@@ -56,10 +56,10 @@ public function store(Request $request)
     $validatedData = $request->validate([
         'title' => 'required|string|max:255',
         'price' => 'required|numeric',
-        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'photo_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'photo_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'photo_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        'photo_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        'photo_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        'photo_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'description' => 'required|string',
         'quantity' => 'integer|min:1',
         'full' => 'nullable|string',
@@ -118,7 +118,7 @@ public function store(Request $request)
     Cache::forget('top_books');
 
     // Notify subscribers
-    $this->notifySubscribers($book);
+    //$this->notifySubscribers($book);
 
     return redirect()->route('publisher.dashboard')->with(
         'success',
@@ -136,19 +136,21 @@ public function store(Request $request)
 
 
 
+
 protected function notifySubscribers($book)
 {
-    // Retrieve all subscribers
     $subscribers = Subscriber::all();
-
-    // Prepare the email content
-    $messageContent = "ბუკინისტებზე დაემატა '{$book->title}'.";
+    $subjectLine = 'გამოგვწერეთ ახალი დამატებული წიგნი';
+    $messageContent = "ბუკინისტებში დაემატა ახალი წიგნი: '{$book->title}'.";
 
     foreach ($subscribers as $subscriber) {
-        Mail::to($subscriber->email)->send(new SubscriptionNotification($messageContent));
+        $encryptedEmail = Crypt::encryptString($subscriber->email);
+
+        Mail::to($subscriber->email)->send(
+            new \App\Mail\SubscriptionNotification($subjectLine, $messageContent, $encryptedEmail)
+        );
     }
 }
-
 
 
 

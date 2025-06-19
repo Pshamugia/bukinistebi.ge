@@ -65,11 +65,13 @@
                                             {{ __('messages.outofstock') }} </span>
                                     @elseif($book->quantity == 1)
                                         <span class="badge bg-warning text-dark"
-                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }} </span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}
+                                        </span>
                                     @else
                                         <span class="badge bg-success"
                                             style="font-size: 13px; font-weight: 100; float: right;">
-                                            {{ __('messages.available') }} {{ $book->quantity }} {{ __('messages.items') }}</span>
+                                            {{ __('messages.available') }} {{ $book->quantity }}
+                                            {{ __('messages.items') }}</span>
                                     @endif
                                 </span>
                             </p>
@@ -118,9 +120,9 @@
                         {{ __('messages.booksellersRoom') }}
                     </a>
                 @else
-                <p>  <a href="{{ route('login.publisher') }}" class="btn btn-outline-light" >
-                    <span style="font-size: 20px">   {{ __('messages.register') }} </span>
-                    </a></p>
+                    <p> <a href="{{ route('login.publisher') }}" class="btn btn-outline-light">
+                            <span style="font-size: 20px"> {{ __('messages.register') }} </span>
+                        </a></p>
                 @endif
             </h2>
         </div>
@@ -152,7 +154,8 @@
                                         </div>
                                     @endif
                                     <div class="card-body">
-                                        <h4 class="card-title text-dark">    {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
+                                        <h4 class="card-title text-dark">
+                                            {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
                                         </h4>
                                         <!-- Limit title length -->
                                     </div>
@@ -182,9 +185,8 @@
                     <i class="bi bi-fire"></i> {{ __('messages.viewed') }}
                 </h5>
                 <div class="card mb-3 p-3">
-                 
+
                     @foreach ($topRatedArticle as $book)
-                    
                         <div class="popular-book-item mb-2">
                             <div class="book-details">
                                 <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
@@ -253,9 +255,9 @@
     <script>
         $(document).ready(function() {
             const translations = {
-    added: @json(__('messages.added')),
-    addToCart: @json(__('messages.addtocart'))
-};
+                added: @json(__('messages.added')),
+                addToCart: @json(__('messages.addtocart'))
+            };
             $('.toggle-cart-btn').click(function() {
                 var button = $(this);
                 var bookId = button.data('product-id');
@@ -275,6 +277,8 @@
                                     'bi-check-circle');
                                 button.find('.cart-btn-text').text(translations.added);
                                 button.data('in-cart', true);
+                                // 📦 Facebook AddToCart Pixel trigger
+                                fbq('track', 'AddToCart');
                             } else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
                                 button.find('i').removeClass('bi-check-circle').addClass(

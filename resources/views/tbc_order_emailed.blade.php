@@ -28,5 +28,11 @@
             
         @endforeach
     </ul>
+    <script>
+        fbq('track', 'Purchase', {
+          value: {{ $order->total ?? 0 }},
+          currency: 'GEL'
+        });
+      </script>
 </body>
 </html>

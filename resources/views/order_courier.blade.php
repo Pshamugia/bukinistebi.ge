@@ -5,7 +5,7 @@
     <h1>შეკვეთა მიღებულია</h1>
     <p>შენი შეკვეთა მიღებულია და მიიღებ მაქსიმუმ 2 სამუშაო დღეში. <br>
         ჩვენი კურიერი დაგიკავშირდება მითითებულ ტელეფონის ნომერზე: {{ $order->phone ?? 'Phone number not provided' }} 
-
+    </p>
     <!-- Display order details -->
     <h3>შეკვეთის დეტალები</h3>
     <p>შეკვეთის ID: {{ $order->id }}</p>
@@ -19,4 +19,10 @@
         @endforeach
     </ul>
 </div>
+<script>
+    fbq('track', 'Purchase', {
+      value: {{ $order->total ?? 0 }},
+      currency: 'GEL'
+    });
+  </script>
 @endsection

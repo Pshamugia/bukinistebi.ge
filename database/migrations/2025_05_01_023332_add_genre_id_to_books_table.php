@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->unsignedBigInteger('genre_id')->nullable()->after('author_id');
-            $table->foreign('genre_id')->references('id')->on('genres')->onDelete('set null');
-        });
+        if (!Schema::hasColumn('books', 'genre_id')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->unsignedBigInteger('genre_id')->nullable()->after('author_id');
+            });
+        }
     }
+    
 
     /**
      * Reverse the migrations.

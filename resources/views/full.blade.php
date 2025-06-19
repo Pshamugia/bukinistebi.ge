@@ -191,7 +191,7 @@
                         </button>
                     @else
                         <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
-                            data-in-cart="false" style="width: 200px; font-size: 15px">
+                            data-in-cart="false" style="width: 200px; font-size: 14px">
                             <i class="bi bi-cart-plus"></i> <span
                                 class="cart-btn-text">{{ __('messages.addtocart') }}</span>
                         </button>

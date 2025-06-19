@@ -6,17 +6,21 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use App\Exports\UserTransactionsExport;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BookNewsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\GenreController;
 use App\Http\Controllers\TbcCheckoutController;
+use App\Http\Controllers\AuctionFrontController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Admin\AuctionController;
 use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -27,12 +31,15 @@ use App\Http\Controllers\Publisher\PublisherAuthorController;
 use App\Http\Controllers\Publisher\PublisherAccountController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
+
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use Illuminate\Support\Facades\Artisan;
+
+
 
  
+
 //FOR COOKIES
  Route::post('/store-cookie-consent', [CookieConsentController::class, 'storeUserBehavior'])->name('store-user-behavior');
 
@@ -51,8 +58,11 @@ Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_n
 Route::get('/all_book_news', [BookNewsController::class, 'allbooksnews'])->name('allbooksnews');
 Route::get('/full_author/{name}/{id}', [AuthorController::class, 'full_author'])->name('full_author');
 Route::get('/terms_conditions', [BookNewsController::class, 'terms'])->name('terms_conditions');
+Route::post('/admin/send-subscriber-email', [SubscriptionController::class, 'sendEmailToSubscribers'])->name('send.subscriber.email');
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
-Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
+Route::get('unsubscribe/{email}', [SubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
+
+ Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
 
 // 
@@ -61,6 +71,13 @@ Route::get('lang/{locale}', [App\Http\Controllers\BookController::class, 'setLoc
 Route::get('/lang-test', function () {
     return 'Current language is: ' . app()->getLocale();
 });
+
+// auction FRONT
+Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name('auction.show');
+Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])->middleware('auth')->name('auction.bid');
+Route::get('/auctions', [AuctionFrontController::class, 'index'])->name('auction.index');
+Route::get('/my-bids', [AuctionFrontController::class, 'myAuctionDashboard'])->middleware('auth')->name('my.bids');
+Route::get('/auction/{auction}/bids', [AuctionFrontController::class, 'getBids'])->name('auction.bids');
 
 
 
@@ -129,6 +146,12 @@ Route::middleware('auth')->group(function () {
     // Initialize payment and show checkout page
     Route::post('/tbc-checkout', [TbcCheckoutController::class, 'initializePayment'])->name('tbc-checkout');
      Route::get('/tbc-checkout/{orderId}', [TbcCheckoutController::class, 'show'])->name('tbc.checkout');
+
+ 
+
+     Route::post('/auction-payment', [TbcCheckoutController::class, 'initializeAuctionPayment'])
+    ->withoutMiddleware([\App\Http\Middleware\SetLocale::class])
+    ->name('auction.payment');
 
     // Process TBC payment
      Route::post('/process-payment', [TbcCheckoutController::class, 'processPayment'])->name('process.payment');
@@ -233,14 +256,28 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     // Admin dashboard route
     Route::get('/', [DashboardController::class, 'index'])->name('admin');
 
-
+    Route::get('/admin/subscribe-all-users', [SubscriptionController::class, 'subscribeAllUsers'])
+    ->name('admin.subscribeAllUsers');
     // Publishers Activity Route
     Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
 
     // Authors CRUD routes (Admin)
     Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']); 
 
-   
+ 
+    // Auctions Management (Admin)
+Route::get('/auctions', [AuctionController::class, 'index'])->name('admin.auctions.index');
+Route::get('/auctions/create', [AuctionController::class, 'create'])->name('admin.auctions.create');
+Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
+Route::get('/admin/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
+
+// Auction Update/Edit Routes
+Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
+Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
+Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
+Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
+Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])->name('auction.fee.payment')->middleware('auth');
+
 
     // Books CRUD routes (Admin)
     Route::resource('books', AdminBookController::class, ['as' => 'admin']);
@@ -293,3 +330,6 @@ Route::get('/test-role-middleware', function () {
         return redirect()->route('login.publisher.form')->withErrors(['access' => 'Only publishers can access this page.']);
     }
 });
+
+
+
