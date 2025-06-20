@@ -294,6 +294,8 @@ Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])
     Route::post('/books/{id}/toggleVisibility', [AdminBookController::class, 'toggleVisibility'])->name('admin.books.toggleVisibility');
     Route::get('/user-keywords', [AdminPublisherController::class, 'showUserKeywords'])->name('admin.user.keywords');
     Route::get('/subscribers', [SubscriptionController::class, 'subscribers'])->name('admin.subscribers');
+    Route::delete('/admin/subscribers/{id}', [SubscriptionController::class, 'destroy'])->name('admin.subscribers.destroy');
+
     Route::get('/top-rated-articles', [DashboardController::class, 'topRatedArticles'])->name('admin.topRatedArticles');
 
     // Show User Preferences with Purchases
