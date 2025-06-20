@@ -93,4 +93,16 @@
 
 
  
+    <script>
+        $('#excludeSoldOut').change(function() {
+      const url = new URL(window.location.href);
+      if ($(this).is(':checked')) {
+          url.searchParams.set('exclude_sold', 1);
+      } else {
+          url.searchParams.delete('exclude_sold');
+      }
+      window.location.href = url.toString();
+  });
+</script>
+
 @endsection

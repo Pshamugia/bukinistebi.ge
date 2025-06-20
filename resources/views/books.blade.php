@@ -112,9 +112,7 @@
 
 
     <script>
-      
-
-        $('#excludeSoldOut').change(function() {
+              $('#excludeSoldOut').change(function() {
             const url = new URL(window.location.href);
             if ($(this).is(':checked')) {
                 url.searchParams.set('exclude_sold', 1);
