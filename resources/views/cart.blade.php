@@ -18,10 +18,10 @@
     </h5>
 
     @if($cart->cartItems->isNotEmpty())
-    <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('ნამდვილად გსურს ყველა ნივთის წაშლა კალათიდან?')" class="mb-3">
+    <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')" class="mb-3">
         @csrf
         <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash-fill"></i> კალათის გასუფთავება
+            <i class="bi bi-trash-fill"></i> {{ __('messages.cleaCart')}}
         </button>
     </form>
     @endif
