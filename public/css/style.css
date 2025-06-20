@@ -598,6 +598,7 @@ h4  {
          position: relative; 
         margin-top: 10px; /* 👈 Prevents upward shift */
         padding: 10px 10px 15px 10px;
+        background-color: #F3F4F6;
     }
 
  
@@ -683,8 +684,8 @@ h4  {
 
 .custom-bubble {
     position: absolute;
-    top: -3px; /* Move it upwards */
-    right: 0px; /* Move it to the right */
+    top: -4px; /* Move it upwards */
+    left: 0px; /* Move it to the right */
     display: inline-flex;
     align-items: center;
     justify-content: center;
