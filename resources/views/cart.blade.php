@@ -17,6 +17,14 @@
         </strong>
     </h5>
 
+    <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('ნამდვილად გსურს ყველა ნივთის წაშლა კალათიდან?')" class="mb-3">
+        @csrf
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash-fill"></i> კალათის გასუფთავება
+        </button>
+    </form>
+    
+
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif

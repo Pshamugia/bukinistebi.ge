@@ -88,6 +88,22 @@ class CartController extends Controller
         return redirect()->route('cart.index')->with('success', 'წიგნი წაშლილია კალათიდან.');
     }
 
+
+
+    public function clear()
+{
+    $user = auth()->user();
+
+    if ($user && $user->cart) {
+        $user->cart->cartItems()->delete(); // delete all items
+    }
+
+    return redirect()->route('cart.index')->with('success', 'კალათა გასუფთავდა!');
+}
+
+
+
+
     /**
      * Update the quantity of a book in the cart.
      */

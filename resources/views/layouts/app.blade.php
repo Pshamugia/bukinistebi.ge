@@ -172,11 +172,9 @@
                 @endphp
                 <!-- Cart Link in the Navbar -->
                 <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    {{ __('messages.cart') }} 
-
-                    <div class="custom-bubble">
-                        <span id="cart-count"
-                            style="position: relative; top: 1px;">{{ $cartCount }}</span>
+                    <i class="bi bi-cart-fill"></i> {{ __('messages.cart') }}
+                    <div id="cart-bubble" class="custom-bubble" style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
+                        <span id="cart-count">{{ $cartCount }}</span>
                     </div>
                 </a>
 
@@ -756,7 +754,136 @@
     </div>
 @endif
 @stack('scripts'):
+<script>
+     
+</script>
 
+@if (Auth::check())
+    @php
+        $cartItemCount = Auth::user()->cart?->cartItems()->count() ?? 0;
+    @endphp
+
+    @if ($cartItemCount > 0)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("✅ Authenticated and cart has {{ $cartItemCount }} items");
+
+                // Check if cookie exists
+                const cookies = document.cookie.split(';').map(c => c.trim());
+                const alreadyShown = cookies.find(c => c.startsWith('abandoned_cart_shown='));
+
+                if (!alreadyShown) {
+                    // Set cookie to prevent showing again for 1 day
+                    document.cookie = "abandoned_cart_shown=true; path=/; max-age=86400";
+
+                    const banner = document.createElement('div');
+                    banner.className = 'alert alert-warning alert-dismissible fade show text-center';
+                    banner.style.position = 'fixed';
+                    banner.style.bottom = '-17px';
+                    banner.style.left = '10px';
+                    banner.style.right = '10px';
+                    banner.style.zIndex = '1000';
+
+                    banner.innerHTML = `
+                <i class="bi bi-cart-fill me-2"></i> თქვენ გაქვთ კალათაში {{ $cartItemCount }} წიგნი
+                <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
+                <button type="button" class="btn-close" aria-label="Close" onclick="this.parentElement.remove()"></button>
+            `;
+
+                    document.body.appendChild(banner);
+                } else {
+                    console.log("⏳ Banner already shown within 1 day — skipping");
+                }
+            });
+        </script>
+    @endif
+@endif
+
+<script>
+    const translations = {
+        added: @json(__('messages.added')),
+        addToCart: @json(__('messages.addtocart'))
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cart-btn-text').forEach(function(el) {
+            const state = el.getAttribute('data-state');
+            if (state === 'added') {
+                el.textContent = translations.added;
+            } else {
+                el.textContent = translations.addToCart;
+            }
+        });
+    });
+    function updateCartCount(count) {
+        const countElement = document.getElementById('cart-count');
+        const bubble = document.getElementById('cart-bubble');
+
+        if (countElement && bubble) {
+            countElement.textContent = count;
+
+            if (parseInt(count) > 0) {
+                bubble.style.display = 'inline-block';
+            } else {
+                bubble.style.display = 'none';
+            }
+        }
+    }
+
+    $(document).ready(function() {
+        const translations = {
+            added: @json(__('messages.added')),
+            addToCart: @json(__('messages.addtocart'))
+        };
+
+        $('.toggle-cart-btn').click(function() {
+            var button = $(this);
+            var bookId = button.data('product-id');
+
+            $.ajax({
+                url: '{{ route('cart.toggle') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    book_id: bookId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.action === 'added') {
+                            button.removeClass('btn-primary').addClass('btn-success');
+                            button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                            button.find('.cart-btn-text').text(translations.added);
+                        } else if (response.action === 'removed') {
+                            button.removeClass('btn-success').addClass('btn-primary');
+                            button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                            button.find('.cart-btn-text').text(translations.addToCart);
+                        }
+
+                        updateCartCount(response.cart_count);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    alert("დაფიქსირდა შეცდომა");
+                }
+            });
+        });
+    });
+
+    function updateCartCount(count) {
+        const countElement = document.getElementById('cart-count');
+        const bubble = document.getElementById('cart-bubble');
+
+        if (countElement && bubble) {
+            countElement.textContent = count;
+            if (parseInt(count) > 0) {
+                bubble.style.display = 'inline-block';
+            } else {
+                bubble.style.display = 'none';
+            }
+        }
+    }
+</script>
 </body>
 
 </html>
