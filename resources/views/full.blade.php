@@ -515,52 +515,57 @@
 
         <!-- jQuery and CSRF Setup Script -->
         <script>
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-        </script>
-
-        <!-- Toggle Cart Button Script -->
-        <script>
-            $(document).ready(function() {
-                $('.toggle-cart-btn').click(function() {
+            document.addEventListener('DOMContentLoaded', function () {
+                $('.toggle-cart-btn').click(function () {
                     var button = $(this);
                     var bookId = button.data('product-id');
-
-                    // ✅ Safely handle quantity
-                    var quantityInput = button.closest('.card-body').find('.quantity-input');
-                    var quantity = quantityInput.length ? parseInt(quantityInput.val()) : 1;
-
+                    var inCart = button.data('in-cart');
+        
                     $.ajax({
-                        url: '{{ route('cart.toggle') }}',
+                        url: '{{ route("cart.toggle") }}',
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
-                            book_id: bookId,
-                            quantity: quantity
+                            book_id: bookId
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if (response.success) {
                                 if (response.action === 'added') {
                                     button.removeClass('btn-primary').addClass('btn-success');
-                                    button.find('i').removeClass('bi-cart-plus').addClass(
-                                        'bi-check-circle');
+                                    button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
                                     button.find('.cart-btn-text').text(translations.added);
                                     button.data('in-cart', true);
                                 } else if (response.action === 'removed') {
                                     button.removeClass('btn-success').addClass('btn-primary');
-                                    button.find('i').removeClass('bi-check-circle').addClass(
-                                        'bi-cart-plus');
+                                    button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
                                     button.find('.cart-btn-text').text(translations.addToCart);
                                     button.data('in-cart', false);
                                 }
-
-                                $('#cart-count').text(response.cart_count);
+        
+                                // ✅ Update counter
+                                const cartCount = response.cart_count;
+                                const countEl = document.getElementById('cart-count');
+                                const bubble = document.getElementById('cart-bubble');
+        
+                                if (countEl && bubble) {
+                                    countEl.textContent = cartCount;
+        
+                                    if (parseInt(cartCount) > 0) {
+                                        bubble.style.display = 'inline-block';
+                                    } else {
+                                        bubble.style.display = 'none';
+                                    }
+                                }
+        
+                                // ✅ Handle abandoned cart cookie
+                                if (cartCount > 0) {
+                                    document.cookie = "abandoned_cart=true; max-age=86400; path=/";
+                                } else {
+                                    document.cookie = "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                                }
                             }
                         },
-                        error: function() {
+                        error: function (xhr, status, error) {
                             alert('{{ __('messages.loginrequired') }}');
                         }
                     });
