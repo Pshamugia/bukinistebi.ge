@@ -182,11 +182,18 @@
                 @endphp
                 <!-- Cart Link in the Navbar -->
                 <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    <i class="bi bi-cart-fill" style="position: relative; top:2px;"></i> {{ __('messages.cart') }}
-                    <div id="cart-bubble" class="custom-bubble" style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
+                    <i class="bi bi-cart-fill" style="position: relative; top:2px;"></i>
+                
+                    <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
+                        {{ __('messages.cart') }}
+                    </span>
+                
+                    <div id="cart-bubble" class="custom-bubble"
+                        style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
                         <span id="cart-count">{{ $cartCount }}</span>
                     </div>
                 </a>
+                
 
                     </li>
                 @endif
