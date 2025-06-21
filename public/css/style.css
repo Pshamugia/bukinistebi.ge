@@ -780,6 +780,18 @@ background-color: #ffffff !important;
 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+@media (max-width: 767.98px) {
+    nav .navbar-nav {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        justify-content: center !important;
+        width: 100%;
+    }
+    .navbar-nav .nav-item.kalata {
+        margin: 0 10px;
+    }
+}
+
 body {
 padding-top: 54px !important;
 }
