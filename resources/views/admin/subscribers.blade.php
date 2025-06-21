@@ -65,13 +65,14 @@
             <button type="submit" class="btn btn-success">გამოაგზავნე ელფოსტა მონიშნულებზე</button>
         </div>
     
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>
                         <input type="checkbox" id="select-all">
                     </th>
                     <th>ელფოსტა</th>
+                    <th>ქმედება</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +82,14 @@
                             <input type="checkbox" name="emails[]" value="{{ $subscriber->email }}">
                         </td>
                         <td>{{ $loop->iteration }}. {{ $subscriber->email }}</td>
+
+                        <td>
+                            <form action="{{ route('admin.subscribers.destroy', $subscriber->id) }}" method="POST" onsubmit="return confirm('ნამდვილად გსურთ წაშლა?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">X</button>
+                            </form>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

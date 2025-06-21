@@ -171,36 +171,35 @@
             <!-- Right Side: Cart, Login, Language -->
             <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
 
-                <!-- Cart -->
-                @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                    <li class="nav-item">
-                        @php
-                            $cartCount = 0;
-                            if (Auth::check() && Auth::user()->cart) {
-                                $cartCount = Auth::user()->cart->cartItems->count();
-                            }
-                        @endphp
-                        <!-- Cart Link in the Navbar -->
-                        <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                            {{ __('messages.cart') }}
-
-                            <div class="custom-bubble">
-                                <span id="cart-count" style="position: relative; top: 1px;">{{ $cartCount }}</span>
-                            </div>
-                        </a>
+            <!-- Cart -->
+            @if (!auth()->check() || auth()->user()->role !== 'publisher')
+            <li class="nav-item kalata">
+                @php
+                    $cartCount = 0;
+                    if (Auth::check() && Auth::user()->cart) {
+                        $cartCount = Auth::user()->cart->cartItems->count();
+                    }
+                @endphp
+                <!-- Cart Link in the Navbar -->
+                <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
+                    <i class="bi bi-cart-fill" style="position: relative; top:2px;"></i> {{ __('messages.cart') }}
+                    <div id="cart-bubble" class="custom-bubble" style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
+                        <span id="cart-count">{{ $cartCount }}</span>
+                    </div>
+                </a>
 
                     </li>
                 @endif
 
 
-                <!-- Right Side of Navbar -->
-                @guest
-                    <li class="nav-item dropdown" style="z-index: 1000000">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                            {{ __('messages.login') }}
-                        </a>
+        <!-- Right Side of Navbar -->
+        @guest
+            <li class="nav-item dropdown kalata" style="z-index: 1000000">
+                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                    {{ __('messages.login') }}
+                </a>
 
                         <!-- Dropdown with Tabs -->
                         <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
@@ -244,24 +243,24 @@
                                     aria-labelledby="register-tab">
 
 
-                                    <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
-                                        <i class="bi bi-box-arrow-in-right"></i> {{ __('messages.booksellerauth') }}
-                                    </a>
-                                    @if (Route::has('register'))
-                                        <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
-                                            <i class="bi bi-person-plus"></i> {{ __('messages.booksellerreg') }}</a>
-                                    @endif
-                                </div>
-                            </div>
-                        </ul>
-                    </li>
-                @else
-                    <li class="nav-item dropdown" style="z-index: 1000000">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                            {{ Auth::user()->name }}
-                        </a>
+                            <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
+                                <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
+                            </a>
+                            @if (Route::has('register'))
+                                <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
+                                    <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
+                            @endif
+                        </div>
+                    </div>
+                </ul>
+            </li>
+        @else
+            <li class="nav-item dropdown kalata" style="z-index: 1000000">
+                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                    {{ Auth::user()->name }}
+                </a>
 
                         <!-- Dropdown Menu for Logged-In Users -->
                         <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
@@ -309,19 +308,17 @@
                     </li>
                 @endguest
 
-                <!-- Language -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
-                        data-bs-toggle="dropdown">
-                        <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20"
-                            class="me-1">
-                        {{ strtoupper(app()->getLocale()) }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
-                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
-                    </ul>
-                </li>
+            <!-- Language -->
+            <li class="nav-item dropdown kalata">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" class="me-1">
+                    {{ strtoupper(app()->getLocale()) }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
+                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
+                </ul>
+            </li>
 
             </ul>
         </div>
@@ -766,18 +763,146 @@
    End of Tawk.to Script-->
 
 
-    @if (Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
-        <div class="sticky-cart-summary d-block d-md-none">
-            <a href="{{ route('cart.index') }}"
-                class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი
-                    გაქვს </span>
-                <span>ნახე კალათა</span>
-            </a>
-        </div>
-    @endif
-    @stack('scripts'):
+   @if(Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
+    <div class="sticky-cart-summary d-block d-md-none">
+        <a href="{{ route('cart.index') }}" class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი გაქვს </span>
+            <span>ნახე კალათა</span>
+        </a>
+    </div>
+@endif
+@stack('scripts'):
+ 
 
+@if (Auth::check())
+    @php
+        $cartItemCount = Auth::user()->cart?->cartItems()->count() ?? 0;
+    @endphp
+
+    @if ($cartItemCount > 0)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("✅ Authenticated and cart has {{ $cartItemCount }} items");
+
+                // Check if cookie exists
+                const cookies = document.cookie.split(';').map(c => c.trim());
+                const alreadyShown = cookies.find(c => c.startsWith('abandoned_cart_shown='));
+
+                if (!alreadyShown) {
+                    // Set cookie to prevent showing again for 1 day
+                    document.cookie = "abandoned_cart_shown=true; path=/; max-age=86400";
+
+                    const banner = document.createElement('div');
+                    banner.className = 'alert alert-warning alert-dismissible fade show text-center';
+                    banner.style.position = 'fixed';
+                    banner.style.bottom = '-17px';
+                    banner.style.left = '10px';
+                    banner.style.right = '10px';
+                    banner.style.zIndex = '1000';
+
+                    banner.innerHTML = `
+                <i class="bi bi-cart-fill me-2"></i> თქვენ გაქვთ კალათაში {{ $cartItemCount }} წიგნი
+                <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
+                <button type="button" class="btn-close" aria-label="Close" onclick="this.parentElement.remove()"></button>
+            `;
+
+                    document.body.appendChild(banner);
+                } else {
+                    console.log("⏳ Banner already shown within 1 day — skipping");
+                }
+            });
+        </script>
+    @endif
+@endif
+
+<script>
+    const translations = {
+        added: @json(__('messages.added')),
+        addToCart: @json(__('messages.addtocart'))
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cart-btn-text').forEach(function(el) {
+            const state = el.getAttribute('data-state');
+            if (state === 'added') {
+                el.textContent = translations.added;
+            } else {
+                el.textContent = translations.addToCart;
+            }
+        });
+    });
+    function updateCartCount(count) {
+        const countElement = document.getElementById('cart-count');
+        const bubble = document.getElementById('cart-bubble');
+
+        if (countElement && bubble) {
+            countElement.textContent = count;
+
+            if (parseInt(count) > 0) {
+                bubble.style.display = 'inline-block';
+            } else {
+                bubble.style.display = 'none';
+            }
+        }
+    }
+
+    $(document).ready(function() {
+        const translations = {
+            added: @json(__('messages.added')),
+            addToCart: @json(__('messages.addtocart'))
+        };
+
+        $('.toggle-cart-btn').click(function() {
+            var button = $(this);
+            var bookId = button.data('product-id');
+            var quantity = parseInt($('#quantity').val()) || 1;
+
+
+            $.ajax({
+                url: '{{ route('cart.toggle') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    book_id: bookId,
+                    quantity: quantity
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.action === 'added') {
+                            button.removeClass('btn-primary').addClass('btn-success');
+                            button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                            button.find('.cart-btn-text').text(translations.added);
+                        } else if (response.action === 'removed') {
+                            button.removeClass('btn-success').addClass('btn-primary');
+                            button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                            button.find('.cart-btn-text').text(translations.addToCart);
+                        }
+
+                        updateCartCount(response.cart_count);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    alert('{{ __('messages.loginrequired') }}');
+                }
+            });
+        });
+    });
+
+    function updateCartCount(count) {
+        const countElement = document.getElementById('cart-count');
+        const bubble = document.getElementById('cart-bubble');
+
+        if (countElement && bubble) {
+            countElement.textContent = count;
+            if (parseInt(count) > 0) {
+                bubble.style.display = 'inline-block';
+            } else {
+                bubble.style.display = 'none';
+            }
+        }
+    }
+</script>
 </body>
 
 </html>

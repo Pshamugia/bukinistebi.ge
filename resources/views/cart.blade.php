@@ -17,6 +17,16 @@
         </strong>
     </h5>
 
+    @if($cart->cartItems->isNotEmpty())
+    <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')" class="mb-3">
+        @csrf
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash-fill"></i> {{ __('messages.cleaCart')}}
+        </button>
+    </form>
+    @endif
+    
+
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
@@ -154,12 +164,23 @@
               
                 
                 <div class="mb-3">
-                    <label for="phone" class="form-label"><h4 style="position:relative; top:12px"><strong>{{ __('messages.phoneNumber')}}</strong></h4></label>
+                    <label for="phone" class="form-label">
+                        <h4 style="position:relative; top:12px"><strong>{{ __('messages.phoneNumber') }}</strong></h4>
+                    </label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" class="form-control" id="phone" placeholder="{{ __('messages.phoneNumber')}}" name="phone" required>
+                        <span class="input-group-text">+995</span>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               placeholder="5XX XXX XXX" maxlength="9" required
+                               pattern="5\d{8}" title="Phone number must start with 5 and be 9 digits long">
                     </div>
+                    @error('phone')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
+                
+                @error('phone')
+    <div class="text-danger mt-1">{{ $message }}</div>
+@enderror
 
 
                 <div class="mb-3">
@@ -271,6 +292,11 @@ $(document).ready(function () {
         placeholder_text_multiple: "მონიშნე ქალაქები"
     });
 
+    // phone validate
+    document.getElementById('phone').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, ''); // remove non-numeric characters
+});
+
     // Function to update total based on city selection
     function updateTotal(city) {
         let productPrice = {{ $total - 5 }}; // Assuming $total is passed from the backend, adjusted to remove delivery price
@@ -329,28 +355,53 @@ $(document).ready(function () {
             });
         });
 
-        function updateQuantity(bookId, action) {
-            $.ajax({
-                url: '{{ route("cart.updateQuantity") }}',  // You need to define this route in your web.php
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    book_id: bookId,
-                    action: action
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message || 'Unable to update quantity.');
-                    }
-                },
-                error: function(xhr) {
-                    alert('Error: ' + xhr.responseText);
-                }
-            });
+        $('.increase-quantity, .decrease-quantity').click(function () {
+        const bookId = $(this).data('book-id');
+        const action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
+        const inputField = $(this).closest('.input-group').find('.quantity-input');
+        const row = $(this).closest('tr');
+
+        $.ajax({
+            url: '{{ route("cart.updateQuantity") }}', // ✅ use your existing route
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                book_id: bookId,
+                action: action
+            },
+            success: function (response) {
+    if (response.success) {
+        inputField.val(response.newQuantity);
+        row.find('td:nth-child(3)').text(response.updatedTotal + ' ლარი');
+        $('#product-price').text(response.cartTotal - 5);
+        $('#total-price').text('ჯამური: ' + response.cartTotal + ' ლარი');
+        $('#delivery-price').text(5);
+        $('#delivery-price-container').show();
+        $('#total-price').show();
+
+        // ✅ Disable "+" if quantity = book stock
+        const increaseBtn = row.find('.increase-quantity');
+        const decreaseBtn = row.find('.decrease-quantity');
+
+        if (response.newQuantity >= response.bookStock) {
+            increaseBtn.prop('disabled', true);
+        } else {
+            increaseBtn.prop('disabled', false);
         }
+
+        // ✅ Disable "−" if quantity = 1
+        if (response.newQuantity <= 1) {
+            decreaseBtn.prop('disabled', true);
+        } else {
+            decreaseBtn.prop('disabled', false);
+        }
+    } else {
+        alert(response.message || 'Update failed.');
+    }
+}
+        });
     });
+});
 </script>
 
 @endsection

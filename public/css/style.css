@@ -595,10 +595,10 @@ h4  {
 @media (max-width: 991.98px) {
     /* Show mobile dropdown menu above hero */
     .navbar-collapse { 
-        background-color: #F3F4F6 !important;
-        position: relative; 
+         position: relative; 
         margin-top: 10px; /* 👈 Prevents upward shift */
         padding: 10px 10px 15px 10px;
+        background-color: #F3F4F6;
     }
 
  
@@ -659,6 +659,20 @@ h4  {
     transform: scale(1.2); /* Slightly increase the size on hover */
 }
 
+.kalata 
+{
+ padding: 0 10px 0 10px; 
+border-bottom-left-radius:10px; border-top-right-radius:10px;  
+}
+
+.kalata:hover
+{
+    background-color: #ffffff;
+padding: 0 10px 0 10px; 
+border-bottom-left-radius:10px; border-top-right-radius:10px;  
+}
+
+
 
 .circle {
     display: inline-block;
@@ -684,8 +698,8 @@ h4  {
 
 .custom-bubble {
     position: absolute;
-    top: -3px; /* Move it upwards */
-    right: 0px; /* Move it to the right */
+    top: -4px; /* Move it upwards */
+    left: 0px; /* Move it to the right */
     display: inline-flex;
     align-items: center;
     justify-content: center;

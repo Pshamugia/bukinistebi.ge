@@ -226,4 +226,7 @@ return [
     'auctions' => 'Auctions',
     'myAuctions' => 'My auctions',
     'bookAuctions' => 'Book Auctions',
+    'confirmClearCart' => 'Are you sure you want to clear your cart?',
+    'cleaCart' => 'Clear cart',
+    'loginrequired' => 'Please log in to add to cart',
 ];

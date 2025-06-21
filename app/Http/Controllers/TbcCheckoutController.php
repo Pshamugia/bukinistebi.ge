@@ -23,7 +23,7 @@ class TbcCheckoutController extends Controller
         $validatedData = $request->validate([
             'payment_method' => 'required|string',
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
+            'phone' => ['required', 'digits:9'],
             'address' => 'required|string|max:255',
             'city' => 'required|string', // Validate the city field
         ]);

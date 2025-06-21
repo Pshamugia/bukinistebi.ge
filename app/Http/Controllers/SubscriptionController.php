@@ -148,4 +148,20 @@ public function unsubscribe($encryptedEmail)
     }
 }
 
+
+public function destroy($id)
+{
+    $subscriber = \App\Models\Subscriber::find($id);
+
+    if (!$subscriber) {
+        return redirect()->back()->with('error', 'გამომწერი ვერ მოიძებნა');
+    }
+
+    $subscriber->delete();
+
+    return redirect()->back()->with('success', 'გამომწერი წარმატებით წაიშალა');
+}
+
+
+
 }
