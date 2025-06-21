@@ -754,9 +754,7 @@
     </div>
 @endif
 @stack('scripts'):
-<script>
-     
-</script>
+ 
 
 @if (Auth::check())
     @php
@@ -839,13 +837,16 @@
         $('.toggle-cart-btn').click(function() {
             var button = $(this);
             var bookId = button.data('product-id');
+            var quantity = parseInt($('#quantity').val()) || 1;
+
 
             $.ajax({
                 url: '{{ route('cart.toggle') }}',
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    book_id: bookId
+                    book_id: bookId,
+                    quantity: quantity
                 },
                 success: function(response) {
                     if (response.success) {
@@ -864,7 +865,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', error);
-                    alert("დაფიქსირდა შეცდომა");
+                    alert('{{ __('messages.loginrequired') }}');
                 }
             });
         });
