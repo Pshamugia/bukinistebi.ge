@@ -659,6 +659,20 @@ h4  {
     transform: scale(1.2); /* Slightly increase the size on hover */
 }
 
+.kalata 
+{
+ padding: 0 10px 0 10px; 
+border-bottom-left-radius:10px; border-top-right-radius:10px;  
+}
+
+.kalata:hover
+{
+    background-color: #ffffff;
+padding: 0 10px 0 10px; 
+border-bottom-left-radius:10px; border-top-right-radius:10px;  
+}
+
+
 
 .circle {
     display: inline-block;

@@ -163,7 +163,7 @@
 
             <!-- Cart -->
             @if (!auth()->check() || auth()->user()->role !== 'publisher')
-            <li class="nav-item">
+            <li class="nav-item kalata">
                 @php
                     $cartCount = 0;
                     if (Auth::check() && Auth::user()->cart) {
@@ -184,7 +184,7 @@
 
         <!-- Right Side of Navbar -->
         @guest
-            <li class="nav-item dropdown" style="z-index: 1000000">
+            <li class="nav-item dropdown kalata" style="z-index: 1000000">
                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false" v-pre>
                     <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
@@ -245,7 +245,7 @@
                 </ul>
             </li>
         @else
-            <li class="nav-item dropdown" style="z-index: 1000000">
+            <li class="nav-item dropdown kalata" style="z-index: 1000000">
                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false" v-pre>
                     <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
@@ -298,7 +298,7 @@
         @endguest
 
             <!-- Language -->
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown kalata">
                 <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                     <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" class="me-1">
                     {{ strtoupper(app()->getLocale()) }}

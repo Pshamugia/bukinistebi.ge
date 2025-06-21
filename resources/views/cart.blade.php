@@ -164,12 +164,23 @@
               
                 
                 <div class="mb-3">
-                    <label for="phone" class="form-label"><h4 style="position:relative; top:12px"><strong>{{ __('messages.phoneNumber')}}</strong></h4></label>
+                    <label for="phone" class="form-label">
+                        <h4 style="position:relative; top:12px"><strong>{{ __('messages.phoneNumber') }}</strong></h4>
+                    </label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" class="form-control" id="phone" placeholder="{{ __('messages.phoneNumber')}}" name="phone" required>
+                        <span class="input-group-text">+995</span>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               placeholder="5XX XXX XXX" maxlength="9" required
+                               pattern="5\d{8}" title="Phone number must start with 5 and be 9 digits long">
                     </div>
+                    @error('phone')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
+                
+                @error('phone')
+    <div class="text-danger mt-1">{{ $message }}</div>
+@enderror
 
 
                 <div class="mb-3">
@@ -280,6 +291,11 @@ $(document).ready(function () {
         placeholder_text_single: "მონიშნე ქალაქი",
         placeholder_text_multiple: "მონიშნე ქალაქები"
     });
+
+    // phone validate
+    document.getElementById('phone').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, ''); // remove non-numeric characters
+});
 
     // Function to update total based on city selection
     function updateTotal(city) {
