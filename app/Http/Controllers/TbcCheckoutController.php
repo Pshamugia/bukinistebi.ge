@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class TbcCheckoutController extends Controller
 {
@@ -262,50 +263,6 @@ class TbcCheckoutController extends Controller
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private function getAccessToken()
-    {
-        $response = Http::asForm()->withHeaders([
-            'apikey' => env('TBC_API_KEY'), // Ensure this is correct
-        ])->post('https://api.tbcbank.ge/v1/tpay/access-token', [
-            'client_id' => env('TBC_CLIENT_ID'), // Ensure this is correct
-            'client_secret' => env('TBC_CLIENT_SECRET'), // Ensure this is correct
-        ]);
-
-        // Check if the response is successful and contains the access token
-        if ($response->successful()) {
-            $tokenData = $response->json();
-            return $tokenData['access_token'] ?? null; // Return the access token or null if not set
-        } else {
-            Log::error('Failed to retrieve access token', ['response' => $response->json()]);
-            return null; // Return null if the token retrieval fails
-        }
-    }
-
-
-
-
-
-
-
-
     public function handleCallback(Request $request)
     {
         Log::info('📥 Callback received:', ['request' => $request->all()]);
@@ -466,6 +423,24 @@ class TbcCheckoutController extends Controller
     }
 
 
+    private function getAccessToken()
+    {
+        $response = Http::asForm()->withHeaders([
+            'apikey' => env('TBC_API_KEY'), // Ensure this is correct
+        ])->post('https://api.tbcbank.ge/v1/tpay/access-token', [
+            'client_id' => env('TBC_CLIENT_ID'), // Ensure this is correct
+            'client_secret' => env('TBC_CLIENT_SECRET'), // Ensure this is correct
+        ]);
+
+        // Check if the response is successful and contains the access token
+        if ($response->successful()) {
+            $tokenData = $response->json();
+            return $tokenData['access_token'] ?? null; // Return the access token or null if not set
+        } else {
+            Log::error('Failed to retrieve access token', ['response' => $response->json()]);
+            return null; // Return null if the token retrieval fails
+        }
+    }
 
     public function payAuctionFee(Request $request)
     {
@@ -473,50 +448,60 @@ class TbcCheckoutController extends Controller
         $user = Auth::user();
         $auctionId = $request->input('auction_id');
 
-        $auction = Auction::findOrFail($auctionId);
-
-
-        if ($user->userPaidAuction($auctionId)) {
+        if ($user->paidAuction($auctionId)) {
             return back()->with('success', 'You have already paid for this auction.');
         }
 
-        if (! $user->userStartedAuctionPayment($auctionId)) {
+        if (! $user->startedAuctionPayment($auctionId)) {
             $user->paidAuctions()->attach($auctionId, [
                 'paid_at' => null,
             ]);
         }
-        $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
+
+        $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid();
+
         $payload = [
             'amount' => [
                 'currency' => 'GEL',
                 'total' => '1',
             ],
-            'callbackUrl' => route('payment.callback'),
-            'returnurl' => url()->previous(),
+            'callbackUrl' => str_replace('http://', 'https://', route('payment.callback')),
+            'returnurl' => str_replace('http://', 'https://', url()->previous()),
             'description' => 'Auction Access Fee',
             'merchantPaymentId' => $paymentId,
         ];
 
         $token = $this->getAccessToken();
+
         if (!$token) {
             Log::error('❌ Token fetch failed for auction fee');
             return back()->with('error', 'Failed to get token.');
         }
 
+
+        // dd([
+        //     'auth' => $token,
+        //     'key' => env('TBC_API_KEY'),
+        //     'url' => env('TBC_BASE_URL') . '/v1/tpay/payments',
+        // ]);
+
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'apikey' => env('TBC_API_KEY'),
             'Content-Type' => 'application/json',
-        ])->post(env('TBC_BASE_URL') . '/v1/tpay/payments', $payload);
+        ])->post(env('TBC_PAYMENT_URL'), $payload);
+
 
         if ($response->successful()) {
-
             DB::table('auction_users')
                 ->where('user_id', $user->id)
                 ->where('auction_id', $auctionId)
                 ->update(['updated_at' => now()]);
-                
+
             return redirect($response['links'][1]['uri']);
+        } else {
+            dd($response);
         }
 
         session(['auction_id' => $auctionId]);

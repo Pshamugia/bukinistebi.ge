@@ -97,7 +97,7 @@
                                                 </form>
                                             @elseif (!$user->paidAuction($auctionId))
                                                 <div class="alert alert-info mt-2 text-center">
-                                                    გადახდა ვამუშავებთ, გთხოვთ განაახლოთ გვერდი.
+                                                    გადახდას ვამუშავებთ, გთხოვთ განაახლოთ გვერდი.
                                                 </div>
                                             @else
                                                 <div class="alert alert-success mt-2 text-center">
