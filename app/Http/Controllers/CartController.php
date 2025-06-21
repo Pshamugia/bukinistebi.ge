@@ -108,29 +108,44 @@ class CartController extends Controller
      * Update the quantity of a book in the cart.
      */
     public function updateQuantity(Request $request)
-    {
-        $bookId = $request->input('book_id');
-        $action = $request->input('action');
+{
+    $bookId = $request->input('book_id');
+    $action = $request->input('action');
 
-        $cartItem = CartItem::where('book_id', $bookId)
-            ->where('cart_id', Auth::user()->cart->id)
-            ->first();
+    $cartItem = CartItem::where('book_id', $bookId)
+        ->where('cart_id', Auth::user()->cart->id)
+        ->first();
 
-        if (!$cartItem) {
-            return response()->json(['success' => false, 'message' => 'Item not found in cart.']);
-        }
-
-        $book = Book::find($bookId);
-        if ($action === 'increase' && $cartItem->quantity < $book->quantity) {
-            $cartItem->quantity += 1;
-        } elseif ($action === 'decrease' && $cartItem->quantity > 1) {
-            $cartItem->quantity -= 1;
-        }
-
-        $cartItem->save();
-
-        return response()->json(['success' => true]);
+    if (!$cartItem) {
+        return response()->json(['success' => false, 'message' => 'Item not found.']);
     }
+
+    $book = Book::find($bookId);
+
+    if ($action === 'increase' && $cartItem->quantity < $book->quantity) {
+        $cartItem->quantity += 1;
+    } elseif ($action === 'decrease' && $cartItem->quantity > 1) {
+        $cartItem->quantity -= 1;
+    }
+
+    $cartItem->save();
+
+    $updatedTotal = $cartItem->quantity * $cartItem->price;
+
+    $cart = Auth::user()->cart;
+    $newTotal = $cart->cartItems->sum(function ($item) {
+        return $item->price * $item->quantity;
+    });
+
+    return response()->json([
+        'success' => true,
+        'newQuantity' => $cartItem->quantity,
+        'updatedTotal' => $updatedTotal,
+        'cartTotal' => $newTotal + 5, // shipping
+        'bookStock' => $book->quantity, // ✅ add this line
+    ]);
+}
+
 
 
 

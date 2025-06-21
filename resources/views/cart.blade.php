@@ -339,28 +339,53 @@ $(document).ready(function () {
             });
         });
 
-        function updateQuantity(bookId, action) {
-            $.ajax({
-                url: '{{ route("cart.updateQuantity") }}',  // You need to define this route in your web.php
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    book_id: bookId,
-                    action: action
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message || 'Unable to update quantity.');
-                    }
-                },
-                error: function(xhr) {
-                    alert('Error: ' + xhr.responseText);
-                }
-            });
+        $('.increase-quantity, .decrease-quantity').click(function () {
+        const bookId = $(this).data('book-id');
+        const action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
+        const inputField = $(this).closest('.input-group').find('.quantity-input');
+        const row = $(this).closest('tr');
+
+        $.ajax({
+            url: '{{ route("cart.updateQuantity") }}', // ✅ use your existing route
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                book_id: bookId,
+                action: action
+            },
+            success: function (response) {
+    if (response.success) {
+        inputField.val(response.newQuantity);
+        row.find('td:nth-child(3)').text(response.updatedTotal + ' ლარი');
+        $('#product-price').text(response.cartTotal - 5);
+        $('#total-price').text('ჯამური: ' + response.cartTotal + ' ლარი');
+        $('#delivery-price').text(5);
+        $('#delivery-price-container').show();
+        $('#total-price').show();
+
+        // ✅ Disable "+" if quantity = book stock
+        const increaseBtn = row.find('.increase-quantity');
+        const decreaseBtn = row.find('.decrease-quantity');
+
+        if (response.newQuantity >= response.bookStock) {
+            increaseBtn.prop('disabled', true);
+        } else {
+            increaseBtn.prop('disabled', false);
         }
+
+        // ✅ Disable "−" if quantity = 1
+        if (response.newQuantity <= 1) {
+            decreaseBtn.prop('disabled', true);
+        } else {
+            decreaseBtn.prop('disabled', false);
+        }
+    } else {
+        alert(response.message || 'Update failed.');
+    }
+}
+        });
     });
+});
 </script>
 
 @endsection
