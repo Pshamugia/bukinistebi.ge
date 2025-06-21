@@ -435,6 +435,7 @@ class TbcCheckoutController extends Controller
         // Check if the response is successful and contains the access token
         if ($response->successful()) {
             $tokenData = $response->json();
+
             return $tokenData['access_token'] ?? null; // Return the access token or null if not set
         } else {
             Log::error('Failed to retrieve access token', ['response' => $response->json()]);
@@ -452,7 +453,7 @@ class TbcCheckoutController extends Controller
             return back()->with('success', 'You have already paid for this auction.');
         }
 
-        if (! $user->startedAuctionPayment($auctionId)) {
+        if (!$user->startedAuctionPayment($auctionId)) {
             $user->paidAuctions()->attach($auctionId, [
                 'paid_at' => null,
             ]);
@@ -479,19 +480,12 @@ class TbcCheckoutController extends Controller
         }
 
 
-        // dd([
-        //     'auth' => $token,
-        //     'key' => env('TBC_API_KEY'),
-        //     'url' => env('TBC_BASE_URL') . '/v1/tpay/payments',
-        // ]);
-
-
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'apikey' => env('TBC_API_KEY'),
             'Content-Type' => 'application/json',
-        ])->post(env('TBC_PAYMENT_URL'), $payload);
-
+        ])->withBody(json_encode($payload), 'application/json')
+            ->post("https://api.tbcbank.ge/v1/tpay/payments");
 
         if ($response->successful()) {
             DB::table('auction_users')
@@ -501,7 +495,11 @@ class TbcCheckoutController extends Controller
 
             return redirect($response['links'][1]['uri']);
         } else {
-            dd($response);
+            Log::info('TBC payment request fail', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'json' => $response->json(),
+            ]);
         }
 
         session(['auction_id' => $auctionId]);
