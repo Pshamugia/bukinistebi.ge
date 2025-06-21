@@ -28,7 +28,7 @@ class PublisherAccountController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
             'address' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
+            'phone' => ['required', 'digits:9'],
             'iban' => 'nullable|string|max:34',
         ]);
 

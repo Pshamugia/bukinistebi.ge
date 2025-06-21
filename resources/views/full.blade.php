@@ -167,7 +167,8 @@
                         <div class="input-group" style="width: 200px; height: 37px;">
                             <button class="btn btn-outline-secondary decrease-quantity btn-sm" type="button">-</button>
                             <input type="text" class="form-control form-control-sm text-center quantity-input"
-                                id="quantity" value="{{ $book->quantity > 0 ? 1 : 0 }}" readonly>
+                            id="quantity-{{ $book->id }}" value="{{ $book->quantity > 0 ? 1 : 0 }}" readonly>
+                     
                             <button class="btn btn-outline-secondary increase-quantity btn-sm" type="button">+</button>
                         </div>
                         <input type="hidden" id="max-quantity" value="{{ $book->quantity }}">
@@ -515,57 +516,57 @@
 
         <!-- jQuery and CSRF Setup Script -->
         <script>
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            $('.toggle-cart-btn').click(function () {
+    var button = $(this);
+    var bookId = button.data('product-id');
+    var inCart = button.data('in-cart');
+    var quantity = $('#quantity-' + bookId).val() || 1;
+
+    $.ajax({
+        url: '{{ route("cart.toggle") }}',
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            book_id: bookId,
+            quantity: quantity // ✅ pass quantity
+        },
+        success: function (response) {
+            if (response.success) {
+                if (response.action === 'added') {
+                    button.removeClass('btn-primary').addClass('btn-success');
+                    button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                    button.find('.cart-btn-text').text(translations.added);
+                    button.data('in-cart', true);
+                } else if (response.action === 'removed') {
+                    button.removeClass('btn-success').addClass('btn-primary');
+                    button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                    button.find('.cart-btn-text').text(translations.addToCart);
+                    button.data('in-cart', false);
                 }
-            });
+
+                const cartCount = response.cart_count;
+                const countEl = document.getElementById('cart-count');
+                const bubble = document.getElementById('cart-bubble');
+
+                if (countEl && bubble) {
+                    countEl.textContent = cartCount;
+                    bubble.style.display = cartCount > 0 ? 'inline-block' : 'none';
+                }
+
+                if (cartCount > 0) {
+                    document.cookie = "abandoned_cart=true; max-age=86400; path=/";
+                } else {
+                    document.cookie = "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                }
+            }
+        },
+        error: function (xhr, status, error) {
+            alert('{{ __('messages.loginrequired') }}');
+        }
+    });
+});
+
         </script>
-
-        <!-- Toggle Cart Button Script -->
-        <script>
-            $(document).ready(function() {
-                $('.toggle-cart-btn').click(function() {
-                    var button = $(this);
-                    var bookId = button.data('product-id');
-
-                    // ✅ Safely handle quantity
-                    var quantityInput = button.closest('.card-body').find('.quantity-input');
-                    var quantity = quantityInput.length ? parseInt(quantityInput.val()) : 1;
-
-                    $.ajax({
-                        url: '{{ route('cart.toggle') }}',
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            book_id: bookId,
-                            quantity: quantity
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                if (response.action === 'added') {
-                                    button.removeClass('btn-primary').addClass('btn-success');
-                                    button.find('i').removeClass('bi-cart-plus').addClass(
-                                        'bi-check-circle');
-                                    button.find('.cart-btn-text').text(translations.added);
-                                    button.data('in-cart', true);
-                                } else if (response.action === 'removed') {
-                                    button.removeClass('btn-success').addClass('btn-primary');
-                                    button.find('i').removeClass('bi-check-circle').addClass(
-                                        'bi-cart-plus');
-                                    button.find('.cart-btn-text').text(translations.addToCart);
-                                    button.data('in-cart', false);
-                                }
-
-                                $('#cart-count').text(response.cart_count);
-                            }
-                        },
-                        error: function() {
-                            alert('{{ __('messages.loginrequired') }}');
-                        }
-                    });
-                });
-            });
-        </script>
+        
     @endpush
 @endsection
