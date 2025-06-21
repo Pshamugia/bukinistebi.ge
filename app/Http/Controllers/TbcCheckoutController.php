@@ -469,16 +469,30 @@ class TbcCheckoutController extends Controller
 
     public function payAuctionFee(Request $request)
     {
-        $user = Auth::user();
-        $auctionId = $request->input('auction_id'); // Capture auction ID
-        $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
 
+        $user = Auth::user();
+        $auctionId = $request->input('auction_id');
+
+        $auction = Auction::findOrFail($auctionId);
+
+
+        if ($user->userPaidAuction($auctionId)) {
+            return back()->with('success', 'You have already paid for this auction.');
+        }
+
+        if (! $user->userStartedAuctionPayment($auctionId)) {
+            $user->paidAuctions()->attach($auctionId, [
+                'paid_at' => null,
+            ]);
+        }
+        $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid(); // Include auction ID
         $payload = [
             'amount' => [
                 'currency' => 'GEL',
                 'total' => '1',
             ],
-            'returnurl' => route('tbc.callback'), // will redirect here
+            'callbackUrl' => route('payment.callback'),
+            'returnurl' => url()->previous(),
             'description' => 'Auction Access Fee',
             'merchantPaymentId' => $paymentId,
         ];
@@ -496,6 +510,12 @@ class TbcCheckoutController extends Controller
         ])->post(env('TBC_BASE_URL') . '/v1/tpay/payments', $payload);
 
         if ($response->successful()) {
+
+            DB::table('auction_users')
+                ->where('user_id', $user->id)
+                ->where('auction_id', $auctionId)
+                ->update(['updated_at' => now()]);
+                
             return redirect($response['links'][1]['uri']);
         }
 
