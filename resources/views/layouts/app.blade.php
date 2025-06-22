@@ -169,8 +169,8 @@
             </div>
 
             <!-- Right Side: Cart, Login, Language -->
-            <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
-
+            <ul class="navbar-nav flex-row align-items-center gap-0 flex-wrap ms-auto">
+ 
             <!-- Cart -->
             @if (!auth()->check() || auth()->user()->role !== 'publisher')
             <li class="nav-item kalata">
@@ -182,7 +182,7 @@
                 @endphp
                 <!-- Cart Link in the Navbar -->
                 <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    <i class="bi bi-cart-fill" style="position: relative; top:2px;"></i>
+                    <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
                 
                     <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
                         {{ __('messages.cart') }}
@@ -339,7 +339,6 @@
 
 
 
-
                 <a class="navbar-brand" href="{{ url('/') }}"><img
                         src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
                         style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
@@ -348,11 +347,12 @@
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
 
 
-                <button style="position: relative;  " class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+          <button id="mobileMenuToggle" class="navbar-toggler" type="button"
+    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <i class="bi bi-list fs-3"></i> <!-- bi-list = hamburger, bi-x = close -->
+</button>
+
 
 
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -664,6 +664,21 @@
                 subscriptionErrorModal.show();
             }
         });
+
+          const toggleBtn = document.getElementById('mobileMenuToggle');
+    const icon = toggleBtn.querySelector('i');
+    const menu = document.getElementById('navbarNav');
+
+    menu.addEventListener('show.bs.collapse', function () {
+        icon.classList.remove('bi-list');
+        icon.classList.add('bi-x');
+    });
+
+    menu.addEventListener('hide.bs.collapse', function () {
+        icon.classList.remove('bi-x');
+        icon.classList.add('bi-list');
+    });
+
     </script>
 
 

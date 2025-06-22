@@ -3,8 +3,8 @@
  }
 
  .cover {
-     width: 100%; 
-  height: 300px;
+     width: 100%;
+     height: 300px;
      object-fit: cover;
  }
 
@@ -19,1070 +19,1212 @@
 
 
  #im_news {
-    transition: all .2s ease-in-out;
-    height: 250px; 
-}
+     transition: all .2s ease-in-out;
+     height: 250px;
+ }
 
-.cover_news {
-    width: 100%; 
-    object-fit: cover;
-}
+ .cover_news {
+     width: 100%;
+     object-fit: cover;
+ }
 
-.cover_news:hover {
-    transform: scale(1.0);
-    /* rotate(2.1deg) */
-    opacity: 0.7;
-    filter: alpha(opacity=70);
-    transition: all .7s;
-    cursor: pointer;
-}
+ .cover_news:hover {
+     transform: scale(1.0);
+     /* rotate(2.1deg) */
+     opacity: 0.7;
+     filter: alpha(opacity=70);
+     transition: all .7s;
+     cursor: pointer;
+ }
 
  .overlay-section {
-    position: relative;
-    height: 300px; /* Adjust height as needed */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    padding: 20px;
-    margin-top: 30px;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.5); /* Overlay effect */
-}
-
-.overlay-section .fixed-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url("{{ asset('uploads/book1.jpg') }}") no-repeat center center;
-    background-size: cover;
-    background-attachment: fixed; /* Fixes the background within this section */
-    z-index: -1; /* Ensure it stays behind the content */
-}
-
-@media (max-width: 768px) {
-    .fixed-background {
-        background-attachment: scroll !important; /* Disable fixed background on mobile */
-        background-size: auto !important; /* Adjust background size on mobile */
-    }
-}
-
-
-.overlay-content {
-    position: relative;
-    z-index: 1;
-}
-
-.overlay-content h2, .overlay-content p, .overlay-content a {
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-}
-
-.chosen-select {
-    height: 40px !important;  /* Match the height of other inputs */
-    font-size: 16px !important;
-    color: rgb(65, 62, 62) !important;
-    width: 100% !important;  /* Make the Chosen select take up full width */
-
-
-  }
-
-  .form-select {
-    flex-grow: 1;
-    height: 50px;
-}
-
-
-.cookie-bar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #f8f9fa;
-    border-top: 1px solid #ccc;
-    z-index: 9999;
-    font-size: 14px;
-}
-
-.genre-badge:hover {
-    background-color: #dff0ff !important; /* change to any color */
-    color: #000 !important; /* make sure text stays readable */
-    border-color: #007bff !important;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-
-.genre-scroll.dropdown-menu {
-    z-index: 1050 !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    background-color: white !important;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-}
-
-.nowrap {
-    white-space: nowrap;
-}
-
-
-/* Flip the dropdown arrow when open */
-.nav-link.dropdown-toggle::after {
-    transition: transform 0.3s ease;
-}
-
-.nav-link.dropdown-toggle.show::after {
-    transform: rotate(180deg);
-}
-
-/* Adjust the dropdown button height */
-.chosen-container-single .chosen-single {
-    height: 40px !important;  /* Match the height of other inputs */
-    line-height: 40px; /* Ensure the text aligns well */
-    font-size: 16px !important;
-    color: rgb(65, 62, 62) !important;
-
-}
-
-.hero-section {
-    background: url("{{ asset('uploads/book9.webp') }}") no-repeat center center; /* Replace with your image path */
-    background-size: cover;
-    background-attachment: fixed; /* Keeps the background image fixed */
-    height: 250px; /* Adjust height as needed */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    
-}
-
-
-@media (max-width: 768px) {
-    .hero-section {
-        background-attachment: scroll !important; /* Disable fixed background on mobile */
-        background-size: auto !important; /* Adjust background size on mobile */
-    }
-}
-
-
-
-.hero-section::before {
-    content: '';
-    position: absolute;
-  
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5); /* Adjust overlay color/opacity */
-    z-index: 1;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-     top: 12px;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-}
-
-
-.section-title {
-    font-size: 24px; /* Increase font size for better visibility */
-    color: #2c3e50; /* Darker color for better contrast */
-    padding-bottom: 20px;
-    display: flex;
-    align-items: left;
-    justify-content: center; /* Center the title */
-     padding: 10px;
-    position: relative; 
-    text-transform: uppercase; /* Make the text uppercase for emphasis */
-    letter-spacing: 1px; /* Add a bit of letter spacing */
-}
-
-/* Add a fancy icon before the text */
-.section-title i {
-    font-size: 28px; /* Increase icon size */
-    color: #d7dae2; /* Make the icon stand out */
-    margin-right: 10px; /* Add some space between icon and text */
-}
-
-/* Add a subtle background effect */
-.section-title::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(to right, #f0f1f5, #c2c1bf);
-    bottom: 0;
-    left: 0;
-    z-index: -1; /* Send the background effect behind the text */
-    transform: scaleX(0);
-    transform-origin: bottom right;
-    transition: transform 0.5s ease;
-}
-
-.section-title:hover::before {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-
-
-
-.section-title-1 {
-    font-size: 26px;
-    color: white;
-    background: linear-gradient(135deg, #3498db, #8e44ad); /* Gradient background */
-    padding: 10px 20px;
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-    display: inline-block; /* Keep it to the size of content */
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-}
-
-/* Style the icon */
-.section-title-1 i {
-    font-size: 30px;
-    margin-right: 8px;
-}
-
-
-
-.section-title-2 {
-    font-size: 28px;
-    color: #333;
-    padding-bottom: 10px;
-    border-bottom: 4px double #3498db; /* Fancy double border underline */
-    display: inline-block;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Style the icon */
-.section-title-2 i {
-    font-size: 32px;
-    color: #3498db; /* Color to match the underline */
-    margin-right: 6px;
-}
-
-
-.animated-title {
-    font-size: 26px;
-    color: white;
-    background: linear-gradient(135deg, #3498db, #8e44ad);
-    padding: 12px 24px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    display: inline-block;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    position: relative;
-    overflow: hidden;
-    transition: background-position 0.5s ease, transform 0.3s;
-    background-size: 200% 200%; /* Double the size for gradient animation */
-    background-position: 0% 50%; /* Start at the left */
-}
-
-/* Add a hover effect with a subtle scale and gradient shift */
-.animated-title:hover {
-    transform: scale(1.05);
-    background-position: 100% 50%; /* Move gradient to the right */
-}
-
-/* Style the icon with a slight animation */
-.animated-title i {
-    font-size: 30px;
-    margin-right: 10px;
-    animation: bounce 1.2s infinite;
-}
-
-/* Bouncing animation for the icon */
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
-
-
-
-
-.animated-title {
-    font-size: 28px;
-    color: #fff;
-    padding: 15px 30px;
-    display: inline-block;
-    background-color: #3498db;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    animation: slide-in 1.5s ease-out forwards, color-pulse 3s infinite;
-    transition: transform 0.3s, background-color 0.5s;
-}
-
-/* Hover effect */
-.animated-title:hover {
-    background-color: #e74c3c;
-    transform: scale(1.05);
-}
-
-/* Sliding animation */
-@keyframes slide-in {
-    0% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Color pulsing effect */
-@keyframes color-pulse {
-    0%, 100% { box-shadow: 0 0 10px #3498db, 0 0 30px #3498db; }
-    50% { box-shadow: 0 0 20px #e74c3c, 0 0 40px #e74c3c; }
-}
-
-.popular-book-item {
-    font-size: 16px;
-    padding: 5px 0;
-}
-
-.book-number {
-    font-weight: bold; 
-}
-
-.book-title {
-    font-weight: bold;
-}
-
-.book-author {
-    color: #555; /* Dark gray for the author name */
-    font-style: italic;
-}
-
-.book-details {
-    font-size: 14px;
-    color: #777; /* Lighter gray for additional details */
-}
-
-/* Optional: Customize the card appearance */
-.card.mb-3 {
-    background-color: #f9f9f9; /* Light background color */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.card h5 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.read-more-link {
-    color: #3498db;
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    transition: color 0.3s; 
-    float: right;
-}
-
-.read-more-link i {
-    margin-left: 5px; /* Add space between text and icon */
-    font-size: 16px; /* Adjust icon size */
-    transition: transform 0.3s;
-}
-
-.read-more-link:hover {
-    color: #2c3e50; /* Darker color on hover */
-}
-
-.read-more-link:hover i {
-    transform: translateX(5px); /* Slide icon to the right on hover */
-}
-
-
-
-.navbar {
-    transition: background-color 0.3s ease, top 0.3s ease;
-    position: sticky;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 900 !important; /* Above modal backdrop */
-    background-color: #F3F4F6 !important;
-    padding-bottom:26px;
+     position: relative;
+     height: 300px;
+     /* Adjust height as needed */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     text-align: center;
+     color: white;
+     padding: 20px;
+     margin-top: 30px;
+     margin-bottom: 30px;
+     border-radius: 10px;
+     overflow: hidden;
+     background: rgba(0, 0, 0, 0.5);
+     /* Overlay effect */
  }
+
+ .overlay-section .fixed-background {
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: url("{{ asset('uploads/book1.jpg') }}") no-repeat center center;
+     background-size: cover;
+     background-attachment: fixed;
+     /* Fixes the background within this section */
+     z-index: -1;
+     /* Ensure it stays behind the content */
+ }
+
+ @media (max-width: 768px) {
+     .fixed-background {
+         background-attachment: scroll !important;
+         /* Disable fixed background on mobile */
+         background-size: auto !important;
+         /* Adjust background size on mobile */
+     }
+ }
+
+
+ .overlay-content {
+     position: relative;
+     z-index: 1;
+ }
+
+ .overlay-content h2,
+ .overlay-content p,
+ .overlay-content a {
+     color: white;
+     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+ }
+
+ .chosen-select {
+     height: 40px !important;
+     /* Match the height of other inputs */
+     font-size: 16px !important;
+     color: rgb(65, 62, 62) !important;
+     width: 100% !important;
+     /* Make the Chosen select take up full width */
+
+
+ }
+
+ .form-select {
+     flex-grow: 1;
+     height: 50px;
+ }
+
+
+ .cookie-bar {
+     position: fixed;
+     bottom: 0;
+     width: 100%;
+     background-color: #f8f9fa;
+     border-top: 1px solid #ccc;
+     z-index: 9999;
+     font-size: 14px;
+ }
+
+ .genre-badge:hover {
+     background-color: #dff0ff !important;
+     /* change to any color */
+     color: #000 !important;
+     /* make sure text stays readable */
+     border-color: #007bff !important;
+     transition: all 0.3s ease;
+     cursor: pointer;
+ }
+
+
+ .genre-scroll.dropdown-menu {
+     z-index: 1050 !important;
+     position: absolute !important;
+     top: 100% !important;
+     left: 0 !important;
+     background-color: white !important;
+     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+ }
+
+ .nowrap {
+     white-space: nowrap;
+ }
+
+
+ /* Flip the dropdown arrow when open */
+ .nav-link.dropdown-toggle::after {
+     transition: transform 0.3s ease;
+ }
+
+ .nav-link.dropdown-toggle.show::after {
+     transform: rotate(180deg);
+ }
+
+ /* Adjust the dropdown button height */
+ .chosen-container-single .chosen-single {
+     height: 40px !important;
+     /* Match the height of other inputs */
+     line-height: 40px;
+     /* Ensure the text aligns well */
+     font-size: 16px !important;
+     color: rgb(65, 62, 62) !important;
+
+ }
+
+ .hero-section {
+     background: url("{{ asset('uploads/book9.webp') }}") no-repeat center center;
+     /* Replace with your image path */
+     background-size: cover;
+     background-attachment: fixed;
+     /* Keeps the background image fixed */
+     height: 250px;
+     /* Adjust height as needed */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     text-align: center;
+     color: white;
+     position: relative;
+     overflow: hidden;
+     border-radius: 10px;
+
+ }
+
+
+ @media (max-width: 768px) {
+     .hero-section {
+         background-attachment: scroll !important;
+         /* Disable fixed background on mobile */
+         background-size: auto !important;
+         /* Adjust background size on mobile */
+     }
+ }
+
+
+
+ .hero-section::before {
+     content: '';
+     position: absolute;
+
+     left: 0;
+     right: 0;
+     bottom: 0;
+     background: rgba(0, 0, 0, 0.5);
+     /* Adjust overlay color/opacity */
+     z-index: 1;
+ }
+
+ .hero-content {
+     position: relative;
+     z-index: 2;
+     top: 12px;
+     color: white;
+     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+ }
+
+
+ .section-title {
+     font-size: 24px;
+     /* Increase font size for better visibility */
+     color: #2c3e50;
+     /* Darker color for better contrast */
+     padding-bottom: 20px;
+     display: flex;
+     align-items: left;
+     justify-content: center;
+     /* Center the title */
+     padding: 10px;
+     position: relative;
+     text-transform: uppercase;
+     /* Make the text uppercase for emphasis */
+     letter-spacing: 1px;
+     /* Add a bit of letter spacing */
+ }
+
+ /* Add a fancy icon before the text */
+ .section-title i {
+     font-size: 28px;
+     /* Increase icon size */
+     color: #d7dae2;
+     /* Make the icon stand out */
+     margin-right: 10px;
+     /* Add some space between icon and text */
+ }
+
+ /* Add a subtle background effect */
+ .section-title::before {
+     content: '';
+     position: absolute;
+     width: 100%;
+     height: 5px;
+     background: linear-gradient(to right, #f0f1f5, #c2c1bf);
+     bottom: 0;
+     left: 0;
+     z-index: -1;
+     /* Send the background effect behind the text */
+     transform: scaleX(0);
+     transform-origin: bottom right;
+     transition: transform 0.5s ease;
+ }
+
+ .section-title:hover::before {
+     transform: scaleX(1);
+     transform-origin: bottom left;
+ }
+
+
+
+ .section-title-1 {
+     font-size: 26px;
+     color: white;
+     background: linear-gradient(135deg, #3498db, #8e44ad);
+     /* Gradient background */
+     padding: 10px 20px;
+     border-radius: 8px;
+     /* Rounded corners */
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+     /* Add a subtle shadow */
+     display: inline-block;
+     /* Keep it to the size of content */
+     margin-bottom: 20px;
+     text-transform: uppercase;
+     letter-spacing: 1.2px;
+ }
+
+ /* Style the icon */
+ .section-title-1 i {
+     font-size: 30px;
+     margin-right: 8px;
+ }
+
+
+
+ .section-title-2 {
+     font-size: 28px;
+     color: #333;
+     padding-bottom: 10px;
+     border-bottom: 4px double #3498db;
+     /* Fancy double border underline */
+     display: inline-block;
+     margin-bottom: 20px;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+ }
+
+ /* Style the icon */
+ .section-title-2 i {
+     font-size: 32px;
+     color: #3498db;
+     /* Color to match the underline */
+     margin-right: 6px;
+ }
+
+
+ .animated-title {
+     font-size: 26px;
+     color: white;
+     background: linear-gradient(135deg, #3498db, #8e44ad);
+     padding: 12px 24px;
+     border-radius: 8px;
+     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+     display: inline-block;
+     margin-bottom: 20px;
+     text-transform: uppercase;
+     letter-spacing: 1.2px;
+     position: relative;
+     overflow: hidden;
+     transition: background-position 0.5s ease, transform 0.3s;
+     background-size: 200% 200%;
+     /* Double the size for gradient animation */
+     background-position: 0% 50%;
+     /* Start at the left */
+ }
+
+ /* Add a hover effect with a subtle scale and gradient shift */
+ .animated-title:hover {
+     transform: scale(1.05);
+     background-position: 100% 50%;
+     /* Move gradient to the right */
+ }
+
+ /* Style the icon with a slight animation */
+ .animated-title i {
+     font-size: 30px;
+     margin-right: 10px;
+     animation: bounce 1.2s infinite;
+ }
+
+ /* Bouncing animation for the icon */
+ @keyframes bounce {
+
+     0%,
+     100% {
+         transform: translateY(0);
+     }
+
+     50% {
+         transform: translateY(-5px);
+     }
+ }
+
+
+
+
+
+ .animated-title {
+     font-size: 28px;
+     color: #fff;
+     padding: 15px 30px;
+     display: inline-block;
+     background-color: #3498db;
+     text-transform: uppercase;
+     letter-spacing: 1.5px;
+     position: relative;
+     overflow: hidden;
+     border-radius: 12px;
+     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+     animation: slide-in 1.5s ease-out forwards, color-pulse 3s infinite;
+     transition: transform 0.3s, background-color 0.5s;
+ }
+
+ /* Hover effect */
+ .animated-title:hover {
+     background-color: #e74c3c;
+     transform: scale(1.05);
+ }
+
+ /* Sliding animation */
+ @keyframes slide-in {
+     0% {
+         transform: translateX(-100%);
+         opacity: 0;
+     }
+
+     100% {
+         transform: translateX(0);
+         opacity: 1;
+     }
+ }
+
+ /* Color pulsing effect */
+ @keyframes color-pulse {
+
+     0%,
+     100% {
+         box-shadow: 0 0 10px #3498db, 0 0 30px #3498db;
+     }
+
+     50% {
+         box-shadow: 0 0 20px #e74c3c, 0 0 40px #e74c3c;
+     }
+ }
+
+ .popular-book-item {
+     font-size: 16px;
+     padding: 5px 0;
+ }
+
+ .book-number {
+     font-weight: bold;
+ }
+
+ .book-title {
+     font-weight: bold;
+ }
+
+ .book-author {
+     color: #555;
+     /* Dark gray for the author name */
+     font-style: italic;
+ }
+
+ .book-details {
+     font-size: 14px;
+     color: #777;
+     /* Lighter gray for additional details */
+ }
+
+ /* Optional: Customize the card appearance */
+ .card.mb-3 {
+     background-color: #f9f9f9;
+     /* Light background color */
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     /* Subtle shadow */
+ }
+
+ .card h5 {
+     margin-bottom: 15px;
+     font-size: 18px;
+     font-weight: bold;
+ }
+
+ .read-more-link {
+     color: #3498db;
+     font-weight: bold;
+     text-decoration: none;
+     display: inline-flex;
+     align-items: center;
+     transition: color 0.3s;
+     float: right;
+ }
+
+ .read-more-link i {
+     margin-left: 5px;
+     /* Add space between text and icon */
+     font-size: 16px;
+     /* Adjust icon size */
+     transition: transform 0.3s;
+ }
+
+ .read-more-link:hover {
+     color: #2c3e50;
+     /* Darker color on hover */
+ }
+
+ .read-more-link:hover i {
+     transform: translateX(5px);
+     /* Slide icon to the right on hover */
+ }
+
+
+
+ .navbar {
+     transition: background-color 0.3s ease, top 0.3s ease;
+     position: sticky;
+     width: 100%;
+     top: 0;
+     left: 0;
+     z-index: 900 !important;
+     /* Above modal backdrop */
+     background-color: #F3F4F6 !important;
+     padding-bottom: 26px;
+ }
+
  .modal-backdrop {
-    z-index: 1040 !important; /* Below modal and navbar */
-}
+     z-index: 1040 !important;
+     /* Below modal and navbar */
+ }
 
-.modal {
-    z-index: 1050 !important; /* Between backdrop and navbar */
-}
-.navbar.scrolled {
-    background-color: #b3bac9 !important; /* Ensure the new background is applied */
-    box-shadow: 0px 6px 8px rgba(0,0,0,0.1); /* Add a subtle shadow for emphasis */
- 
-}
+ .modal {
+     z-index: 1050 !important;
+     /* Between backdrop and navbar */
+ }
 
-.navbar.scrolled ul li a {
- 
-    color:#523a3a !important;
-}
- 
-.btn-primary {
-    background-color: #d7dae2  !important;
-    border-color: #ccc;
- color:#523a3a;
-}
+ .navbar.scrolled {
+     background-color: #b3bac9 !important;
+     /* Ensure the new background is applied */
+     box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.1);
+     /* Add a subtle shadow for emphasis */
 
-.btn-primary:hover {
-    background-color: #ccc !important;
-    border-color: #ccc;
- color:#000000 !important;
-}
+ }
 
-@font-face {
-    font-family: 'liFont';
-    src: url('../fonts/bpg_boxo-boxo.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-   
-}
-li, input, button, select, span  {
-    font-family: 'liFont', sans-serif !important; 
-}
+ .navbar.scrolled ul li a {
 
-.styled-input::placeholder {
-     line-height: 1.5; /* Adjust the line height to move the placeholder */
-    transform: translateY(2px); /* Move the placeholder text down */
+     color: #523a3a !important;
+ }
 
-}
-.card {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
+ .btn-primary {
+     background-color: #d7dae2 !important;
+     border-color: #ccc;
+     color: #523a3a;
+ }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Hover shadow effect */
-}
+ .btn-primary:hover {
+     background-color: #ccc !important;
+     border-color: #ccc;
+     color: #000000 !important;
+ }
 
-.image-container {
-    overflow: hidden;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-}
+ @font-face {
+     font-family: 'liFont';
+     src: url('../fonts/bpg_boxo-boxo.ttf') format('truetype');
+     font-weight: normal;
+     font-style: normal;
 
-.card-img-top {
-    height: 200px;
-    object-fit: cover; /* Makes sure the image covers the container */
-    transition: transform 0.3s ease;
-}
+ }
 
-.card-img-top:hover {
-    transform: scale(1.05); /* Slight zoom on hover */
-}
+ li,
+ input,
+ button,
+ select,
+ span {
+     font-family: 'liFont', sans-serif !important;
+ }
 
-.card-title {
-    font-weight: bold;
-    margin-top: 10px;
-}
+ .styled-input::placeholder {
+     line-height: 1.5;
+     /* Adjust the line height to move the placeholder */
+     transform: translateY(2px);
+     /* Move the placeholder text down */
 
-.categoria {
-    background-color: #ffffff; /* Change to the color you want */
-    color: #757373; /* Text color */
-    border: 1px solid #ced4da; /* Border color to match input fields */
-    border-radius: 0.25rem; /* Rounded corners, same as inputs */
-    padding: 0.375rem 0.75rem; /* Padding to align text nicely */
-    font-size: 1rem; /* Match font size with other fields */
-    transition: border-color 0.2s ease-in-out;
-}
-.categoria:focus {
+ }
+
+ .card {
+     transition: transform 0.2s, box-shadow 0.2s;
+ }
+
+ .card:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+     /* Hover shadow effect */
+ }
+
+ .image-container {
+     overflow: hidden;
+     border-top-left-radius: 0.5rem;
+     border-top-right-radius: 0.5rem;
+ }
+
+ .card-img-top {
+     height: 200px;
+     object-fit: cover;
+     /* Makes sure the image covers the container */
+     transition: transform 0.3s ease;
+ }
+
+ .card-img-top:hover {
+     transform: scale(1.05);
+     /* Slight zoom on hover */
+ }
+
+ .card-title {
+     font-weight: bold;
+     margin-top: 10px;
+ }
+
+ .categoria {
+     background-color: #ffffff;
+     /* Change to the color you want */
+     color: #757373;
+     /* Text color */
+     border: 1px solid #ced4da;
+     /* Border color to match input fields */
+     border-radius: 0.25rem;
+     /* Rounded corners, same as inputs */
+     padding: 0.375rem 0.75rem;
+     /* Padding to align text nicely */
+     font-size: 1rem;
+     /* Match font size with other fields */
+     transition: border-color 0.2s ease-in-out;
+ }
+
+ .categoria:focus {
      outline: 0;
  }
 
-.submit-search
-{
-background: rgb(77, 76, 76);
-color:white;
-border:0px !important;
-}
-.submit-search:hover
-{
-background: #1b4661;
-color:#c6c8c9
-}
+ .submit-search {
+     background: rgb(77, 76, 76);
+     color: white;
+     border: 0px !important;
+ }
+
+ .submit-search:hover {
+     background: #1b4661;
+     color: #c6c8c9
+ }
 
 
 
-@font-face {
-    font-family: 'h1Font';
-    src: url('../fonts/alk-tommaso-webfont.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-h1, h5, h2 {
-    font-family: 'h1Font', sans-serif !important;
-}
+ @font-face {
+     font-family: 'h1Font';
+     src: url('../fonts/alk-tommaso-webfont.ttf') format('truetype');
+     font-weight: normal;
+     font-style: normal;
+ }
 
-@font-face {
-    font-family: 'h4Font';
-    src: url('../fonts/bpg-glaho-web-caps-webfont.ttf') format('truetype');
-    font-weight: bolder;
-    font-style: normal; 
-}
-h4  {
-    font-family: 'h4Font', sans-serif !important;     
-    font-size: 1.125rem; /* 1 rem = the root font size (usually 16px, so 1.125rem = 18px) */
+ h1,
+ h5,
+ h2 {
+     font-family: 'h1Font', sans-serif !important;
+ }
 
-}
+ @font-face {
+     font-family: 'h4Font';
+     src: url('../fonts/bpg-glaho-web-caps-webfont.ttf') format('truetype');
+     font-weight: bolder;
+     font-style: normal;
+ }
 
+ h4 {
+     font-family: 'h4Font', sans-serif !important;
+     font-size: 1.125rem;
+     /* 1 rem = the root font size (usually 16px, so 1.125rem = 18px) */
 
-.fb-icon {
-    color:white;
-    margin-right: 10px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
-
-.fb-icon:hover {
-    color: blue; /* Change to your desired hover color */
-    transform: scale(1.2); /* Slightly increase the size on hover */
-}
+ }
 
 
-.fb-icon-top {
-    color:#504646;
-    margin-right: 10px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
+ .fb-icon {
+     color: white;
+     margin-right: 10px;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
 
-.fb-icon-top:hover {
-    color: blue; /* Change to your desired hover color */
-    transform: scale(1.2); /* Slightly increase the size on hover */
-}
-
-.insta-icon-top {
-    color:#504646;
-    margin-right: 10px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
-
-.insta-icon-top:hover {
-    background: #833ab4;
-    background: linear-gradient(
-      to right,
-      #833ab4,#fd1d1d,#fcb045
-    );    transform: scale(1.2); /* Slightly increase the size on hover */
-}
-
-@media (max-width: 991.98px) {
-    /* Show mobile dropdown menu above hero */
-    .navbar-collapse { 
-         position: relative; 
-        margin-top: 10px; /* 👈 Prevents upward shift */
-        padding: 10px 10px 15px 10px;
-        background-color: #F3F4F6;
-    }
-
- 
-}
-
-.youtube-icon-top {
-    color:#504646;
-    margin-right: 10px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
-
-.youtube-icon-top:hover {
-    color: #FF0000; /* Change to your desired hover color */
-    transform: scale(1.2); /* Slightly increase the size on hover */
-}
+ .fb-icon:hover {
+     color: blue;
+     /* Change to your desired hover color */
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
 
 
-.insta-icon {
-    color:white;
-    margin-right: 10px;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
+ .fb-icon-top {
+     color: #504646;
+     margin-right: 10px;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
 
-.insta-icon:hover {
-    background: #833ab4;
-    background: linear-gradient(
-      to right,
-      #833ab4,#fd1d1d,#fcb045
-    );    transform: scale(1.2); /* Slightly increase the size on hover */
-}
- 
-.youtube-icon {
-    color:white;
-    margin-right: 10px;
+ .fb-icon-top:hover {
+     color: blue;
+     /* Change to your desired hover color */
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
+
+ .insta-icon-top {
+     color: #504646;
+     margin-right: 10px;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
+
+ .insta-icon-top:hover {
+     background: #833ab4;
+     background: linear-gradient(to right,
+             #833ab4, #fd1d1d, #fcb045);
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
+
+ @media (max-width: 991.98px) {
+
+     /* Show mobile dropdown menu above hero */
+     .navbar-collapse {
+         position: relative;
+         margin-top: 10px;
+         /* 👈 Prevents upward shift */
+         padding: 10px 10px 15px 10px;
+         background-color: #F3F4F6;
+     }
+
+
+ }
+
+ .youtube-icon-top {
+     color: #504646;
+     margin-right: 10px;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
+
+ .youtube-icon-top:hover {
+     color: #FF0000;
+     /* Change to your desired hover color */
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
+
+
+ .insta-icon {
+     color: white;
+     margin-right: 10px;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
+
+ .insta-icon:hover {
+     background: #833ab4;
+     background: linear-gradient(to right,
+             #833ab4, #fd1d1d, #fcb045);
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
+
+ .youtube-icon {
+     color: white;
+     margin-right: 10px;
      top: 3px;
-    position: relative;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
+     position: relative;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
 
-.youtube-icon:hover {
-    color: #FF0000; /* Change to your desired hover color */
-    transform: scale(1.2); /* Slightly increase the size on hover */
-}
-
-
-.tiktok-icon {
-    color:white !important;
-    margin-right: 22px !important;
-    position: relative;
-    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
-}
-
-.tiktok-icon:hover {
-   color: #111111;
-  
-    filter: drop-shadow(2px 0px 0px #FD3E3E) drop-shadow(-2px -2px 0px #4DE8F4);
-   /* Change to your desired hover color */
-    transform: scale(1.2); /* Slightly increase the size on hover */
-}
-
-.kalata 
-{
- padding: 0 10px 0 10px; 
-border-bottom-left-radius:10px; border-top-right-radius:10px;  
-}
-
-.kalata:hover
-{
-    background-color: #ffffff;
-padding: 0 10px 0 10px; 
-border-bottom-left-radius:10px; border-top-right-radius:10px;  
-}
+ .youtube-icon:hover {
+     color: #FF0000;
+     /* Change to your desired hover color */
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
 
 
+ .tiktok-icon {
+     color: white !important;
+     margin-right: 22px !important;
+     position: relative;
+     transition: color 0.3s ease, transform 0.3s ease;
+     /* Smooth transition for hover effect */
+ }
 
-.circle {
-    display: inline-block;
-    width: 17px;
-    height: 17px;
-    font-size: 12px;
-    background-color: #be0a0a;
-    color: white;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%; 
-    position: absolute; /* Allows positioning based on parent */
-    top: -4px; /* Move down by 50px */  
-    margin-left:-5px;
-}
+ .tiktok-icon:hover {
+     color: #111111;
+
+     filter: drop-shadow(2px 0px 0px #FD3E3E) drop-shadow(-2px -2px 0px #4DE8F4);
+     /* Change to your desired hover color */
+     transform: scale(1.2);
+     /* Slightly increase the size on hover */
+ }
+
+ .kalata {
+     padding: 0 10px 0 10px;
+     border-bottom-left-radius: 10px;
+     border-top-right-radius: 10px;
+ }
+
+ .kalata:hover {
+     background-color: #ffffff;
+     padding: 0 10px 0 10px;
+     border-bottom-left-radius: 10px;
+     border-top-right-radius: 10px;
+ }
+
+
+
+ .circle {
+     display: inline-block;
+     width: 17px;
+     height: 17px;
+     font-size: 12px;
+     background-color: #be0a0a;
+     color: white;
+     text-align: center;
+     line-height: 20px;
+     border-radius: 50%;
+     position: absolute;
+     /* Allows positioning based on parent */
+     top: -4px;
+     /* Move down by 50px */
+     margin-left: -5px;
+ }
 
  /* Adjust for mobile screens */
-@media (max-width: 768px) {
-    .circle {
-        display: none; 
-    }
-}
-
-.custom-bubble {
-    position: absolute;
-    top: -4px; /* Move it upwards */
-    left: 0px; /* Move it to the right */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent; /* Background color of the bubble */
-    color: #d80303; /* Text color */
-    border-radius: 0px 4px; /* Rounded corners */
-    padding: 0px 0px 0px 0px; /* Adjust padding as needed */
-    font-size: 9px; /* Font size */
-    font-weight: bold;
-    border:1px solid #5e5b5b;
-    min-width: 15px;
-    max-height: 13px;
-    text-align: center;
-}
-
-/* Add the small triangle notch at the bottom center */
-.custom-bubble::after {
-    content: "";
-    position: absolute;
-    bottom: -5px; /* Position below the bubble */
-    left: 55%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #5e5b5b; /* Matches bubble color */
-}
-
- 
-.genre-scroll {
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 5px;
-}
-
-.genre-scroll::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 3px;
-}
-
-/* Fix dropdown hidden issue */
-.navbar .dropdown-menu {
-z-index: 9999 !important;
-position: absolute !important;
-top: 100%;
-background-color: white !important;
-
-}
-
-/* Ensure all parent containers allow visibility */
-.navbar,
-.navbar-nav,
-.container,
-body { 
-position: relative !important;
-z-index: auto !important;
-}
-
-/* Ensure second navbar does not overlap */
-.navbar + .navbar {
-z-index: 1 !important;
-position: relative !important;
-}
-#topStickyNavbar {
-position: fixed !important;
-top: 0;
-left: 0;
-width: 100%;
-z-index: 1055559999 !important;
-background-color: #212529;
-transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-#topStickyNavbar.scrolled {
-background-color: #ffffff !important;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 767.98px) {
-    nav .navbar-nav {
-        margin-left: auto !important;
-        margin-right: auto !important;
-        justify-content: center !important;
-        width: 100%;
-    }
-    .navbar-nav .nav-item.kalata {
-        margin: 0 10px;
-    }
-}
-
-body {
-padding-top: 54px !important;
-}
-
-
-/* Flexbox to center the image and text vertically and align them horizontally */
-.book-item {
-    display: flex; /* Enables flexbox */
-    align-items: center; /* Centers the content vertically */
-}
-
-.book-item img {
-    margin-right: 10px; /* Space between the image and the text */
-}
-
-
-.hr-with-text {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: #333;
-    margin: 20px 0;
-}
-
-.hr-with-text::before,
-.hr-with-text::after {
-    content: '';
-    flex: 1;
-    border-bottom: 2px solid #333;
-    margin-top: -25px;
-}
-
-.hr-with-text:not(:empty)::before {
-    margin-right: 10px;
-}
-
-.hr-with-text:not(:empty)::after {
-    margin-left: 10px;
-}
-
-/* Animation on hover */
-.hr-with-text:hover::before,
-.hr-with-text:hover::after {
-    border-bottom: 2px solid rgb(45, 131, 218); /* Change color on hover */
-    transition: width 0.4s ease-in-out, border-color 0.4s ease-in-out;
-}
-
-.hr-with-text:hover::before {
-    width: 120%;
-}
-
-.hr-with-text:hover::after {
-    width: 120%;
-}
-
-
-
-.sticky-cart-summary {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
-    padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-
-.book-card {
-    transition: all 0.3s ease; /* Smooth transition for the border */
-    border: 1px solid #dbdbdb; /* Initial border is transparent */
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-}
-
-/* Hover effect: when hovered, the border color changes */
-.book-card:hover {
-    border: 1px solid #3498db; /* Change to any color you'd like */
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-}
-
-
-/* Container for both image and buttons */
-.image-and-share-container {
-    max-width: 100%; /* Make it responsive */
-    text-align: center; /* Center the buttons */
-    margin-top: 20px;
-}
-
-/* Make the buttons full width and align */
-.share-buttons {
-    display: flex;
-    justify-content: space-around; /* Spread the buttons evenly */
-    max-width: 100%; /* Keep it responsive */
-    gap: 10px; /* Add space between the buttons */
-}
-/* General Styles for All Share Buttons */
-/* Style for individual buttons to take equal width */
-.share-buttons a {
-    flex: 1; /* Make each button take equal width */
-    text-align: center;
-    padding: 15px;
-    border-radius: 5px;
-    color: white;
-    transition: background-color 0.3s ease;
-    display: inline-block; 
-    font-size: 20px;
-}
-
-/* Facebook Button */
-.facebook-btn {
-    background-color: #3b5998;
-    border: none;
-    
-}
-
-.facebook-btn:hover {
-    background-color: #2d4373;
-}
-
-/* Twitter Button */
-.twitter-btn {
-    background-color: #1da1f2;
-    border: none;
-}
-
-.twitter-btn:hover {
-    background-color: #1a91da;
-}
-
-/* WhatsApp Button */
-.whatsapp-btn {
-    background-color: #25d366;
-    border: none;
-}
-
-.whatsapp-btn:hover {
-    background-color: #20b358;
-}
-
-.form-check-input[type=radio] {
-
-    border:1px solid black;
-    position: relative;
-    top: 1px;
-}
-
-div .rame
-{
-    background-color:white ;
-
-}
-
-
-
-
- 
-@media (max-width: 768px) {
-    .deletion 
-    {
-        color:white;
-    }
-    .deletion:hover
-    {
-        color:red;
-    }
-}
-
-
-#cookie-consent {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
- 
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-}
-
-#cookie-consent button {
-    background-color: #721c24;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-left: 5px;
-}
-
-#cookie-consent button:hover {
-    background-color: #d9534f;
-}
-
-.img-thumbnail
-{
-    height: 80px !important;
-    min-width: 100px;
-}
-
-.coverFull {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-    border-radius:5px;
-    border:1px solid #ccc;
-    padding: 5px;
-}
-
-.coverFull:hover {
-    transform: scale(1.0);
-    /* rotate(2.1deg) */
-    opacity: 0.7;
-    filter: alpha(opacity=70);
-    transition: all .7s;
-    cursor: pointer;
-}
- 
-.page-item.active .page-link {
-    background-color: #8a93b9 !important; /* Active button background */
-    color: white !important; /* Active button text */
-    border-color: #f0f1f5 !important; /* Active button border */
-}
-
-.page-item .page-link {
-    background-color: #f0f1f5; /* Default button background */
-    color: #343a40; /* Default button text */
-    border: 1px solid #dee2e6; /* Default button border */
-    transition: 
-    background-color 0.3s ease, color 0.3s ease;
-}
-
-.page-item .page-link:hover {
-    background-color: #8a93b9; /* Hover background */
-    color: black; /* Hover text */
-    border-color: #8a93b9; /* Hover border */
-}
-
-
-
-.pagination-wrapper {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-.pagination-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-
-.small-thumbnail:hover{
-
-    border: 2px solid rgb(77, 120, 184);
-  
- 
-}
-#chat-header {
-    border-radius: 5px 5px 0 0;
-    text-align: center;
-}
-
-#chat-body {
-    border-radius: 0 0 5px 5px;
-}
-
-
-
-@media (max-width: 768px) {
-    .dropdown-menu {
-        position: absolute !important;
-        top: 100% !important;
-        left: -100px !important;
-        right: auto !important;
-        z-index: 9999 !important;
-        margin-top: 0.5rem;
-        max-height: 300px;
-        overflow-y: auto; /* Enables scroll */
-        background: white;
-        border-radius: 6px;
-    }
-
-    .navbar,
-    #topStickyNavbar,
-    nav.navbar {
-        overflow: visible !important;
-    }
-
-    .nav-item.dropdown {
-        position: relative !important;
-    }
-}
-
-
- 
+ @media (max-width: 768px) {
+     .circle {
+         display: none;
+     }
+ }
+
+ .custom-bubble {
+     position: absolute;
+     top: -4px;
+     /* Move it upwards */
+     left: 0px;
+     /* Move it to the right */
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     background-color: transparent;
+     /* Background color of the bubble */
+     color: #d80303;
+     /* Text color */
+     border-radius: 0px 4px;
+     /* Rounded corners */
+     padding: 0px 0px 0px 0px;
+     /* Adjust padding as needed */
+     font-size: 9px;
+     /* Font size */
+     font-weight: bold;
+     border: 1px solid #5e5b5b;
+     min-width: 15px;
+     max-height: 13px;
+     text-align: center;
+ }
+
+ /* Add the small triangle notch at the bottom center */
+ .custom-bubble::after {
+     content: "";
+     position: absolute;
+     bottom: -5px;
+     /* Position below the bubble */
+     left: 55%;
+     transform: translateX(-50%);
+     width: 0;
+     height: 0;
+     border-left: 5px solid transparent;
+     border-right: 5px solid transparent;
+     border-top: 5px solid #5e5b5b;
+     /* Matches bubble color */
+ }
+
+
+ .genre-scroll {
+     max-height: 300px;
+     overflow-y: auto;
+     overflow-x: hidden;
+     padding-right: 5px;
+ }
+
+ .genre-scroll::-webkit-scrollbar-thumb {
+     background-color: #ccc;
+     border-radius: 3px;
+ }
+
+ /* Fix dropdown hidden issue */
+ .navbar .dropdown-menu {
+     z-index: 9999 !important;
+     position: absolute !important;
+     top: 100%;
+     background-color: white !important;
+
+ }
+
+ /* Ensure all parent containers allow visibility */
+ .navbar,
+ .navbar-nav,
+ .container,
+ body {
+     position: relative !important;
+     z-index: auto !important;
+ }
+
+ /* Ensure second navbar does not overlap */
+ .navbar+.navbar {
+     z-index: 1 !important;
+     position: relative !important;
+ }
+
+ #topStickyNavbar {
+     position: fixed !important;
+     top: 0;
+     left: 0;
+     width: 100%;
+     z-index: 1055559999 !important;
+     background-color: #212529;
+     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+ }
+
+ #topStickyNavbar.scrolled {
+     background-color: #ffffff !important;
+     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ }
+
+ @media (max-width: 767.98px) {
+     nav .navbar-nav {
+         margin-left: auto !important;
+         margin-right: auto !important;
+         justify-content: center !important;
+         width: 100%;
+     }
+
+     .navbar-nav .nav-item.kalata {
+         margin: 0 10px;
+     }
+ }
+
+ body {
+     padding-top: 54px !important;
+ }
+
+
+ /* Flexbox to center the image and text vertically and align them horizontally */
+ .book-item {
+     display: flex;
+     /* Enables flexbox */
+     align-items: center;
+     /* Centers the content vertically */
+ }
+
+ .book-item img {
+     margin-right: 10px;
+     /* Space between the image and the text */
+ }
+
+
+ .hr-with-text {
+     display: flex;
+     align-items: center;
+     text-align: center;
+     color: #333;
+     margin: 20px 0;
+ }
+
+ .hr-with-text::before,
+ .hr-with-text::after {
+     content: '';
+     flex: 1;
+     border-bottom: 2px solid #333;
+     margin-top: -25px;
+ }
+
+ .hr-with-text:not(:empty)::before {
+     margin-right: 10px;
+ }
+
+ .hr-with-text:not(:empty)::after {
+     margin-left: 10px;
+ }
+
+ /* Animation on hover */
+ .hr-with-text:hover::before,
+ .hr-with-text:hover::after {
+     border-bottom: 2px solid rgb(45, 131, 218);
+     /* Change color on hover */
+     transition: width 0.4s ease-in-out, border-color 0.4s ease-in-out;
+ }
+
+ .hr-with-text:hover::before {
+     width: 120%;
+ }
+
+ .hr-with-text:hover::after {
+     width: 120%;
+ }
+
+
+
+ .sticky-cart-summary {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     z-index: 999;
+     padding: 10px;
+     background-color: #fff;
+     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+ }
+
+
+ .book-card {
+     transition: all 0.3s ease;
+     /* Smooth transition for the border */
+     border: 1px solid #dbdbdb;
+     /* Initial border is transparent */
+     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+ }
+
+ /* Hover effect: when hovered, the border color changes */
+ .book-card:hover {
+     border: 1px solid #3498db;
+     /* Change to any color you'd like */
+     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+ }
+
+
+ /* Container for both image and buttons */
+ .image-and-share-container {
+     max-width: 100%;
+     /* Make it responsive */
+     text-align: center;
+     /* Center the buttons */
+     margin-top: 20px;
+ }
+
+ /* Make the buttons full width and align */
+ .share-buttons {
+     display: flex;
+     justify-content: space-around;
+     /* Spread the buttons evenly */
+     max-width: 100%;
+     /* Keep it responsive */
+     gap: 10px;
+     /* Add space between the buttons */
+ }
+
+ /* General Styles for All Share Buttons */
+ /* Style for individual buttons to take equal width */
+ .share-buttons a {
+     flex: 1;
+     /* Make each button take equal width */
+     text-align: center;
+     padding: 15px;
+     border-radius: 5px;
+     color: white;
+     transition: background-color 0.3s ease;
+     display: inline-block;
+     font-size: 20px;
+ }
+
+ /* Facebook Button */
+ .facebook-btn {
+     background-color: #3b5998;
+     border: none;
+
+ }
+
+ .facebook-btn:hover {
+     background-color: #2d4373;
+ }
+
+ /* Twitter Button */
+ .twitter-btn {
+     background-color: #1da1f2;
+     border: none;
+ }
+
+ .twitter-btn:hover {
+     background-color: #1a91da;
+ }
+
+ /* WhatsApp Button */
+ .whatsapp-btn {
+     background-color: #25d366;
+     border: none;
+ }
+
+ .whatsapp-btn:hover {
+     background-color: #20b358;
+ }
+
+ .form-check-input[type=radio] {
+
+     border: 1px solid black;
+     position: relative;
+     top: 1px;
+ }
+
+ div .rame {
+     background-color: white;
+
+ }
+
+
+
+
+
+ @media (max-width: 768px) {
+     .deletion {
+         color: white;
+     }
+
+     .deletion:hover {
+         color: red;
+     }
+ }
+
+
+ #cookie-consent {
+     background-color: #f8d7da;
+     color: #721c24;
+     border: 1px solid #f5c6cb;
+
+     text-align: center;
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     z-index: 1000;
+ }
+
+ #cookie-consent button {
+     background-color: #721c24;
+     color: white;
+     border: none;
+     padding: 5px 10px;
+     cursor: pointer;
+     margin-left: 5px;
+ }
+
+ #cookie-consent button:hover {
+     background-color: #d9534f;
+ }
+
+ .img-thumbnail {
+     height: 80px !important;
+     min-width: 100px;
+ }
+
+ .coverFull {
+     width: 100%;
+     height: 500px;
+     object-fit: cover;
+     border-radius: 5px;
+     border: 1px solid #ccc;
+     padding: 5px;
+ }
+
+ .coverFull:hover {
+     transform: scale(1.0);
+     /* rotate(2.1deg) */
+     opacity: 0.7;
+     filter: alpha(opacity=70);
+     transition: all .7s;
+     cursor: pointer;
+ }
+
+ .page-item.active .page-link {
+     background-color: #8a93b9 !important;
+     /* Active button background */
+     color: white !important;
+     /* Active button text */
+     border-color: #f0f1f5 !important;
+     /* Active button border */
+ }
+
+ .page-item .page-link {
+     background-color: #f0f1f5;
+     /* Default button background */
+     color: #343a40;
+     /* Default button text */
+     border: 1px solid #dee2e6;
+     /* Default button border */
+     transition:
+         background-color 0.3s ease, color 0.3s ease;
+ }
+
+ .page-item .page-link:hover {
+     background-color: #8a93b9;
+     /* Hover background */
+     color: black;
+     /* Hover text */
+     border-color: #8a93b9;
+     /* Hover border */
+ }
+
+
+
+ .pagination-wrapper {
+     -webkit-overflow-scrolling: touch;
+     scrollbar-width: none;
+ }
+
+ .pagination-wrapper::-webkit-scrollbar {
+     display: none;
+ }
+
+
+ .small-thumbnail:hover {
+
+     border: 2px solid rgb(77, 120, 184);
+
+
+ }
+
+ #chat-header {
+     border-radius: 5px 5px 0 0;
+     text-align: center;
+ }
+
+ #chat-body {
+     border-radius: 0 0 5px 5px;
+ }
+
+
+
+ @media (max-width: 768px) {
+     .dropdown-menu {
+         position: absolute !important;
+         top: 100% !important;
+         left: -100px !important;
+         right: auto !important;
+         z-index: 9999 !important;
+         margin-top: 0.5rem;
+         max-height: 300px;
+         overflow-y: auto;
+         /* Enables scroll */
+         background: white;
+         border-radius: 6px;
+     }
+
+     .navbar,
+     #topStickyNavbar,
+     nav.navbar {
+         overflow: visible !important;
+     }
+
+     .nav-item.dropdown {
+         position: relative !important;
+     }
+     
+ }
