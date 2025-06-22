@@ -1226,5 +1226,17 @@
      .nav-item.dropdown {
          position: relative !important;
      }
+
+
+     #mobileSearchIcon i {
+        color: #000;
+        transition: transform 0.2s;
+    }
+    
+    #mobileSearchIcon i:hover {
+        transform: scale(1.2);
+    }
+
+     
      
  }

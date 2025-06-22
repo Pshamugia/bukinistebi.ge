@@ -344,6 +344,19 @@
                         style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
 
 
+                        <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
+                        <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
+                            <i class="bi bi-search fs-4"></i>
+                        </button>
+                        <!-- 🔍 Popup Search Box (mobile only) -->
+<div id="mobileSearchOverlay" class="d-lg-none" style="display: none; position: absolute; top: 0; left: 0; right: 0; background: white; z-index: 9999; padding: 10px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center" style="width: 100%;">
+        <input type="search" name="title" class="form-control me-2" placeholder="{{ __('messages.booksearch') }}..." required autofocus>
+        <button type="submit" class="btn btn-outline-success me-2"><i class="bi bi-search"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i class="bi bi-x-lg"></i></button>
+    </form>
+</div>
+
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
 
 
@@ -420,7 +433,7 @@
                         </li>
 
 
-                        <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
+                        <form class="d-none d-lg-flex" role="search" action="{{ route('search') }}" method="GET"
                             onsubmit="return validateSearch()" style="position: relative;  ">
                             <input class="form-control me-2 styled-input" name="title" type="search"
                                 value="{{ request()->get('title') }}"
@@ -663,7 +676,19 @@
 
                 subscriptionErrorModal.show();
             }
+            const toggleBtn = document.getElementById('mobileSearchToggle');
+        const overlay = document.getElementById('mobileSearchOverlay');
+        const closeBtn = document.getElementById('closeMobileSearch');
+
+        toggleBtn.addEventListener('click', () => {
+            overlay.style.display = 'block';
         });
+
+        closeBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+        });
+    });
+      
 
           const toggleBtn = document.getElementById('mobileMenuToggle');
     const icon = toggleBtn.querySelector('i');
@@ -678,6 +703,8 @@
         icon.classList.remove('bi-x');
         icon.classList.add('bi-list');
     });
+
+    
 
     </script>
 
