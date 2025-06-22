@@ -32,8 +32,7 @@
     </ul>
 </div>
 @endif
-    <form method="POST" action="{{ route('send.subscriber.email') }}">
-        @csrf
+<form method="POST" action="{{ route('send.subscriber.email') }}" id="subscriber-form">        @csrf
 
 
         <div class="mb-3">
@@ -64,37 +63,36 @@
         <div class="mb-3">
             <button type="submit" class="btn btn-success">გამოაგზავნე ელფოსტა მონიშნულებზე</button>
         </div>
-    
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" id="select-all">
-                    </th>
-                    <th>ელფოსტა</th>
-                    <th>ქმედება</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($subscribers as $subscriber)
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="emails[]" value="{{ $subscriber->email }}">
-                        </td>
-                        <td>{{ $loop->iteration }}. {{ $subscriber->email }}</td>
-
-                        <td>
-                            <form action="{{ route('admin.subscribers.destroy', $subscriber->id) }}" method="POST" onsubmit="return confirm('ნამდვილად გსურთ წაშლა?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">X</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
     </form>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="select-all"></th>
+                <th>ელფოსტა</th>
+                <th>ქმედება</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($subscribers as $subscriber)
+                <tr>
+                    <td>
+                        <!-- ✅ Link checkbox to email form -->
+                        <input type="checkbox" name="emails[]" value="{{ $subscriber->email }}" form="subscriber-form">
+                    </td>
+                    <td>{{ $loop->iteration }}. {{ $subscriber->email }}</td>
+                    <td>
+                        <!-- ✅ Separate form for DELETE -->
+                        <form method="POST" action="{{ route('admin.subscribers.destroy', $subscriber->id) }}" onsubmit="return confirm('ნამდვილად გსურთ წაშლა?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm">X</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+ 
     
     <script>
         document.getElementById('select-all').addEventListener('change', function () {
