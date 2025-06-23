@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'failed' => 'შეყვანილი ინფორმაცია არასწორია.', // General login failure
-    'password' => 'პაროლი არასწორია.', // Specific message for incorrect password
-    'email' => 'ელფოსტა არ არსებობს.', // Specific message for incorrect email
+    'failed' => 'The provided credentials do not match our records.',
+    'publisher_only' => 'Only publishers can log in here.',
+    'password' => 'The password is incorrect.',
+    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 ];

@@ -45,8 +45,8 @@ class AuthenticatedSessionController extends Controller
     }
 
     return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
+        'email' => __('auth.failed'),
+        ]);
 }
 
     /**
@@ -83,14 +83,14 @@ public function storePublisherLogin(Request $request)
         } else {
             Auth::logout(); // If logged-in user is not a publisher, log them out
             return redirect()->route('login.publisher.form')->withErrors([
-                'email' => 'Only publishers can log in here.',
-            ]);
+                'email' => __('auth.publisher_only'),
+                        ]);
         }
     }
 
     return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
+        'email' => __('auth.failed'),
+        ]);
 }
 
 protected function authenticated(Request $request, $user)
