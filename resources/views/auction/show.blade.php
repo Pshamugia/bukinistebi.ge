@@ -10,16 +10,16 @@
     </style>
 
 
-@php
-    session(['auction_id' => $auction->id]);
-@endphp
+    @php
+        session(['auction_id' => $auction->id]);
+    @endphp
 
 
     <div class="container mt-5">
         <h2>{{ $auction->book->title }}</h2>
         @if (session('success'))
-        <div class="alert alert-success mt-3">{{ session('success') }}</div>
-    @endif
+            <div class="alert alert-success mt-3">{{ session('success') }}</div>
+        @endif
         <div class="row mt-4">
             <!-- Left column: Photos -->
             <div class="col-md-6">
@@ -66,8 +66,9 @@
                         </p>
 
                         @if ($auction->is_active)
+                            {{-- status  --}}
                             @auth
-                                @if (Auth::user()->has_paid_auction_fee)
+                                @if (Auth::user()->paidAuction($auction->id))
                                     <form method="POST" action="{{ route('auction.bid', $auction->id) }}" class="mt-3">
                                         @csrf
                                         <label for="bid_amount" class="form-label">გააკეთე ბიჯი:</label>
@@ -80,17 +81,31 @@
                                     </form>
                                 @else
                                     <div class="alert alert-warning mt-3">
-                                        @if (Auth::check() && !Auth::user()->has_paid_auction_fee)
-                                        <form method="POST" action="{{ route('auction.fee.payment') }}">
-                                            @csrf
-                                            <input type="hidden" name="auction_id" value="{{ $auction->id }}">
-                                            <button type="submit" class="btn btn-warning w-100 mt-2">
-                                                აუქციონში მონაწილეობის სიმბოლური ფასი (1 ლარი)
-                                            </button>
-                                        </form>
-                                        
-                                        
-                                    @endif
+                                        @auth
+                                            @php
+                                                $user = Auth::user();
+                                                $auctionId = $auction->id;
+                                            @endphp
+
+                                            @if (!$user->startedAuctionPayment($auctionId))
+                                                <form method="POST" action="{{ route('auction.fee.payment') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="auction_id" value="{{ $auctionId }}">
+                                                    <button type="submit" class="btn btn-warning w-100 mt-2">
+                                                        აუქციონში მონაწილეობის სიმბოლური ფასი (1 ლარი)
+                                                    </button>
+                                                </form>
+                                            @elseif (!$user->paidAuction($auctionId))
+                                                <div class="alert alert-info mt-2 text-center">
+                                                    გადახდას ვამუშავებთ, გთხოვთ განაახლოთ გვერდი.
+                                                </div>
+                                            @else
+                                                <div class="alert alert-success mt-2 text-center">
+                                                    ✔ აუქციონში მონაწილეობა დადასტურებულია
+                                                </div>
+                                            @endif
+                                        @endauth
+
                                     </div>
                                 @endif
                             @else
@@ -273,11 +288,11 @@
 
 
             const form = document.getElementById('auctionFeeForm');
-    if (form) {
-        form.addEventListener('submit', function () {
-            console.log('🟢 Auction fee form submitted');
-        });
-    }
+            if (form) {
+                form.addEventListener('submit', function() {
+                    console.log('🟢 Auction fee form submitted');
+                });
+            }
 
             // Update the modal image source
             function updateModalImage(index) {
@@ -346,14 +361,14 @@
                     if (enteredBid <= currentPrice) {
                         if (!confirm(
                                 `შენი ბიჯი უნდა იყოს მეტი ვიდრე მიმდინარე ფასი (${currentPrice} ₾). მაინც გააგრძელო?`
-                                )) {
+                            )) {
                             e.preventDefault();
                         }
                     }
 
                     if (enteredBid > maxBid) {
                         if (!confirm(
-                            `ბიჯი არ უნდა აღემატებოდეს მაქსიმალურ ზღვარს (${maxBid} ₾). მაინც გაგზავნო?`)) {
+                                `ბიჯი არ უნდა აღემატებოდეს მაქსიმალურ ზღვარს (${maxBid} ₾). მაინც გაგზავნო?`)) {
                             e.preventDefault();
                         }
                     }
