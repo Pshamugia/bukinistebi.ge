@@ -346,7 +346,7 @@
 
                         <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
                         <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
-                            <i class="bi bi-search fs-4"></i>
+                            <i class="bi bi-search fs-4" style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
                         </button>
                         <!-- 🔍 Popup Search Box (mobile only) -->
 <div id="mobileSearchOverlay" class="d-lg-none" style="display: none; position: absolute; top: 0; left: 0; right: 0; background: white; z-index: 9999; padding: 10px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">

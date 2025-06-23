@@ -31,6 +31,7 @@ class BookController extends Controller
         $books = Cache::remember('home_books_' . app()->getLocale(), 600, function () {
             return Book::orderBy('manual_created_at', 'DESC')
                 ->where('hide', '0')
+                ->where('auction_only', false)
                 ->where('language', app()->getLocale()) // ✅ ADD THIS
                 ->take(8)
                 ->get();
@@ -67,6 +68,7 @@ $news = BookNews::query()
         $topBooks = Cache::remember('top_books', 3600, function () {
             return Book::with('author')
                 ->join('order_items', 'order_items.book_id', '=', 'books.id')
+                ->where('auction_only', false)
                 ->select('books.id', 'books.title', 'books.author_id', 'books.photo')
                 ->selectRaw('SUM(order_items.quantity) as total_sold')
                 ->groupBy('order_items.book_id', 'books.id', 'books.title', 'books.author_id', 'books.photo')
@@ -83,6 +85,7 @@ $news = BookNews::query()
                 ->join('books', 'article_ratings.book_id', '=', 'books.id')
                 ->select('books.id as book_id', DB::raw('AVG(article_ratings.rating) as avg_rating'))
                 ->where('books.quantity', '>', 0)
+                ->where('auction_only', false)
                 ->groupBy('books.id')
                 ->orderByDesc('avg_rating')
                 ->limit(10);
@@ -147,6 +150,7 @@ $news = BookNews::query()
         $genre = Genre::findOrFail($id);
         $books = $genre->books()
             ->where('hide', 0)
+            ->where('auction_only', false)
             ->where('language', app()->getLocale())
             ->when(request('exclude_sold'), function ($query) {
                 $query->where('quantity', '>', 0);
@@ -240,6 +244,7 @@ $news = BookNews::query()
         $books = Book::query()
             ->where('hide', '0')
             ->where('language', app()->getLocale())
+            ->where('auction_only', false)
             ->when(request('exclude_sold'), function ($query) {
                 $query->where('quantity', '>', 0);
             })
@@ -274,6 +279,7 @@ $news = BookNews::query()
         // Check if the user has already rated this article
         $existingRating = ArticleRating::where('book_id', $bookId)
             ->where('user_id', auth()->id())
+            ->where('auction_only', false)
             ->first();
 
         if ($existingRating) {
@@ -351,6 +357,7 @@ $news = BookNews::query()
         $relatedBooks = Book::where('id', '!=', $book->id)
             ->where('hide', 0)
             ->where('quantity', '>', 0) // ✅ Exclude sold-out books
+            ->where('auction_only', false)
             ->where('language', app()->getLocale()) // ✅ match current language
             ->whereHas('genres', function ($query) use ($genreIds) {
                 $query->whereIn('genres.id', $genreIds);
@@ -424,7 +431,9 @@ $news = BookNews::query()
 
         // Start a query for books that are not hidden
         $query = Book::where('hide', 0)
-        ->where('language', app()->getLocale());
+        ->where('language', app()->getLocale())
+        ->where('auction_only', false); // ✅ Exclude auction-only books
+
 
         // Apply search term filter (combine search fields inside a subquery)
         if ($searchTerm) {
