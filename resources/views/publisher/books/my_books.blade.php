@@ -3,8 +3,8 @@
 @section('title', 'ჩემი ატვირთული წიგნები')
 
 @section('content')
-<div class="container mt-5" style="min-height: 400px">
-    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
+<div class="container mt-5" style="min-height: 400px; position: relative; top:30px;">
+    <h5 class="section-title" style="position: relative; margin-bottom:15px; padding-bottom:15px; align-items: left;
     justify-content: left;">     <strong>{{ __('messages.myUploadedBooks')}}</h5>
     @if($books->isEmpty())
         <p>{{ __('messages.notUploaded')}}</p>

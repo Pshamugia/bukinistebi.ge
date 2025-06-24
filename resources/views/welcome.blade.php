@@ -6,7 +6,7 @@
 
     <!-- Hero Section -->
     <div class="hero-section"
-        style="background: url('{{ asset('uploads/book9.webp') }}') no-repeat center center; background-size: cover; background-attachment: fixed; top:-74px">
+        style="background: url('{{ asset('uploads/book9.webp') }}') no-repeat center center; background-size: cover; background-attachment: fixed; ">
         <div class="hero-content" style="position: relative; padding-top: 15px;">
 
 
@@ -21,7 +21,7 @@
     <!-- Featured Books -->
     <div class="container mt-5">
 
-        <div class="hr-with-text" style="position: relative; margin-top:-54px; top:-10px">
+        <div class="hr-with-text">
             <h2 style="position: relative; font-size: 26px; ">
 
                 {{ __('messages.recently') }} </h2>

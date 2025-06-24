@@ -2,7 +2,7 @@
 @section('title', 'ჩემი აუქციონები')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-5" style="position: relative; top:50px; padding-bottom:25px;">
     <h2>🎯 ჩემი აუქციონები</h2>
 
 
@@ -50,7 +50,11 @@
     @forelse($wonAuctions->where('is_paid', false) as $auction)
         <div class="alert alert-warning d-flex justify-content-between align-items-center">
             <div>
-                <strong>{{ $auction->book->title }}</strong> -  გადასახდელი: {{ number_format($auction->current_price, 2) }} ₾
+                <strong>@if($auction->book)
+                    {{ $auction->book->title }}
+                @else
+                    <span class="text-danger">წიგნი წაშლილია</span>
+                @endif</strong> -  გადასახდელი: {{ number_format($auction->current_price, 2) }} ₾
             </div>
             <form action="{{ route('auction.payment') }}" method="POST">
                 @csrf
@@ -68,7 +72,11 @@
 @forelse($paidAuctions as $auction)
     <div class="alert alert-success d-flex justify-content-between align-items-center">
         <div>
-            <strong>{{ $auction->book->title }}</strong> - გადახდილია: {{ number_format($auction->current_price, 2) }} ₾
+            <strong>@if($auction->book)
+                {{ $auction->book->title }}
+            @else
+                <span class="text-danger">წიგნი წაშლილია</span>
+            @endif</strong> - გადახდილია: {{ number_format($auction->current_price, 2) }} ₾
         </div>
         <a href="{{ route('auction.show', $auction->id) }}" class="btn btn-outline-success btn-sm">ნახვა</a>
     </div>
@@ -83,7 +91,11 @@
         <div class="card mb-2">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
-                    📚 <strong>{{ $bid->auction->book->title }}</strong><br>
+                    📚 <strong> @if($bid->auction && $bid->auction->book)
+                        {{ $bid->auction->book->title }}
+                    @else
+                        <span class="text-danger">წიგნი ან აუქციონი წაშლილია</span>
+                    @endif</strong><br>
                     ბიჯი: {{ number_format($bid->amount, 2) }} ₾ —
                     <small>{{ \Carbon\Carbon::parse($bid->auction->end_time)->diffForHumans() }}</small>
                 </div>

@@ -3,10 +3,10 @@
 @section('title', 'Current Book Auctions')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-5" style="position: relative; top:50px; min-height: 400px;">
     <h2>📚 {{ __('messages.bookAuctions') }}</h2>
 
-    <div class="row">
+    <div class="row" >
         @forelse($auctions as $auction)
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">

@@ -7,7 +7,7 @@
 @section('content')
 
      
-<h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
+<h5 class="section-title" style="position: relative; top:30px; margin-bottom:25px; padding-bottom:25px; align-items: left;
     justify-content: left;">     <strong>
         <i class="bi bi-bookmarks-fill"></i> {{ __('messages.purchaseHistory')}}
     </strong>

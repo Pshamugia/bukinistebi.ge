@@ -10,14 +10,15 @@
 
 <div class="container">
 
-    <h5 class="section-title" style="position: relative;  padding-bottom:20px; align-items: left;
+    <h5 class="section-title" style="position: relative; top:30px;  padding-bottom:20px; align-items: left;
     justify-content: left;">
         <strong>
             <i class="bi bi-cart-check-fill"></i> {{ __('messages.yourCart')}}
         </strong>
     </h5>
 
-    @if($cart->cartItems->isNotEmpty())
+    @if($cart && $cart->cartItems->isNotEmpty())
+
     <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')" class="mb-3">
         @csrf
         <button type="submit" class="btn btn-danger">

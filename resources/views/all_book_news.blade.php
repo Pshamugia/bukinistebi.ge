@@ -5,7 +5,7 @@
 @section('content')
 
      <!-- Hero Section -->
-<div class="hero-section" style="background: url('{{ asset('uploads/biblio.jpg') }}') no-repeat center center; background-size: cover; background-attachment: fixed; margin-top:-74px" loading="lazy">
+<div class="hero-section" style="background: url('{{ asset('uploads/biblio.jpg') }}') no-repeat center center; background-size: cover; background-attachment: fixed; margin-top:-24px" loading="lazy">
     <div class="hero-content" style="position: relative; padding-top: 20px;">
 
         

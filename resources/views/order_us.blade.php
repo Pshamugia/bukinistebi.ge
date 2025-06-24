@@ -2,14 +2,13 @@
 @section('title', 'ბუკინისტები | შეგვიკვეთე') 
 @section('content')
 
-     
-<h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
+<h5 class="section-title" style="position: relative;  top:40px;   align-items: left;
     justify-content: left;">     <strong>
        <i class="bi bi-box-fill"></i> {{ __('messages.order')}}
     </strong>
 </h5>
 
-<div class="container d-flex ">
+<div class="container d-flex " style="position: relative; top:30px;">
     <div class="col-md-6" style="border: 1px solid rgb(165, 158, 158); border-radius:3px; font-weight: 100"> 
         <button type="button" class="btn btn-light text-start w-100">
  {{ __('messages.orderUs')}}                     
@@ -22,7 +21,7 @@
 
 
     <!-- Featured Books -->
-<div class="container mt-5" style="position:relative; margin-top: -15px">
+<div class="container mt-5" style="position:relative; margin-top: 15px">
   
     <div class="row">
         @if(session('success'))

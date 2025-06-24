@@ -10,7 +10,7 @@
             'loginRequired' => __('messages.loginrequired'),
         ];
     @endphp
-    <div class="container mt-5" style="position: relative; padding-bottom: 5%">
+    <div class="container mt-5" style="position: relative; padding-bottom: 5%; top:50px;">
         <div class="row">
             <!-- Book Image -->
             <div class="col-md-5">
