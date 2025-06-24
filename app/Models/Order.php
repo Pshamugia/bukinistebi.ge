@@ -11,6 +11,7 @@ class Order extends Model
 
     public static $statusesMap = [
         'Created' => "შექმნილი",
+        'Pending' => "მუშავდება",
         'Processing' => "მუშავდება",
         'Succeeded' => "წარმატებული",
         'Returned' => "თანხა დაბრუნებულია",
