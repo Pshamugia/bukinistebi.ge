@@ -36,6 +36,7 @@ class Book extends Model
         'hide',
         'uploader_id',
         'manual_created_at',
+        'auction_only',
     ];
 
     // Relationships

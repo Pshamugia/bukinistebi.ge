@@ -14,6 +14,13 @@
 </div>
 
 
+<div class="form-check mb-3">
+    <input type="checkbox" name="auction_only" class="form-check-input" id="auction_only"
+        {{ old('auction_only', $book->auction_only ?? false) ? 'checked' : '' }}>
+    <label class="form-check-label" for="auction_only">Hide this book everywhere except auction</label>
+</div>
+
+
 <div class="mb-3">
     <label for="title" class="form-label">სახელწოდება</label>
     <div class="input-group">

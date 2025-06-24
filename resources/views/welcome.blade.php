@@ -63,15 +63,11 @@
                                     @if ($book->quantity == 0)
                                         <span class="badge bg-danger" style="font-weight: 100; float: right;">
                                             {{ __('messages.outofstock') }} </span>
-                                    @elseif($book->quantity == 1)
-                                        <span class="badge bg-warning text-dark"
+                                    @elseif($book->quantity >=1)
+                                        <span class="badge bg-success"
                                             style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}
                                         </span>
-                                    @else
-                                        <span class="badge bg-success"
-                                            style="font-size: 13px; font-weight: 100; float: right;">
-                                            {{ __('messages.available') }} {{ $book->quantity }}
-                                            {{ __('messages.items') }}</span>
+                                    
                                     @endif
                                 </span>
                             </p>

@@ -23,7 +23,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin') }}">
                             <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px" style="position:relative; top:8px;" loading="lazy">
-                            <br><br><br>
+                            <br><br> 
                             <i class="bi bi-speedometer2"></i> Dashboard
                              
                         </a>
@@ -67,6 +67,10 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.keywords') }}"><i class="bi bi-search-heart"></i> რას ეძებენ</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="https://bukinistebi.ge/roundcube/" target="blank"><i class="bi bi-envelope"></i> EMAIL</a>
                     </li>
                 
                     <hr style="border: 0; border-bottom: 1px dashed #ccc; background: #999;">

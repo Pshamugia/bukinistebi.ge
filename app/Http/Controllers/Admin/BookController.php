@@ -138,6 +138,8 @@ public function create(Request $request)
             $validatedData['manual_created_at'] = Carbon::parse($request->input('manual_created_at'));
         }
         $validatedData['uploader_id'] = auth()->id();
+        $validatedData['auction_only'] = $request->has('auction_only');
+
 
         // Step 4: Create book (excluding genres)
         $book = Book::create(collect($validatedData)->except('genre_id')->toArray());  // ✅ exclude genre_id
@@ -249,6 +251,9 @@ public function create(Request $request)
                 $validatedData[$key] = $imagePath;
             }
         }
+
+        $validatedData['auction_only'] = $request->has('auction_only');  
+
 
         $book->update(collect($validatedData)->except('genre_id')->toArray());
 

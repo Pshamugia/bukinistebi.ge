@@ -17,8 +17,11 @@
             <label>აარჩიე წიგნი</label>
             <select name="book_id" class="form-control book-chosen" required>
                 @foreach($books as $book)
-                    <option value="{{ $book->id }}">{{ $book->title }}</option>
-                @endforeach
+                <option value="{{ $book->id }}">
+                    {{ $book->title }} - {{ $book->author->name ?? 'No Author' }}
+                </option>
+            @endforeach
+            
             </select>
         </div>
 

@@ -169,8 +169,8 @@
             </div>
 
             <!-- Right Side: Cart, Login, Language -->
-            <ul class="navbar-nav flex-row align-items-center gap-3 flex-wrap ms-auto">
-
+            <ul class="navbar-nav flex-row align-items-center gap-0 flex-wrap ms-auto">
+ 
             <!-- Cart -->
             @if (!auth()->check() || auth()->user()->role !== 'publisher')
             <li class="nav-item kalata">
@@ -182,11 +182,18 @@
                 @endphp
                 <!-- Cart Link in the Navbar -->
                 <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    <i class="bi bi-cart-fill" style="position: relative; top:2px;"></i> {{ __('messages.cart') }}
-                    <div id="cart-bubble" class="custom-bubble" style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
+                    <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
+                
+                    <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
+                        {{ __('messages.cart') }}
+                    </span>
+                
+                    <div id="cart-bubble" class="custom-bubble"
+                        style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
                         <span id="cart-count">{{ $cartCount }}</span>
                     </div>
                 </a>
+                
 
                     </li>
                 @endif
@@ -332,20 +339,33 @@
 
 
 
-
                 <a class="navbar-brand" href="{{ url('/') }}"><img
                         src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
                         style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
 
 
+                        <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
+                        <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
+                            <i class="bi bi-search fs-4" style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
+                        </button>
+                        <!-- 🔍 Popup Search Box (mobile only) -->
+<div id="mobileSearchOverlay" class="d-lg-none" style="display: none; position: absolute; top: 0; left: 0; right: 0; background: white; z-index: 9999; padding: 10px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center" style="width: 100%;">
+        <input type="search" name="title" class="form-control me-2" placeholder="{{ __('messages.booksearch') }}..." required autofocus>
+        <button type="submit" class="btn btn-outline-success me-2"><i class="bi bi-search"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i class="bi bi-x-lg"></i></button>
+    </form>
+</div>
+
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
 
 
-                <button style="position: relative;  " class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+          <button id="mobileMenuToggle" class="navbar-toggler" type="button"
+    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <i class="bi bi-list fs-3"></i> <!-- bi-list = hamburger, bi-x = close -->
+</button>
+
 
 
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -413,7 +433,7 @@
                         </li>
 
 
-                        <form class="d-flex" role="search" action="{{ route('search') }}" method="GET"
+                        <form class="d-none d-lg-flex" role="search" action="{{ route('search') }}" method="GET"
                             onsubmit="return validateSearch()" style="position: relative;  ">
                             <input class="form-control me-2 styled-input" name="title" type="search"
                                 value="{{ request()->get('title') }}"
@@ -656,7 +676,36 @@
 
                 subscriptionErrorModal.show();
             }
+            const toggleBtn = document.getElementById('mobileSearchToggle');
+        const overlay = document.getElementById('mobileSearchOverlay');
+        const closeBtn = document.getElementById('closeMobileSearch');
+
+        toggleBtn.addEventListener('click', () => {
+            overlay.style.display = 'block';
         });
+
+        closeBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+        });
+    });
+      
+
+          const toggleBtn = document.getElementById('mobileMenuToggle');
+    const icon = toggleBtn.querySelector('i');
+    const menu = document.getElementById('navbarNav');
+
+    menu.addEventListener('show.bs.collapse', function () {
+        icon.classList.remove('bi-list');
+        icon.classList.add('bi-x');
+    });
+
+    menu.addEventListener('hide.bs.collapse', function () {
+        icon.classList.remove('bi-x');
+        icon.classList.add('bi-list');
+    });
+
+    
+
     </script>
 
 

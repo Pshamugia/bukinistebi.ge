@@ -20,6 +20,8 @@ class AuctionController extends Controller
     public function create()
     {
         $books = Book::whereDoesntHave('auction')->get(); // Only books not in auctions
+        $books = Book::with('author')->where('auction_only', true)->get();
+
         return view('admin.auctions.create', compact('books'));
     }
 
@@ -51,11 +53,16 @@ class AuctionController extends Controller
 
 
 
-    public function edit(Auction $auction)
+public function edit(Auction $auction)
 {
-    $books = \App\Models\Book::all(); // allow switching book if needed
+    $books = \App\Models\Book::with('author') // include author
+        ->where('auction_only', true)
+        ->get();
+
     return view('admin.auctions.edit', compact('auction', 'books'));
 }
+
+
 
 public function update(Request $request, Auction $auction)
 {

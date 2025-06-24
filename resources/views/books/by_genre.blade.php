@@ -55,13 +55,9 @@
                                     @if ($book->quantity == 0)
                                         <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
                                             ამოწურულია</span>
-                                    @elseif($book->quantity == 1)
-                                        <span class="badge bg-warning text-dark"
-                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
-                                    @else
+                                    @elseif($book->quantity >= 1)
                                         <span class="badge bg-success"
-                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}
-                                            {{ $book->quantity }} {{ __('messages.copies') }}</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
                                     @endif
                                 </span>
                             </p>
@@ -92,17 +88,17 @@
     {{ $books->appends(request()->query())->links('pagination.custom-pagination') }}
 
 
- 
+
     <script>
         $('#excludeSoldOut').change(function() {
-      const url = new URL(window.location.href);
-      if ($(this).is(':checked')) {
-          url.searchParams.set('exclude_sold', 1);
-      } else {
-          url.searchParams.delete('exclude_sold');
-      }
-      window.location.href = url.toString();
-  });
-</script>
+            const url = new URL(window.location.href);
+            if ($(this).is(':checked')) {
+                url.searchParams.set('exclude_sold', 1);
+            } else {
+                url.searchParams.delete('exclude_sold');
+            }
+            window.location.href = url.toString();
+        });
+    </script>
 
 @endsection

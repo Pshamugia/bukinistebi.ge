@@ -56,13 +56,10 @@
                                     @if ($book->quantity == 0)
                                         <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
                                             ამოწურულია</span>
-                                    @elseif($book->quantity == 1)
-                                        <span class="badge bg-warning text-dark"
-                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
-                                    @else
+                                    @elseif($book->quantity >= 1)
                                         <span class="badge bg-success"
-                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}
-                                            {{ $book->quantity }} {{ __('messages.copies') }}</span>
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
+                                    
                                     @endif
                                 </span>
                             </p>

@@ -33,8 +33,13 @@
             @forelse ($auctions as $auction)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
-                    <td>{{ $auction->book->title }}</td>
-                    <td>{{ number_format($auction->start_price, 2) }} GEL</td>
+                    <td>
+                        @if($auction->book)
+                            {{ $auction->book->title }}
+                        @else
+                            <span class="text-danger">წიგნი წაშლილია</span>
+                        @endif
+                    </td>                    <td>{{ number_format($auction->start_price, 2) }} GEL</td>
                     <td>{{ number_format($auction->current_price, 2) }} GEL</td>
                     <td>{{ $auction->start_time }}</td>
                     <td>{{ $auction->end_time }}</td>

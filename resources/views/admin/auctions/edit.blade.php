@@ -12,15 +12,22 @@
 
         <div class="mb-3">
             <label>Book</label>
-            <select name="book_id" class="form-control">
+            <select name="book_id" class="form-control book-chosen">
                 @foreach($books as $book)
-                    <option value="{{ $book->id }}" {{ $auction->book_id == $book->id ? 'selected' : '' }}>
-                        {{ $book->title }}
-                    </option>
+                <option value="{{ $book->id }}" {{ $auction->book_id == $book->id ? 'selected' : '' }}>
+                    {{ $book->title }} — {{ $book->author->name ?? '' }}
+                </option>
+                
                 @endforeach
             </select>
         </div>
-
+        <script>
+            $(document).ready(function() {
+                $('.book-chosen').chosen({
+                    no_results_text: "Oops, nothing found!"
+                }); 
+            });
+                </script> 
         <div class="mb-3">
             <label>Start Price (₾)</label>
             <input type="number" name="start_price" step="0.01" value="{{ $auction->start_price }}" class="form-control">

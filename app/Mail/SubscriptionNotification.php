@@ -24,14 +24,19 @@ class SubscriptionNotification extends Mailable
 
     public function build()
     {
-        return $this->from('info@bukinistebi.ge', 'Bukinistebi.ge') // ✅ change From name here
+        return $this->from('info@bukinistebi.ge', 'Bukinistebi.ge')
                     ->subject($this->subjectLine)
                     ->view('emails.subscription')
                     ->with([
                         'messageContent' => $this->messageContent,
                         'encryptedEmail' => $this->encryptedEmail,
                         'unsubscribeLink' => $this->unsubscribeLink,
-                    ]);
+                    ])
+                    ->withSwiftMessage(function ($message) {
+                        $message->getHeaders()
+                            ->addTextHeader('List-Unsubscribe', "<{$this->unsubscribeLink}>");
+                    });
     }
+    
 }
  
