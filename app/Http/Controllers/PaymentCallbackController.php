@@ -31,7 +31,13 @@ class PaymentCallbackController extends Controller
             return response()->json(['error' => 'Auth error'], 500);
         }
 
-        $response = Http::withToken($token)->get(env('TBC_BASE_URL') . "/v1/tpay/payments/$paymentId");
+        //$response = Http::withToken($token)->get(env('TBC_BASE_URL') . "/v1/tpay/payments/$paymentId");
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'apikey' => env('TBC_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])->get(env('TBC_BASE_URL') . "/v1/tpay/payments/$paymentId");
+
 
         if (!$response->ok()) {
             Log::error('Failed to fetch payment info from TBC', [

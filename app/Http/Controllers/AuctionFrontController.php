@@ -32,48 +32,48 @@ class AuctionFrontController extends Controller
     }
 
     public function bid(Request $request, Auction $auction)
-{
-    $bidAmount = $request->bid_amount;
+    {
+        $bidAmount = $request->bid_amount;
 
-    // ✅ Check if user has paid the auction participation fee
-    if (!Auth::user()->has_paid_auction_fee) {
-        return back()->withErrors(['bid_amount' => 'აუცილებელია აუქციონის სიმბოლური საფასურის გადახდა.']);
-    }
-
-    if (!$auction->is_active) {
-        return back()->withErrors(['bid_amount' => 'აუქციონი დასრულებულია.']);
-    }
-
-    if (!$auction->is_free_bid) {
-        if ($auction->min_bid !== null && $bidAmount < $auction->min_bid) {
-            return back()->withErrors(['bid_amount' => "მინიმალური ბიჯი არის {$auction->min_bid} ₾."]);
+        // ✅ Check if user has paid the auction participation fee
+        if (!Auth::user()->paidAuction($auction->id)) {
+            return back()->withErrors(['bid_amount' => 'აუცილებელია აუქციონის სიმბოლური საფასურის გადახდა.']);
         }
 
-        if ($auction->max_bid !== null && $bidAmount > $auction->max_bid) {
-            return back()->withErrors(['bid_amount' => "მაქსიმალური ბიჯი არის {$auction->max_bid} ₾."]);
+        if (!$auction->is_active) {
+            return back()->withErrors(['bid_amount' => 'აუქციონი დასრულებულია.']);
         }
 
-        if ($auction->min_bid !== null && $auction->max_bid !== null && $auction->min_bid == $auction->max_bid && $bidAmount != $auction->min_bid) {
-            return back()->withErrors(['bid_amount' => "აუცილებელია ბიჯის ზომა იყოს正 {$auction->min_bid} ₾."]);
+        if (!$auction->is_free_bid) {
+            if ($auction->min_bid !== null && $bidAmount < $auction->min_bid) {
+                return back()->withErrors(['bid_amount' => "მინიმალური ბიჯი არის {$auction->min_bid} ₾."]);
+            }
+
+            if ($auction->max_bid !== null && $bidAmount > $auction->max_bid) {
+                return back()->withErrors(['bid_amount' => "მაქსიმალური ბიჯი არის {$auction->max_bid} ₾."]);
+            }
+
+            if ($auction->min_bid !== null && $auction->max_bid !== null && $auction->min_bid == $auction->max_bid && $bidAmount != $auction->min_bid) {
+                return back()->withErrors(['bid_amount' => "აუცილებელია ბიჯის ზომა იყოს正 {$auction->min_bid} ₾."]);
+            }
         }
+
+        if ($bidAmount <= $auction->current_price) {
+            return back()->withErrors(['bid_amount' => 'ბიჯი უნდა იყოს მიმდინარე ფასზე მეტი.']);
+        }
+
+        Bid::create([
+            'auction_id' => $auction->id,
+            'user_id' => Auth::id(),
+            'amount' => $bidAmount,
+            'created_at' => now(),
+        ]);
+
+        $auction->current_price = $bidAmount;
+        $auction->save();
+
+        return back()->with('success', 'თქვენი ბიჯი წარმატებით დაემატა!');
     }
-
-    if ($bidAmount <= $auction->current_price) {
-        return back()->withErrors(['bid_amount' => 'ბიჯი უნდა იყოს მიმდინარე ფასზე მეტი.']);
-    }
-
-    Bid::create([
-        'auction_id' => $auction->id,
-        'user_id' => Auth::id(),
-        'amount' => $bidAmount,
-        'created_at' => now(),
-    ]);
-
-    $auction->current_price = $bidAmount;
-    $auction->save();
-
-    return back()->with('success', 'თქვენი ბიჯი წარმატებით დაემატა!');
-}
 
 
 
@@ -136,12 +136,11 @@ class AuctionFrontController extends Controller
 
 
     public function payAuctionFee(Request $request)
-{
-    $user = Auth::user();
-    $user->has_paid_auction_fee = 1;
-    $user->save();
+    {
+        $user = Auth::user();
+        $user->has_paid_auction_fee = 1;
+        $user->save();
 
-    return back()->with('success', 'გადახდა წარმატებით განხორციელდა! ახლა შეგიძლია ბიჯი.');
-}
-
+        return back()->with('success', 'გადახდა წარმატებით განხორციელდა! ახლა შეგიძლია ბიჯი.');
+    }
 }
