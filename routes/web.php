@@ -182,10 +182,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/success', function () {
         return view('order.success');
     })->name('order.success');
+
+    Route::get("/order/{id}/status/",  [OrderController::class, 'status'])->name('order.status');
 });
 
 // Handle the TBC payment callback
 Route::get('/tbc-callback', [TbcCheckoutController::class, 'handleCallback'])->name('tbc.callback');
+Route::get('/tbc-return', [TbcCheckoutController::class, 'tbcReturnUrl'])->name('tbc.returnurl');
 
 
 

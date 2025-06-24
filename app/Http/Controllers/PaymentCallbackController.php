@@ -97,6 +97,65 @@ class PaymentCallbackController extends Controller
         return response()->json(['status' => 'ok'], 200);
     }
 
+    public function handleBookBought(Request $request)
+    {
+        $paymentId = $request->input('PaymentId');
+
+        Log::info("Got paymentID from cb book payment:", [
+            "paymentID" => $paymentId,
+        ]);
+
+        if (!$paymentId) {
+            Log::warning('Callback received without PaymentId');
+            return response()->json(['error' => 'Missing PaymentId'], 400);
+        }
+
+        $token = $this->getAccessToken();
+        if (!$token) {
+            Log::error('Failed to get access token in callback');
+            return response()->json(['error' => 'Auth error'], 500);
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'apikey' => env('TBC_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])->get(env('TBC_BASE_URL') . "/v1/tpay/payments/$paymentId");
+
+
+        if (!$response->ok()) {
+            Log::error('Failed to fetch payment info from TBC', [
+                'paymentId' => $paymentId,
+                'response' => $response->body()
+            ]);
+            return response()->json(['error' => 'Payment fetch failed'], 500);
+        }
+
+        $data = $response->json();
+
+        $paymentStatus = $data['status'] ?? '';
+
+        $order = Order::where('order_id', $orderId)->firstOrFail();
+
+        $order->status = $paymentStatus ?? 'Pending';
+        $order->save();
+
+        $cart = $order->user->cart;
+        if ($cart) {
+            $cart->cartItems()->delete();
+            $cart->delete();
+        }
+
+        Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
+        Log::info('Got payment callback: ', [
+            'id' => $paymentId,
+            'status' => $paymentStatus,
+        ]);
+
+
+        return response()->json(['status' => 'ok'], 200);
+    }
+
     private function getAccessToken()
     {
         $response = Http::asForm()->withHeaders([
