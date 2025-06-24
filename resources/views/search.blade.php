@@ -113,10 +113,9 @@
                         <span style="position: relative; top:5px">
                         @if($book->quantity == 0)
                         <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
- @elseif($book->quantity == 1)
- <span style="font-size: 13px; float: right;">{{ __('messages.available')}} {{ $book->quantity }} {{ __('messages.items')}}</span>
- @else
- <span style="font-size: 13px; float: right;">{{ __('messages.available')}} {{ $book->quantity }} {{ __('messages.items')}}</span>
+ @elseif($book->quantity >= 1)
+ <span style="font-size: 13px; float: right;">{{ __('messages.available')}}</span>
+ 
  @endif
                         </span>  </p>
                         @if (!auth()->check() || auth()->user()->role !== 'publisher')

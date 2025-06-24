@@ -12,6 +12,7 @@ use App\Mail\SubscriptionNotification;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Http\RedirectResponse;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends Controller
 {
@@ -69,7 +70,7 @@ public function sendEmailToSubscribers(Request $request)
         'emails' => 'required|array',
         'emails.*' => 'email',
         'custom_subject' => 'nullable|string|max:255',
-        'custom_message' => 'nullable|string|max:1000',
+        'custom_message' => 'nullable|string|max:10000',
     ]);
 
     $subjectLine = $request->filled('custom_subject') 
@@ -80,34 +81,36 @@ public function sendEmailToSubscribers(Request $request)
         ? $request->custom_message
         : "ბუკინისტებზე დაემატა ახალი წიგნი. გვეწვიე საიტზე: bukinistebi.ge!";
 
-    Log::info('Sending emails to: ', $request->emails);
+    Log::info('Queueing emails to: ', $request->emails);
 
-    foreach (array_chunk($request->emails, 10) as $emailBatch) {
-    foreach ($emailBatch as $email) {
+    foreach ($request->emails as $email) {
         try {
             $encryptedEmail = Crypt::encrypt($email);
-
-            Mail::to($email)->send(new SubscriptionNotification(
+    
+            Mail::to($email)->queue(new SubscriptionNotification(
                 $subjectLine,
                 $messageContent,
                 $encryptedEmail
             ));
-
-            // Delay between emails (2 seconds)
-            sleep(2);
-
+    
+            \App\Models\EmailLog::updateOrCreate(
+                ['email' => $email],
+                ['sent_at' => now()]
+            );
+    
         } catch (\Throwable $e) {
-            Log::error("Failed to send to: $email — " . $e->getMessage());
+            Log::error("Queueing failed for: $email — " . $e->getMessage());
+    
+            \App\Models\EmailLog::updateOrCreate(
+                ['email' => $email],
+                ['sent_at' => null]
+            );
         }
     }
 
-    // Optional: delay between batches (5 seconds)
-    sleep(5);
+    return redirect()->back()->with('success', 'ელფოსტები წარმატებით დაემატა რიგში გასაგზავნად.');
 }
 
-
-    return redirect()->back()->with('success', 'ელფოსტები წარმატებით გაიგზავნა მონიშნულებზე.');
-}
 
 
 public function subscribeAllUsers(): RedirectResponse
@@ -149,6 +152,7 @@ public function unsubscribe($encryptedEmail)
 }
 
 
+
 public function destroy($id)
 {
     $subscriber = \App\Models\Subscriber::find($id);
@@ -160,6 +164,17 @@ public function destroy($id)
     $subscriber->delete();
 
     return redirect()->back()->with('success', 'გამომწერი წარმატებით წაიშალა');
+}
+
+
+
+public function emailStats()
+{
+    $queued = DB::table('jobs')->count();
+    $failed = DB::table('failed_jobs')->count();
+    $opened = DB::table('email_logs')->whereNotNull('opened_at')->count();
+
+    return view('admin.email_stats', compact('queued', 'failed', 'opened'));
 }
 
 

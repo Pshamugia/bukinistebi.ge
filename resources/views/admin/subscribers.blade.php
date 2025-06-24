@@ -5,9 +5,17 @@
 @section('content')
 <div class="container" style="position: relative; margin-top:55px;">
     <h1>გამომწერები</h1>
-    <a href="{{ route('admin.subscribeAllUsers') }}" class="btn btn-primary">
-        ყველა მომხმარებლის გადმოყვანა გამომწერებად
-    </a>
+
+        
+    @include('admin.email_stats', [
+        'queued' => $queued ?? 0,
+        'failed' => $failed ?? 0,
+        'opened' => $opened ?? 0
+    ])
+<br><br>
+
+
+   
    {{-- Success Message --}}
 @if(session('success'))
 <div class="alert alert-success">
@@ -32,6 +40,11 @@
     </ul>
 </div>
 @endif
+
+<a href="{{ route('admin.subscribeAllUsers') }}" class="btn btn-primary">
+    ყველა მომხმარებლის გადმოყვანა გამომწერებად
+</a>
+
 <form method="POST" action="{{ route('send.subscriber.email') }}" id="subscriber-form">        @csrf
 
 

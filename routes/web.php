@@ -36,14 +36,14 @@ use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
+use App\Models\EmailLog;
 
 
- 
 
 //FOR COOKIES
- Route::post('/store-cookie-consent', [CookieConsentController::class, 'storeUserBehavior'])->name('store-user-behavior');
+Route::post('/store-cookie-consent', [CookieConsentController::class, 'storeUserBehavior'])->name('store-user-behavior');
 
- Route::get('/clear-all-cache', function () {
+Route::get('/clear-all-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
     Artisan::call('route:clear');
@@ -59,10 +59,28 @@ Route::get('/all_book_news', [BookNewsController::class, 'allbooksnews'])->name(
 Route::get('/full_author/{name}/{id}', [AuthorController::class, 'full_author'])->name('full_author');
 Route::get('/terms_conditions', [BookNewsController::class, 'terms'])->name('terms_conditions');
 Route::post('/admin/send-subscriber-email', [SubscriptionController::class, 'sendEmailToSubscribers'])->name('send.subscriber.email');
+
+
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 Route::get('unsubscribe/{email}', [SubscriptionController::class, 'unsubscribe'])->name('unsubscribe');
+Route::get('/track-open/{email}', function ($email) {
+    try {
+        EmailLog::updateOrCreate(
+            ['email' => decrypt($email)],
+            ['opened_at' => now()]
+        );
+    } catch (\Throwable $e) {
+        Log::error('Open tracking failed: ' . $e->getMessage());
+    }
 
- Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
+    // Return a 1x1 transparent GIF
+    return response(base64_decode('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='))
+        ->header('Content-Type', 'image/gif');
+})->name('track.email.open');
+
+
+
+Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
 
 // 
@@ -139,24 +157,24 @@ Route::get('/podcast', [BookController::class, 'podcast'])->name('podcast');
 
 //genre
 Route::get('/genres/{id}-{slug}', [BookController::class, 'byGenre'])->name('genre.books');
- 
+
 
 // TBC E-Commerce Routes within auth middleware
 Route::middleware('auth')->group(function () {
     // Initialize payment and show checkout page
     Route::post('/tbc-checkout', [TbcCheckoutController::class, 'initializePayment'])->name('tbc-checkout');
-     Route::get('/tbc-checkout/{orderId}', [TbcCheckoutController::class, 'show'])->name('tbc.checkout');
+    Route::get('/tbc-checkout/{orderId}', [TbcCheckoutController::class, 'show'])->name('tbc.checkout');
 
- 
 
-     Route::post('/auction-payment', [TbcCheckoutController::class, 'initializeAuctionPayment'])
-    ->withoutMiddleware([\App\Http\Middleware\SetLocale::class])
-    ->name('auction.payment');
+
+    Route::post('/auction-payment', [TbcCheckoutController::class, 'initializeAuctionPayment'])
+        ->withoutMiddleware([\App\Http\Middleware\SetLocale::class])
+        ->name('auction.payment');
 
     // Process TBC payment
-     Route::post('/process-payment', [TbcCheckoutController::class, 'processPayment'])->name('process.payment');
+    Route::post('/process-payment', [TbcCheckoutController::class, 'processPayment'])->name('process.payment');
 
-  
+
     Route::get('/order-failed', function () {
         return view('order.failed'); // Create a view named 'order.failed' or adjust to an appropriate view
     })->name('order.failed');
@@ -164,12 +182,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/success', function () {
         return view('order.success');
     })->name('order.success');
-    
 });
 
-  // Handle the TBC payment callback
-  Route::get('/tbc-callback', [TbcCheckoutController::class, 'handleCallback'])->name('tbc.callback');
-    
+// Handle the TBC payment callback
+Route::get('/tbc-callback', [TbcCheckoutController::class, 'handleCallback'])->name('tbc.callback');
+
 
 
 // Cart Routes (Add 'auth' middleware to ensure only logged-in users can access the cart)
@@ -183,11 +200,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/update/{book}', [CartController::class, 'updateQuantity'])->name('cart.update');
     Route::post('/cart/toggle', [CartController::class, 'toggle'])->name('cart.toggle');
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
-    
+
     Route::get('/cart/count', function () {
         $items = session('cart.items', []); // adjust this path as needed
         $count = is_array($items) ? count($items) : 0;
-    
+
         return response()->json([
             'count' => $count
         ]);
@@ -204,7 +221,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/order-courier/{orderId}', [OrderController::class, 'orderCourier'])->name('order_courier');
 
     Route::get('/purchase-history', [OrderController::class, 'purchaseHistory'])->name('purchase.history')->middleware('auth');
-
 });
 
 
@@ -230,8 +246,7 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 
     // Routes for Publisher's Author Management
     Route::get('/publisher/authors/create', [PublisherAuthorController::class, 'create'])->name('publisher.authors.create');
-     Route::post('/publisher/authors/store', [PublisherAuthorController::class, 'store'])->name('publisher.authors.store');
-
+    Route::post('/publisher/authors/store', [PublisherAuthorController::class, 'store'])->name('publisher.authors.store');
 });
 
 // Publisher registration and login routes
@@ -255,30 +270,38 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 // Admin routes with admin middleware and prefix
 Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
+
+
+    Route::get('/email-stats', [SubscriptionController::class, 'emailStats'])->name('admin.email.stats');
+
+    Route::post('/email-retry', function () {
+        \Illuminate\Support\Facades\Artisan::call('queue:retry all');
+        return redirect()->back()->with('success', 'All failed emails have been retried.');
+    })->name('admin.email.retry');
     // Admin dashboard route
     Route::get('/', [DashboardController::class, 'index'])->name('admin');
 
     Route::get('/admin/subscribe-all-users', [SubscriptionController::class, 'subscribeAllUsers'])
-    ->name('admin.subscribeAllUsers');
+        ->name('admin.subscribeAllUsers');
     // Publishers Activity Route
     Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
 
     // Authors CRUD routes (Admin)
-    Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']); 
+    Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']);
 
- 
+
     // Auctions Management (Admin)
-Route::get('/auctions', [AuctionController::class, 'index'])->name('admin.auctions.index');
-Route::get('/auctions/create', [AuctionController::class, 'create'])->name('admin.auctions.create');
-Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
-Route::get('/admin/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
+    Route::get('/auctions', [AuctionController::class, 'index'])->name('admin.auctions.index');
+    Route::get('/auctions/create', [AuctionController::class, 'create'])->name('admin.auctions.create');
+    Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
+    Route::get('/admin/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
 
-// Auction Update/Edit Routes
-Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
-Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
-Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
-Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
-Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])->name('auction.fee.payment')->middleware('auth');
+    // Auction Update/Edit Routes
+    Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
+    Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
+    Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
+    Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
+    Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])->name('auction.fee.payment')->middleware('auth');
 
 
     // Books CRUD routes (Admin)
@@ -302,28 +325,27 @@ Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])
 
     // Show User Preferences with Purchases
     Route::get('/user-preferences-with-purchases', [CookieConsentController::class, 'showUserPreferencesWithPurchases'])
-    ->name('admin.user.preferences.purchases');
-        Route::get('/user-preferences/{identifier}', [CookieConsentController::class, 'showUserJourney'])
-    ->name('admin.user.preferences.journey'); // ✅ now route name exists
+        ->name('admin.user.preferences.purchases');
+    Route::get('/user-preferences/{identifier}', [CookieConsentController::class, 'showUserJourney'])
+        ->name('admin.user.preferences.journey'); // ✅ now route name exists
     Route::get('/user-preferences-paths', [CookieConsentController::class, 'userPathChartData'])
-    ->name('admin.user.preferences.chartdata');
+        ->name('admin.user.preferences.chartdata');
 
-    
+
     // FOR PUBLISHERS TO ALLOW HIDE/SHOW
     Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
 
-//users transacions
-Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
-Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
-Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
-    ->name('admin.users.transactions.export');
-Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
+    //users transacions
+    Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
+    Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
+    Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
+        ->name('admin.users.transactions.export');
+    Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
 
-Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
-Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
-Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
-Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
-
+    Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
+    Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
+    Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
+    Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
 });
 
 
@@ -334,6 +356,3 @@ Route::get('/test-role-middleware', function () {
         return redirect()->route('login.publisher.form')->withErrors(['access' => 'Only publishers can access this page.']);
     }
 });
-
-
-
