@@ -1,10 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Current Book Auctions')
+@section('title', 'Current Auctions')
 
 @section('content')
-<div class="container mt-5" style="position: relative; top:50px; min-height: 400px;">
-    <h2>📚 {{ __('messages.bookAuctions') }}</h2>
+<h5 class="section-title"
+        style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
+    justify-content: left;">
+        <strong>
+            <i class="bi bi-graph-up"></i> {{ __('messages.bookAuctions') }}
+        </strong>
+    </h5>
+
+
+
+    <!-- Featured Books -->
+    <div class="container mt-5" style="position:relative; margin-top: -15px !important">
+   
 
     <div class="row" >
         @forelse($auctions as $auction)

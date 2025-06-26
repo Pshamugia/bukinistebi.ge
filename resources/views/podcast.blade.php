@@ -5,7 +5,7 @@
 @section('content')
 
      
-<h5 class="section-title" style="position: relative;  top:50px;   align-items: left;
+<h5 class="section-title" style="position: relative;  top:30px;   align-items: left;
     justify-content: left;">     <strong>
         <i class="bi bi-tv"></i>ინტერნეტგადაცემა "ბუკინისტები"
     </strong>

@@ -2,7 +2,7 @@
 @section('title', 'ბუკინისტები | შეგვიკვეთე') 
 @section('content')
 
-<h5 class="section-title" style="position: relative;  top:40px;   align-items: left;
+<h5 class="section-title" style="position: relative;  top:30px;   align-items: left;
     justify-content: left;">     <strong>
        <i class="bi bi-box-fill"></i> {{ __('messages.order')}}
     </strong>

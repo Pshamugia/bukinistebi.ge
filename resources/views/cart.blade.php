@@ -10,7 +10,7 @@
 
 <div class="container">
 
-    <h5 class="section-title" style="position: relative; top:30px;  padding-bottom:20px; align-items: left;
+    <h5 class="section-title" style="position: relative; top:30px; margin-bottom:40px; align-items: left;
     justify-content: left;">
         <strong>
             <i class="bi bi-cart-check-fill"></i> {{ __('messages.yourCart')}}

@@ -251,7 +251,7 @@
      height: 25px;
      background: linear-gradient(to right, #f0f1f5, #bfc2c2);
      bottom: 0;
-     top:15px;
+     top:0px;
      left: 0;
      z-index: -1;
      /* Send the background effect behind the text */
