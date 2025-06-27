@@ -10,24 +10,23 @@
 
     <div class="container">
 
-        <h5 class="section-title"
-            style="position: relative;  padding-bottom:20px; align-items: left;
+    <h5 class="section-title" style="position: relative; top:30px; margin-bottom:40px; align-items: left;
     justify-content: left;">
             <strong>
                 <i class="bi bi-cart-check-fill"></i> {{ __('messages.yourCart') }}
             </strong>
         </h5>
 
-        @if ($cart->cartItems->isNotEmpty())
-            <form action="{{ route('cart.clear') }}" method="POST"
-                onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')" class="mb-3">
-                @csrf
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-trash-fill"></i> {{ __('messages.cleaCart') }}
-                </button>
-            </form>
-        @endif
+    @if($cart && $cart->cartItems->isNotEmpty())
 
+    <form action="{{ route('cart.clear') }}" method="POST" onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')" class="mb-3">
+        @csrf
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash-fill"></i> {{ __('messages.cleaCart')}}
+        </button>
+    </form>
+    @endif
+    
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

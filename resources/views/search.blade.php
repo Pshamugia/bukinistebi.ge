@@ -2,10 +2,10 @@
 @section('title', 'ბუკინისტები | ძიება')
 @section('content')
 
-<div class="container" style="position: relative; ">
+<div class="container" style="position: relative;top:50px; ">
     
     
-    <div style="background-color: #b1a9f7; padding:20px 20px 1px 20px; margin-bottom: 26px;">
+    <div style="background-color: #b1a9f7;  padding:20px 20px 1px 20px; margin-bottom: 26px;">
     <h4> {{ __('messages.filtersearch')}} </h4>
     
     <!-- Filter Form -->

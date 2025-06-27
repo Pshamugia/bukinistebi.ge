@@ -3,7 +3,7 @@
 @section('title', 'რედაქტირება')
  
 @section('content')
-<div class="container" style="position: relative; ">
+<div class="container" style="position: relative; top:30px; ">
     <h5 class="section-title" style="position: relative; margin-bottom:25px;   padding-bottom:25px; align-items: left;
     justify-content: left;">        <strong>
             <i class="bi bi-person-fill-gear"></i> {{ __('messages.editProfile')}}

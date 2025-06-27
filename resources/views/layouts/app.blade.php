@@ -334,8 +334,8 @@
 
 
     <div style="position: relative; z-index: 10050; ">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style=" position: relative;">
-            <div class="container" style="position: relative;  ">
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style="position: fixed; top: 56px; width: 100%; z-index: 999;">
+            <div class="container" style="position: relative; ">
 
 
 
@@ -952,6 +952,24 @@
         }
     }
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navbar = document.getElementById('mainNavbar');
+        let lastScroll = window.scrollY;
+    
+        window.addEventListener('scroll', function () {
+            const currentScroll = window.scrollY;
+    
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                navbar.classList.add('hide'); // Scroll down: hide
+            } else {
+                navbar.classList.remove('hide'); // Scroll up: show
+            }
+    
+            lastScroll = currentScroll;
+        });
+    });
+    </script>
 </body>
 
 </html>

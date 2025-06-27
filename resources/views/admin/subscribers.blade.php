@@ -7,15 +7,19 @@
     <h1>გამომწერები</h1>
 
         
-    @include('admin.email_stats', [
-        'queued' => $queued ?? 0,
-        'failed' => $failed ?? 0,
-        'opened' => $opened ?? 0
-    ])
-<br><br>
+    <div class="row">
+        <!-- Left Column: Email Stats -->
+        <div class="col-md-4 mb-3">
+            @include('admin.email_stats', [
+                'queued' => $queued ?? 0,
+                'failed' => $failed ?? 0,
+                'opened' => $opened ?? 0
+            ])
+        </div>
 
 
-   
+      <!-- Right Column: Form -->
+      <div class="col-md-8 mb-3">
    {{-- Success Message --}}
 @if(session('success'))
 <div class="alert alert-success">
@@ -48,23 +52,21 @@
 <form method="POST" action="{{ route('send.subscriber.email') }}" id="subscriber-form">        @csrf
 
 
-        <div class="mb-3">
-            <label for="custom_subject" class="form-label">სათაური ელფოსტისთვის</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
-                <input type="text" name="custom_subject" id="custom_subject" class="form-control"
-                       placeholder="მაგალითად: ნახე ახალი დამატებული წიგნი">
-            </div>
-        </div>
+    <div class="mb-3">
+    <label for="custom_subject" class="form-label">სათაური ელფოსტისთვის</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
+        <input type="text" name="custom_subject" id="custom_subject"
+            class="form-control"
+            placeholder="მაგალითად: ნახე ახალი დამატებული წიგნი">
+    </div>
+</div>
 
-        <div class="mb-3">
-            <label for="custom_message" class="form-label">შეტყობინება</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-pencil-square"></i></span>
-                <textarea name="custom_message" id="custom_message" class="form-control" rows="3"
-                          placeholder="მაგალითად: ჩვენს ბუკინისტებზე დაემატა საინტერესო მასალა..."></textarea>
-            </div>
-        </div>
+<div class="mb-3">
+    <label for="custom_message" class="form-label">შეტყობინება</label>
+    <textarea name="custom_message" id="custom_message" class="form-control" rows="5"
+        placeholder="მაგალითად: ჩვენს ბუკინისტებზე დაემატა საინტერესო მასალა..."></textarea>
+</div>
         <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 
     <script>
@@ -75,7 +77,7 @@
         
         <div class="mb-3">
             <button type="submit" class="btn btn-success">გამოაგზავნე ელფოსტა მონიშნულებზე</button>
-        </div>
+        </div>  </div>
     </form>
     <table class="table table-hover">
         <thead>

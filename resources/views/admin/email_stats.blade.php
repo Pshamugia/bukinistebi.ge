@@ -1,7 +1,7 @@
  
  
 <div class="container mt-5">
-    <h3> 📊 ელფოსტის სტატისტიკა </h3>
+    <h5> 📊 ელფოსტის სტატისტიკა </h5>
     <ul class="list-group">
         <li class="list-group-item">Queued Emails: {{ $queued }}</li>
         <li class="list-group-item">Failed Emails: {{ $failed }}</li>

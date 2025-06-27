@@ -3,7 +3,7 @@
 @section('title', $booknews->title)  
 
 @section('content')
-<div class="container mt-5" style="position: relative; padding-bottom: 5%">
+<div class="container mt-5" style="position: relative; padding-bottom: 5%; top:54px">
     <div class="row">
         <!-- Book Image -->
         <div class="col-md-5">

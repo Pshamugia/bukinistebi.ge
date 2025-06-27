@@ -15,7 +15,7 @@
     @endphp
 
 
-    <div class="container mt-5">
+    <div class="container mt-5" style="position: relative; top:50px;">
         <h2>{{ $auction->book->title }}</h2>
         @if (session('success'))
             <div class="alert alert-success mt-3">{{ session('success') }}</div>

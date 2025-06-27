@@ -2,8 +2,8 @@
  
 @section('content')
 
-<div class="container mt-5">
-    <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left; justify-content: left;">
+<div class="container mt-5" style="position: relative; top:30px;">
+    <h5 class="section-title" style="position: relative; margin-bottom:15px; padding-bottom:15px; align-items: left; justify-content: left;">
         <strong><i class="bi bi-stack-overflow"></i> {{ __('messages.editProfile')}}</strong>
     </h5>
 

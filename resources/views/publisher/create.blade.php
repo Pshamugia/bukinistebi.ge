@@ -32,7 +32,7 @@
     {{ session('success') }}
 </div>
 @endif
-<div class="container">
+<div class="container" style="position: relative; top:30px;">
     <h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left; justify-content: left;">
         <strong><i class="bi bi-stack-overflow"></i> {{ __('messages.uploadBook') }}</strong>
     </h5>

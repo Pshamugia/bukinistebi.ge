@@ -3,14 +3,14 @@
 @section('content')
 
      
-<h5 class="section-title" style="position: relative; margin-bottom:25px; padding-bottom:25px; align-items: left;
+<h5 class="section-title" style="position: relative; top:44px; margin-bottom:25px; padding-bottom:25px; align-items: left;
     justify-content: left;">     <strong>
         <i class="bi bi-journal-text"></i>
        {{ __('messages.terms')}}
     </strong>
 </h5>
 
-<div class="container mt-5" style="position: relative; top: -44px">
+<div class="container mt-5" style="position: relative;">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="books-tab" data-bs-toggle="tab" data-bs-target="#books" type="button" role="tab" aria-controls="books" aria-selected="true">{{ __('messages.forUsers')}}</button>
