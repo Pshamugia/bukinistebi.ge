@@ -94,6 +94,7 @@ class OrderController extends Controller
                 'quantity' => $cartItem->quantity,
                 'price' => $cartItem->price,
             ]);
+            
         }
 
         // Clear the user's cart after the order is created
@@ -245,7 +246,7 @@ class OrderController extends Controller
 
     public function status($id)
     {
-        $order = Order::where('order_id', $orderId)->firstOrFail();
+        $order = Order::where('order_id', $id)->firstOrFail();
 
         $statusKey = $order->status;
         $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey;

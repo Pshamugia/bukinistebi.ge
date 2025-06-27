@@ -16,6 +16,7 @@ class CartController extends Controller
     public function index()
     {
         $cart = Auth::user()->cart()->with('cartItems.book.author')->first(); // Ensure you're getting a single cart instance
+         
 
         $subtotal = 0;
         $shipping = 5.00; // Example fixed shipping cost

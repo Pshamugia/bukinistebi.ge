@@ -11,7 +11,7 @@
     <p><strong>Status:</strong> {{ $order->status }}</p>
     <p><strong>Name:</strong> {{ $order->name }}</p>
     <p><strong>Phone:</strong> <a href="tel:{{ $order->phone }}">{{ $order->phone }}</a></p>
-    <p><strong>ქალაქი:</strong> {{ session('city', 'No city selected') }}</p> <!-- Display city from session -->
+    <p><strong>ქალაქი:</strong> {{ $order->city ?? "No city provided" }}</p> <!-- Display city from session -->
     <p><strong>Address:</strong> {{ $order->address }}</p>
     <p><strong>Total Amount:</strong> {{ $order->total }} GEL</p>
     

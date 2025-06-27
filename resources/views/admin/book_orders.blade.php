@@ -14,7 +14,7 @@
                     <th>კომენტარი</th>
                     <th>ელ. ფოსტა</th>
                     <th>დამატებულია</th>
-                    <th>სტატუსი</th>
+                    {{-- <th>სტატუსი</th> --}}
                 </tr>
             </thead>
             <tbody>
@@ -26,11 +26,11 @@
                         <td>{{ $order->comment }}</td>
                         <td>{{ $order->email }}</td>
                         <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
-                        @php
+                        {{-- @php
                             $statusMap = array_change_key_case(\App\Models\Order::$statusesMap, CASE_LOWER);
                             $translatedStatus = $statusMap[strtolower($order->status)] ?? $order->status;
                         @endphp
-                        <td>{{ $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey }}</td>
+                        <td>{{ $translatedStatus }}</td> --}}
                     </tr>
                 @endforeach
             </tbody>

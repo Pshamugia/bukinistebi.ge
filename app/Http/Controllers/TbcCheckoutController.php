@@ -19,7 +19,6 @@ class TbcCheckoutController extends Controller
     public function initializePayment(Request $request)
     {
 
-
         // Validate user inputs
         $validatedData = $request->validate([
             'payment_method' => 'required|string',
@@ -64,29 +63,40 @@ class TbcCheckoutController extends Controller
                 'quantity' => $cartItem->quantity,
                 'price' => $cartItem->price,
             ]);
-
-            $book = $cartItem->book;
-            if ($book->quantity >= $cartItem->quantity) {
-                $book->quantity -= $cartItem->quantity;
-                $book->save(); // Save updated quantity
-            } else {
-                return back()->with('error', 'Not enough stock available.');
-            }
         }
+
+        // dd(1);
 
         // Send the email based on the payment method
         if ($validatedData['payment_method'] === 'courier') {
-
-
-            // ✅ Clear cart + forget cookie
-            $cart->cartItems()->delete();
-            $cart->delete();
-            cookie()->queue(cookie()->forget('abandoned_cart'));
-
             // Send Courier Payment Email
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier')); // Send courier email
-            $cart->cartItems()->delete();
-            $cart->delete();
+            
+            if ($cart) {
+                $quantityUpdateErrs = [];
+                foreach ($cart->cartItems as $cartItem) {
+                    $book = $cartItem->book;
+                    if ($book->quantity >= $cartItem->quantity) {
+                        $book->quantity -= $cartItem->quantity;
+                        $book->save(); // Save updated quantity
+                    } else {
+                        $quantityUpdateErrs = $book->id;
+                    }
+                }
+                
+                if (count($quantityUpdateErrs) > 0) {
+                    Log::info("Failed to update book quantity", [
+                        'id' => $paymentId,
+                        'failed_books' => json_encode($quantityUpdateErrs),
+                    ]);
+                }
+                // ✅ Clear cart + forget cookie
+                $cart->cartItems()->delete();
+                $cart->delete();
+                cookie()->queue(cookie()->forget('abandoned_cart'));
+            }
+            
+
             return redirect()->route('order_courier', ['orderId' => $order->id])
                 ->with('success', 'Your order has been received. Pay with the courier.');
         } elseif ($validatedData['payment_method'] === 'bank_transfer') {
@@ -169,14 +179,6 @@ class TbcCheckoutController extends Controller
             'merchantPaymentId' => $orderId,
         ];
 
-
-        // Clear the cart items after payment is successful
-        $cart = Auth::user()->cart;
-        if ($cart) {
-            $cart->cartItems()->delete(); // Remove all items from the cart
-            $cart->delete(); // Remove the cart itself
-        }
-
         // Retrieve the new access token
         $accessToken = $this->getAccessToken(); // Ensure this method retrieves the latest token
 
@@ -190,6 +192,10 @@ class TbcCheckoutController extends Controller
 
         if ($tokenResponse->successful()) {
             $response = $tokenResponse->json();
+
+            $this->updateOrderRecord($orderId, $response["payId"]);
+
+
             return redirect($response['links'][1]['uri']);
         } else {
             Log::error('Payment processing failed', ['response' => $tokenResponse->json()]);
@@ -197,6 +203,18 @@ class TbcCheckoutController extends Controller
         }
     }
 
+    protected function updateOrderRecord($orderID, $gate_order_id): bool {
+        $set = [
+            "gate_id" => $gate_order_id,
+        ];
+
+        try {
+            DB::table("orders")->where("order_id", $orderID)->update($set);
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
 
 
     public function makePaymentRequest($total, $order_id)

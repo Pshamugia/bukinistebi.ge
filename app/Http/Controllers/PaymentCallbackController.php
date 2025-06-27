@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Mail\OrderPurchased;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentCallbackController extends Controller
 {
@@ -135,15 +138,42 @@ class PaymentCallbackController extends Controller
 
         $paymentStatus = $data['status'] ?? '';
 
-        $order = Order::where('order_id', $orderId)->firstOrFail();
+        $order = Order::where('gate_id', $paymentId)->firstOrFail();
+        
+        if (!$order) {
+            Log::info("Can't find order");
+        }
 
         $order->status = $paymentStatus ?? 'Pending';
         $order->save();
 
-        $cart = $order->user->cart;
-        if ($cart) {
-            $cart->cartItems()->delete();
-            $cart->delete();
+
+        if ($paymentStatus == "Succeeded") {
+            $cart = $order->user->cart;
+            if ($cart) {
+                
+                $quantityUpdateErrs = [];
+                foreach ($cart->cartItems as $cartItem) {
+                    $book = $cartItem->book;
+                    if ($book->quantity >= $cartItem->quantity) {
+                        $book->quantity -= $cartItem->quantity;
+                        $book->save(); // Save updated quantity
+                    } else {
+                        $quantityUpdateErrs = $book->id;
+                    }
+                }
+              
+                $cart->cartItems()->delete();
+                $cart->delete();
+    
+                if (count($quantityUpdateErrs) > 0) {
+                    Log::info("Failed to update book quantity", [
+                        'id' => $paymentId,
+                        'failed_books' => json_encode($quantityUpdateErrs),
+                    ]);
+                }
+            }
+
         }
 
         Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));

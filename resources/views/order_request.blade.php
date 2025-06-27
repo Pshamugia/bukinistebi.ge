@@ -21,7 +21,7 @@
      <p><strong> ID:</strong> {{ $order->id }}</p>
     <p><strong>მომხმარებლის სახელი:</strong> {{ $order->name }}</p>
     <p><strong>ტელეფონი:</strong> <a href="tel:{{ $order->phone }}">{{ $order->phone }}</a></p>
-    <p><strong>ქალაქი:</strong> {{ session('city', 'No city selected') }}</p> <!-- Display city from session -->
+    <p><strong>ქალაქი:</strong>{{ $order->city ?? "No city provided" }}</p> <!-- Display city from session -->
 
     <p><strong>მისამართი:</strong> {{ $order->address }}</p>
     <p><strong>სრული გადასახდელი თანხა:</strong> {{ number_format($order->total, 2) }} ლარი</p>
