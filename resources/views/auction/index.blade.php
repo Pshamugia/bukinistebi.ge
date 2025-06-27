@@ -14,7 +14,7 @@
 
 
     <!-- Featured Books -->
-    <div class="container mt-5" style="position:relative; margin-top: -15px !important">
+    <nav class="container mt-5" style="position:relative; min-height: 400px;">
    
 
     <div class="row" >
