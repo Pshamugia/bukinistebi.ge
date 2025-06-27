@@ -44,8 +44,8 @@ class OrderController extends Controller
             return $item->price * $item->quantity;
         });
 
-       // Set shipping cost based on the city
-    
+        // Set shipping cost based on the city
+
 
         $city = session('city', 'No city selected');  // Default to 'No city selected' if not found in session
 
@@ -53,7 +53,7 @@ class OrderController extends Controller
 
         $total = $subtotal + $shipping;
 
-        
+
         return view('orders.create', compact('cart', 'subtotal', 'shipping', 'total', 'city'));
     }
 
@@ -136,112 +136,127 @@ class OrderController extends Controller
 
     // OrderController.php
     public function checkout(Request $request)
-{
-    // Validate user inputs
-    $validatedData = $request->validate([
-        'payment_method' => 'required|string',
-        'name' => 'required|string|max:255',
-        'phone' => ['required', 'digits:9'],
-        'address' => 'required|string|max:255',
-        'city' => 'required|string', // Validate the city field
+    {
+        // Validate user inputs
+        $validatedData = $request->validate([
+            'payment_method' => 'required|string',
+            'name' => 'required|string|max:255',
+            'phone' => ['required', 'digits:9'],
+            'address' => 'required|string|max:255',
+            'city' => 'required|string', // Validate the city field
 
-    ]);
+        ]);
 
-    session(['city' => $validatedData['city']]);
+        session(['city' => $validatedData['city']]);
 
-    // Ensure the user has a cart
-    $cart = Auth::user()->cart;
+        // Ensure the user has a cart
+        $cart = Auth::user()->cart;
 
-    if (!$cart || $cart->cartItems->isEmpty()) {
-        return redirect()->route('cart.show')->with('error', 'Your cart is empty.');
-    }
-
-    // Calculate totals
-    $subtotal = $cart->cartItems->sum(function ($item) {
-        return $item->price * $item->quantity;
-    });
-      // Dynamically set the shipping cost based on the selected city
-      $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00; // Tbilisi gets 5 Lari, others get 7 Lari
-      $total = $subtotal + $shipping; // Total = subtotal + shipping
-
- 
-     // Check if there’s enough stock for each item in the cart
-    foreach ($cart->cartItems as $cartItem) {
-        $book = $cartItem->book;
-        if ($book->quantity < $cartItem->quantity) {
-            return back()->with('error', 'Not enough stock available for ' . $book->title);
+        if (!$cart || $cart->cartItems->isEmpty()) {
+            return redirect()->route('cart.show')->with('error', 'Your cart is empty.');
         }
+
+        // Calculate totals
+        $subtotal = $cart->cartItems->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+        // Dynamically set the shipping cost based on the selected city
+        $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00; // Tbilisi gets 5 Lari, others get 7 Lari
+        $total = $subtotal + $shipping; // Total = subtotal + shipping
+
+
+        // Check if there’s enough stock for each item in the cart
+        foreach ($cart->cartItems as $cartItem) {
+            $book = $cartItem->book;
+            if ($book->quantity < $cartItem->quantity) {
+                return back()->with('error', 'Not enough stock available for ' . $book->title);
+            }
+        }
+
+        // Create the order
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'total' => $total,
+            'status' => 'pending',
+            'name' => $validatedData['name'],
+            'phone' => $validatedData['phone'],
+            'address' => $validatedData['address'],
+            'city' => $validatedData['city'], // ✅ Save city to database
+            'payment_method' => $validatedData['payment_method'],
+        ]);
+
+
+        // Create order items
+        foreach ($cart->cartItems as $cartItem) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'book_id' => $cartItem->book_id,
+                'quantity' => $cartItem->quantity,
+                'price' => $cartItem->price,
+            ]);
+        }
+
+        // Clear the user's cart
+        $cart->cartItems()->delete();
+        $cart->delete();
+
+        // Redirect based on payment method
+        if ($validatedData['payment_method'] === 'courier') {
+            cookie()->queue(cookie()->forget('abandoned_cart'));
+
+            return redirect()->route('order_courier', ['order' => $order->id])->with('success', 'Your order has been received. Pay with the courier.');
+        }
+
+        return redirect()->back()->with('success', 'Proceed with bank transfer.');
     }
 
-    // Create the order
-$order = Order::create([
-    'user_id' => Auth::id(),
-    'subtotal' => $subtotal,
-    'shipping' => $shipping,
-    'total' => $total,
-    'status' => 'pending',
-    'name' => $validatedData['name'],
-    'phone' => $validatedData['phone'],
-    'address' => $validatedData['address'],
-    'city' => $validatedData['city'], // ✅ Save city to database
-    'payment_method' => $validatedData['payment_method'],
-]);
+    public function orderCourier($orderId, Request $request)
+    {
+        $order = Order::with('orderItems.book') // Load order items and their related books
+            ->where('id', $orderId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Pass the order data to the view
+        $data = [
+            'order' => $order,
+        ];
 
 
-    // Create order items
-    foreach ($cart->cartItems as $cartItem) {
-        OrderItem::create([
-            'order_id' => $order->id,
-            'book_id' => $cartItem->book_id,
-            'quantity' => $cartItem->quantity,
-            'price' => $cartItem->price,
+
+        return view('order_courier', compact('order'));
+    }
+
+
+    public function purchaseHistory()
+    {
+        $userId = auth()->id(); // Get the authenticated user ID
+
+        // Fetch orders for the authenticated user, ordered by latest first
+        $orders = Order::with('orderItems') // Assuming you have a relationship defined
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc') // Order by creation date, latest first
+            ->paginate(10); // Retrieve 10 orders per page 
+
+        return view('purchase-history', compact('orders'));
+    }
+
+    public function status($id)
+    {
+        $order = Order::where('order_id', $orderId)->firstOrFail();
+
+        $statusKey = $order->status;
+        $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey;
+
+
+        $status = new \stdClass();
+        $status->key = $statusKey;
+        $status->label = $translatedStatus;
+
+        return view('order.status', [
+            'status' => $status,
         ]);
     }
-
-    // Clear the user's cart
-    $cart->cartItems()->delete();
-    $cart->delete();
-
-    // Redirect based on payment method
-    if ($validatedData['payment_method'] === 'courier') {
-        cookie()->queue(cookie()->forget('abandoned_cart'));
-        
-        return redirect()->route('order_courier', ['order' => $order->id])->with('success', 'Your order has been received. Pay with the courier.');
-    }
-
-    return redirect()->back()->with('success', 'Proceed with bank transfer.');
-}
-
-public function orderCourier($orderId, Request $request)
-{
-    $order = Order::with('orderItems.book') // Load order items and their related books
-                  ->where('id', $orderId)
-                  ->where('user_id', Auth::id())
-                  ->firstOrFail();
-
-           // Pass the order data to the view
-    $data = [
-        'order' => $order,
-    ];
-
-    
- 
-    return view('order_courier', compact('order')); 
-}
-
-
-public function purchaseHistory()
-{
-    $userId = auth()->id(); // Get the authenticated user ID
-
-    // Fetch orders for the authenticated user, ordered by latest first
-    $orders = Order::with('orderItems') // Assuming you have a relationship defined
-                   ->where('user_id', $userId)
-                   ->orderBy('created_at', 'desc') // Order by creation date, latest first
-                   ->paginate(10); // Retrieve 10 orders per page 
-
-    return view('purchase-history', compact('orders'));
-}
-
-
 }

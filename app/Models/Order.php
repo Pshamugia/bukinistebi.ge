@@ -9,6 +9,15 @@ class Order extends Model
 {
     use HasFactory;
 
+    public static $statusesMap = [
+        'Created' => "შექმნილი",
+        'Pending' => "მუშავდება",
+        'Processing' => "მუშავდება",
+        'Succeeded' => "წარმატებული",
+        'Returned' => "თანხა დაბრუნებულია",
+        'Delivered' => "მიწოდებულია",
+    ];
+
     // Define the fillable properties
     protected $fillable = ['user_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'address', 'name', 'phone', 'payment_method', 'city',];
 
@@ -25,10 +34,10 @@ class Order extends Model
     }
 
     protected static function boot()
-{
-    parent::boot();
-    static::creating(function ($order) {
-        $order->order_id = 'ORD-' . uniqid();
-    });
-}
+    {
+        parent::boot();
+        static::creating(function ($order) {
+            $order->order_id = 'ORD-' . uniqid();
+        });
+    }
 }

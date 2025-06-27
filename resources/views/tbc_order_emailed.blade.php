@@ -8,6 +8,7 @@
 <body>
     <h1>TBC შეკვეთა - BUKINISTEBI.GE</h1>
     <p><strong>Order ID:</strong> {{ $order->order_id }}</p>
+    <p><strong>Status:</strong> {{ $order->status }}</p>
     <p><strong>Name:</strong> {{ $order->name }}</p>
     <p><strong>Phone:</strong> <a href="tel:{{ $order->phone }}">{{ $order->phone }}</a></p>
     <p><strong>ქალაქი:</strong> {{ session('city', 'No city selected') }}</p> <!-- Display city from session -->
