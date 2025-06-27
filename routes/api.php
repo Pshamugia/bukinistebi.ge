@@ -11,3 +11,4 @@ Route::get('/api/admin-status', function () {
 
 
 Route::post("/payments/callback", [PaymentCallbackController::class, "handle"])->name('payment.callback');
+Route::post("/payments/callback/bookpay", [PaymentCallbackController::class, "handleBookBought"])->name('payment.callback.book');

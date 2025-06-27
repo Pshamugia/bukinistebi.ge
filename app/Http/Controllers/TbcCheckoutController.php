@@ -163,7 +163,8 @@ class TbcCheckoutController extends Controller
                 'currency' => 'GEL',
                 'total' => $amountInCents,
             ],
-            'returnurl' => 'https://bukinistebi.ge/tbc-callback',
+            'returnurl' => str_replace('http://', 'https://', route('order.status', ['id' => $orderId])),
+            'callbackUrl' => str_replace('http://', 'https://', route('payment.callback.book')),
             'description' => 'Order from Bukinistebi',
             'merchantPaymentId' => $orderId,
         ];
@@ -195,16 +196,6 @@ class TbcCheckoutController extends Controller
             return back()->with('error', 'Payment processing failed. Please try again.');
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 
 
