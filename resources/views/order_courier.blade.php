@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container" style="position: relative; min-height: 400px">
+<div class="container" style="position: relative; min-height: 400px; top:30px;">
     <h1>შეკვეთა მიღებულია</h1>
     <p>შენი შეკვეთა მიღებულია და მიიღებ მაქსიმუმ 2 სამუშაო დღეში. <br>
         ჩვენი კურიერი დაგიკავშირდება მითითებულ ტელეფონის ნომერზე: {{ $order->phone ?? 'Phone number not provided' }} 

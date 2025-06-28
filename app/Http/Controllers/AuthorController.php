@@ -81,15 +81,20 @@ class AuthorController extends Controller
 
     public function full_author($name, $id)
     {
-        $author = Author::with('books')->findOrFail($id);
-        $books = Book::all();
-
+        $author = Author::with(['books' => function ($query) {
+            if (request('exclude_sold')) {
+                $query->where('quantity', '>', 0);
+            }
+        }])->findOrFail($id);
+    
         $cartItemIds = [];
-    if (Auth::check() && Auth::user()->cart) {
-        $cartItemIds = Auth::user()->cart->cartItems->pluck('book_id')->toArray();
+        if (Auth::check() && Auth::user()->cart) {
+            $cartItemIds = Auth::user()->cart->cartItems->pluck('book_id')->toArray();
+        }
+    
+        $isHomePage = false;
+    
+        return view('full_author', compact('author', 'cartItemIds', 'isHomePage'));
     }
-    $isHomePage = false;
-        return view('full_author', compact('author', 'books', 'cartItemIds', 'isHomePage'));
-
-    }
+    
 }

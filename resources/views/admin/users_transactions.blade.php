@@ -25,6 +25,15 @@
             </div>
         </form>
 
+        <form method="GET" action="{{ route('admin.users_transactions') }}" class="mb-3">
+            @if(request('delivery_filter') === 'not_delivered')
+            <button type="submit" class="btn btn-secondary" name="delivery_filter" value="">ყველა</button>
+        @else
+            <button type="submit" class="btn btn-primary" name="delivery_filter" value="not_delivered">მხოლოდ დაუსრულებელი</button>
+            @endif
+        </form>
+        
+
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>

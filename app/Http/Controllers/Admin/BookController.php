@@ -350,34 +350,39 @@ public function create(Request $request)
         return view('admin.users_list', compact('users'));
     }
 
-    public function usersTransactions()
-{
-    $users = User::whereHas('orders') // ✅ Only include users who have at least one order
-        ->withCount(['orders as total_items' => function ($query) {
-            $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
-                ->selectRaw('sum(order_items.quantity)');
-        }])
-        ->select('users.*')
-        ->addSelect([
-            'last_order_total' => \App\Models\Order::select('total')
-                ->whereColumn('orders.user_id', 'users.id')
-                ->orderBy('created_at', 'desc')
-                ->limit(1),
-            'last_order_date' => \App\Models\Order::select('created_at')
-                ->whereColumn('orders.user_id', 'users.id')
-                ->orderBy('created_at', 'desc')
-                ->limit(1),
-        ])
-        ->orderByDesc('last_order_date')
-        ->paginate(10);
-
-    $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
-
-    return view('admin.users_transactions', compact('users', 'publishers'));
-}
-
-
-
+    public function usersTransactions(Request $request)
+    {
+        $users = User::whereHas('orders', function ($query) use ($request) {
+                if ($request->delivery_filter === 'not_delivered') {
+                    $query->where('status', '!=', 'delivered');
+                }
+            })
+            ->withCount(['orders as total_items' => function ($query) {
+                $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
+                    ->selectRaw('sum(order_items.quantity)');
+            }])
+            ->select('users.*')
+            ->addSelect([
+                'last_order_total' => \App\Models\Order::select('total')
+                    ->whereColumn('orders.user_id', 'users.id')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1),
+                'last_order_date' => \App\Models\Order::select('created_at')
+                    ->whereColumn('orders.user_id', 'users.id')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1),
+            ])
+            ->orderByDesc('last_order_date')
+            ->paginate(10);
+    
+        $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
+    
+        return view('admin.users_transactions', compact('users', 'publishers'));
+    }
+    
+    
+    
+    
 
     public function markAsDelivered($orderId)
     {

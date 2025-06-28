@@ -13,7 +13,15 @@
         </strong>
     </h5>
 
-
+<!-- Exclude sold-out checkbox -->
+<div class="mb-4">
+    <label>
+        <h6>
+            <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
+            {{ __('messages.instock') }}
+        </h6>
+    </label>
+</div>
 
     <!-- Featured Books -->
     <div class="container mt-5" style="position:relative; margin-top: -15px !important">

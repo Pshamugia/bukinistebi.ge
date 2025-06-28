@@ -15,6 +15,17 @@
         {{ $author->name }}
     </h5>
 
+
+<!-- Exclude sold-out checkbox -->
+    <div class="mb-4">
+        <label>
+            <h6>
+                <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
+                {{ __('messages.instock') }}
+            </h6>
+        </label>
+    </div>
+
     <div class="row">
         @foreach($author->books as $book)
         <div class="col-md-4" style="position: relative; padding-bottom: 25px;">
@@ -27,7 +38,17 @@
                 </a>
             <div class="card-body">
                 <h5 class="card-title">{{ app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title }}</h5>
-                <p class="card-text">{{ number_format($book->price) }} {{ __('messages.lari')}}</p>
+                <p class="card-text">{{ number_format($book->price) }} {{ __('messages.lari')}}
+                
+                    <span style="position: relative; top:5px">
+                        @if($book->quantity == 0)
+                        <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
+ @elseif($book->quantity >= 1)
+ <span style="font-size: 13px; float: right;">{{ __('messages.available')}}</span>
+ 
+ @endif
+                        </span>
+                </p>
 
                 @if (in_array($book->id, $cartItemIds))
     <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="true">
@@ -59,10 +80,19 @@
 </script>
 
  
+<script>
+    $('#excludeSoldOut').change(function() {
+        const url = new URL(window.location.href);
+        if ($(this).is(':checked')) {
+            url.searchParams.set('exclude_sold', 1);
+        } else {
+            url.searchParams.delete('exclude_sold');
+        }
+        window.location.href = url.toString();
+    });
+</script>
 
 
-
-@endsection
 
 <script>
     $(document).ready(function() {
@@ -105,3 +135,5 @@
   
   
   </script>
+ 
+@endsection
