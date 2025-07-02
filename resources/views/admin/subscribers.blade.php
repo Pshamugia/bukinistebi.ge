@@ -3,13 +3,19 @@
 @section('title', 'გამომწერები')
 
 @section('content')
-<div class="container" style="position: relative; margin-top:55px;">
-    <h1>გამომწერები</h1>
+<h5> <i class="bi bi-envelope-fill"></i> გამომწერები</h5>
+<div class="container" style="position: relative; margin-top:25px;">
+ 
 
         
     <div class="row">
+
+      
+
+        
         <!-- Left Column: Email Stats -->
-        <div class="col-md-4 mb-3">
+        <div class="col-md-4 mb-3" style="background-color: #f8f9fa; border-radius: 8px; border:1px solid rgb(202, 200, 200); padding:10px;">
+            
             @include('admin.email_stats', [
                 'queued' => $queued ?? 0,
                 'failed' => $failed ?? 0,
@@ -19,7 +25,7 @@
 
 
       <!-- Right Column: Form -->
-      <div class="col-md-8 mb-3">
+      <div class="col-md-7 mb-3" style="position: relative; margin-left: 35px; background-color: #f8f9fa; border-radius: 8px; border:1px solid rgb(202, 200, 200); padding:25px;">
    {{-- Success Message --}}
 @if(session('success'))
 <div class="alert alert-success">
@@ -45,14 +51,15 @@
 </div>
 @endif
 
-<a href="{{ route('admin.subscribeAllUsers') }}" class="btn btn-primary">
-    ყველა მომხმარებლის გადმოყვანა გამომწერებად
+<a href="{{ route('admin.subscribeAllUsers') }}" class="btn btn-primary w-100">
+    <i class="bi bi-people-fill"></i> ყველა მომხმარებლის გადმოყვანა გამომწერებად
 </a>
 
 <form method="POST" action="{{ route('send.subscriber.email') }}" id="subscriber-form">        @csrf
 
 
     <div class="mb-3">
+        <br>
     <label for="custom_subject" class="form-label">სათაური ელფოსტისთვის</label>
     <div class="input-group">
         <span class="input-group-text"><i class="bi bi-chat-left-text"></i></span>
@@ -64,7 +71,7 @@
 
 <div class="mb-3">
     <label for="custom_message" class="form-label">შეტყობინება</label>
-    <textarea name="custom_message" id="custom_message" class="form-control" rows="5"
+    <textarea name="custom_message" id="custom_message" class="form-control" rows="3"
         placeholder="მაგალითად: ჩვენს ბუკინისტებზე დაემატა საინტერესო მასალა..."></textarea>
 </div>
         <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
@@ -76,7 +83,7 @@
         
         
         <div class="mb-3">
-            <button type="submit" class="btn btn-success">გამოაგზავნე ელფოსტა მონიშნულებზე</button>
+            <button type="submit" class="btn btn-success"> <i class="bi bi-send-fill"></i> გამოაგზავნე ელფოსტა მონიშნულებზე</button>
         </div>  </div>
     </form>
     <table class="table table-hover">

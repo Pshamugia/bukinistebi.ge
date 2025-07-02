@@ -5,7 +5,7 @@
 <div class="container" style="position: relative;top:50px; ">
     
     
-    <div style="background-color: #b1a9f7;  padding:20px 20px 1px 20px; margin-bottom: 26px;">
+    <div style="background-color: #f8f9fa; border-radius: 8px; border:1px solid rgb(202, 200, 200);  padding:20px 20px 1px 20px; margin-bottom: 26px;">
     <h4> {{ __('messages.filtersearch')}} </h4>
     
     <!-- Filter Form -->

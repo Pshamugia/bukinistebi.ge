@@ -50,20 +50,30 @@ class DashboardController extends Controller
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 })
-                ->where('orders.status', 'pending')
+                ->where('orders.status', 'delivered')
                 ->sum(DB::raw('order_items.price * order_items.quantity * 0.3'));
         });
     
         // Cache the average profit per unit
+
+
         $averageProfitPerUnit = Cache::remember('average_profit_per_unit', 60, function () use ($startDate, $endDate) {
-            return DB::table('order_items')
+            $query = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->where('orders.status', 'delivered') // ✅ Change this!
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
-                })
-                ->where('orders.status', 'pending')
-                ->avg(DB::raw('order_items.price * 0.3'));
+                });
+        
+            $totalProfit = $query->sum(DB::raw('order_items.price * order_items.quantity * 0.3'));
+            $totalQuantity = $query->sum('order_items.quantity');
+        
+            return $totalQuantity > 0 ? $totalProfit / $totalQuantity : 0;
         });
+        
+        
+        
+        
     
         // Cache the page views
         $pageViews = Cache::remember('page_views', 60, function () use ($startDate, $endDate) {
@@ -83,7 +93,7 @@ class DashboardController extends Controller
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
                 ->join('books', 'order_items.book_id', '=', 'books.id')
                 ->select('books.title', 'order_items.quantity', 'order_items.price', 'orders.created_at')
-                ->where('orders.status', 'pending')
+                ->where('orders.status', 'delivered')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 })
@@ -94,7 +104,7 @@ class DashboardController extends Controller
         $totalPurchasedPrice = Cache::remember('total_purchased_price', 60, function () use ($startDate, $endDate) {
             return DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->where('orders.status', 'pending')
+                ->where('orders.status', 'delivered')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 })

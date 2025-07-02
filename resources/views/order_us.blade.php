@@ -49,7 +49,7 @@
 
     <!-- Book Author -->
     <div class="form-group mb-3">
-        <label for="author">{{ __('bookAuthor')}}</label>
+        <label for="author">{{ __('messages.bookAuthor')}}</label>
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text">

@@ -57,11 +57,38 @@ class SubscriptionController extends Controller
 
 
 
-public function subscribers()
+public function subscribers(Request $request)
 {
-    $subscribers = Subscriber::all();
-    return view('admin.subscribers', compact('subscribers'));
+    $subscribers = \App\Models\Subscriber::all();
+
+    $range = $request->query('range', 'all');
+
+    $dateFilter = null;
+    if ($range === '24h') {
+        $dateFilter = now()->subDay();
+    } elseif ($range === '7d') {
+        $dateFilter = now()->subDays(7);
+    } elseif ($range === '30d') {
+        $dateFilter = now()->subDays(30);
+    }
+
+    $queuedQuery = DB::table('jobs');
+    $failedQuery = DB::table('failed_jobs');
+    $openedQuery = DB::table('email_logs')->whereNotNull('opened_at');
+
+    if ($dateFilter) {
+        $queuedQuery->where('created_at', '>=', $dateFilter);
+        $failedQuery->where('failed_at', '>=', $dateFilter); // Check if your failed_jobs table has 'failed_at' column!
+        $openedQuery->where('opened_at', '>=', $dateFilter);
+    }
+
+    $queued = $queuedQuery->count();
+    $failed = $failedQuery->count();
+    $opened = $openedQuery->count();
+
+    return view('admin.subscribers', compact('subscribers', 'queued', 'failed', 'opened', 'range'));
 }
+
 
  
 public function sendEmailToSubscribers(Request $request)

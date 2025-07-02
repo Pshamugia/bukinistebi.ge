@@ -10,7 +10,13 @@
         @foreach ($auctions as $auction)
             <div class="card mb-4">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <strong>{{ $auction->book->title }}</strong>
+                    <strong>
+                        @if ($auction->book)
+                            {{ $auction->book->title }}
+                        @else
+                            ❌ Book not found
+                        @endif
+                    </strong>
                     <span>დასრულების დრო: {{ $auction->end_time->format('Y-m-d H:i') }}</span>
                 </div>
 

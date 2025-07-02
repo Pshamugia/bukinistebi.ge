@@ -25,13 +25,7 @@
 
     <!-- Featured Books -->
     <div class="container mt-5" style="position:relative; margin-top: -15px !important">
-        <div class="mb-4">
-            <label>
-                <h6 btn btn-primary toggle-cart-btn w-100> <input type="checkbox" id="excludeSoldOut"
-                        {{ request('exclude_sold') ? 'checked' : '' }}>
-                    {{ __('messages.instock') }}</h6>
-            </label>
-        </div>
+        
         <div class="row">
             @foreach ($books as $book)
                 <div class="col-md-3" style="position: relative; padding-bottom: 25px;">

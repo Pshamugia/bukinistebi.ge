@@ -491,8 +491,13 @@
                     <h5>{{ __('messages.newsletter') }}</h5>
                     <form id="subscriptionForm" method="POST" action="{{ route('subscribe') }}">
                         @csrf
+                        
                         <input type="email" name="email" class="form-control mb-2"
                             placeholder="{{ __('messages.entermail') }}" required>
+                            @if ($errors->any() && count($errors->all()) > 0)
+    <input type="hidden" id="subscriptionErrorFlag" value="true">
+    <input type="hidden" id="subscriptionErrorMessages" value="{{ implode('|', $errors->all()) }}">
+@endif
                         <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe') }}</button>
                     </form>
 
@@ -517,7 +522,7 @@
                 </div>
 
                 <!-- Success Modal -->
-                <div class="modal fade" id="subscriptionSuccessModal" tabindex="-1" role="dialog"
+                <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionSuccessModal" tabindex="-1" role="dialog"
                     aria-labelledby="subscriptionSuccessModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -527,9 +532,11 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" style="color: black">
-                                მადლობა გამოწერისთვის!
+                            <div class="modal-body" style="color: black; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                <span>მადლობა გამოწერისთვის!</span>
                             </div>
+                            
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
                                     data-bs-dismiss="modal">Close</button>
@@ -540,7 +547,7 @@
 
 
                 <!-- Error Modal -->
-                <div class="modal fade" id="subscriptionErrorModalPageSpecific" tabindex="-1" role="dialog"
+                <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionErrorModalPageSpecific" tabindex="-1" role="dialog"
                     aria-labelledby="subscriptionErrorModalLabelPageSpecific" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -551,7 +558,7 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body" style="color: black">
-                                <ul id="subscriptionErrorListPageSpecific"></ul>
+                                <ul id="subscriptionErrorListPageSpecific" style="list-style: none; padding-top:10px;"></ul>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
@@ -669,10 +676,10 @@
                 const errorList = document.getElementById('subscriptionErrorListPageSpecific');
                 errorList.innerHTML = ''; // Clear previous errors if any
                 errorMessages.forEach(message => {
-                    const li = document.createElement('li');
-                    li.textContent = message;
-                    errorList.appendChild(li);
-                });
+    const li = document.createElement('li');
+    li.innerHTML = `<i class="bi bi-exclamation-circle-fill text-danger"></i> ${message}`;
+    errorList.appendChild(li);
+});
 
                 subscriptionErrorModal.show();
             }
