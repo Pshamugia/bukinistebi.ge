@@ -150,57 +150,72 @@
                         <span> {{ $authorName }} </span>
                     </a>
                 </p>
-                @if ($book->quantity > 0)
-                    <p><strong>
-                            <h4><span style="font-size: 20px" id="price">{{ number_format($book->price) }} </span>
-                                <span> {{ __('messages.lari') }}
-                            </h4> </span>
-                        </strong> </p>
-                @else
-                    <div class="alert alert-warning mt-3"> <i class="bi bi-x-circle text-danger"></i> 
-                        {{ __('messages.useOrder')}} <a style="text-decoration: none"
-                            href="{{ route('order_us') }}"> {{ __('messages.theOrder')}} </a> {{ __('messages.feature')}}</div>
-                @endif
-                <!-- Quantity Selector -->
-                <div class="mb-3">
-                    <div class="mb-3">
-                        <div class="input-group" style="width: 200px; height: 37px;">
-                            <button class="btn btn-outline-secondary decrease-quantity btn-sm" type="button">-</button>
-                            <input type="text" class="form-control form-control-sm text-center quantity-input"
-                            id="quantity-{{ $book->id }}" value="{{ $book->quantity > 0 ? 1 : 0 }}" readonly>
-                     
-                            <button class="btn btn-outline-secondary increase-quantity btn-sm" type="button">+</button>
+                <div class="row align-items-start">
+                    <!-- Left side -->
+                    <div class="col-md-6">
+                        @if ($book->quantity > 0)
+                            <p>  <span id="price" style="font-size: 20px;">{{ number_format($book->price) }} </span> <span> {{ __('messages.lari')}}</span> </p>
+                        @else
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-x-circle text-danger"></i> 
+                                {{ __('messages.useOrder')}} <a style="text-decoration: none" href="{{ route('order_us') }}"> {{ __('messages.theOrder')}} </a> {{ __('messages.feature')}}
+                            </div>
+                        @endif
+                
+                        <!-- Quantity Selector -->
+                        <div class="mb-3">
+                            <div class="input-group" style="width: 200px;">
+                                <button class="btn btn-outline-secondary decrease-quantity btn-sm" type="button">-</button>
+                                <input type="text" class="form-control form-control-sm text-center quantity-input"
+                                    id="quantity-{{ $book->id }}" value="{{ $book->quantity > 0 ? 1 : 0 }}" readonly>
+                                <button class="btn btn-outline-secondary increase-quantity btn-sm" type="button">+</button>
+                            </div>
+                            <input type="hidden" id="max-quantity" value="{{ $book->quantity }}">
+                            <div id="quantity-warning" class="text-danger mt-2" style="display: none; opacity: 0; transition: opacity 0.5s;">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span id="warning-text"></span>
+                            </div>
                         </div>
-                        <input type="hidden" id="max-quantity" value="{{ $book->quantity }}">
-                        <!-- Hidden input for max quantity -->
-
-
-                    </div>
-                    <input type="hidden" id="max-quantity" value="{{ $book->quantity }}">
-                    <!-- Hidden input for max quantity -->
-
-                </div>
-
-                <!-- Add to Cart Button -->
-                <!-- Add to Cart Button -->
-                @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                    @if (in_array($book->id, $cartItemIds))
-                        <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
-                            data-in-cart="true" style="width: 200px; font-size: 15px">
-                            <i class="bi bi-check-circle"></i> <span
-                                class="cart-btn-text">{{ __('messages.added') }}</span>
-                        </button>
-                    @else
-                        <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
-                            data-in-cart="false" style="width: 200px; font-size: 14px">
-                            <i class="bi bi-cart-plus"></i> <span
-                                class="cart-btn-text">{{ __('messages.addtocart') }}</span>
-                        </button>
+                
+                        <!-- Add to Cart Button -->
+                        @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                        @if (in_array($book->id, $cartItemIds))
+                            <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
+                                data-in-cart="true" style="width: 200px; font-size: 15px">
+                                <i class="bi bi-check-circle"></i> <span
+                                    class="cart-btn-text">{{ __('messages.added') }}</span>
+                            </button>
+                        @else
+                            <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
+                                data-in-cart="false" style="width: 200px; font-size: 14px">
+                                <i class="bi bi-cart-plus"></i> <span
+                                    class="cart-btn-text">{{ __('messages.addtocart') }}</span>
+                            </button>
+                        @endif
                     @endif
-                @endif
+                    </div>
+                
+                    <!-- Right side: Delivery info -->
+                    <div class="col-md-6 deliveryFull">
+                        <div class="border rounded p-3 mt-3 mt-md-0" style=" box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+                          <span>  <p>🚚 <strong>მიწოდება</strong></p>
+                            <p>თბილისი: 5 ლარი / 2 სამუშაო დღე</p>
+                            <p>რეგიონი: 7 ლარი / 4 სამუშაო დღე</p> </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quantity Selector -->
+                 
+                
+             
+
+           
+              
+ 
 
                 <!-- Book Description -->
-                <div class="mt-4">
+                <div class="mt-4" style="position: relative; top:-20px">
                     <h4 style="position: relative; top: 8px"><i class="bi bi-file-text"></i>
                         {{ __('messages.description') }}</h4>
                     <p style="border:1px solid rgb(202, 200, 200); padding: 20px; margin-top:20px; border-radius: 3px">
@@ -303,9 +318,9 @@
                                         </a>
                                     </p>
                                     <p style="font-size: 18px; color: #333;">
-                                        <img src="{{ asset('images/GEL.png') }}" width="23px"> <span
+                                        <em style="position: relative; font-style: normal; font-size: 20px; top:3px;"> &#8382; </em> <span
                                             class="text-dark fw-semibold" style="position: relative; top:3px;">
-                                            {{ number_format($related->price) }}
+                                          {{ number_format($related->price) }}
                                         </span>
                                         <span style="position: relative; top:5px; ">
                                             @if ($related->quantity == 0)
@@ -477,42 +492,74 @@
         <!-- Quantity Function Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const maxQuantity = {{ $book->quantity }}; // Maximum quantity from the database
-                const pricePerUnit = {{ $book->price }}; // The price per unit from the database
-
+                const maxQuantity = {{ $book->quantity }}; // Max from DB
+                const pricePerUnit = {{ $book->price }}; // Price per unit
+            
                 const quantityInput = document.querySelector('.quantity-input');
                 const priceElement = document.getElementById('price');
                 const decreaseButton = document.querySelector('.decrease-quantity');
                 const increaseButton = document.querySelector('.increase-quantity');
-
+                const warningDiv = document.getElementById('quantity-warning');
+                const warningText = document.getElementById('warning-text');
+            
                 function updatePrice() {
                     const quantity = parseInt(quantityInput.value);
                     const totalPrice = pricePerUnit * quantity;
                     priceElement.textContent = totalPrice.toFixed();
                 }
-
+            
+                function showWarning(text) {
+                    warningText.textContent = text;
+                    warningDiv.style.display = 'block';
+                    setTimeout(() => {
+                        warningDiv.style.opacity = 1;
+                    }, 10); // Short delay to trigger CSS transition
+                }
+            
+                function hideWarning() {
+                    warningDiv.style.opacity = 0;
+                    setTimeout(() => {
+                        warningDiv.style.display = 'none';
+                    }, 500); // Match transition duration
+                }
+            
                 increaseButton.addEventListener('click', function() {
                     let currentQuantity = parseInt(quantityInput.value);
                     if (currentQuantity < maxQuantity) {
                         currentQuantity += 1;
                         quantityInput.value = currentQuantity;
                         updatePrice();
+            
+                        if (currentQuantity === maxQuantity) {
+                            showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
+                        } else {
+                            hideWarning();
+                        }
+                    } else {
+                        showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
                     }
                 });
-
+            
                 decreaseButton.addEventListener('click', function() {
                     let currentQuantity = parseInt(quantityInput.value);
                     if (currentQuantity > 1) {
                         currentQuantity -= 1;
                         quantityInput.value = currentQuantity;
                         updatePrice();
+            
+                        if (currentQuantity < maxQuantity) {
+                            hideWarning();
+                        }
                     }
                 });
-
-                // Initial price calculation (if the quantity is set initially)
+            
+                // Initial price update
                 updatePrice();
             });
-        </script>
+            </script>
+            
+            
+            
 
         <!-- jQuery and CSRF Setup Script -->
         <script>

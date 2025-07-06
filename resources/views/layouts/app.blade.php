@@ -170,57 +170,58 @@
 
             <!-- Right Side: Cart, Login, Language -->
             <ul class="navbar-nav flex-row align-items-center gap-0 flex-wrap ms-auto">
- 
-            <!-- Cart -->
-            @if (!auth()->check() || auth()->user()->role !== 'publisher')
-            <li class="nav-item kalata">
-                @php
-                    $cartCount = 0;
-                    if (Auth::check() && Auth::user()->cart) {
-                        $cartCount = Auth::user()->cart->cartItems->count();
-                    }
-                @endphp
-                <!-- Cart Link in the Navbar -->
-                <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
-                    <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
-                
-                    <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
-                        {{ __('messages.cart') }}
-                    </span>
-                
-                    <div id="cart-bubble" class="custom-bubble"
-                        style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
-                        <span id="cart-count">{{ $cartCount }}</span>
-                    </div>
-                </a>
-                
+
+
+                <!-- Cart -->
+                @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                    <li class="nav-item kalata">
+                        @php
+                            $cartCount = 0;
+                            if (Auth::check() && Auth::user()->cart) {
+                                $cartCount = Auth::user()->cart->cartItems->count();
+                            }
+                        @endphp
+                        <!-- Cart Link in the Navbar -->
+                        <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
+                            <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
+
+                            <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
+                                {{ __('messages.cart') }}
+                            </span>
+
+                            <div id="cart-bubble" class="custom-bubble"
+                                style="display: {{ $cartCount > 0 ? 'inline-block' : 'none' }};">
+                                <span id="cart-count">{{ $cartCount }}</span>
+                            </div>
+                        </a>
+
 
                     </li>
                 @endif
 
 
-        <!-- Right Side of Navbar -->
-        @guest
-            <li class="nav-item dropdown kalata" style="z-index: 1000000">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                    {{ __('messages.login') }}
-                </a>
+                <!-- Right Side of Navbar -->
+                @guest
+                    <li class="nav-item dropdown kalata" style="z-index: 1000000; ">
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                            {{ __('messages.login') }}
+                        </a>
 
                         <!-- Dropdown with Tabs -->
                         <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
-                            style="width: 350px; z-index: 1000000;" id="dropdown-menu">
+                            style="width: 350px; z-index: 1000000; position: relative; margin-left:20px" id="dropdown-menu">
                             <!-- Tab Navigation -->
                             <ul class="nav nav-tabs" id="authTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
+                                <li class="nav-item tabhover" role="presentation">
                                     <button class="nav-link active" id="login-tab" data-bs-toggle="tab"
                                         data-bs-target="#login" type="button" role="tab" aria-controls="login"
                                         aria-selected="true">
                                         {{ __('messages.user') }}
                                     </button>
                                 </li>
-                                <li class="nav-item" role="presentation">
+                                <li class="nav-item tabhover" role="presentation">
                                     <button class="nav-link" id="register-tab" data-bs-toggle="tab"
                                         data-bs-target="#register" type="button" role="tab"
                                         aria-controls="register" aria-selected="false">
@@ -250,24 +251,40 @@
                                     aria-labelledby="register-tab">
 
 
-                            <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> {{__('messages.booksellerauth')}}  
-                            </a>
-                            @if (Route::has('register'))
-                                <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
-                                    <i class="bi bi-person-plus"></i> {{__('messages.booksellerreg')}}</a>
-                            @endif
-                        </div>
-                    </div>
-                </ul>
-            </li>
-        @else
-            <li class="nav-item dropdown kalata" style="z-index: 1000000">
-                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" v-pre>
-                    <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
-                    {{ Auth::user()->name }}
-                </a>
+                                    <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
+                                        <i class="bi bi-box-arrow-in-right"></i> {{ __('messages.booksellerauth') }}
+                                    </a>
+                                    @if (Route::has('register'))
+                                        <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
+                                            <i class="bi bi-person-plus"></i> {{ __('messages.booksellerreg') }}</a>
+                                    @endif
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+                @else
+                    <li class="nav-item dropdown kalata" style="z-index: 1000000">
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" v-pre>
+                            <i class="bi bi-file-earmark-person" style="position: relative; font-size: 14px"></i>
+                            @php
+                                $fullName = Auth::user()->name;
+                                $nameParts = explode(' ', trim($fullName));
+                                $initials = '';
+
+                                if (count($nameParts) >= 2) {
+                                    $initials =
+                                        \Illuminate\Support\Str::substr($nameParts[0], 0, 1) .
+                                        '.' .
+                                        \Illuminate\Support\Str::substr($nameParts[1], 0, 1) .
+                                        '.';
+                                } elseif (count($nameParts) === 1) {
+                                    $initials = \Illuminate\Support\Str::substr($nameParts[0], 0, 1) . '.';
+                                }
+                            @endphp
+                            {{ $initials }}
+
+                        </a>
 
                         <!-- Dropdown Menu for Logged-In Users -->
                         <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
@@ -315,17 +332,31 @@
                     </li>
                 @endguest
 
-            <!-- Language -->
-            <li class="nav-item dropdown kalata">
-                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                    <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20" class="me-1">
-                    {{ strtoupper(app()->getLocale()) }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
-                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
-                </ul>
-            </li>
+
+
+
+
+                <!-- Language -->
+                <li class="nav-item dropdown kalata3">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                        data-bs-toggle="dropdown">
+                        <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20"
+                            class="me-1">
+                    
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
+                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
+                    </ul>
+                </li>
+
+
+                <!-- DARK MODE -->
+                <li class="nav-item kalata2">
+                    <button id="modeToggle" class="btn btn-inline-secondary btn-sm">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                </li>
 
             </ul>
         </div>
@@ -334,7 +365,8 @@
 
 
     <div style="position: relative; z-index: 10050; ">
-<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2" style="position: fixed; top: 56px; width: 100%; z-index: 999;">
+        <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2"
+            style="position: fixed; top: 56px; width: 100%; z-index: 999;">
             <div class="container" style="position: relative; ">
 
 
@@ -344,27 +376,33 @@
                         style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
 
 
-                        <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
-                        <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
-                            <i class="bi bi-search fs-4" style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
-                        </button>
-                        <!-- 🔍 Popup Search Box (mobile only) -->
-<div id="mobileSearchOverlay" class="d-lg-none" style="display: none; position: absolute; top: 0; left: 0; right: 0; background: white; z-index: 9999; padding: 10px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center" style="width: 100%;">
-        <input type="search" name="title" class="form-control me-2" placeholder="{{ __('messages.booksearch') }}..." required autofocus>
-        <button type="submit" class="btn btn-outline-success me-2"><i class="bi bi-search"></i></button>
-        <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i class="bi bi-x-lg"></i></button>
-    </form>
-</div>
+                <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
+                <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
+                    <i class="bi bi-search fs-4"
+                        style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
+                </button>
+                <!-- 🔍 Popup Search Box (mobile only) -->
+                <div id="mobileSearchOverlay" class="d-lg-none mobileSearch"
+                    style="display: none; position: absolute; top: 0; left: 0; right: 0; background: #F3F4F6; z-index: 9999; padding: 3px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center"
+                        style="width: 100%;">
+                        <input type="search" name="title" class="form-control me-2"
+                            placeholder="{{ __('messages.booksearch') }}..." required autofocus>
+                        <button type="submit" class="btn btn-outline-success me-2"><i
+                                class="bi bi-search down"></i></button>
+                        <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i
+                                class="bi bi-x-lg down"></i></button>
+                    </form>
+                </div>
 
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
 
 
-          <button id="mobileMenuToggle" class="navbar-toggler" type="button"
-    data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-    aria-expanded="false" aria-label="Toggle navigation">
-    <i class="bi bi-list fs-3"></i> <!-- bi-list = hamburger, bi-x = close -->
-</button>
+                <button id="mobileMenuToggle" class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="bi bi-list fs-3"></i> <!-- bi-list = hamburger, bi-x = close -->
+                </button>
 
 
 
@@ -491,13 +529,14 @@
                     <h5>{{ __('messages.newsletter') }}</h5>
                     <form id="subscriptionForm" method="POST" action="{{ route('subscribe') }}">
                         @csrf
-                        
+
                         <input type="email" name="email" class="form-control mb-2"
                             placeholder="{{ __('messages.entermail') }}" required>
-                            @if ($errors->any() && count($errors->all()) > 0)
-    <input type="hidden" id="subscriptionErrorFlag" value="true">
-    <input type="hidden" id="subscriptionErrorMessages" value="{{ implode('|', $errors->all()) }}">
-@endif
+                        @if ($errors->any() && count($errors->all()) > 0)
+                            <input type="hidden" id="subscriptionErrorFlag" value="true">
+                            <input type="hidden" id="subscriptionErrorMessages"
+                                value="{{ implode('|', $errors->all()) }}">
+                        @endif
                         <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe') }}</button>
                     </form>
 
@@ -522,8 +561,9 @@
                 </div>
 
                 <!-- Success Modal -->
-                <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionSuccessModal" tabindex="-1" role="dialog"
-                    aria-labelledby="subscriptionSuccessModalLabel" aria-hidden="true">
+                <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionSuccessModal"
+                    tabindex="-1" role="dialog" aria-labelledby="subscriptionSuccessModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -532,11 +572,12 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" style="color: black; display: flex; align-items: center; gap: 8px;">
+                            <div class="modal-body"
+                                style="color: black; display: flex; align-items: center; gap: 8px;">
                                 <i class="bi bi-check-circle-fill text-success fs-4"></i>
                                 <span>მადლობა გამოწერისთვის!</span>
                             </div>
-                            
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
                                     data-bs-dismiss="modal">Close</button>
@@ -547,7 +588,8 @@
 
 
                 <!-- Error Modal -->
-                <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionErrorModalPageSpecific" tabindex="-1" role="dialog"
+                <div class="modal fade" style="z-index: 101010101010 !important"
+                    id="subscriptionErrorModalPageSpecific" tabindex="-1" role="dialog"
                     aria-labelledby="subscriptionErrorModalLabelPageSpecific" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -558,7 +600,8 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body" style="color: black">
-                                <ul id="subscriptionErrorListPageSpecific" style="list-style: none; padding-top:10px;"></ul>
+                                <ul id="subscriptionErrorListPageSpecific"
+                                    style="list-style: none; padding-top:10px;"></ul>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
@@ -676,43 +719,40 @@
                 const errorList = document.getElementById('subscriptionErrorListPageSpecific');
                 errorList.innerHTML = ''; // Clear previous errors if any
                 errorMessages.forEach(message => {
-    const li = document.createElement('li');
-    li.innerHTML = `<i class="bi bi-exclamation-circle-fill text-danger"></i> ${message}`;
-    errorList.appendChild(li);
-});
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="bi bi-exclamation-circle-fill text-danger"></i> ${message}`;
+                    errorList.appendChild(li);
+                });
 
                 subscriptionErrorModal.show();
             }
             const toggleBtn = document.getElementById('mobileSearchToggle');
-        const overlay = document.getElementById('mobileSearchOverlay');
-        const closeBtn = document.getElementById('closeMobileSearch');
+            const overlay = document.getElementById('mobileSearchOverlay');
+            const closeBtn = document.getElementById('closeMobileSearch');
 
-        toggleBtn.addEventListener('click', () => {
-            overlay.style.display = 'block';
+            toggleBtn.addEventListener('click', () => {
+                overlay.style.display = 'block';
+            });
+
+            closeBtn.addEventListener('click', () => {
+                overlay.style.display = 'none';
+            });
         });
 
-        closeBtn.addEventListener('click', () => {
-            overlay.style.display = 'none';
+
+        const toggleBtn = document.getElementById('mobileMenuToggle');
+        const icon = toggleBtn.querySelector('i');
+        const menu = document.getElementById('navbarNav');
+
+        menu.addEventListener('show.bs.collapse', function() {
+            icon.classList.remove('bi-list');
+            icon.classList.add('bi-x');
         });
-    });
-      
 
-          const toggleBtn = document.getElementById('mobileMenuToggle');
-    const icon = toggleBtn.querySelector('i');
-    const menu = document.getElementById('navbarNav');
-
-    menu.addEventListener('show.bs.collapse', function () {
-        icon.classList.remove('bi-list');
-        icon.classList.add('bi-x');
-    });
-
-    menu.addEventListener('hide.bs.collapse', function () {
-        icon.classList.remove('bi-x');
-        icon.classList.add('bi-list');
-    });
-
-    
-
+        menu.addEventListener('hide.bs.collapse', function() {
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
+        });
     </script>
 
 
@@ -802,181 +842,194 @@
 
 
 
-    <!--Start of Tawk.to Script
-<script type="text/javascript">
-    var Tawk_API = Tawk_API || {},
-        Tawk_LoadStart = new Date();
-    (function() {
-        var s1 = document.createElement("script"),
-            s0 = document.getElementsByTagName("script")[0];
-        s1.async = true;
-        s1.src = 'https://embed.tawk.to/6746c7b82480f5b4f5a48c56/1idm7oaai';
-        s1.charset = 'UTF-8';
-        s1.setAttribute('crossorigin', '*');
-        s0.parentNode.insertBefore(s1, s0);
-    })();
-</script>
-   End of Tawk.to Script-->
+
+    @if (Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
+        <div class="sticky-cart-summary d-block d-md-none">
+            <a href="{{ route('cart.index') }}"
+                class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი
+                    გაქვს </span>
+                <span>ნახე კალათა</span>
+            </a>
+        </div>
+    @endif
+    @stack('scripts')
 
 
-   @if(Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
-    <div class="sticky-cart-summary d-block d-md-none">
-        <a href="{{ route('cart.index') }}" class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი გაქვს </span>
-            <span>ნახე კალათა</span>
-        </a>
-    </div>
-@endif
-@stack('scripts'):
- 
+    @if (Auth::check())
+        @php
+            $cartItemCount = Auth::user()->cart?->cartItems()->count() ?? 0;
+        @endphp
 
-@if (Auth::check())
-    @php
-        $cartItemCount = Auth::user()->cart?->cartItems()->count() ?? 0;
-    @endphp
+        @if ($cartItemCount > 0)
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log("✅ Authenticated and cart has {{ $cartItemCount }} items");
 
-    @if ($cartItemCount > 0)
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log("✅ Authenticated and cart has {{ $cartItemCount }} items");
+                    // Check if cookie exists
+                    const cookies = document.cookie.split(';').map(c => c.trim());
+                    const alreadyShown = cookies.find(c => c.startsWith('abandoned_cart_shown='));
 
-                // Check if cookie exists
-                const cookies = document.cookie.split(';').map(c => c.trim());
-                const alreadyShown = cookies.find(c => c.startsWith('abandoned_cart_shown='));
+                    if (!alreadyShown) {
+                        // Set cookie to prevent showing again for 1 day
+                        document.cookie = "abandoned_cart_shown=true; path=/; max-age=86400";
 
-                if (!alreadyShown) {
-                    // Set cookie to prevent showing again for 1 day
-                    document.cookie = "abandoned_cart_shown=true; path=/; max-age=86400";
+                        const banner = document.createElement('div');
+                        banner.className = 'alert alert-warning alert-dismissible fade show text-center';
+                        banner.style.position = 'fixed';
+                        banner.style.bottom = '-17px';
+                        banner.style.left = '10px';
+                        banner.style.right = '10px';
+                        banner.style.zIndex = '1000';
 
-                    const banner = document.createElement('div');
-                    banner.className = 'alert alert-warning alert-dismissible fade show text-center';
-                    banner.style.position = 'fixed';
-                    banner.style.bottom = '-17px';
-                    banner.style.left = '10px';
-                    banner.style.right = '10px';
-                    banner.style.zIndex = '1000';
-
-                    banner.innerHTML = `
+                        banner.innerHTML = `
                 <i class="bi bi-cart-fill me-2"></i> თქვენ გაქვთ კალათაში {{ $cartItemCount }} წიგნი
                 <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
                 <button type="button" class="btn-close" aria-label="Close" onclick="this.parentElement.remove()"></button>
             `;
 
-                    document.body.appendChild(banner);
-                } else {
-                    console.log("⏳ Banner already shown within 1 day — skipping");
-                }
-            });
-        </script>
+                        document.body.appendChild(banner);
+                    } else {
+                        console.log("⏳ Banner already shown within 1 day — skipping");
+                    }
+                });
+            </script>
+        @endif
     @endif
-@endif
 
-<script>
-    const translations = {
-        added: @json(__('messages.added')),
-        addToCart: @json(__('messages.addtocart'))
-    };
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.cart-btn-text').forEach(function(el) {
-            const state = el.getAttribute('data-state');
-            if (state === 'added') {
-                el.textContent = translations.added;
-            } else {
-                el.textContent = translations.addToCart;
-            }
-        });
-    });
-    function updateCartCount(count) {
-        const countElement = document.getElementById('cart-count');
-        const bubble = document.getElementById('cart-bubble');
-
-        if (countElement && bubble) {
-            countElement.textContent = count;
-
-            if (parseInt(count) > 0) {
-                bubble.style.display = 'inline-block';
-            } else {
-                bubble.style.display = 'none';
-            }
-        }
-    }
-
-    $(document).ready(function() {
+    <script>
         const translations = {
             added: @json(__('messages.added')),
             addToCart: @json(__('messages.addtocart'))
         };
 
-        $('.toggle-cart-btn').click(function() {
-            var button = $(this);
-            var bookId = button.data('product-id');
-            var quantity = parseInt($('#quantity').val()) || 1;
-
-
-            $.ajax({
-                url: '{{ route('cart.toggle') }}',
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    book_id: bookId,
-                    quantity: quantity
-                },
-                success: function(response) {
-                    if (response.success) {
-                        if (response.action === 'added') {
-                            button.removeClass('btn-primary').addClass('btn-success');
-                            button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
-                            button.find('.cart-btn-text').text(translations.added);
-                        } else if (response.action === 'removed') {
-                            button.removeClass('btn-success').addClass('btn-primary');
-                            button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
-                            button.find('.cart-btn-text').text(translations.addToCart);
-                        }
-
-                        updateCartCount(response.cart_count);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    alert('{{ __('messages.loginrequired') }}');
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.cart-btn-text').forEach(function(el) {
+                const state = el.getAttribute('data-state');
+                if (state === 'added') {
+                    el.textContent = translations.added;
+                } else {
+                    el.textContent = translations.addToCart;
                 }
             });
         });
-    });
 
-    function updateCartCount(count) {
-        const countElement = document.getElementById('cart-count');
-        const bubble = document.getElementById('cart-bubble');
+        function updateCartCount(count) {
+            const countElement = document.getElementById('cart-count');
+            const bubble = document.getElementById('cart-bubble');
 
-        if (countElement && bubble) {
-            countElement.textContent = count;
-            if (parseInt(count) > 0) {
-                bubble.style.display = 'inline-block';
-            } else {
-                bubble.style.display = 'none';
+            if (countElement && bubble) {
+                countElement.textContent = count;
+
+                if (parseInt(count) > 0) {
+                    bubble.style.display = 'inline-block';
+                } else {
+                    bubble.style.display = 'none';
+                }
             }
         }
-    }
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const navbar = document.getElementById('mainNavbar');
-        let lastScroll = window.scrollY;
-    
-        window.addEventListener('scroll', function () {
-            const currentScroll = window.scrollY;
-    
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                navbar.classList.add('hide'); // Scroll down: hide
-            } else {
-                navbar.classList.remove('hide'); // Scroll up: show
-            }
-    
-            lastScroll = currentScroll;
+
+        $(document).ready(function() {
+            const translations = {
+                added: @json(__('messages.added')),
+                addToCart: @json(__('messages.addtocart'))
+            };
+
+            $('.toggle-cart-btn').click(function() {
+                var button = $(this);
+                var bookId = button.data('product-id');
+                var quantity = parseInt($('#quantity').val()) || 1;
+
+
+                $.ajax({
+                    url: '{{ route('cart.toggle') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        book_id: bookId,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            if (response.action === 'added') {
+                                button.removeClass('btn-primary').addClass('btn-success');
+                                button.find('i').removeClass('bi-cart-plus').addClass(
+                                    'bi-check-circle');
+                                button.find('.cart-btn-text').text(translations.added);
+                            } else if (response.action === 'removed') {
+                                button.removeClass('btn-success').addClass('btn-primary');
+                                button.find('i').removeClass('bi-check-circle').addClass(
+                                    'bi-cart-plus');
+                                button.find('.cart-btn-text').text(translations.addToCart);
+                            }
+
+                            updateCartCount(response.cart_count);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('{{ __('messages.loginrequired') }}');
+                    }
+                });
+            });
         });
-    });
+
+        function updateCartCount(count) {
+            const countElement = document.getElementById('cart-count');
+            const bubble = document.getElementById('cart-bubble');
+
+            if (countElement && bubble) {
+                countElement.textContent = count;
+                if (parseInt(count) > 0) {
+                    bubble.style.display = 'inline-block';
+                } else {
+                    bubble.style.display = 'none';
+                }
+            }
+        }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 🌙 Dark mode toggle
+            const modeToggle = document.getElementById('modeToggle');
+            const prefersDark = localStorage.getItem('theme') === 'dark';
+
+            if (prefersDark) {
+                document.body.classList.add('dark-mode');
+                modeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+            }
+
+            modeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                    modeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    modeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+                }
+            });
+
+
+            const navbar = document.getElementById('mainNavbar');
+            let lastScroll = window.scrollY;
+
+            window.addEventListener('scroll', function() {
+                const currentScroll = window.scrollY;
+
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    navbar.classList.add('hide'); // Scroll down: hide
+                } else {
+                    navbar.classList.remove('hide'); // Scroll up: show
+                }
+
+                lastScroll = currentScroll;
+            });
+        });
+    </script>
+
+
+
 </body>
 
 </html>

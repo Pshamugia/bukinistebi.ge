@@ -55,10 +55,11 @@
                                 </a>
                             </p>
                             <p style="font-size: 18px; color: #333;">
-                                <img src="{{ asset('images/GEL.png') }}" width="23px"> <span
+                                <em style="position: relative; font-style: normal; font-size: 20px; top:3px;"> &#8382; </em>  <span
                                     class="text-dark fw-semibold" style="position: relative; top:3px;">
-                                    {{ number_format($book->price) }}
-                                </span>
+                                     {{ number_format($book->price) }}  
+                                        
+                                </span> 
                                 <span style="position: relative; top:5px; ">
                                     @if ($book->quantity == 0)
                                         <span class="badge bg-danger" style="font-weight: 100; float: right;">

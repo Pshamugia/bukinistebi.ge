@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $startDate = $request->input('start_date') ? $request->input('start_date') . ' 00:00:00' : null;
         $endDate = $request->input('end_date') ? $request->input('end_date') . ' 23:59:59' : null;
-    
+
         // Cache the total value of products
         $totalValueOfProducts = Cache::remember('total_value_of_products', 60, function () use ($startDate, $endDate) {
             return DB::table('books')
@@ -24,7 +24,7 @@ class DashboardController extends Controller
                 })
                 ->sum(DB::raw('price * quantity'));
         });
-    
+
         // Cache the average price of products
         $averagePriceOfProducts = Cache::remember('average_price_of_products', 60, function () use ($startDate, $endDate) {
             return DB::table('books')
@@ -33,7 +33,7 @@ class DashboardController extends Controller
                 })
                 ->avg('price');
         });
-    
+
         // Cache the total quantity of products
         $totalQuantityOfProducts = Cache::remember('total_quantity_of_products', 60, function () use ($startDate, $endDate) {
             return DB::table('books')
@@ -42,7 +42,7 @@ class DashboardController extends Controller
                 })
                 ->sum('quantity');
         });
-    
+
         // Cache the total sales profit
         $totalSalesProfit = Cache::remember('total_sales_profit', 60, function () use ($startDate, $endDate) {
             return DB::table('order_items')
@@ -53,7 +53,7 @@ class DashboardController extends Controller
                 ->where('orders.status', 'delivered')
                 ->sum(DB::raw('order_items.price * order_items.quantity * 0.3'));
         });
-    
+
         // Cache the average profit per unit
 
 
@@ -64,17 +64,17 @@ class DashboardController extends Controller
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 });
-        
+
             $totalProfit = $query->sum(DB::raw('order_items.price * order_items.quantity * 0.3'));
             $totalQuantity = $query->sum('order_items.quantity');
-        
+
             return $totalQuantity > 0 ? $totalProfit / $totalQuantity : 0;
         });
-        
-        
-        
-        
-    
+
+
+
+
+
         // Cache the page views
         $pageViews = Cache::remember('page_views', 60, function () use ($startDate, $endDate) {
             return DB::table('page_views')
@@ -86,7 +86,7 @@ class DashboardController extends Controller
                 ->orderByDesc('date')
                 ->get();
         });
-    
+
         // Cache the purchased products and total price
         $purchasedProducts = Cache::remember('purchased_products', 60, function () use ($startDate, $endDate) {
             return DB::table('order_items')
@@ -99,7 +99,7 @@ class DashboardController extends Controller
                 })
                 ->paginate(5);
         });
-    
+
         // Cache the total purchased price
         $totalPurchasedPrice = Cache::remember('total_purchased_price', 60, function () use ($startDate, $endDate) {
             return DB::table('order_items')
@@ -110,7 +110,7 @@ class DashboardController extends Controller
                 })
                 ->sum(DB::raw('order_items.price * order_items.quantity'));
         });
-    
+
         // Cache the top 10 customers
         $topCustomers = Cache::remember('top_customers', 60, function () {
             return DB::table('orders')
@@ -121,7 +121,7 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get();
         });
-    
+
         // Cache the top 10 bestselling books
         $topBooks = Cache::remember('top_books', 60, function () {
             return Book::with('author') // Include the author relationship
@@ -133,8 +133,8 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get();
         });
-        
-    
+
+
         // Cache the top-rated books
         $topRatedArticles = Cache::remember('top_rated_articles_dashboard', 60, function () {
             return ArticleRating::select('book_id', DB::raw('AVG(rating) as avg_rating'), DB::raw('count(*) as rating_count'))
@@ -143,7 +143,7 @@ class DashboardController extends Controller
                 ->limit(10)
                 ->get();
         });
-    
+
         // Prepare data for the chart
         $ordersData = [];
         $orderStats = DB::table('orders')
@@ -152,12 +152,12 @@ class DashboardController extends Controller
             ->groupBy('month')
             ->orderBy('month')
             ->get();
-    
+
         for ($i = 1; $i <= 12; $i++) {
             $monthData = $orderStats->firstWhere('month', $i);
             $ordersData[] = $monthData ? $monthData->total_orders : 0; // Fill missing months with 0
         }
-    
+
         return view('admin.dashboard', compact(
             'totalValueOfProducts',
             'averagePriceOfProducts',
@@ -173,6 +173,4 @@ class DashboardController extends Controller
             'topRatedArticles'
         ));
     }
-    
-
 }

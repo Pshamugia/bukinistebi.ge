@@ -158,7 +158,7 @@
 
 
 
-            <div style="padding: 7px 33px 10px 33px; background-color: rgb(154, 181, 238); border:1px solid #837979">
+            <div class="payment-option" style="padding: 7px 33px 10px 33px; background-color: rgb(154, 181, 238); border:1px solid #837979">
                 <!-- Payment Method and Personal Info Form -->
                 <form action="{{ route('tbc-checkout') }}" method="POST" id="checkoutForm">
                     @csrf
@@ -220,8 +220,8 @@
                                 <h4 style="position:relative; top:12px"><strong>{{ __('messages.city') }}</strong></h4>
                             </label>
                             <div class="input-group">
-                                <select name="city" class="form-control chosen-select" id="city"
-                                    data-placeholder="{{ __('messages.browseCity') }}" required style="height: 50px">
+                                <select name="city" class="form-control chosen-select w-100" id="city"
+                                    data-placeholder="{{ __('  messages.browseCity') }}" required style="height: 50px;">
                                     <option value="">{{ __('messages.browseCity') }}</option>
                                     <option value="თბილისი">{{ __('messages.tbilisi') }}</option>
                                     <option value="ბათუმი">{{ __('messages.batumi') }}</option>

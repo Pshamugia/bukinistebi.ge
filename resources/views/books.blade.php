@@ -13,19 +13,19 @@
         </strong>
     </h5>
 
-<!-- Exclude sold-out checkbox -->
-<div class="mb-4">
-    <label>
-        <h6>
-            <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
-            {{ __('messages.instock') }}
-        </h6>
-    </label>
-</div>
+
 
     <!-- Featured Books -->
     <div class="container mt-5" style="position:relative; margin-top: -15px !important">
-        
+        <!-- Exclude sold-out checkbox -->
+        <div class="mb-4">
+            <label>
+                <h6>
+                    <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
+                    {{ __('messages.instock') }}
+                </h6>
+            </label>
+        </div>
         <div class="row">
             @foreach ($books as $book)
                 <div class="col-md-3" style="position: relative; padding-bottom: 25px;">
@@ -50,8 +50,8 @@
                                 </a>
                             </p>
                             <p style="font-size: 18px; color: #333;">
-                                <img src="{{ asset('images/GEL.png') }}" width="23px"> <span
-                                    class="text-dark fw-semibold" style="position: relative; top:3px;">
+                                <em style="position: relative; font-style: normal; font-size: 20px; top:3px;"> &#8382; </em>
+                                <span class="text-dark fw-semibold" style="position: relative; top:3px;">
                                     {{ number_format($book->price) }}
                                 </span>
                                 <span style="position: relative; top:5px">
@@ -61,7 +61,6 @@
                                     @elseif($book->quantity >= 1)
                                         <span class="badge bg-success"
                                             style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
-                                    
                                     @endif
                                 </span>
                             </p>
@@ -111,7 +110,7 @@
 
 
     <script>
-              $('#excludeSoldOut').change(function() {
+        $('#excludeSoldOut').change(function() {
             const url = new URL(window.location.href);
             if ($(this).is(':checked')) {
                 url.searchParams.set('exclude_sold', 1);
@@ -121,5 +120,5 @@
             window.location.href = url.toString();
         });
     </script>
-     
+
 @endsection

@@ -8,9 +8,9 @@
     </strong>
 </h5>
 
-<div class="container d-flex " style="position: relative; top:30px;">
+<div class="container d-flex" style="position: relative; top:30px;">
     <div class="col-md-6" style="border: 1px solid rgb(165, 158, 158); border-radius:3px; font-weight: 100"> 
-        <button type="button" class="btn btn-light text-start w-100">
+        <button type="button" class="btn btn-light text-start w-100 form-control">
  {{ __('messages.orderUs')}}                     
             <div class="text-center mt-2">
                 <i class="bi bi-arrow-down-square"></i>
@@ -98,7 +98,7 @@
 <div class="container d-flex ">
     <div class="col-md-6" style="border: 1px solid rgb(165, 158, 158); border-radius:3px;"> 
     <div >
-    <button type="button" class="btn btn-warning text-center">
+    <button type="button" class="btn btn-warning text-center form-control">
         <span>  {{ __('messages.whoCanOrder')}}</span>
     </button>
  
