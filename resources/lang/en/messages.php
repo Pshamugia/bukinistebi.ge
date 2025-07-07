@@ -67,6 +67,7 @@ return [
     'remember' => 'Remember',
     'reset' => 'Reset password',
     'forgot' => 'Forgot your password? Enter your email in the field below and we will send you a password recovery link where you can change your password.',
+    'forgotPassword' => 'Forgot password?',
     'send' => 'Send',
     'name' => 'Name',
     'confirm' => 'Confirm password',

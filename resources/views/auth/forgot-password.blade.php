@@ -4,8 +4,16 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
 @section('content')
-<div class="container mt-5 col-md-4" style="position: relative; padding-top:10%; padding-bottom:5%;">
-    <div class="mb-4 text-sm text-gray-600">
+<h5 class="section-title"
+style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
+justify-content: left;">
+<strong>
+    <i class="bi bi-register"></i>  {{ __('messages.reset') }}
+</strong>
+</h5>
+
+ 
+<div class="container mt-5 col-md-6" style="position:relative; margin-top: -15px !important">    <div class="mb-4 text-sm text-gray-600">
         {{ __('messages.forgot') }}
     </div>
 

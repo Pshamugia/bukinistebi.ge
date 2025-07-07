@@ -4,7 +4,16 @@
  
 @section('content')
 
-<div class="container mt-5 col-md-6" style="position: relative; padding-top:10%; padding-bottom:5%; min-height: 400px">
+<h5 class="section-title"
+style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
+justify-content: left;">
+<strong>
+    <i class="bi bi-login"></i> {{ __('messages.login') }}
+</strong>
+</h5>
+
+ 
+<div class="container mt-5 col-md-6" style="position:relative; margin-top: -15px !important">
         @if(Auth::check() && Auth::user()->role === 'user' || (Auth::check() && Auth::user()->role === 'admin'))
         <div class="d-flex justify-content-center align-items-center" style="min-height: 400px">
 

@@ -269,6 +269,48 @@ $news = BookNews::query()
     }
 
 
+
+    public function getRecommendedBooks($userId)
+    {
+        // Get book IDs from orders
+        $orderedBookIds = \App\Models\Order::where('user_id', $userId)
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->pluck('order_items.book_id')
+            ->unique()
+            ->toArray();
+    
+        // Get book IDs from cart
+        $cartBookIds = \App\Models\Cart::where('user_id', $userId)
+            ->join('cart_items', 'carts.id', '=', 'cart_items.cart_id')
+            ->pluck('cart_items.book_id')
+            ->unique()
+            ->toArray();
+    
+        // Combine them
+        $userBookIds = array_unique(array_merge($orderedBookIds, $cartBookIds));
+    
+        // Get genres from these books
+        $genreIds = \App\Models\Book::whereIn('id', $userBookIds)
+            ->pluck('genre_id')
+            ->unique()
+            ->toArray();
+    
+        // Recommend other books from these genres
+        $recommendedBooks = \App\Models\Book::whereIn('genre_id', $genreIds)
+            ->whereNotIn('id', $userBookIds)
+            ->where('hide', 0)
+            ->where('auction_only', false)
+            ->where('language', app()->getLocale())
+            ->inRandomOrder()
+            ->take(8)
+            ->get();
+    
+        return $recommendedBooks;
+    }
+    
+
+
+
     public function rateArticle(Request $request, $bookId)
     {
         // Validate the rating

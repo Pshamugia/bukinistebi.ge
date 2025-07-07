@@ -497,7 +497,7 @@
 
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center text-lg-start mt-5">
+    <footer class="bg-dark text-white text-center text-lg-start mt-5" style="position: relative; padding-top: 30px;">
         <div class="container p-4">
             <div class="row">
                 <!-- Column 1 -->

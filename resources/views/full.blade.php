@@ -10,7 +10,13 @@
             'loginRequired' => __('messages.loginrequired'),
         ];
     @endphp
-    <div class="container mt-5" style="position: relative; padding-bottom: 5%; top:50px;">
+    <style>
+    .book-detail-page .btn-primary {
+    background-color: blue !important;
+    color: white !important;
+}
+        </style>
+    <div class="container mt-5 book-detail-page" style="position: relative; padding-bottom: 5%; top:50px;">
         <div class="row">
             <!-- Book Image -->
             <div class="col-md-5">
@@ -138,7 +144,7 @@
             <!-- Book Details -->
             <div class="col-md-7">
                 <h2>{{ $book->title }}</h2>
-                <p class="text-muted">{{ __('messages.author') }}:
+                <p class="text-muted"><span>{{ __('messages.author') }}:</span>
                     <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                         style="text-decoration: none">
                         @php
@@ -186,7 +192,7 @@
                                     class="cart-btn-text">{{ __('messages.added') }}</span>
                             </button>
                         @else
-                            <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}"
+                            <button class="btn btn-primary forFull toggle-cart-btn" data-product-id="{{ $book->id }}"
                                 data-in-cart="false" style="width: 200px; font-size: 14px">
                                 <i class="bi bi-cart-plus"></i> <span
                                     class="cart-btn-text">{{ __('messages.addtocart') }}</span>
@@ -232,23 +238,23 @@
                         <tbody>
                             <tr>
                                 <td class="nowrap"><strong> {{ __('messages.price') }}</strong></td>
-                                <td>{{ number_format($book->price) }} {{ __('messages.lari') }} </td>
+                                <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span> </td>
                             </tr>
                             <tr>
                                 <td class="nowrap"><strong> {{ __('messages.numberOfPages') }}</strong></td>
-                                <td>{{ $book->pages }}</td>
+                                <td><span>{{ $book->pages }}</span></td>
                             </tr>
                             <tr>
                                 <td class="nowrap"><strong>{{ __('messages.yearofpublicaion') }}</strong></td>
-                                <td>{{ $book->publishing_date }} </td>
+                                <td><span>{{ $book->publishing_date }}</span> </td>
                             </tr>
                             <tr>
                                 <td><strong>{{ __('messages.cover') }}</strong></td>
-                                <td>{{ $book->cover }}</td>
+                                <td><span>{{ $book->cover }}</span></td>
                             </tr>
                             <tr>
                                 <td><strong>{{ __('messages.bookCondition') }}</strong></td>
-                                <td>{{ $book->status }}</td>
+                                <td><span>{{ $book->status }}</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -541,17 +547,15 @@
                 });
             
                 decreaseButton.addEventListener('click', function() {
-                    let currentQuantity = parseInt(quantityInput.value);
-                    if (currentQuantity > 1) {
-                        currentQuantity -= 1;
-                        quantityInput.value = currentQuantity;
-                        updatePrice();
-            
-                        if (currentQuantity < maxQuantity) {
-                            hideWarning();
-                        }
-                    }
-                });
+    let currentQuantity = parseInt(quantityInput.value);
+    if (currentQuantity > 1) {
+        currentQuantity -= 1;
+        quantityInput.value = currentQuantity;
+        updatePrice();
+    }
+    // Always hide warning on minus click
+    hideWarning();
+});
             
                 // Initial price update
                 updatePrice();

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('books', function (Blueprint $table) {
-            $table->boolean('auction_only')->default(false);
+            $table->boolean('auction_only')->default(0);
         });
     }
     

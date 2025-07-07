@@ -4,8 +4,16 @@
  
 @section('content')
 
-<div class="container mt-5 col-md-6" style="position: relative; padding-top:10%; padding-bottom:5%;">
+<h5 class="section-title"
+style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
+justify-content: left;">
+<strong>
+    <i class="bi bi-login"></i> {{ __('messages.login') }}
+</strong>
+</h5>
 
+ 
+<div class="container mt-5 col-md-6" style="position:relative; margin-top: -15px !important">
     <!-- Email Errors -->
     @if ($errors->has('email'))
         <div class="alert alert-warning">
