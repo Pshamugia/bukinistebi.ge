@@ -530,21 +530,21 @@
                 }
             
                 increaseButton.addEventListener('click', function() {
-                    let currentQuantity = parseInt(quantityInput.value);
-                    if (currentQuantity < maxQuantity) {
-                        currentQuantity += 1;
-                        quantityInput.value = currentQuantity;
-                        updatePrice();
-            
-                        if (currentQuantity === maxQuantity) {
-                            showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
-                        } else {
-                            hideWarning();
-                        }
-                    } else {
-                        showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
-                    }
-                });
+    let currentQuantity = parseInt(quantityInput.value);
+
+    if (currentQuantity < maxQuantity) {
+        currentQuantity += 1;
+        quantityInput.value = currentQuantity;
+        updatePrice();
+
+        // Hide warning if still within limit
+        hideWarning();
+    } else {
+        // User tries to go above max
+        showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
+    }
+});
+
             
                 decreaseButton.addEventListener('click', function() {
     let currentQuantity = parseInt(quantityInput.value);

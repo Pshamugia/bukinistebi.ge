@@ -97,6 +97,12 @@
                                                     {{ __('messages.item') }}</span>
                                             @endif
                                         </span>
+                                        <input type="hidden" class="max-quantity" value="{{ $item->book->quantity }}">
+<div class="text-danger mt-2 quantity-warning" style="display: none; opacity: 0; transition: opacity 0.5s;">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span class="warning-text"></span>
+</div>
+
                                     </div>
 
                                     <div class="input-group" style="width: 120px; margin: auto;">
@@ -376,70 +382,59 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Increase quantity
-            document.querySelectorAll('.increase-quantity').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var bookId = this.getAttribute('data-book-id');
-                    updateQuantity(bookId, 'increase');
-                });
-            });
+       $('.increase-quantity, .decrease-quantity').click(function() {
+    const button = $(this);
+    const row = button.closest('tr');
+    const inputField = row.find('.quantity-input');
+    const maxQuantity = parseInt(row.find('.max-quantity').val());
+    const warningDiv = row.find('.quantity-warning');
+    const warningText = row.find('.warning-text');
 
-            // Decrease quantity
-            document.querySelectorAll('.decrease-quantity').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var bookId = this.getAttribute('data-book-id');
-                    updateQuantity(bookId, 'decrease');
-                });
-            });
+    let currentQuantity = parseInt(inputField.val());
 
-            $('.increase-quantity, .decrease-quantity').click(function() {
-                const bookId = $(this).data('book-id');
-                const action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
-                const inputField = $(this).closest('.input-group').find('.quantity-input');
-                const row = $(this).closest('tr');
+    const action = button.hasClass('increase-quantity') ? 'increase' : 'decrease';
 
-                $.ajax({
-                    url: '{{ route('cart.updateQuantity') }}', // ✅ use your existing route
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        book_id: bookId,
-                        action: action
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            inputField.val(response.newQuantity);
-                            row.find('td:nth-child(3)').text(response.updatedTotal + ' ლარი');
-                            $('#product-price').text(response.cartTotal - 5);
-                            $('#total-price').text('ჯამური: ' + response.cartTotal + ' ლარი');
-                            $('#delivery-price').text(5);
-                            $('#delivery-price-container').show();
-                            $('#total-price').show();
+    // Handle increase locally first
+    if (action === 'increase') {
+        if (currentQuantity >= maxQuantity) {
+            // ❗ User tries to exceed limit
+            warningText.text('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
+            warningDiv.show().css('opacity', 1);
+            return; // Do not send AJAX
+        }
+    }
 
-                            // ✅ Disable "+" if quantity = book stock
-                            const increaseBtn = row.find('.increase-quantity');
-                            const decreaseBtn = row.find('.decrease-quantity');
+    // On decrease always hide
+    if (action === 'decrease') {
+        warningDiv.css('opacity', 0);
+        setTimeout(() => warningDiv.hide(), 500);
+    }
 
-                            if (response.newQuantity >= response.bookStock) {
-                                increaseBtn.prop('disabled', true);
-                            } else {
-                                increaseBtn.prop('disabled', false);
-                            }
+    $.ajax({
+        url: '{{ route('cart.updateQuantity') }}',
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            book_id: button.data('book-id'),
+            action: action
+        },
+        success: function(response) {
+            if (response.success) {
+                inputField.val(response.newQuantity);
+                row.find('td:nth-child(3)').text(response.updatedTotal + ' ლარი');
+                $('#product-price').text(response.cartTotal - 5);
+                $('#total-price').text('ჯამური: ' + response.cartTotal + ' ლარი');
 
-                            // ✅ Disable "−" if quantity = 1
-                            if (response.newQuantity <= 1) {
-                                decreaseBtn.prop('disabled', true);
-                            } else {
-                                decreaseBtn.prop('disabled', false);
-                            }
-                        } else {
-                            alert(response.message || 'Update failed.');
-                        }
-                    }
-                });
-            });
-        });
+                $('#delivery-price').text(5);
+                $('#delivery-price-container').show();
+                $('#total-price').show();
+            } else {
+                alert(response.message || 'Update failed.');
+            }
+        }
+    });
+});
+
     </script>
 
 @endsection
