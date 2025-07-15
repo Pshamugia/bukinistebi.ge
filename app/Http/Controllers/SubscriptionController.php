@@ -20,7 +20,7 @@ class SubscriptionController extends Controller
 {
     $disposableDomains = [
         'dont-reply.me', 'testform.xyz', 'mailinator.com', 'tempmail.com', 'yopmail.com',
-        'trashmail.com', 'guerrillamail.com', '10minutemail.com', 'fakeinbox.com', 'formtest.guru'
+        'trashmail.com', 'guerrillamail.com', '10minutemail.com', 'fakeinbox.com', 'formtest.guru', 'mailbox.in.ua'
     ];
 
     $validator = Validator::make($request->all(), [

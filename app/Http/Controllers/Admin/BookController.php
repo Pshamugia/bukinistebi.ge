@@ -39,6 +39,13 @@ class BookController extends Controller
         }
     }
 
+    // ✅ Apply "show only hidden" filter
+if ($request->filled('hidden') && $request->hidden == '1') {
+    $query->where('hide', true);
+}
+ 
+
+
     // ✅ Sort by most viewed if checkbox is selected
     if ($request->sort === 'views') {
         $query->orderByDesc('views');

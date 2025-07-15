@@ -28,7 +28,7 @@
         </div>
         <div class="row">
             @foreach ($books as $book)
-                <div class="col-md-3" style="position: relative; padding-bottom: 25px;">
+                <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
                     <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
                         <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
                             class="card-link">

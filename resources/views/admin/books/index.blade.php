@@ -42,9 +42,18 @@
                 {{ request('sort') === 'views' ? 'checked' : '' }}>
             <label class="form-check-label" for="sortViews">დაალაგე ნახვების მიხედვით</label>
         </div>
-
+        
+    <!-- ✅ Show only hidden books checkbox -->
+    <div class="form-check" style="margin-top: 10px;">
+        <input type="checkbox" class="form-check-input" name="hidden" value="1" id="showHidden"
+            {{ request('hidden') == '1' ? 'checked' : '' }}>
+        <label class="form-check-label" for="showHidden">მაჩვენე მხოლოდ დამალული წიგნები</label>
+    </div>
         <button type="submit" class="btn btn-primary">{{ __('გაფილტრე') }}</button>
     </div>
+
+
+
 </form>
 
     

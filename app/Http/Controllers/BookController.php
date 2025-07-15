@@ -321,7 +321,7 @@ $news = BookNews::query()
         // Check if the user has already rated this article
         $existingRating = ArticleRating::where('book_id', $bookId)
             ->where('user_id', auth()->id())
-            ->where('auction_only', false)
+            //->where('auction_only', false)
             ->first();
 
         if ($existingRating) {
