@@ -213,33 +213,59 @@
         </div>
     </div>
     </div>
+    @php
+    $partners = [
+        [
+            'url' => 'https://intelekti.ge/',
+            'image' => app()->getLocale() === 'ka' 
+                ? asset('images/partners_logo/Intelekti Publishing_logo-geo.png')
+                : asset('images/partners_logo/Intelekti_Publishing_logo_Eng.png'),
+            'alt' => 'Intelekti'
+        ],
+        [
+            'url' => 'https://sulakauri.ge/',
+            'image' => app()->getLocale() === 'en' 
+                ? asset('images/partners_logo/sulakauri.png')
+                : asset('images/partners_logo/sulakauri_logo.svg'),
+            'alt' => 'Sulakauri'
+        ],
+        [
+            'url' => 'https://www.palitral.ge/',
+            'image' => app()->getLocale() === 'en' 
+                ? asset('images/partners_logo/palitra_logo.svg')
+                : asset('images/partners_logo/palitra_logo.svg'),
+            'alt' => 'Palitra'
+        ],
+        [
+            'url' => 'https://tbcbank.ge/ka',
+            'image' => app()->getLocale() === 'en' 
+                ? asset('images/partners_logo/TBC_Bank_logo.svg')
+                : asset('images/partners_logo/TBC_Bank_logo.svg'),
+            'alt' => 'TBC Bank'
+        ],
+    ];
 
+    shuffle($partners);
+@endphp
 
-    <!-- Partners Section -->
+<!-- Partners Section -->
 <div class="container my-5">
     <div class="hr-with-text text-center mb-4">
         <h2 style="font-size: 26px;">{{ __('messages.ourpartners') }}</h2>
     </div>
     <div class="row justify-content-center align-items-center">
 
-        <div class="col-6 col-md-3 mb-4">
-          <a href="https://intelekti.ge/" target="blank">  
-            <img src="{{ asset('images/partners_logo/intelekti_logo.jpg') }}" alt="Partner 1" class="img-fluid partners" style="max-height: 60px;">
-          </a>
-        </div>
+        @foreach ($partners as $partner)
+            <div class="col-6 col-md-3 mb-4">
+                <a href="{{ $partner['url'] }}" target="blank"> 
+                    <img src="{{ $partner['image'] }}" alt="{{ $partner['alt'] }}" class="img-fluid partners" style="max-height: 60px;">
+                </a>
+            </div>
+        @endforeach
 
-        <div class="col-6 col-md-3 mb-4">
-            <img src="{{ asset('images/partners_logo/sulakauri_logo.svg') }}" alt="Partner 2" class="img-fluid partners" style="max-height: 60px;">
-        </div>
-      
-        <div class="col-6 col-md-3 mb-4">
-            <img src="{{ asset('images/partners_logo/palitra_logo.svg') }}" alt="Partner 3" class="img-fluid partners" style="max-height: 60px;">
-        </div>
-        <div class="col-6 col-md-3 mb-4 partners">
-            <img src="{{ asset('images/partners_logo/TBC_Bank_logo.svg') }}" alt="Partner 3" class="img-fluid" style="max-height: 60px;">
-        </div>
     </div>
 </div>
+
 
 
     <!-- Cookie Consent Notification -->

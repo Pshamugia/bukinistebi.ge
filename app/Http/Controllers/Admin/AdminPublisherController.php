@@ -22,21 +22,40 @@ class AdminPublisherController extends Controller
     $endDate = $request->input('end_date');
 
     $publishers = User::where('role', 'publisher')
-        ->with(['books.orderItems' => function ($query) use ($startDate, $endDate) {
-            if ($startDate && $endDate) {
-                $query->whereBetween('created_at', [$startDate, $endDate]);
-            }
-        }])
-        ->get()
-        ->map(function ($publisher) {
-            $publisher->total_earned = $publisher->books->sum(function ($book) {
-                return $book->orderItems->sum(function ($item) {
+    ->with(['books.orderItems' => function ($query) use ($startDate, $endDate) {
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+    }])
+    ->get()
+    ->map(function ($publisher) use ($startDate, $endDate) {
+        $publisher->total_earned = $publisher->books->sum(function ($book) use ($startDate, $endDate) {
+            return $book->orderItems
+                ->filter(function ($item) use ($startDate, $endDate) {
+                    if ($startDate && $endDate) {
+                        return $item->created_at >= $startDate && $item->created_at <= $endDate;
+                    }
+                    return true;
+                })
+                ->sum(function ($item) {
                     return $item->price * $item->quantity;
                 });
-            });
-            return $publisher;
-        })
-        ->sortByDesc(fn($publisher) => $publisher->books->first()->created_at ?? now()->subYears(10));
+        });
+    
+        $publisher->total_sold_quantity = $publisher->books->sum(function ($book) use ($startDate, $endDate) {
+            return $book->orderItems
+                ->filter(function ($item) use ($startDate, $endDate) {
+                    if ($startDate && $endDate) {
+                        return $item->created_at >= $startDate && $item->created_at <= $endDate;
+                    }
+                    return true;
+                })
+                ->sum('quantity');
+        });
+    
+        return $publisher;
+    })
+    ->sortByDesc(fn($publisher) => $publisher->books->first()->created_at ?? now()->subYears(10));
 
     return view('admin.publishers.activity', compact('publishers', 'startDate', 'endDate'));
 }
