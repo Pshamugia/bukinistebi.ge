@@ -1,0 +1,9 @@
+/* Remove Tailwind directives if present */
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+/* Import Bootstrap CSS */
+@import "~bootstrap/dist/css/bootstrap.min.css";
+
+/* Your custom styles (if any) can go here */
