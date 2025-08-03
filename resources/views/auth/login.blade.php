@@ -73,7 +73,18 @@ justify-content: left;">
                     {{ __('messages.login') }} </button>
             </div>
         </form>
-    </div>
+
+        
+    </div> <!-- google auth--> 
+    <a href="{{ route('login.google') }}" 
+    class="btn w-100 d-flex align-items-center justify-content-center shadow-sm" 
+    style="background-color: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-weight: 500; margin-top:15px;">
+     <img src="https://developers.google.com/identity/images/g-logo.png" 
+          style="width: 20px; height: 20px; margin-right: 10px;" alt="Google Logo">
+     <span style="color: #555;">{{ __('messages.googleLogin') }}</span>
+  </a>
 </div>
+
+ 
 
 @endsection
