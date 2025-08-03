@@ -236,4 +236,5 @@ return [
     'acceptCookie' => 'Accept',
     'declineCookie' => 'Decline',
     'directPay' => 'Pay now',
+    'googleLogin' => 'Login with Google',
 ];

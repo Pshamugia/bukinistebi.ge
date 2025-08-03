@@ -425,8 +425,10 @@ public function create(Request $request)
     $realUsers = $users->map(function ($user) {
         $lastOrder = $user->orders->first();
         $user->last_order_date = $lastOrder ? $lastOrder->created_at : null;
+        $user->last_order_total = $lastOrder ? $lastOrder->total : 0;  // ✅ ADD THIS LINE
         return $user;
     });
+    
 
     // ✅ Merge & sort by last_order_date DESC
     $merged = $realUsers->concat($guestOrders)

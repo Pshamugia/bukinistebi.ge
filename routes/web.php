@@ -35,8 +35,13 @@ use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Auth\GoogleController;
+
 
 use App\Models\EmailLog;
+
+ 
+ 
 
 
 
@@ -271,6 +276,11 @@ Route::get('/register/publisher', [RegisteredUserController::class, 'createPubli
 Route::post('/register/publisher', [RegisteredUserController::class, 'storePublisher'])->name('register.publisher');
 Route::get('/login/publisher', [AuthenticatedSessionController::class, 'createPublisherLoginForm'])->name('login.publisher.form');
 Route::post('/login/publisher', [AuthenticatedSessionController::class, 'storePublisherLogin'])->name('login.publisher');
+
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+
 
 // Publisher dashboard and book upload routes (restricted to publisher role)
 Route::middleware(['auth', 'role:publisher'])->group(function () {

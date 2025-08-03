@@ -209,6 +209,8 @@
                             {{ __('messages.login') }}
                         </a>
 
+                       
+
                         <!-- Dropdown with Tabs -->
                         <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
                             style="width: 350px; z-index: 1000000; position: relative; margin-left:20px" id="dropdown-menu">
@@ -229,6 +231,7 @@
                                     </button>
                                 </li>
                             </ul>
+                            
 
                             <!-- Tab Content -->
                             <div class="tab-content" id="authTabsContent">
@@ -244,6 +247,17 @@
                                         <a class="nav-link mt-3" href="{{ route('register') }}">
                                             <i class="bi bi-person-fill-add"></i> {{ __('messages.registration') }}</a>
                                     @endif
+
+                                    <!-- google auth--> 
+                                    <a href="{{ route('login.google') }}" 
+                                    class="btn w-100 d-flex align-items-center justify-content-center shadow-sm" 
+                                    style="background-color: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-weight: 500; margin-top:15px;">
+                                     <img src="https://developers.google.com/identity/images/g-logo.png" 
+                                          style="width: 20px; height: 20px; margin-right: 10px;" alt="Google Logo">
+                                     <span style="color: #555;">{{ __('messages.googleLogin') }}</span>
+                                 </a>
+                                 
+                                    
                                 </div>
 
                                 <!-- Bukinist login Tab -->

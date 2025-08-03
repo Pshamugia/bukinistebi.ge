@@ -236,6 +236,7 @@ return [
     'acceptCookie' => 'თანხმობა',
     'declineCookie' => 'უარყოფა',
     'directPay' => 'შეიძინე',
+    'googleLogin' => 'Google-ით შესვლა',
 
 
     

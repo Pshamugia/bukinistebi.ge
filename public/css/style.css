@@ -140,15 +140,16 @@ body.dark-mode .genre-badge{
 }
 
 .partners {
-    border: 1px transparent;
+    border: 1px solid transparent !important;
     transition: all 0.3s ease;
     max-height: 60px;
+    
 }
 
 .partners:hover {
     border: 1px solid black !important;
     transition: all 0.3s ease;
-    max-height: 60px;
+    max-height: 60px; 
 }
 
 

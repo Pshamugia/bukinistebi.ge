@@ -52,6 +52,9 @@ return [
         /*
          * Application Service Providers...
          */
+
+         Laravel\Socialite\SocialiteServiceProvider::class,
+
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
@@ -71,6 +74,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class, // For Excel
         'Image' => Intervention\Image\Facades\Image::class, // For Intervention Image
     ])->toArray(),

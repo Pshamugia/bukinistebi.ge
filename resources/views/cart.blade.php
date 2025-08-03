@@ -171,18 +171,28 @@
                     <h4 class="mt-4"><strong> {{ __('messages.choosePayment') }} </strong></h4>
 
                     <!-- Radio buttons for payment -->
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payment_method" id="payment_courier"
-                            value="courier" required>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="radio" 
+                               name="payment_method" id="payment_bank"
+                               value="bank_transfer" required>
+                        <label class="form-check-label" for="payment_bank">
+                          💳 {{ __('messages.payBankTransfer') }}
+                        </label>
+                      </div>
+                      
+                      <!-- Courier Switch -->
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="radio" 
+                               name="payment_method" id="payment_courier"
+                               value="courier" required>
                         <label class="form-check-label" for="payment_courier">
-                            <i class="bi bi-truck"></i> {{ __('messages.payDelivery') }}</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="payment_method" id="payment_bank"
-                            value="bank_transfer" required>
-                        <label class="form-check-label" for="payment_bank"> <i class="bi bi-credit-card"></i>
-                            {{ __('messages.payBankTransfer') }}</label>
-                    </div>
+                          🚚 {{ __('messages.payDelivery') }}
+                        </label>
+                      </div>
+
+
+                    
+                 
 
                     <!-- User details -->
                     <div class="mt-4">
