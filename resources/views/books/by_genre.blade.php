@@ -61,26 +61,35 @@
                                     @endif
                                 </span>
                             </p>
-
-                            {{-- Cart Buttons --}}
-                            @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                                @if (in_array($book->id, $cartItemIds))
-                                    <button class="btn btn-success toggle-cart-btn w-100"
-                                        data-product-id="{{ $book->id }}" data-in-cart="true">
-                                        <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
-                                            data-state="added"></span>
-                                    </button>
-                                @else
-                                    <button class="btn btn-primary toggle-cart-btn w-100"
-                                        data-product-id="{{ $book->id }}" data-in-cart="false">
-                                        <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
-                                    </button>
-                                @endif
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endforeach
+ 
+                             {{-- Cart Buttons --}}
+                             @if($book->quantity >= 1)
+                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                                 @if (in_array($book->id, $cartItemIds))
+                                     <button class="btn btn-success toggle-cart-btn w-100"
+                                         data-product-id="{{ $book->id }}" data-in-cart="true">
+                                         <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
+                                             data-state="added"></span>
+                                     </button>
+                                 @else
+                                     <button class="btn btn-primary toggle-cart-btn w-100"
+                                         data-product-id="{{ $book->id }}" data-in-cart="false">
+                                         <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                                     </button>
+                                 @endif
+                             @endif
+                             
+                             @endif
+                             @if ($book->quantity == 0)
+                             <button class="btn btn-light w-100" style="color:#b9b9b9 !important"
+                             data-product-id="{{ $book->id }}" data-in-cart="false">
+                             <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                         </button>
+                               @endif
+                         </div>
+                     </div>
+                 </div>
+             @endforeach
 
 
         </div>

@@ -18,6 +18,7 @@ class Book extends Model
         'language',
         'title',
         'photo',
+        'video',
         'photo_2',
         'photo_3',
         'photo_4',

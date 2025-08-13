@@ -96,6 +96,7 @@
 
 
                             {{-- Cart Buttons --}}
+                            @if($book->quantity >= 1)
                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
                                 @if (in_array($book->id, $cartItemIds))
                                     <button class="btn btn-success toggle-cart-btn w-100"
@@ -110,7 +111,14 @@
                                     </button>
                                 @endif
                             @endif
-
+                            
+                            @endif
+                            @if ($book->quantity == 0)
+                            <button class="btn btn-light w-100" style="color:#b9b9b9 !important"
+                            data-product-id="{{ $book->id }}" data-in-cart="false">
+                            <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                        </button>
+                              @endif
                         </div>
                     </div>
                 </div>

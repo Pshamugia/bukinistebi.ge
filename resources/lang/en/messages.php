@@ -237,4 +237,5 @@ return [
     'declineCookie' => 'Decline',
     'directPay' => 'Pay now',
     'googleLogin' => 'Login with Google',
+    'video' => 'Video',
 ];

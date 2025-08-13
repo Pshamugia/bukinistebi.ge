@@ -237,6 +237,7 @@ return [
     'declineCookie' => 'უარყოფა',
     'directPay' => 'შეიძინე',
     'googleLogin' => 'Google-ით შესვლა',
+    'video' => 'ვიდეო',
 
 
     

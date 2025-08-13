@@ -4,136 +4,134 @@
 
 @section('content')
  
-<div class="container mt-5">
+<div class="container mt-5" style="position: relative; padding-bottom: 5%; top:57px">
   
 
     <!-- Display Author's Bio or Description if available -->
   
 
-    <h5 style="position: relative; padding-bottom: 25px"> 
+    <h5 style="position: relative; padding-bottom: 25px; padding-top:25px;"> 
         <i class="bi bi-person-circle"></i>
         {{ $author->name }}
     </h5>
 
 
 <!-- Exclude sold-out checkbox -->
-    <div class="mb-4">
-        <label>
-            <h6>
-                <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
-                {{ __('messages.instock') }}
-            </h6>
-        </label>
-    </div>
+    
 
-    <div class="row">
-        @foreach($author->books as $book)
-        <div class="col-md-4" style="position: relative; padding-bottom: 25px;">
-            <div class="card book-card">
-                <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}" class="card-link">
-
-            @if (isset($book->photo))
-                <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="cover" id="im">
-            @endif
-                </a>
-            <div class="card-body">
-                <h5 class="card-title">{{ app()->getLocale() === 'en' && $book->title_en ? $book->title_en : $book->title }}</h5>
-                <p class="card-text">{{ number_format($book->price) }} {{ __('messages.lari')}}
-                
-                    <span style="position: relative; top:5px">
-                        @if($book->quantity == 0)
-                        <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
- @elseif($book->quantity >= 1)
- <span style="font-size: 13px; float: right;">{{ __('messages.available')}}</span>
- 
- @endif
-                        </span>
-                </p>
-
-                @if (in_array($book->id, $cartItemIds))
-    <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="true">
-        {{ __('messages.added')}}
-    </button>
-@else
-    <button class="btn btn-primary toggle-cart-btn" data-product-id="{{ $book->id }}" data-in-cart="false">
-        {{ __('messages.addtocart')}}
-    </button>
-@endif
- 
-
-            </div>
+    <div class="container mt-5" style="position:relative; margin-top: -15px !important">
+        <!-- Exclude sold-out checkbox -->
+        <div class="mb-4">
+            <label>
+                <h6>
+                    <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
+                    {{ __('messages.instock') }}
+                </h6>
+            </label>
         </div>
-    </div>
-        @endforeach
-    </div>
-</div>
+        <div class="row">
+            @foreach($books as $book)
+                <div class="col-lg-4 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
+                    <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
+                        <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
+                            class="card-link">
+                            <div class="image-container"
+                                style="background-image: url('{{ asset('images/default_image.png') }}');">
+                                <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}"
+                                    class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
+                                    onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';">
+                            </div>
+                        </a>
+                        <div class="card-body">
+                            <h4 class="font-weight-bold">{{ \Illuminate\Support\Str::limit($book->title, 18) }}</h4>
+                            {{-- Author --}}
+                            <p class="text-muted mb-2" style="font-size: 14px;">
+                                <i class="bi bi-person"></i>
+                                <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
+                                    class="text-decoration-none text-primary">
+                                    {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
+                                </a>
+                            </p>
+                            <p style="font-size: 18px; color: #333;">
+                                <em style="position: relative; font-style: normal; font-size: 20px; top:3px;"> &#8382; </em>
+                                <span class="text-dark fw-semibold" style="position: relative; top:3px;">
+                                    {{ number_format($book->price) }}
+                                </span>
+                                <span style="position: relative; top:5px">
+                                    @if ($book->quantity == 0)
+                                        <span class="badge bg-danger" style="font-weight: 100; float: right;">მარაგი
+                                            ამოწურულია</span>
+                                    @elseif($book->quantity >= 1)
+                                        <span class="badge bg-success"
+                                            style="font-size: 13px; font-weight: 100; float: right;">{{ __('messages.available') }}</span>
+                                    @endif
+                                </span>
+                            </p>
+
+                            {{-- Cart Buttons --}}
+                             {{-- Cart Buttons --}}
+                             @if($book->quantity >= 1)
+                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                                 @if (in_array($book->id, $cartItemIds))
+                                     <button class="btn btn-success toggle-cart-btn w-100"
+                                         data-product-id="{{ $book->id }}" data-in-cart="true">
+                                         <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
+                                             data-state="added"></span>
+                                     </button>
+                                 @else
+                                     <button class="btn btn-primary toggle-cart-btn w-100"
+                                         data-product-id="{{ $book->id }}" data-in-cart="false">
+                                         <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                                     </button>
+                                 @endif
+                             @endif
+                             
+                             @endif
+                             @if ($book->quantity == 0)
+                             <button class="btn btn-light w-100" style="color:#b9b9b9 !important"
+                             data-product-id="{{ $book->id }}" data-in-cart="false">
+                             <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
+                         </button>
+                               @endif
+                         </div>
+                     </div>
+                 </div>
+             @endforeach
+
+
+        </div>
+
+        <span style="position: relative; top:11px">
+            {{ $books->appends(request()->query())->links('pagination.custom-pagination') }}
+        </span>
+    </div>  </div>
 @endsection
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 @section('scripts')
-<script>
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-</script>
-
- 
-<script>
-    $('#excludeSoldOut').change(function() {
-        const url = new URL(window.location.href);
-        if ($(this).is(':checked')) {
-            url.searchParams.set('exclude_sold', 1);
-        } else {
-            url.searchParams.delete('exclude_sold');
-        }
-        window.location.href = url.toString();
-    });
-</script>
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
 
 
 
-<script>
-    $(document).ready(function() {
-      $('.toggle-cart-btn').click(function() {
-          var button = $(this);
-          var bookId = button.data('product-id');
-          var inCart = button.data('in-cart');
-  
-          $.ajax({
-              url: '{{ route("cart.toggle") }}',
-              method: 'POST',
-              data: {
-                  _token: '{{ csrf_token() }}',
-                  book_id: bookId
-              },
-              success: function(response) {
-                  if (response.success) {
-                      if (response.action === 'added') {
-                          button.removeClass('btn-primary').addClass('btn-success');
-                          button.text('დამატებულია');
-                          button.data('in-cart', true);
-                      } else if (response.action === 'removed') {
-                          button.removeClass('btn-success').addClass('btn-primary');
-                          button.text('დაამატე კალათაში');
-                          button.data('in-cart', false);
-                      }
-  
-                      // Update the cart count in the navbar
-                      $('#cart-count').text(response.cart_count);
-                  }
-              },
-              error: function(xhr, status, error) {
-                  console.error('AJAX Error:', error);
-                  alert('კალათის გამოსაყენებლად გაიარეთ ავტორიზაცია');
-              }
-          });
-      });
-  });
-  
-  
-  
-  </script>
- 
+
+
+
+    <script>
+        $('#excludeSoldOut').change(function() {
+            const url = new URL(window.location.href);
+            if ($(this).is(':checked')) {
+                url.searchParams.set('exclude_sold', 1);
+            } else {
+                url.searchParams.delete('exclude_sold');
+            }
+            window.location.href = url.toString();
+        });
+    </script>
+
 @endsection

@@ -482,6 +482,7 @@ $news = BookNews::query()
             $query->where(function ($query) use ($searchTerm) {
                 $query->where('title', 'like', '%' . $searchTerm . '%')
                     ->orWhere('full', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('description', 'like', '%' . $searchTerm . '%') // ✅ Added description search
                     ->orWhereHas('author', function ($query) use ($searchTerm) {
                         $query->where('name', 'like', '%' . $searchTerm . '%');
                     });

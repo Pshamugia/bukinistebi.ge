@@ -18,7 +18,12 @@
     @php
         $latestOrder = $user->orders->first(); // Get the latest order
     @endphp
-    <p>{{ __('ტელეფონი:') }} {{ $latestOrder->phone }}</p>
+<p>
+    {{ __('ტელეფონი:') }}
+    <a href="tel:{{ $latestOrder->phone }}" style="text-decoration: none; color: inherit;">
+        {{ $latestOrder->phone }}
+    </a>
+</p>
     <p>{{ __('მისამართი:') }} {{ $latestOrder->city }},  {{ $latestOrder->address }}</p>
 @else
     <p>{{ __('ტელეფონი:') }} {{ __('არ არის ხელმისაწვდომი') }}</p>

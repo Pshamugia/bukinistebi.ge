@@ -15,7 +15,6 @@
             background-color: blue !important;
             color: white !important;
         }
-       
     </style>
     <div class="container mt-5 book-detail-page" style="position: relative; padding-bottom: 5%; top:50px;">
         <div class="row">
@@ -162,7 +161,8 @@
                     <div class="col-md-6">
                         @if ($book->quantity > 0)
                             <p> <span id="price" style="font-size: 20px;">{{ number_format($book->price) }} </span>
-                                <span> {{ __('messages.lari') }}</span> </p>
+                                <span> {{ __('messages.lari') }}</span>
+                            </p>
                         @else
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-x-circle text-danger"></i>
@@ -192,30 +192,34 @@
                         </div>
 
                         <!-- Add to Cart Button -->
-                        @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                            @if (in_array($book->id, $cartItemIds))
-                                <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
-                                    data-in-cart="true" style="width: 200px; font-size: 15px">
-                                    <i class="bi bi-check-circle"></i> <span
-                                        class="cart-btn-text">{{ __('messages.added') }}</span>
-                                </button>
-                            @else
-                                <button class="btn btn-primary forFull toggle-cart-btn"
-                                    data-product-id="{{ $book->id }}" data-in-cart="false"
-                                    style="width: 200px; font-size: 14px">
-                                    <i class="bi bi-cart-plus"></i> <span
-                                        class="cart-btn-text">{{ __('messages.addtocart') }}</span>
-                                </button>
+                        @if ($book->quantity >= 1)
+                            @if (!auth()->check() || auth()->user()->role !== 'publisher')
+                                @if (in_array($book->id, $cartItemIds))
+                                    <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
+                                        data-in-cart="true" style="width: 200px; font-size: 15px">
+                                        <i class="bi bi-check-circle"></i> <span
+                                            class="cart-btn-text">{{ __('messages.added') }}</span>
+                                    </button>
+                                @else
+                                    <button class="btn btn-primary forFull toggle-cart-btn"
+                                        data-product-id="{{ $book->id }}" data-in-cart="false"
+                                        style="width: 200px; font-size: 14px">
+                                        <i class="bi bi-cart-plus"></i> <span
+                                            class="cart-btn-text">{{ __('messages.addtocart') }}</span>
+                                    </button>
+                                @endif
+
                             @endif
                         @endif
 
 
-                        <!-- Direct Pay Button -->
-                        <button class="btn btn-warning mt-2 direct-play-btn" id="direct-pay-toggle"
-                            style="width: 200px;">
-                            <i class="bi bi-credit-card"></i> {{ __('messages.directPay') }}
-                        </button>
-
+                        @if ($book->quantity >= 1)
+                            <!-- Direct Pay Button -->
+                            <button class="btn btn-warning mt-2 direct-play-btn" id="direct-pay-toggle"
+                                style="width: 200px;">
+                                <i class="bi bi-credit-card"></i> {{ __('messages.directPay') }}
+                            </button>
+                        @endif
 
 
 
@@ -226,10 +230,9 @@
 
                     <!-- Direct Pay Form -->
 
-                    <div class="w-100 mt-4" id="direct-pay-form"
-                        style="display: none; ">
-                        <form action="{{ route('book.direct.pay') }}" method="POST" id="directCheckoutForm" 
-                        style="padding: 0 20px; margin-top:-20px !important;  background-color: rgb(253, 205, 71); 
+                    <div class="w-100 mt-4" id="direct-pay-form" style="display: none; ">
+                        <form action="{{ route('book.direct.pay') }}" method="POST" id="directCheckoutForm"
+                            style="padding: 0 20px; margin-top:-20px !important;  background-color: rgb(253, 205, 71); 
                       border-radius: 5px;">
                             @csrf
                             <div class="text-end" style="top:20px; position: relative;">
@@ -243,32 +246,32 @@
                             <!-- Payment Options -->
                             <h5><strong>{{ __('messages.choosePayment') }}</strong></h5>
 
-<!-- Bank Transfer Switch -->
-<div class="form-check form-switch">
-    <input class="form-check-input" type="radio" 
-           name="payment_method" id="payment_bank"
-           value="bank_transfer" required>
-    <label class="form-check-label" for="payment_bank">
-      💳 {{ __('messages.payBankTransfer') }}
-    </label>
-  </div>
-  
-  <!-- Courier Switch -->
-  <div class="form-check form-switch">
-    <input class="form-check-input" type="radio" 
-           name="payment_method" id="payment_courier"
-           value="courier" required>
-    <label class="form-check-label" for="payment_courier">
-      🚚 {{ __('messages.payDelivery') }}
-    </label>
-  </div>
+                            <!-- Bank Transfer Switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_bank"
+                                    value="bank_transfer" required>
+                                <label class="form-check-label" for="payment_bank">
+                                    💳 {{ __('messages.payBankTransfer') }}
+                                </label>
+                            </div>
+
+                            <!-- Courier Switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="radio" name="payment_method"
+                                    id="payment_courier" value="courier" required>
+                                <label class="form-check-label" for="payment_courier">
+                                    🚚 {{ __('messages.payDelivery') }}
+                                </label>
+                            </div>
 
 
 
 
                             <!-- Name -->
                             <div class="mb-3 mt-3">
-                                <label><h4><strong>{{ __('messages.nameSurname') }}</strong></h4></label>
+                                <label>
+                                    <h4><strong>{{ __('messages.nameSurname') }}</strong></h4>
+                                </label>
                                 <input type="text" name="name" class="form-control" required>
                             </div>
 
@@ -299,16 +302,17 @@
                                     .chosen-container-single .chosen-single {
                                         position: relative;
                                         padding-top: 8px !important;
-                                         width: 100% !important;
-                                         background: white !important;
+                                        width: 100% !important;
+                                        background: white !important;
                                     }
-                                    .chosen-container-single .chosen-single div b{
-                                        margin-top:9px;
+
+                                    .chosen-container-single .chosen-single div b {
+                                        margin-top: 9px;
                                     }
                                 </style>
                                 <div class="col-md-12 w-100">
-                                    <select name="city" class="form-control col-md-12 chosen-select w-100" id="city"
-                                        data-placeholder="{{ __('messages.browseCity') }}" required
+                                    <select name="city" class="form-control col-md-12 chosen-select w-100"
+                                        id="city" data-placeholder="{{ __('messages.browseCity') }}" required
                                         style="width: 100% !important; top:20px !important;">
                                         <option value="">{{ __('messages.browseCity') }}</option>
                                         <option value="თბილისი">{{ __('messages.tbilisi') }}</option>
@@ -398,7 +402,9 @@
 
                             <!-- Address -->
                             <div class="mb-3">
-                                <label><h4><strong>{{ __('messages.address') }}</strong></h4></label>
+                                <label>
+                                    <h4><strong>{{ __('messages.address') }}</strong></h4>
+                                </label>
                                 <input type="text" name="address" class="form-control" required>
                             </div>
 
@@ -441,34 +447,94 @@
                         </span>
                     </p>
 
-                    <h4 style="position: relative; top: 8px"><i class="bi bi-clipboard-data"></i>
-                        {{ __('messages.details') }} </h4>
 
-                    <table class="table table-bordered table-hover" style="margin-top:20px; position: relative;">
 
-                        <tbody>
-                            <tr>
-                                <td class="nowrap"><strong> {{ __('messages.price') }}</strong></td>
-                                <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span> </td>
-                            </tr>
-                            <tr>
-                                <td class="nowrap"><strong> {{ __('messages.numberOfPages') }}</strong></td>
-                                <td><span>{{ $book->pages }}</span></td>
-                            </tr>
-                            <tr>
-                                <td class="nowrap"><strong>{{ __('messages.yearofpublicaion') }}</strong></td>
-                                <td><span>{{ $book->publishing_date }}</span> </td>
-                            </tr>
-                            <tr>
-                                <td><strong>{{ __('messages.cover') }}</strong></td>
-                                <td><span>{{ $book->cover }}</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>{{ __('messages.bookCondition') }}</strong></td>
-                                <td><span>{{ $book->status }}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home"
+                                aria-selected="true">
+                                <h4 style="position: relative; top: 8px">
+                                    <i class="bi bi-clipboard-data"></i>
+                                    {{ __('messages.details') }}
+                                </h4>
+                            </button>
+                            @if ($book->video)
+                                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab"
+                                    data-bs-target="#nav-profile" type="button" role="tab"
+                                    aria-controls="nav-profile" aria-selected="false">
+                                    <h4 style="position: relative; top: 8px">
+                                        <i class="bi bi-youtube"></i>
+                                        {{ __('messages.video') }}
+                                    </h4>
+
+                                </button>
+                            @endif
+                        </div>
+                    </nav>
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
+                            aria-labelledby="nav-home-tab">
+                            <table class="table table-bordered table-hover" style="margin-top:20px; position: relative;">
+
+                                <tbody>
+                                    <tr>
+                                        <td class="nowrap"><strong> {{ __('messages.price') }}</strong></td>
+                                        <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nowrap"><strong> {{ __('messages.numberOfPages') }}</strong></td>
+                                        <td><span>{{ $book->pages }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nowrap"><strong>{{ __('messages.yearofpublicaion') }}</strong></td>
+                                        <td><span>{{ $book->publishing_date }}</span> </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>{{ __('messages.cover') }}</strong></td>
+                                        <td><span>{{ $book->cover }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>{{ __('messages.bookCondition') }}</strong></td>
+                                        <td><span>{{ $book->status }}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <br>
+                            @if ($book->video)
+                                @php
+                                    preg_match(
+                                        '~(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)([A-Za-z0-9_-]{11})~',
+                                        $book->video,
+                                        $matches,
+                                    );
+                                    $videoId = $matches[1] ?? null;
+                                @endphp
+
+                                @if ($videoId)
+                                    <div class="ratio ratio-16x9">
+                                        <iframe src="https://www.youtube.com/embed/{{ $videoId }}" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                @else
+                                    <small class="text-danger">არასწორი YouTube ბმული</small>
+                                @endif
+                            @endif
+
+
+
+                        </div>
+                    </div>
+
+
                     @if ($book->genres->count())
                         <div class="mt-4">
 

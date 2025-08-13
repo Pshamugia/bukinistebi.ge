@@ -79,22 +79,25 @@ class AuthorController extends Controller
         return redirect()->route('authors.index')->with('success', 'Author deleted successfully.');
     }
 
-    public function full_author($name, $id)
-    {
-        $author = Author::with(['books' => function ($query) {
-            if (request('exclude_sold')) {
-                $query->where('quantity', '>', 0);
-            }
-        }])->findOrFail($id);
-    
-        $cartItemIds = [];
-        if (Auth::check() && Auth::user()->cart) {
-            $cartItemIds = Auth::user()->cart->cartItems->pluck('book_id')->toArray();
-        }
-    
-        $isHomePage = false;
-    
-        return view('full_author', compact('author', 'cartItemIds', 'isHomePage'));
-    }
+    public function full_author(Request $request, $name, $id)
+{
+    $author = Author::findOrFail($id);
+
+    $books = Book::with('author')
+        ->where('author_id', $author->id)
+        ->where('hide', 0) // <— only visible books
+        ->when($request->boolean('exclude_sold'), fn ($q) => $q->where('quantity', '>', 0))
+        ->orderByDesc('created_at')
+        ->paginate(12)
+        ->withQueryString(); // keep ?exclude_sold=1 on next pages
+
+    $cartItemIds = (Auth::check() && Auth::user()->cart)
+        ? Auth::user()->cart->cartItems->pluck('book_id')->toArray()
+        : [];
+
+    $isHomePage = false;
+
+    return view('full_author', compact('author', 'books', 'cartItemIds', 'isHomePage'));
+}
     
 }

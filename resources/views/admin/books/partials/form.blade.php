@@ -97,6 +97,12 @@
 
 
 
+<div class="form-group">
+    <label for="video">Video URL</label>
+    <input type="text" name="video" class="form-control" value="{{ old('video', $book->video ?? '') }}">
+</div>
+
+
 <div class="mb-3">
     <label for="quantity" class="form-label"> რაოდენობა</label>
     <div class="input-group">
