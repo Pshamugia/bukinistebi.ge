@@ -33,7 +33,16 @@
                 <tr>
                     <td><a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}" target="_blank">
                         {{ $item->book->title }}
-                    </a></td>
+                    </a>
+                
+                
+                    ({{ $item->quantity }})
+                    @if($item->book->publisher)
+                       <Span style="color:red; font-weight: bold"> — <small>ბუკინისტი: {{ $item->book->publisher->name }}</small> </Span>
+                    @else
+                        — <small>ჩემი წიგნებიდან</small>
+                    @endif
+                </td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ $item->price }} ლარი </td>
                     <td>{{ $item->order->total }} ლარი </td>

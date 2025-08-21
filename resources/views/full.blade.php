@@ -156,7 +156,7 @@
                         <span> {{ $authorName }} </span>
                     </a>
                 </p>
-                <div class="row align-items-start">
+                <div class="row align-items-start" style="padding-bottom:20px">
                     <!-- Left side -->
                     <div class="col-md-6">
                         @if ($book->quantity > 0)
@@ -441,7 +441,7 @@
                 <div class="mt-4" style="position: relative; top:-20px">
                     <h4 style="position: relative; top: 8px"><i class="bi bi-file-text"></i>
                         {{ __('messages.description') }}</h4>
-                    <p style="border:1px solid rgb(202, 200, 200); padding: 20px; margin-top:20px; border-radius: 3px">
+                    <p style="border:1px solid rgb(226, 226, 226); padding: 20px; margin-top:20px; border-radius: 3px">
                         <span>
                             {{ $book->description ?? 'აღწერა არ არის დამატებული.' }}
                         </span>
@@ -476,11 +476,11 @@
                     <div class="tab-content" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
                             aria-labelledby="nav-home-tab">
-                            <table class="table table-bordered table-hover" style="margin-top:20px; position: relative;">
+                            <table class="table table-hover" style="margin-top:20px; position: relative; top:-20px;">
 
-                                <tbody>
+                                <tbody style="border:1px solid rgb(226, 226, 226); border-top:none">
                                     <tr>
-                                        <td class="nowrap"><strong> {{ __('messages.price') }}</strong></td>
+                                        <td class="nowrap" style="border-top:none !Important"><strong> {{ __('messages.price') }}</strong></td>
                                         <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
                                         </td>
                                     </tr>
