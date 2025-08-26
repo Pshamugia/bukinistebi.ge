@@ -450,6 +450,8 @@ class BookController extends Controller
 
 
 
+
+
     /**
      * Display the specified book's details.
      */
@@ -643,5 +645,58 @@ class BookController extends Controller
 }
 
 
+public function full_souvenir($title, $id)
+    {
+        // Fetch the book by ID, including the author and ensure the book is not hidden
+        $book = Book::with('author')->where('hide', '0')->findOrFail($id);
+        $book->increment('views'); // Increment views by 1
+
+        // Optionally, ensure the title in the URL matches the book's actual title
+        $slug = Str::slug($book->title);
+
+        if ($slug !== $title) {
+            // Redirect to the correct URL if the slug in the URL doesn't match the actual book title
+            return redirect()->route('full', ['title' => $slug, 'id' => $book->id]);
+        }
+
+        // Get all ratings for the book (assuming the ratings are stored in the 'article_ratings' table)
+        $ratings = ArticleRating::where('book_id', $id)->get();
+
+        // Calculate the average rating (if any)
+        $averageRating = $ratings->avg('rating');
+
+        // Optionally, get the number of ratings (if you want to display the total count)
+        $ratingCount = $ratings->count();
+
+        $cartItemIds = [];
+        if (Auth::check()) {
+            $cart = Auth::user()->cart;
+            if ($cart) {
+                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray(); // Get all book IDs in the user's cart
+            }
+        }
+
+        $full_author = Author::first();  // Fetch the first author (you may want to modify this)
+        $isHomePage = false;
+
+
+        $genreIds = $book->genres->pluck('id');
+
+        $relatedBooks = Book::where('id', '!=', $book->id)
+            ->where('hide', 0)
+            ->where('quantity', '>', 0) // ✅ Exclude sold-out books
+            ->where('auction_only', false)
+            ->where('language', app()->getLocale()) // ✅ match current language
+            ->whereHas('genres', function ($query) use ($genreIds) {
+                $query->whereIn('genres.id', $genreIds);
+            })
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+
+        // Pass the book, ratings, average rating, and rating count to the view
+        return view('souvenirs/full_souvenir', compact('book', 'full_author', 'cartItemIds', 'isHomePage', 'averageRating', 'ratingCount', 'relatedBooks'));
+    }
 
 }

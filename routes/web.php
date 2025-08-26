@@ -163,6 +163,8 @@ Route::get('/books', [BookController::class, 'books'])->name('books');
 
 // souvenirs
 Route::get('/souvenirs', [BookController::class, 'souvenirs'])->name('souvenirs.index');
+Route::get('/souvenirs/{title}/{id}', [BookController::class, 'full_souvenir'])->name('full_souvenir');
+
 
 
 // send us book order

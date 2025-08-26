@@ -178,7 +178,7 @@
 
     <div class="mb-3">
         <label for="author_id" class="form-label"><i class="bi bi-person-lines-fill"></i> ავტორი</label>
-        <select name="author_id" class="chosen-select" id="author_id" required>
+        <select name="author_id" class="chosen-select" id="author_id">
             <option value=""></option>
             @foreach ($authors as $author)
                 <option value="{{ $author->id }}"
