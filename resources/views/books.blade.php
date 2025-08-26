@@ -4,7 +4,6 @@
 
 @section('content')
 
-
     <h5 class="section-title"
         style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
     justify-content: left;">
@@ -17,15 +16,32 @@
 
     <!-- Featured Books -->
     <div class="container mt-5" style="position:relative; margin-top: -15px !important">
-        <!-- Exclude sold-out checkbox -->
-        <div class="mb-4">
-            <label>
-                <h6>
-                    <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
-                    {{ __('messages.instock') }}
-                </h6>
-            </label>
-        </div>
+        <!-- Controls row: side-by-side on md+, stacked on mobile -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+
+  <!-- Left: Exclude sold-out -->
+  <label class="m-0">
+    <h6 class="m-0">
+      <input type="checkbox" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
+      {{ __('messages.instock') }}
+    </h6>
+  </label>
+
+  <!-- Right: Sort by Price -->
+  <div class="d-flex align-items-center gap-2">
+     <select id="sortBooks" class="form-select form-select-sm w-auto">
+      <option value="">{{ __('messages.sortPriceDefault') ?? 'Default' }}</option>
+      <option value="price_asc"  {{ request('sort') === 'price_asc'  ? 'selected' : '' }}>
+        {{ __('messages.sorPriceAsc') ?? 'Price: Low to High' }}
+      </option>
+      <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>
+        {{ __('messages.sorPriceDesc') ?? 'Price: High to Low' }}
+      </option>
+    </select>
+  </div>
+
+</div>
+
         <div class="row">
             @foreach ($books as $book)
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
@@ -130,5 +146,19 @@
             window.location.href = url.toString();
         });
     </script>
+
+<script>
+    $('#sortBooks').change(function(){
+        const url = new URL(window.location.href);
+        const sort = $(this).val();
+        if (sort) {
+            url.searchParams.set('sort', sort);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        window.location.href = url.toString();
+    });
+    </script>
+    
 
 @endsection

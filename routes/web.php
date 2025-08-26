@@ -156,7 +156,14 @@ Route::get('/full_news/{title}/{id}', [BookNewsController::class, 'full_news'])-
 
 // Search Route (as per the search form in the layout)
 Route::get('/search', [BookController::class, 'search'])->name('search');
+Route::get('/search/suggest', [BookController::class, 'suggest'])
+     ->name('search.suggest');
 Route::get('/books', [BookController::class, 'books'])->name('books');
+
+
+// souvenirs
+Route::get('/souvenirs', [BookController::class, 'souvenirs'])->name('souvenirs.index');
+
 
 // send us book order
 Route::get('/order_us', [BookController::class, 'order_us'])->name('order_us');

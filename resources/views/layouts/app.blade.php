@@ -400,13 +400,16 @@
                     style="display: none; position: absolute; top: 0; left: 0; right: 0; background: #F3F4F6; z-index: 9999; padding: 3px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center"
                         style="width: 100%;">
+                        <div id="searchSuggestMobile" class="suggest-box d-none"></div>
+
                         <input type="search" name="title" class="form-control me-2"
                             placeholder="{{ __('messages.booksearch') }}..." required autofocus>
                         <button type="submit" class="btn btn-outline-success me-2"><i
                                 class="bi bi-search down"></i></button>
                         <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i
                                 class="bi bi-x-lg down"></i></button>
-                    </form>
+
+                     </form>
                 </div>
 
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
@@ -453,31 +456,35 @@
                                 </li>
 
                                 @foreach ($genres as $genre)
-                                    @php
-                                        $genreName =
-                                            app()->getLocale() === 'en' && $genre->name_en
-                                                ? $genre->name_en
-                                                : $genre->name;
-                                    @endphp
-                                    <li class="genre-item" data-name="{{ $genreName }}">
-                                        <a class="dropdown-item"
-                                            href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
-                                            {{ $genreName }}
-                                        </a>
-                                    </li>
-                                @endforeach
+    @php
+        $genreName =
+            app()->getLocale() === 'en' && $genre->name_en
+                ? $genre->name_en
+                : $genre->name;
+    @endphp
+
+    @if($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
+        <li class="genre-item" data-name="{{ $genreName }}">
+            <a class="dropdown-item"
+               href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
+                {{ $genreName }}
+            </a>
+        </li>
+    @endif
+@endforeach
+
 
                             </ul>
 
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link"
-                                href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
+                            <a class="nav-link" href="{{ route('souvenirs.index') }}">{{ __('messages.souvenirs') }}</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('podcast') }}">{{ __('messages.podcast') }}</a>
+                            <a class="nav-link"
+                                href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
                         </li>
 
                         <li class="nav-item">
@@ -494,7 +501,9 @@
                             <button class="btn btn-outline-success submit-search" type="submit"
                                 style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
                                     class="bi bi-search" style="position: relative;  "></i></button>
-                        </form>
+                                    <div id="searchSuggestBox" class="suggest-box d-none"></div>
+                                
+                                </form>
 
 
                     </ul>
@@ -1041,8 +1050,139 @@
             });
         });
     </script>
+    
 
+    
+    <script>
+        $(function(){
+          const $form  = $('form.d-none.d-lg-flex[role="search"]');
+          const $input = $('#searchInput');
+          const $box   = $('#searchSuggestBox');
+          let timer = null;
+        
+          function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+        
+          $input.on('input', function(){
+            const q = this.value.trim();
+            clearTimeout(timer);
+            if (q.length < 2){ $box.addClass('d-none').empty(); return; }
+        
+            timer = setTimeout(function(){
+              $.get('{{ route('search.suggest') }}', { q }, function(list){
+                if (!list || !list.length){
+                  $box.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>').removeClass('d-none');
+                  return;
+                }
+                let html = '<ul class="list-unstyled mb-0">';
+                list.forEach(it => {
+                  const title  = typeof it === 'string' ? it : (it.title || '');
+                  const author = (typeof it === 'object' && it.author) ? it.author : '';
+                  const url    = (typeof it === 'object' && it.url)    ? it.url    : '';
+                  const img    = (typeof it === 'object' && it.image)  ? it.image  : '{{ asset('default.webp') }}';
+        
+                  html += `
+  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+    <span class="thumb-bg" style="background-image:url('${img}');"></span>
+    <div class="suggest-text">
+      <div class="suggest-title">${escapeHtml(title)}</div>
+      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+    </div>
+  </li>`;
 
+                });
+                html += '</ul>';
+                $box.html(html).removeClass('d-none');
+              }).fail(function(){ $box.addClass('d-none').empty(); });
+            }, 250);
+          });
+        
+          // Click: go to URL if present; else fill+submit
+          $box.on('click', '.suggest-item', function(){
+            const url = $(this).data('url');
+            if (url) {
+              window.location.href = url;
+            } else {
+              $input.val($(this).data('title'));
+              $form.trigger('submit');
+            }
+            $box.addClass('d-none').empty();
+          });
+        
+          $(document).on('click', function(e){
+            if (!$(e.target).closest('#searchInput, #searchSuggestBox').length){
+              $box.addClass('d-none').empty();
+            }
+          });
+        });
+        </script>
+        
+
+        <script>
+            $(function(){
+              const $mobileForm  = $('#mobileSearchOverlay form');
+              const $mobileInput = $('#mobileSearchOverlay input[name="title"]');
+              const $mobileBox   = $('#searchSuggestMobile');
+              let mTimer = null;
+            
+              function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+            
+              $mobileInput.on('input', function(){
+                const q = this.value.trim();
+                clearTimeout(mTimer);
+                if (q.length < 2){ $mobileBox.addClass('d-none').empty(); return; }
+            
+                mTimer = setTimeout(function(){
+                  $.get('{{ route('search.suggest') }}', { q }, function(list){
+                    if (!list || !list.length){
+                      $mobileBox.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>').removeClass('d-none');
+                      return;
+                    }
+                    let html = '<ul class="list-unstyled mb-0">';
+                    list.forEach(it => {
+                      const title  = typeof it === 'string' ? it : (it.title || '');
+                      const author = (typeof it === 'object' && it.author) ? it.author : '';
+                      const url    = (typeof it === 'object' && it.url)    ? it.url    : '';
+                      const img    = (typeof it === 'object' && it.image)  ? it.image  : '{{ asset('default.webp') }}';
+            
+                      html += `
+  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+    <span class="thumb-bg" style="background-image:url('${img}');"></span>
+    <div class="suggest-text">
+      <div class="suggest-title">${escapeHtml(title)}</div>
+      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+    </div>
+  </li>`;
+
+                    });
+                    html += '</ul>';
+                    $mobileBox.html(html).removeClass('d-none');
+                  }).fail(function(){ $mobileBox.addClass('d-none').empty(); });
+                }, 250);
+              });
+            
+              $mobileBox.on('click', '.suggest-item', function(){
+                const url = $(this).data('url');
+                if (url) {
+                  window.location.href = url;
+                } else {
+                  $mobileInput.val($(this).data('title'));
+                  $mobileForm.trigger('submit');
+                }
+                $mobileBox.addClass('d-none').empty();
+              });
+            
+              $(document).on('click', function(e){
+                if (!$(e.target).closest('#mobileSearchOverlay input[name="title"], #searchSuggestMobile').length){
+                  $mobileBox.addClass('d-none').empty();
+                }
+              });
+            
+              $('#mobileSearchToggle, #closeMobileSearch').on('click', function(){
+                $mobileBox.addClass('d-none').empty();
+              });
+            });
+            </script>
+            
 
 </body>
 

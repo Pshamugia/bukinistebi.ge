@@ -201,10 +201,18 @@
             <select name="genre_id[]" class="form-select categoria" id="genre_id" multiple>
                 <option value="" style="color: #ccc"><span>{{ __('messages.category') }}</span></option>
                 @foreach ($genres as $genre)
-                <option value="{{ $genre->id }}" {{ request('genre_id') == $genre->id ? 'selected' : '' }}>
-                    {{ $locale === 'en' ? $genre->name_en : $genre->name }}
-                </option>
-            @endforeach
+                    @php
+                        $genreName = $locale === 'en' && $genre->name_en ? $genre->name_en : $genre->name;
+                    @endphp
+            
+                    @if($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
+                        <option value="{{ $genre->id }}" {{ request('genre_id') == $genre->id ? 'selected' : '' }}>
+                            {{ $genreName }}
+                        </option>
+                    @endif
+                @endforeach
+            </select>
+            
             
             
             </select>

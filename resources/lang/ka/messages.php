@@ -238,6 +238,10 @@ return [
     'directPay' => 'შეიძინე',
     'googleLogin' => 'Google-ით შესვლა',
     'video' => 'ვიდეო',
+    'sortPriceDefault' => 'ფასის სორტირება',
+    'sorPriceAsc' => 'ფასი ზრდადობით',
+    'sorPriceDesc' => 'ფასი კლებადობით',
+    'souvenirs' => 'სუვენირები',
 
 
     

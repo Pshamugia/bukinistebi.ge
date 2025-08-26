@@ -33,6 +33,9 @@ class BookController extends Controller
                 ->where('hide', '0')
                 ->where('auction_only', false)
                 ->where('language', app()->getLocale()) // ✅ ADD THIS
+                ->whereDoesntHave('genres', function ($q) {
+                    $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
+                })
                 ->take(8)
                 ->get();
         });
@@ -48,13 +51,13 @@ class BookController extends Controller
 
         $locale = app()->getLocale();
 
-$news = BookNews::query()
-    ->when($locale === 'en', fn($q) => $q->whereNotNull('title_en'))
-    ->when($locale === 'ka', fn($q) => $q->whereNotNull('title'))
-    ->where('title', '!=', 'წესები და პირობები')
-    ->where('title', '!=', 'ბუკინისტებისათვის')
-    ->latest()
-    ->paginate(6);
+        $news = BookNews::query()
+            ->when($locale === 'en', fn ($q) => $q->whereNotNull('title_en'))
+            ->when($locale === 'ka', fn ($q) => $q->whereNotNull('title'))
+            ->where('title', '!=', 'წესები და პირობები')
+            ->where('title', '!=', 'ბუკინისტებისათვის')
+            ->latest()
+            ->paginate(6);
 
 
         $bukinistebisatvis = Cache::remember('home_bukinistebisatvis', 600, function () {
@@ -89,14 +92,14 @@ $news = BookNews::query()
                 ->groupBy('books.id')
                 ->orderByDesc('avg_rating')
                 ->limit(10);
-        
+
             if ($locale === 'en') {
                 $query->where('books.language', 'en');
             }
-        
+
             $topRated = $query->get();
             $bookIds = $topRated->pluck('book_id');
-        
+
             return \App\Models\Book::with('author')
                 ->whereIn('id', $bookIds)
                 ->get();
@@ -138,9 +141,9 @@ $news = BookNews::query()
     {
         Session::put('locale', $locale);
         App::setLocale($locale);
-    
+
         Log::info('✅ setLocale triggered, locale set to: ' . $locale);
-    
+
         return redirect()->back();
     }
 
@@ -148,22 +151,37 @@ $news = BookNews::query()
     public function byGenre($id)
     {
         $genre = Genre::findOrFail($id);
-        $books = $genre->books()
+
+        $query = $genre->books()
             ->where('hide', 0)
             ->where('auction_only', false)
             ->where('language', app()->getLocale())
-            ->when(request('exclude_sold'), function ($query) {
-                $query->where('quantity', '>', 0);
+            ->whereDoesntHave('genres', function ($q) {
+                $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
             })
-            ->latest()
+            ->when(request('exclude_sold'), function ($q) {
+                $q->where('quantity', '>', 0);
+            });
+
+        // ✅ Sorting (same logic as in books())
+        if (request('sort') === 'price_asc') {
+            $query->orderBy('price', 'asc');
+        } elseif (request('sort') === 'price_desc') {
+            $query->orderBy('price', 'desc');
+        } else {
+            $query->latest(); // default
+        }
+
+        $books = $query
             ->paginate(12)
-            ->appends(request()->query()); // ✅ preserve query in pagination links
-        // Get the cart item IDs for the authenticated user, if logged in
+            ->appends(request()->query()); // keep params in pagination
+
+        // cart ids
         $cartItemIds = [];
         if (Auth::check()) {
             $cart = Auth::user()->cart;
             if ($cart) {
-                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray(); // Get all book IDs in the user's cart
+                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray();
             }
         }
 
@@ -171,6 +189,7 @@ $news = BookNews::query()
 
         return view('books.by_genre', compact('genre', 'books', 'cartItemIds', 'isHomePage'));
     }
+
 
 
     public function order_us()
@@ -241,32 +260,44 @@ $news = BookNews::query()
 
     public function books()
     {
-        $books = Book::query()
+        $query = Book::query()
             ->where('hide', '0')
             ->where('language', app()->getLocale())
-            ->where('auction_only', false)
-            ->when(request('exclude_sold'), function ($query) {
-                $query->where('quantity', '>', 0);
+            ->whereDoesntHave('genres', function ($q) {
+                $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
             })
-            ->orderBy('id', 'DESC')
-            ->paginate(12);
+            ->where('auction_only', false)
+            ->when(request('exclude_sold'), function ($q) {
+                $q->where('quantity', '>', 0);
+            });
 
+        // ✅ Sorting
+        if (request('sort') === 'price_asc') {
+            $query->orderBy('price', 'asc');
+        } elseif (request('sort') === 'price_desc') {
+            $query->orderBy('price', 'desc');
+        } else {
+            $query->orderBy('id', 'desc'); // default (latest)
+        }
 
-        // Get the cart item IDs for the authenticated user, if logged in
+        $books = $query->paginate(12)->appends(request()->query());
+
+        // Cart items
         $cartItemIds = [];
         if (Auth::check()) {
             $cart = Auth::user()->cart;
             if ($cart) {
-                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray(); // Get all book IDs in the user's cart
+                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray();
             }
         }
 
         $news = BookNews::latest()->paginate(6);
-        $popularBooks = Book::orderBy('views', 'desc')->take(10)->get(); // Fetch top 3 most viewed books
+        $popularBooks = Book::orderBy('views', 'desc')->take(10)->get();
         $isHomePage = false;
 
         return view('books', compact('books', 'cartItemIds', 'news', 'popularBooks', 'isHomePage'));
     }
+
 
 
 
@@ -278,23 +309,23 @@ $news = BookNews::query()
             ->pluck('order_items.book_id')
             ->unique()
             ->toArray();
-    
+
         // Get book IDs from cart
         $cartBookIds = \App\Models\Cart::where('user_id', $userId)
             ->join('cart_items', 'carts.id', '=', 'cart_items.cart_id')
             ->pluck('cart_items.book_id')
             ->unique()
             ->toArray();
-    
+
         // Combine them
         $userBookIds = array_unique(array_merge($orderedBookIds, $cartBookIds));
-    
+
         // Get genres from these books
         $genreIds = \App\Models\Book::whereIn('id', $userBookIds)
             ->pluck('genre_id')
             ->unique()
             ->toArray();
-    
+
         // Recommend other books from these genres
         $recommendedBooks = \App\Models\Book::whereIn('genre_id', $genreIds)
             ->whereNotIn('id', $userBookIds)
@@ -304,10 +335,10 @@ $news = BookNews::query()
             ->inRandomOrder()
             ->take(8)
             ->get();
-    
+
         return $recommendedBooks;
     }
-    
+
 
 
 
@@ -473,8 +504,8 @@ $news = BookNews::query()
 
         // Start a query for books that are not hidden
         $query = Book::where('hide', 0)
-        ->where('language', app()->getLocale())
-        ->where('auction_only', false); // ✅ Exclude auction-only books
+            ->where('language', app()->getLocale())
+            ->where('auction_only', false); // ✅ Exclude auction-only books
 
 
         // Apply search term filter (combine search fields inside a subquery)
@@ -547,4 +578,70 @@ $news = BookNews::query()
         // Return the view with all required data
         return view('search', compact('books', 'authors', 'searchTerm', 'cartItemIds', 'search_count', 'categories', 'genres', 'isHomePage'));
     }
+
+
+    // BookController.php
+    public function suggest(\Illuminate\Http\Request $request)
+    {
+        $q = trim((string) $request->get('q', ''));
+        if (mb_strlen($q) < 2) return response()->json([]);
+
+        $books = \App\Models\Book::query()
+            ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo') // 👈 add photo
+            ->with(['author:id,name'])
+            ->where('books.hide', 0)
+            ->where('books.auction_only', false)
+            ->where('books.language', app()->getLocale())
+            ->where(function ($qq) use ($q) {
+                $qq->where('books.title', 'like', $q . '%')
+                    ->orWhere('books.description', 'like', '%' . $q . '%')
+                    ->orWhereHas('author', function ($a) use ($q) {
+                        $a->where('name', 'like', '%' . $q . '%');
+                    });
+            })
+            ->orderByDesc('books.id')
+            ->limit(8)
+            ->get();
+
+        $items = $books->map(function ($b) {
+            $img = $b->photo ? asset('storage/' . $b->photo) : asset('default.webp'); // 👈 fallback
+            return [
+                'title'  => $b->title,
+                'author' => optional($b->author)->name,
+                'url'    => route('full', ['title' => \Illuminate\Support\Str::slug($b->title), 'id' => $b->id]),
+                'image'  => $img,
+            ];
+        });
+
+        return response()->json($items);
+    }
+
+
+
+
+    public function souvenirs()
+{
+    // find the genre "Souvenirs" (adjust ID if needed)
+    $genre = \App\Models\Genre::where('name', 'სუვენირები')
+                ->orWhere('name_en', 'Souvenirs')
+                ->firstOrFail();
+
+    $books = $genre->books()
+        ->where('hide', 0)
+        ->latest()
+        ->paginate(12);
+
+    // ✅ cartItemIds logic (so Add to Cart works)
+    $cartItemIds = [];
+    if (auth()->check() && auth()->user()->cart) {
+        $cartItemIds = auth()->user()->cart->cartItems->pluck('book_id')->toArray();
+    }
+
+    $isHomePage = false;
+
+    return view('souvenirs.index', compact('genre', 'books', 'cartItemIds', 'isHomePage'));
+}
+
+
+
 }

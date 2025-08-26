@@ -152,7 +152,34 @@ body.dark-mode .genre-badge{
     max-height: 60px; 
 }
 
+.suggest-box{
+    position:absolute; top:calc(100% + 2px); left:0; right:0; width:100%;
+    background:#fff; border:1px solid #e5e7eb; border-top:0;
+    z-index:5000; max-height:320px; overflow:auto;
+  }
+  .suggest-item{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px; cursor:pointer;
+  }
+  .suggest-item:hover{ background:#f8f9fa; }
 
+  /* Fixed-size cover using background image (immune to global img rules) */
+  .suggest-item .thumb-bg{
+    width:40px; height:56px; flex:0 0 40px;
+    border-radius:4px;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    display:block;
+  }
+
+  .suggest-text{ line-height:1.2; min-width:0; }
+  .suggest-title{ font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .suggest-author{ font-size:12px; color:#6b7280; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  @media (max-width:576px){
+    .suggest-item .thumb-bg{ width:34px; height:48px; flex-basis:34px; }
+  }
 
 
 

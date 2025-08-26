@@ -238,4 +238,8 @@ return [
     'directPay' => 'Pay now',
     'googleLogin' => 'Login with Google',
     'video' => 'Video',
+    'sortPriceDefault' => 'Arrage price',
+    'sorPriceAsc' => 'Price ascending',
+    'sorPriceDesc' => 'Price descending',
+    'souvenirs' => 'Souvenirs',
 ];
