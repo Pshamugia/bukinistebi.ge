@@ -8,7 +8,7 @@
         style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
     justify-content: left;">
         <strong>
-            <i class="bi bi-bookmarks-fill"></i> {{ __('messages.souvenirs') }}
+            <i class="bi bi-gift"></i> {{ __('messages.souvenirs') }}
         </strong>
     </h5>
 

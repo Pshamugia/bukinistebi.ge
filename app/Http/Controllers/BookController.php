@@ -585,25 +585,28 @@ class BookController extends Controller
     // BookController.php
     public function suggest(\Illuminate\Http\Request $request)
     {
-        $q = trim((string) $request->get('q', ''));
-        if (mb_strlen($q) < 2) return response()->json([]);
+        $q = trim($request->get('q', ''));
 
-        $books = \App\Models\Book::query()
-            ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo') // 👈 add photo
-            ->with(['author:id,name'])
-            ->where('books.hide', 0)
-            ->where('books.auction_only', false)
-            ->where('books.language', app()->getLocale())
-            ->where(function ($qq) use ($q) {
-                $qq->where('books.title', 'like', $q . '%')
-                    ->orWhere('books.description', 'like', '%' . $q . '%')
-                    ->orWhereHas('author', function ($a) use ($q) {
-                        $a->where('name', 'like', '%' . $q . '%');
-                    });
-            })
-            ->orderByDesc('books.id')
-            ->limit(8)
-            ->get();
+$books = \App\Models\Book::query()
+    ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo')
+    ->with(['author:id,name'])
+    ->where('books.hide', 0)
+    ->where('books.auction_only', false)
+    ->where('books.language', app()->getLocale())
+    ->where(function ($qq) use ($q) {
+        $qLower = mb_strtolower($q, 'UTF-8');
+
+        $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
+           ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
+           ->orWhereHas('author', function ($a) use ($qLower) {
+               $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"]);
+           });
+    })
+    ->orderByDesc('books.id')
+    ->limit(8)
+    ->get();
+
+
 
         $items = $books->map(function ($b) {
             $img = $b->photo ? asset('storage/' . $b->photo) : asset('default.webp'); // 👈 fallback
