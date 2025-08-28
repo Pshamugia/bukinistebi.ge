@@ -98,18 +98,7 @@
             <!-- Book Details -->
             <div class="col-md-7">
                 <h2>{{ $book->title }}</h2>
-                <p class="text-muted"><span>{{ __('messages.author') }}:</span>
-                    <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
-                        style="text-decoration: none">
-                        @php
-                            $authorName =
-                                app()->getLocale() === 'en'
-                                    ? $book->author->name_en ?? $book->author->name
-                                    : $book->author->name;
-                        @endphp
-                        <span> {{ $authorName }} </span>
-                    </a>
-                </p>
+                
                 <div class="row align-items-start" style="padding-bottom:20px">
                     <!-- Left side -->
                     <div class="col-md-6">
@@ -398,7 +387,7 @@
 
 
 
-                    <nav>
+                    <nav style="padding: 10px 0 10px 0;">
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home"
@@ -424,7 +413,7 @@
                     <div class="tab-content" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
                             aria-labelledby="nav-home-tab">
-                            {{ $book->description ?? 'აღწერა არ არის დამატებული.' }}
+                            <span>  {!! $book->full ?? 'აღწერა არ არის დამატებული.' !!} </span>
                         </div>
 
 

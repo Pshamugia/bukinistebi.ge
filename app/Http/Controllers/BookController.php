@@ -72,6 +72,7 @@ class BookController extends Controller
             return Book::with('author')
                 ->join('order_items', 'order_items.book_id', '=', 'books.id')
                 ->where('auction_only', false)
+                ->where('hide', '0')
                 ->select('books.id', 'books.title', 'books.author_id', 'books.photo')
                 ->selectRaw('SUM(order_items.quantity) as total_sold')
                 ->groupBy('order_items.book_id', 'books.id', 'books.title', 'books.author_id', 'books.photo')
@@ -89,6 +90,7 @@ class BookController extends Controller
                 ->select('books.id as book_id', DB::raw('AVG(article_ratings.rating) as avg_rating'))
                 ->where('books.quantity', '>', 0)
                 ->where('auction_only', false)
+                ->where('hide', '0')
                 ->groupBy('books.id')
                 ->orderByDesc('avg_rating')
                 ->limit(10);
@@ -253,8 +255,17 @@ class BookController extends Controller
 
     public function adminBookOrders()
     {
-        $orders = BookOrder::latest()->paginate(10); // 10 orders per page
+        $orders = BookOrder::where('is_done', false)
+            ->latest()
+            ->paginate(15);
+
         return view('admin.book_orders', compact('orders'));
+    }
+
+    public function markDone(BookOrder $order)
+    {
+        $order->update(['is_done' => true]);
+        return back()->with('success', 'შეკვეთა მონიშნულია დასრულებულად.');
     }
 
 
@@ -584,68 +595,88 @@ class BookController extends Controller
 
     // BookController.php
     public function suggest(\Illuminate\Http\Request $request)
-    {
-        $q = trim($request->get('q', ''));
-
-$books = \App\Models\Book::query()
-    ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo')
-    ->with(['author:id,name'])
-    ->where('books.hide', 0)
-    ->where('books.auction_only', false)
-    ->where('books.language', app()->getLocale())
-    ->where(function ($qq) use ($q) {
-        $qLower = mb_strtolower($q, 'UTF-8');
-
-        $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
-           ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
-           ->orWhereHas('author', function ($a) use ($qLower) {
-               $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"]);
-           });
-    })
-    ->orderByDesc('books.id')
-    ->limit(8)
-    ->get();
-
-
-
-        $items = $books->map(function ($b) {
-            $img = $b->photo ? asset('storage/' . $b->photo) : asset('default.webp'); // 👈 fallback
-            return [
-                'title'  => $b->title,
-                'author' => optional($b->author)->name,
-                'url'    => route('full', ['title' => \Illuminate\Support\Str::slug($b->title), 'id' => $b->id]),
-                'image'  => $img,
-            ];
-        });
-
-        return response()->json($items);
+{
+    $q = trim((string) $request->get('q', ''));
+    if (mb_strlen($q) < 2) {
+        return response()->json([]);
     }
 
+    $qLower = mb_strtolower($q, 'UTF-8');
+
+    $books = \App\Models\Book::query()
+        ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo')
+        ->with(['author:id,name,name_en'])
+        ->where('books.hide', 0)
+        ->where('books.auction_only', false)
+        ->where('books.language', app()->getLocale())
+        ->where(function ($qq) use ($qLower) {
+            // case-insensitive, match ANYWHERE in title/description
+            $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
+               ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
+               ->orWhereHas('author', function ($a) use ($qLower) {
+                   // ✅ author name in KA or EN
+                   $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+                     ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
+               });
+        })
+        ->orderByDesc('books.id')
+        ->limit(8)
+        ->get();
+
+    $items = $books->map(function ($b) {
+        $authorName = app()->getLocale() === 'en'
+            ? ($b->author->name_en ?: $b->author->name)
+            : ($b->author->name ?: $b->author->name_en);
+
+        return [
+            'title'  => $b->title,
+            'author' => $authorName,
+            'url'    => route('full', ['title' => \Illuminate\Support\Str::slug($b->title), 'id' => $b->id]),
+            'image'  => $b->photo ? asset('storage/'.$b->photo) : asset('default.webp'),
+        ];
+    });
+
+    return response()->json($items);
+}
 
 
 
-    public function souvenirs()
+
+
+public function souvenirs()
 {
-    // find the genre "Souvenirs" (adjust ID if needed)
     $genre = \App\Models\Genre::where('name', 'სუვენირები')
-                ->orWhere('name_en', 'Souvenirs')
-                ->firstOrFail();
+        ->orWhere('name_en', 'Souvenirs')
+        ->firstOrFail();
 
     $books = $genre->books()
-        ->where('hide', 0)
-        ->latest()
-        ->paginate(12);
+        ->where('hide', 0);
 
-    // ✅ cartItemIds logic (so Add to Cart works)
-    $cartItemIds = [];
-    if (auth()->check() && auth()->user()->cart) {
-        $cartItemIds = auth()->user()->cart->cartItems->pluck('book_id')->toArray();
+    // Optional: exclude sold-out
+    if (request('exclude_sold')) {
+        $books->where('quantity', '>', 0);
     }
+
+    // Sorting
+    if (request('sort') === 'price_asc') {
+        $books->orderBy('price', 'asc');
+    } elseif (request('sort') === 'price_desc') {
+        $books->orderBy('price', 'desc');
+    } else {
+        $books->latest(); // default
+    }
+
+    $books = $books->paginate(9)->appends(request()->query());
+
+    $cartItemIds = auth()->check() && auth()->user()->cart
+        ? auth()->user()->cart->cartItems->pluck('book_id')->toArray()
+        : [];
 
     $isHomePage = false;
 
     return view('souvenirs.index', compact('genre', 'books', 'cartItemIds', 'isHomePage'));
 }
+
 
 
 public function full_souvenir($title, $id)

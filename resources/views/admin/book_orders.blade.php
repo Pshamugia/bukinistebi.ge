@@ -13,7 +13,8 @@
                     <th>გამოცემის წელი</th>
                     <th>კომენტარი</th>
                     <th>ელ. ფოსტა</th>
-                    <th>დამატებულია</th>
+                    <th>სტატუსი</th>
+                    <th>თარიღი</th>
                     {{-- <th>სტატუსი</th> --}}
                 </tr>
             </thead>
@@ -25,6 +26,14 @@
                         <td>{{ $order->publishing_year }}</td>
                         <td>{{ $order->comment }}</td>
                         <td>{{ $order->email }}</td>
+                        <td>
+                            <form action="{{ route('admin.book_orders.done', $order) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    ✓ დავასრულოთ?
+                                </button>
+                            </form>
+                        </td>
                         <td>{{ $order->created_at->format('Y-m-d H:i') }}</td>
                         {{-- @php
                             $statusMap = array_change_key_case(\App\Models\Order::$statusesMap, CASE_LOWER);

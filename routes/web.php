@@ -386,6 +386,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
     Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
     Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
+    Route::post('/admin/book-orders/{order}/done', [BookController::class, 'markDone'])
+        ->name('admin.book_orders.done');
 });
 
 
