@@ -13,8 +13,10 @@ class CartItem extends Model
     protected $fillable = [
         'cart_id',
         'book_id',
+        'bundle_id',
         'quantity',
         'price',
+        'size'
     ];
 
     // Relationships
@@ -34,4 +36,8 @@ class CartItem extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    public function bundle(){ return $this->belongsTo(\App\Models\Bundle::class); } 
+
+
 }

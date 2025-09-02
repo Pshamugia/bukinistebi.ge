@@ -242,4 +242,8 @@ return [
     'sorPriceAsc' => 'Price ascending',
     'sorPriceDesc' => 'Price descending',
     'souvenirs' => 'Souvenirs',
+    'size' => 'select size',
+    'sale' => 'Sale',
+    'includedBooks' => 'Included Books',
+    'save' => 'Save',
 ];

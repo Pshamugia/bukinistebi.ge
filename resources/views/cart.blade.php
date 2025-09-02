@@ -62,73 +62,150 @@
                     <tbody>
                         @foreach ($cart->cartItems as $item)
                             <tr>
-                                <td style="text-align: left; vertical-align: middle;">
-                                    <a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}"
-                                        class="card-link" style="text-decoration: none; max-width: 150px; ">
-                                        <img src="{{ asset('storage/' . $item->book->photo) }}"
-                                            alt="{{ $item->book->title }}" width="80px" height="100px" align="left"
-                                            class="img-fluid shadow" style="margin-right: 10px">
-                                        {{ $item->book->title }}
-                                    </a>
-                                    <br>{{ $item->book->author->name }}
 
-                                    <!-- Add a new row for the delete button on mobile -->
-                                    <div class="d-md-none" style="top: 15px; position:relative">
+                                <td style="text-align: left; vertical-align: middle;">
+
+                                    @if ($item->bundle_id && $item->bundle)
+                                        {{-- @foreach ($item->bundle->books as $book) --}}
+                                            
+                                        {{-- @php --}}
+                                            {{-- dd($item->bundle); --}}
+                                        {{-- @endphp --}}
+
+                                            <a href="{{ route('bundles.show', $item->bundle->slug) }}"
+                                                class="card-link" style="text-decoration: none; max-width: 150px;">
+                                                @if ($item->bundle->image_url)
+                                                    <img src="{{ $item->bundle->image_url }}"
+                                                        alt="{{ $item->bundle->title }}" width="80" height="100"
+                                                        align="left" class="img-fluid shadow" style="margin-right:10px">
+                                                @endif
+                                                <span class="badge bg-info me-1">Bundle</span> {{ $item->bundle->title }}
+                                            </a>
+
+                                            <ul class="small mb-0 mt-2">
+                                                @foreach ($item->bundle->books as $b)
+                                                    <li>{{ $b->title }} × {{ $b->pivot->qty }}</li>
+                                                @endforeach
+                                            </ul>
+
+                                            <div class="d-md-none" style="top:15px; position:relative">
+                                                <form
+                                                    action="{{ route('cart.removeBundle', ['bundle' => $item->bundle_id]) }}"
+                                                    method="POST" onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="btn btn-danger btn-sm btn-block deletion">წაშლა</button>
+                                                </form>
+                                            </div>
+                                        {{-- @endforeach --}}
+                                    @else
+                                        {{-- ========= SINGLE BOOK ROW ========= --}}
+                                        @if ($item->book)
+                                            <a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}"
+                                                class="card-link" style="text-decoration: none; max-width: 150px;">
+                                                @if ($item->book->photo)
+                                                    <img src="{{ asset('storage/' . $item->book->photo) }}"
+                                                        alt="{{ $item->book->title }}" width="80" height="100"
+                                                        align="left" class="img-fluid shadow" style="margin-right:10px">
+                                                @endif
+                                                {{ $item->book->title }}
+                                            </a>
+                                            <br>{{ $item->book->author->name ?? '' }}
+                                        @else
+                                            <span>—</span>
+                                        @endif
+
+                                        {{-- mobile delete (book) --}}
+                                        {{-- mobile delete (book) --}}
+                                        @if ($item->book_id)
+                                            <div class="d-md-none" style="top:15px; position:relative">
+                                                <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}"
+                                                    method="POST" onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="btn btn-danger btn-sm btn-block deletion">წაშლა</button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </td>
+
+
+                                {{-- Quantity column --}}
+                                <td style="text-align:center; vertical-align:middle;">
+                                    @php
+                                        $isBundle = (bool) $item->bundle_id;
+                                        $rowId = $isBundle ? $item->bundle_id : $item->book?->id; // ← null-safe
+                                        $maxQty = $isBundle
+                                            ? $item->bundle?->availableQuantity() ?? 0 // ← guarded
+                                            : $item->book?->quantity ?? 0; // ← null-safe
+                                    @endphp
+
+                                    <div style="display:block; margin-bottom:15px; text-align:center;">
+                                        <span style="font-size:13px; display:inline-block;">
+                                            @if ($maxQty <= 0)
+                                                <span style="color:red;"><b><i class="bi bi-x-circle text-danger"></i></b>
+                                                    {{ __('messages.outofstock') }}</span>
+                                            @elseif ($maxQty === 1)
+                                                <span>{{ __('messages.available') }} 1 {{ __('messages.item') }}</span>
+                                            @else
+                                                <span>{{ __('messages.available') }} {{ $maxQty }}
+                                                    {{ __('messages.item') }}</span>
+                                            @endif
+                                        </span>
+
+                                        <input type="hidden" class="max-quantity" value="{{ $maxQty }}">
+                                        <div class="text-danger mt-2 quantity-warning"
+                                            style="display:none; opacity:.0; transition:opacity .5s;">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            <span class="warning-text"></span>
+                                        </div>
+                                    </div>
+
+                                    @if ($rowId)
+                                        {{-- only show + / - if we have an id to target --}}
+                                        <div class="input-group" style="width:120px; margin:auto;">
+                                            <button class="btn btn-outline-secondary decrease-quantity btn-sm"
+                                                type="button" data-type="{{ $isBundle ? 'bundle' : 'book' }}"
+                                                data-id="{{ $rowId }}" style="width:30px;">-</button>
+
+                                            <input type="text"
+                                                class="form-control form-control-sm text-center quantity-input"
+                                                value="{{ $item->quantity }}" readonly style="width:40px;">
+
+                                            <button class="btn btn-outline-secondary increase-quantity btn-sm"
+                                                type="button" data-type="{{ $isBundle ? 'bundle' : 'book' }}"
+                                                data-id="{{ $rowId }}" style="width:30px;">+</button>
+                                        </div>
+                                    @endif
+                                </td>
+
+
+                                {{-- Price column --}}
+                                <td style="text-align:center; vertical-align:middle;">
+                                    {{ number_format($item->price * $item->quantity) }} {{ __('messages.lari') }}
+                                </td>
+
+                                <td class="d-none d-md-table-cell" style="text-align:center; vertical-align:middle;">
+
+                                    @if ($item->bundle_id)
+                                        <form action="{{ route('cart.removeBundle', ['bundle' => $item->bundle_id]) }}"
+                                            method="POST" onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
+                                        </form>
+                                    @elseif($item->book_id)
                                         <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}"
                                             method="POST" onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                                             @csrf
                                             <button type="submit"
-                                                class="btn btn-danger btn-sm btn-block deletion">წაშლა</button>
+                                                class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
                                         </form>
-                                    </div>
+                                    @endif
                                 </td>
-                                <td style="text-align: center; vertical-align: middle;">
-
-                                    <div style="display: block; margin-bottom: 15px; text-align: center;">
-                                        <span style="font-size: 13px; display: inline-block;">
-                                            @if ($item->book->quantity == 0)
-                                                <span style="color:red;">
-                                                    <b> <i class="bi bi-x-circle text-danger"></i> </b>
-                                                    {{ __('messages.outofstock') }}</span>
-                                            @elseif($item->book->quantity == 1)
-                                                <span>{{ __('messages.available') }} 1 {{ __('messages.item') }}</span>
-                                            @else
-                                                <span>{{ __('messages.available') }} {{ $item->book->quantity }}
-                                                    {{ __('messages.item') }}</span>
-                                            @endif
-                                        </span>
-                                        <input type="hidden" class="max-quantity" value="{{ $item->book->quantity }}">
-<div class="text-danger mt-2 quantity-warning" style="display: none; opacity: 0; transition: opacity 0.5s;">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    <span class="warning-text"></span>
-</div>
-
-                                    </div>
-
-                                    <div class="input-group" style="width: 120px; margin: auto;">
-                                        <button class="btn btn-outline-secondary decrease-quantity btn-sm" type="button"
-                                            data-book-id="{{ $item->book->id }}" style="width: 30px;">-</button>
-                                        <input type="text"
-                                            class="form-control form-control-sm text-center quantity-input"
-                                            value="{{ $item->quantity }}" readonly style="width: 40px;">
-                                        <button class="btn btn-outline-secondary increase-quantity btn-sm" type="button"
-                                            data-book-id="{{ $item->book->id }}" style="width: 30px;">+</button>
-                                    </div>
 
 
-
-                                </td>
-                                <td style="text-align: center; vertical-align: middle;">
-                                    {{ number_format($item->price * $item->quantity) }} {{ __('messages.lari') }}</td>
-                                <!-- Remove button on larger screens, hidden on mobile -->
-                                <td class="d-none d-md-table-cell" style="text-align: center; vertical-align: middle;">
-                                    <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}" method="POST"
-                                        onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
-                                        @csrf
-                                        <button type="submit"
-                                            class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
-                                    </form>
-                                </td>
                             </tr>
                         @endforeach
                         <tr style="background-color: #000000; color:white">
@@ -164,7 +241,8 @@
 
 
 
-            <div class="payment-option" style="padding: 7px 33px 10px 33px; background-color: rgb(154, 181, 238); border:1px solid #837979">
+            <div class="payment-option"
+                style="padding: 7px 33px 10px 33px; background-color: rgb(154, 181, 238); border:1px solid #837979">
                 <!-- Payment Method and Personal Info Form -->
                 <form action="{{ route('tbc-checkout') }}" method="POST" id="checkoutForm">
                     @csrf
@@ -172,27 +250,25 @@
 
                     <!-- Radio buttons for payment -->
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="radio" 
-                               name="payment_method" id="payment_bank"
-                               value="bank_transfer" required>
+                        <input class="form-check-input" type="radio" name="payment_method" id="payment_bank"
+                            value="bank_transfer" required>
                         <label class="form-check-label" for="payment_bank">
-                          💳 {{ __('messages.payBankTransfer') }}
+                            💳 {{ __('messages.payBankTransfer') }}
                         </label>
-                      </div>
-                      
-                      <!-- Courier Switch -->
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="radio" 
-                               name="payment_method" id="payment_courier"
-                               value="courier" required>
+                    </div>
+
+                    <!-- Courier Switch -->
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="radio" name="payment_method" id="payment_courier"
+                            value="courier" required>
                         <label class="form-check-label" for="payment_courier">
-                          🚚 {{ __('messages.payDelivery') }}
+                            🚚 {{ __('messages.payDelivery') }}
                         </label>
-                      </div>
+                    </div>
 
 
-                    
-                 
+
+
 
                     <!-- User details -->
                     <div class="mt-4">
@@ -392,59 +468,53 @@
     </script>
 
     <script>
-       $('.increase-quantity, .decrease-quantity').click(function() {
-    const button = $(this);
-    const row = button.closest('tr');
-    const inputField = row.find('.quantity-input');
-    const maxQuantity = parseInt(row.find('.max-quantity').val());
-    const warningDiv = row.find('.quantity-warning');
-    const warningText = row.find('.warning-text');
+        $('.increase-quantity, .decrease-quantity').click(function() {
+            const btn = $(this);
+            const row = btn.closest('tr');
+            const input = row.find('.quantity-input');
+            const maxQty = parseInt(row.find('.max-quantity').val(), 10) || 0;
+            const warn = row.find('.quantity-warning');
+            const warnText = row.find('.warning-text');
 
-    let currentQuantity = parseInt(inputField.val());
+            let qty = parseInt(input.val(), 10) || 1;
+            const action = btn.hasClass('increase-quantity') ? 'increase' : 'decrease';
 
-    const action = button.hasClass('increase-quantity') ? 'increase' : 'decrease';
+            // local guard
+            if (action === 'increase' && qty >= maxQty) {
+                warnText.text('მარაგში გვაქვს მხოლოდ ' + maxQty + ' ეგზემპლარი.');
+                warn.show().css('opacity', 1);
+                return;
+            }
+            if (action === 'decrease') {
+                warn.css('opacity', 0);
+                setTimeout(() => warn.hide(), 500);
+            }
 
-    // Handle increase locally first
-    if (action === 'increase') {
-        if (currentQuantity >= maxQuantity) {
-            // ❗ User tries to exceed limit
-            warningText.text('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
-            warningDiv.show().css('opacity', 1);
-            return; // Do not send AJAX
-        }
-    }
+            const type = btn.data('type'); // 'book' or 'bundle'
+            const id = btn.data('id');
 
-    // On decrease always hide
-    if (action === 'decrease') {
-        warningDiv.css('opacity', 0);
-        setTimeout(() => warningDiv.hide(), 500);
-    }
+            const payload = {
+                _token: '{{ csrf_token() }}',
+                action: action
+            };
+            if (type === 'bundle') payload.bundle_id = id;
+            else payload.book_id = id;
 
-    $.ajax({
-        url: '{{ route('cart.updateQuantity') }}',
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            book_id: button.data('book-id'),
-            action: action
-        },
-        success: function(response) {
-            if (response.success) {
-                inputField.val(response.newQuantity);
-                row.find('td:nth-child(3)').text(response.updatedTotal + ' ლარი');
-                $('#product-price').text(response.cartTotal - 5);
-                $('#total-price').text('ჯამური: ' + response.cartTotal + ' ლარი');
-
+            $.post('{{ route('cart.updateQuantity') }}', payload, function(resp) {
+                if (!resp || !resp.success) {
+                    alert(resp?.message || 'Update failed.');
+                    return;
+                }
+                input.val(resp.newQuantity);
+                row.find('td:nth-child(3)').text(resp.updatedTotal + ' ლარი');
+                $('#product-price').text(resp.cartTotal - 5);
+                $('#total-price').text('ჯამური: ' + resp.cartTotal + ' ლარი');
                 $('#delivery-price').text(5);
                 $('#delivery-price-container').show();
                 $('#total-price').show();
-            } else {
-                alert(response.message || 'Update failed.');
-            }
-        }
-    });
-});
-
+            });
+        });
     </script>
+
 
 @endsection

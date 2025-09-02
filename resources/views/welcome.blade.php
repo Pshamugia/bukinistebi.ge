@@ -261,13 +261,13 @@
                         : asset('images/partners_logo/sulakauri_logo.svg'),
                 'alt' => 'Sulakauri',
             ],
-            // [
-            //     'url' => 'https://www.palitral.ge/',
-            //     'image' => app()->getLocale() === 'en'
-            //         ? asset('images/partners_logo/palitra_logo.svg')
-            //         : asset('images/partners_logo/palitra_logo.svg'),
-            //     'alt' => 'Palitra'
-            // ],
+            [
+                'url' => 'https://www.artanuji.ge/',
+                'image' => app()->getLocale() === 'en'
+                    ? asset('images/partners_logo/artanuji_logo_en.png')
+                    : asset('images/partners_logo/artanuji_logo.png'),
+                'alt' => 'Artanuji'
+            ],
             // [
             //     'url' => 'https://tbcbank.ge/ka',
             //     'image' => app()->getLocale() === 'en'

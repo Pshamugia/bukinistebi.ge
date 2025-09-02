@@ -62,47 +62,55 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        // Ensure the user has a cart
+        // Ensure the user has a cart (with relations)
         $cart = Auth::user()->cart;
-
         if (!$cart || $cart->cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        // Calculate totals
-        $subtotal = $cart->cartItems->sum(function ($item) {
-            return $item->price * $item->quantity;
-        });
+        // Preload relations we need
+        $items = $cart->cartItems()->with(['book', 'bundle.books'])->get();
 
-        $shipping = 10.00; // Fixed shipping cost; adjust as needed
-        $total = $subtotal + $shipping;
+        // Calculate totals
+        $subtotal = $items->sum(fn ($item) => $item->price * $item->quantity);
+        $shipping = 10.00; // keep your current logic here (you can swap to session('city') if you want)
+        $total    = $subtotal + $shipping;
 
         $order = Order::create([
-            'user_id' => Auth::id(),
+            'user_id'  => Auth::id(),
             'subtotal' => $subtotal,
             'shipping' => $shipping,
-            'total' => $total,
-            'status' => 'pending',
-            'city' => session('city'), // fallback from session
+            'total'    => $total,
+            'status'   => 'pending',
+            'city'     => session('city'), // keep your existing behavior
         ]);
 
-        // Create order items based on the cart items
-        foreach ($cart->cartItems as $cartItem) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'book_id' => $cartItem->book_id,
-                'quantity' => $cartItem->quantity,
-                'price' => $cartItem->price,
-            ]);
-            
+        // ✅ Create order items (book OR bundle per line)
+        foreach ($items as $ci) {
+            if ($ci->bundle_id) {
+                $order->orderItems()->create([
+                    'bundle_id' => $ci->bundle_id,
+                    'book_id'   => null,
+                    'quantity'  => $ci->quantity,
+                    'price'     => $ci->price,   // bundle unit price
+                    'meta'      => $ci->meta,    // optional JSON
+                ]);
+            } else {
+                $order->orderItems()->create([
+                    'book_id'  => $ci->book_id,
+                    'quantity' => $ci->quantity,
+                    'price'    => $ci->price,
+                ]);
+            }
         }
 
-        // Clear the user's cart after the order is created
+        // Clear the user's cart
         $cart->cartItems()->delete();
         $cart->delete();
 
         return redirect()->route('orders.index')->with('success', 'Your order has been placed successfully.');
     }
+
 
     /**
      * Display the specified order details.
@@ -136,8 +144,46 @@ class OrderController extends Controller
 
 
     // OrderController.php
+
     public function checkout(Request $request)
     {
+        // Validate user inputs
+        $validatedData = $request->validate([
+            'payment_method' => 'required|string',
+            'name'    => 'required|string|max:255',
+            'phone'   => ['required', 'digits:9'],
+            'address' => 'required|string|max:255',
+            'city'    => 'required|string',
+        ]);
+
+        session(['city' => $validatedData['city']]);
+
+        // Load cart with relations (books + bundles)
+        $cart = Auth::user()->cart()->with(['cartItems.book', 'cartItems.bundle.books'])->first();
+
+        if (!$cart || $cart->cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Calculate totals
+        $subtotal = $cart->cartItems->sum(fn ($i) => $i->price * $i->quantity);
+        $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00;
+        $total    = $subtotal + $shipping;
+
+        // ✅ Check stock for both books and bundles
+        foreach ($cart->cartItems as $ci) {
+            if ($ci->bundle_id) {
+                $available = $ci->bundle->availableQuantity(); // uses Bundle helper
+                if ($available < $ci->quantity) {
+                    return back()->with('error', 'Not enough stock for bundle: ' . $ci->bundle->title);
+                }
+            } else {
+                $book = $ci->book;
+                if (!$book || $book->quantity < $ci->quantity) {
+                    return back()->with('error', 'Not enough stock available for ' . ($book->title ?? 'item'));
+                }
+            }
+        }
         // Validate user inputs
         $validatedData = $request->validate([
             'payment_method' => 'required|string',
@@ -213,11 +259,14 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Proceed with bank transfer.');
     }
 
+
+
+
     public function orderCourier($orderId, Request $request)
     {
         $order = Order::with('orderItems.book') // Load order items and their related books
             ->where('id', $orderId)
-            ->where('user_id', Auth::id())
+            //->where('user_id', Auth::id())
             ->firstOrFail();
 
         // Pass the order data to the view
@@ -264,10 +313,9 @@ class OrderController extends Controller
 
 
     public function guestOrderSuccess($orderId)
-{
-    $order = Order::with('orderItems.book')->findOrFail($orderId);
+    {
+        $order = Order::with('orderItems.book')->findOrFail($orderId);
 
-    return view('order.guest_success', compact('order'));
-}
-
+        return view('order.guest_success', compact('order'));
+    }
 }

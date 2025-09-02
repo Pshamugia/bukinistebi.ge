@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\EmailLog;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -17,7 +18,10 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\BookNewsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\GenreController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\BundleFrontController;
 use App\Http\Controllers\TbcCheckoutController;
+use App\Http\Controllers\Admin\BundleController;
 use App\Http\Controllers\AuctionFrontController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Admin\AuctionController;
@@ -27,18 +31,16 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
 use App\Http\Controllers\Publisher\PublisherBookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
 use App\Http\Controllers\Publisher\PublisherAuthorController;
 use App\Http\Controllers\Publisher\PublisherAccountController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 
+
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Auth\GoogleController;
-
-
-use App\Models\EmailLog;
 
  
  
@@ -60,6 +62,13 @@ Route::get('/clear-all-cache', function () {
     Artisan::call('view:clear');
     return '✅ All caches cleared';
 });
+
+
+
+Route::get('/bundles', [BundleFrontController::class,'index'])->name('bundles.index.public');
+Route::get('/bundles/{slug}', [BundleFrontController::class,'show'])->name('bundles.show');
+
+
 
 // Home Route - Display all books
 Route::get('/', [BookController::class, 'welcome'])->name('welcome');
@@ -178,6 +187,9 @@ Route::get('/podcast', [BookController::class, 'podcast'])->name('podcast');
 Route::get('/genres/{id}-{slug}', [BookController::class, 'byGenre'])->name('genre.books');
 
 Route::post('/direct-book-pay', [TbcCheckoutController::class, 'directPayFromBook'])->name('book.direct.pay');
+// routes/web.php
+Route::post('/bundle/{bundle}/direct-pay', [TbcCheckoutController::class, 'directPayBundle'])
+    ->name('bundle.direct.pay');
 
 // TBC E-Commerce Routes within auth middleware
 Route::middleware('auth')->group(function () {
@@ -225,10 +237,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{book}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove/{book}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/remove-bundle/{bundle}', [CartController::class, 'removeBundle'])
+    ->name('cart.removeBundle');
+
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::post('/cart/update/{book}', [CartController::class, 'updateQuantity'])->name('cart.update');
-    Route::post('/cart/toggle', [CartController::class, 'toggle'])->name('cart.toggle');
+     Route::post('/cart/toggle', [CartController::class, 'toggle'])->name('cart.toggle');
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
+    Route::post('/cart/add-bundle/{bundle}', [CartController::class, 'addBundle'])->name('cart.addBundle');
 
     Route::get('/cart/count', function () {
         $items = session('cart.items', []); // adjust this path as needed
@@ -249,10 +264,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/account/update', [AccountController::class, 'update'])->name('account.update');
     // order Checkout
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::get('/order-courier/{orderId}', [OrderController::class, 'orderCourier'])->name('order_courier');
-
+    
     Route::get('/purchase-history', [OrderController::class, 'purchaseHistory'])->name('purchase.history')->middleware('auth');
 });
+Route::get('/order-courier/{orderId}', [OrderController::class, 'orderCourier'])->name('order_courier');
 
 
 
@@ -331,7 +346,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/auctions/create', [AuctionController::class, 'create'])->name('admin.auctions.create');
     Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
     Route::get('/admin/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
+    
+    
+    Route::resource('bundles', BundleController::class, ['as' => 'admin']);
 
+    
     // Auction Update/Edit Routes
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
@@ -391,10 +410,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 });
 
 
-Route::get('/test-role-middleware', function () {
-    if (Auth::check() && strtolower(Auth::user()->role) === 'publisher') {
-        return 'Access granted to publisher';
-    } else {
-        return redirect()->route('login.publisher.form')->withErrors(['access' => 'Only publishers can access this page.']);
-    }
-});
+
+
+Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class, 'toggleBundle'])
+    ->name('cart.toggleBundle');
+
+

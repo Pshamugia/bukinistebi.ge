@@ -9,8 +9,22 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'book_id', 'quantity', 'price'];
+    protected $fillable = [
+        'order_id',
+        'book_id',
+        'bundle_id',   // <- add if the column exists (optional)
+        'quantity',
+        'price',
+        'size',
+        'meta',        // <- allow saving meta JSON
+    ];
 
+
+     // so $item->meta returns an array
+     protected $casts = [
+        'meta' => 'array',
+    ];
+    
     // Relationship with the Order model
     public function order()
     {
@@ -21,5 +35,9 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+
+    public function bundle(){ return $this->belongsTo(\App\Models\Bundle::class); }
+
     
 }

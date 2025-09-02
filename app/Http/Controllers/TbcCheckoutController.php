@@ -2,109 +2,178 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Bundle;
 use App\Models\Auction;
 use App\Models\OrderItem;
 use Illuminate\Support\Str;
 use App\Mail\OrderPurchased;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
+
 
 class TbcCheckoutController extends Controller
 {
     public function initializePayment(Request $request)
     {
-
-        // Validate user inputs
-        $validatedData = $request->validate([
-            'payment_method' => 'required|string',
-            'name' => 'required|string|max:255',
-            'phone' => ['required', 'digits:9'],
-            'address' => 'required|string|max:255',
-            'city' => 'required|string', // Validate the city field
+        // Validate user-level checkout fields
+        $validated = $request->validate([
+            'payment_method' => 'required|string|in:courier,bank_transfer',
+            'name'           => 'required|string|max:255',
+            'phone'          => ['required', 'digits:9'],
+            'address'        => 'required|string|max:255',
+            'city'           => 'required|string',
         ]);
 
-        // Ensure the user has a cart
-        $cart = Auth::user()->cart;
+        // Load cart with items, each item with book + genres (to detect Souvenirs)
+        $cart = Auth::user()->cart()
+            ->with(['cartItems.book.genres', 'cartItems.bundle.books'])
+            ->first();
+
+
         if (!$cart || $cart->cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        $subtotal = $cart->cartItems->sum(fn ($item) => $item->price * $item->quantity);
-        $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00; // Tbilisi gets 5 Lari, others get 7 Lari
-        $total = $subtotal + $shipping; // Total = subtotal + shipping
+        // Validate sizes for Souvenirs and compute subtotal
+        $subtotal = 0;
+        foreach ($cart->cartItems as $item) {
+            $subtotal += ($item->price * $item->quantity);
 
-        session(['city' => $validatedData['city']]);
+            // Souvenir validation applies only to single-book lines
+            if ($item->book_id && $item->book) {
+                $book = $item->book;
 
-        // Create the order
-        $order = Order::create([
-            'user_id' => Auth::id(),
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'total' => $total,
-            'status' => 'pending',
-            'order_id' => 'ORD-' . uniqid(),
-            'payment_method' => $validatedData['payment_method'],
-            'name' => $validatedData['name'],
-            'phone' => $validatedData['phone'],
-            'address' => $validatedData['address'],
-            'city' => $validatedData['city'], // ✅ 
-        ]);
+                $isSouvenir = $book->genres->contains(function ($g) {
+                    return ($g->name ?? '') === 'სუვენირები' || ($g->name_en ?? '') === 'Souvenirs';
+                });
 
-        // Create order items
-        foreach ($cart->cartItems as $cartItem) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'book_id' => $cartItem->book_id,
-                'quantity' => $cartItem->quantity,
-                'price' => $cartItem->price,
-            ]);
-        }
-
-        // dd(1);
-
-        // Send the email based on the payment method
-        if ($validatedData['payment_method'] === 'courier') {
-            // Send Courier Payment Email
-            Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier')); // Send courier email
-
-            if ($cart) {
-                $quantityUpdateErrs = [];
-                foreach ($cart->cartItems as $cartItem) {
-                    $book = $cartItem->book;
-                    if ($book->quantity >= $cartItem->quantity) {
-                        $book->quantity -= $cartItem->quantity;
-                        $book->save(); // Save updated quantity
-                    } else {
-                        $quantityUpdateErrs = $book->id;
+                if ($isSouvenir) {
+                    if (empty($item->size)) {
+                        return back()->withErrors([
+                            'size' => "გთხოვთ აირჩიოთ ზომა '{$book->title}'-სთვის."
+                        ])->withInput();
+                    }
+                    if (!in_array($item->size, ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'], true)) {
+                        return back()->withErrors([
+                            'size' => "არასწორი ზომა '{$book->title}'-სთვის."
+                        ])->withInput();
                     }
                 }
+            }
+        }
 
-                if (count($quantityUpdateErrs) > 0) {
-                    Log::info("Failed to update book quantity", [
-                        'id' => $paymentId,
-                        'failed_books' => json_encode($quantityUpdateErrs),
-                    ]);
+
+        $shipping = ($validated['city'] === 'თბილისი') ? 5.00 : 7.00;
+        $total    = $subtotal + $shipping;
+
+        // Persist city for the checkout page (your existing behavior)
+        session(['city' => $validated['city']]);
+
+        // Create order
+        $order = Order::create([
+            'user_id'        => Auth::id(),
+            'subtotal'       => $subtotal,
+            'shipping'       => $shipping,
+            'total'          => $total,
+            'status'         => 'pending',
+            'order_id'       => 'ORD-' . uniqid(),
+            'payment_method' => $validated['payment_method'],
+            'name'           => $validated['name'],
+            'phone'          => $validated['phone'],          // keep your original format
+            'address'        => $validated['address'],
+            'city'           => $validated['city'],
+        ]);
+
+        // Create order items (write size from cart_items.size)
+        foreach ($cart->cartItems as $cartItem) {
+            if ($cartItem->bundle_id) {
+                // Bundle line
+                OrderItem::create([
+                    'order_id'  => $order->id,
+                    'bundle_id' => $cartItem->bundle_id,
+                    'book_id'   => null,
+                    'quantity'  => $cartItem->quantity,
+                    'price'     => $cartItem->price,      // bundle unit price
+                    // 'meta'   => $cartItem->meta,       // if you store any JSON
+                ]);
+            } else {
+                // Single-book line (keep your size support)
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'book_id'  => $cartItem->book_id,
+                    'quantity' => $cartItem->quantity,
+                    'price'    => $cartItem->price,
+                    'size'     => $cartItem->size ?? null,
+                ]);
+            }
+        }
+
+
+        // Branch by payment method
+        if ($validated['payment_method'] === 'courier') {
+            $quantityUpdateErrs = [];
+
+            foreach ($cart->cartItems as $cartItem) {
+                if ($cartItem->bundle_id && $cartItem->bundle) {
+                    // Decrement each member book by (qty per bundle * number of bundles)
+                    $bundle = $cartItem->bundle->load('books');
+                    foreach ($bundle->books as $b) {
+                        $needPerBundle = max(1, (int)$b->pivot->qty);
+                        $totalNeed     = $needPerBundle * (int)$cartItem->quantity;
+
+                        $book = \App\Models\Book::find($b->id);
+                        if ($book && $book->quantity >= $totalNeed) {
+                            $book->quantity -= $totalNeed;
+                            $book->save();
+                        } else {
+                            $quantityUpdateErrs[] = $b->id;
+                        }
+                    }
+                } else {
+                    // Single-book item
+                    $book = $cartItem->book;
+                    if ($book && $book->quantity >= $cartItem->quantity) {
+                        $book->quantity -= $cartItem->quantity;
+                        $book->save();
+                    } else {
+                        if ($book) $quantityUpdateErrs[] = $book->id;
+                    }
                 }
-                // ✅ Clear cart + forget cookie
-                $cart->cartItems()->delete();
-                $cart->delete();
-                cookie()->queue(cookie()->forget('abandoned_cart'));
             }
 
+            if (!empty($quantityUpdateErrs)) {
+                Log::info("Failed to update book quantity", ['failed_books' => $quantityUpdateErrs]);
+            }
+
+            // Mark order as processing and clear cart (keep your code)
+            $order->status = 'processing';
+            $order->save();
+
+            $cart->cartItems()->delete();
+            $cart->delete();
+            cookie()->queue(cookie()->forget('abandoned_cart'));
+
+            Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
 
             return redirect()->route('order_courier', ['orderId' => $order->id])
                 ->with('success', 'Your order has been received. Pay with the courier.');
-        } elseif ($validatedData['payment_method'] === 'bank_transfer') {
-            // Send Bank Transfer Email
-            //Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer')); // Send bank transfer email
-            return $this->processPayment($total, $order->order_id);  // Process payment for bank transfer
         }
+
+
+        // Bank transfer: do NOT reduce stock / clear cart here — do it after TBC callback
+        if ($validated['payment_method'] === 'bank_transfer') {
+            return $this->processPayment($total, $order->order_id);
+        }
+
+        return back()->with('error', 'Payment method not recognized.');
     }
+
 
 
 
@@ -273,152 +342,6 @@ class TbcCheckoutController extends Controller
         }
     }
 
-    // public function handleCallback(Request $request)
-    // {
-    //     Log::info('📥 Callback received:', ['request' => $request->all()]);
-
-    //     $payId = $request->query('payId'); // Use query string
-    //     if (!$payId) {
-    //         Log::warning('⚠️ No payId received. Trying fallback match based on latest pending order.');
-
-    //         // Fallback: manually match the latest pending order
-    //         $order = Order::where('status', 'pending')
-    //             ->where('user_id', Auth::id()) // or use session()->get('user_id') if needed
-    //             ->latest()
-    //             ->first();
-
-    //         if ($order) {
-    //             $order->status = 'paid';
-    //             $order->save();
-
-    //             // Clear cart
-    //             $cart = $order->user->cart;
-    //             if ($cart) {
-    //                 $cart->cartItems()->delete();
-    //                 $cart->delete();
-
-
-    //                 // ✅ Forget cart cookie
-    //                 cookie()->queue(cookie()->forget('abandoned_cart'));
-    //             }
-
-    //             // Send email
-    //             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
-    //             Log::info('✅ Fallback: Order marked paid and email sent. Order ID: ' . $order->order_id);
-
-    //             return redirect()->route('order.success')->with('success', 'Payment completed (fallback method).');
-    //         }
-
-    //         Log::error('❌ Fallback failed: No pending order found.');
-    //         return redirect()->route('order.failed')->with('error', 'Payment could not be verified.');
-    //     }
-
-    //     // 🔐 Token and verify from TBC
-    //     $token = $this->getAccessToken();
-    //     if (!$token) {
-    //         Log::error('❌ Failed to retrieve access token.');
-    //         return back()->withErrors(['message' => 'Failed to retrieve access token.']);
-    //     }
-
-    //     $response = Http::withHeaders([
-    //         'Accept' => 'application/json',
-    //         'apikey' => env('TBC_API_KEY'),
-    //         'Authorization' => 'Bearer ' . $token,
-    //     ])->get(env('TBC_BASE_URL') . '/v1/tpay/payments/' . $payId); // ✅ სწორი მეთოდი და URL
-
-    //     Log::info('💳 Callback response:', ['status' => $response->status(), 'body' => $response->json()]);
-
-    //     if ($response->successful()) {
-    //         $paymentData = $response->json();
-
-    //         // Match by order_id
-    //         $merchantPaymentId = $paymentData['merchantPaymentId'] ?? null;
-    //         // ✅ Handle auction payments
-
-    //         // ✅ Auction Access Fee Payment (1₾)
-    //         if (str_starts_with($merchantPaymentId, 'AUC-FEE-')) {
-    //             $parts = explode('-', $merchantPaymentId);
-    //             $userId = $parts[2] ?? null;
-    //             $auctionId = $parts[3] ?? null;
-
-    //             if ($userId && $auctionId) {
-    //                 $user = \App\Models\User::find($userId);
-    //                 if ($user && !$user->has_paid_auction_fee) {
-    //                     $user->has_paid_auction_fee = true;
-    //                     $user->save();
-
-    //                     Log::info("✅ User {$userId} paid the 1₾ auction access fee for auction {$auctionId}");
-
-    //                     // Force-authenticate to make sure session has correct user
-    //                     if (!Auth::check() || Auth::id() !== $user->id) {
-    //                         Auth::login($user);
-    //                     }
-
-    //                     return redirect()->route('auction.show', ['auction' => $auctionId])
-    //                         ->with('success', 'საფასური გადახდილია, ახლა შეგიძლიათ ბიჯის გაკეთება.');
-    //                 }
-    //             }
-
-    //             Log::warning("⚠️ Could not handle AUC-FEE callback correctly", compact('userId', 'auctionId'));
-    //             return redirect()->route('home')->with('error', 'გადახდა განხორციელდა, მაგრამ აუქციონის დეტალები ვერ მოიძებნა.');
-    //         }
-
-
-
-
-    //         if (str_starts_with($merchantPaymentId, 'AUC-')) {
-    //             $auctionId = str_replace('AUC-', '', $merchantPaymentId);
-    //             $auction = Auction::find($auctionId);
-
-    //             if ($auction && !$auction->is_paid && Auth::id() === $auction->winner_id) {
-    //                 $auction->is_paid = true;
-    //                 $auction->save();
-    //                 Log::info("✅ Auction {$auction->id} marked as paid.");
-    //                 return redirect()->route('auction.show', $auction->id)->with('success', 'Auction payment successful.');
-    //             }
-    //         }
-
-
-    //         if (!$merchantPaymentId) {
-    //             Log::error('❌ Missing merchantPaymentId from response');
-    //             return redirect()->route('order.failed')->with('error', 'Payment verified but order reference missing.');
-    //         }
-
-    //         $order = Order::where('order_id', $merchantPaymentId)->first();
-    //         if ($order && $order->status !== 'paid') {
-    //             $order->status = 'paid';
-    //             $order->save();
-
-    //             // 🔥 Reduce stock only for direct pay
-    //             if (str_starts_with($order->order_id, 'ORD-DIRECT-')) {
-    //                 foreach ($order->orderItems as $item) {
-    //                     $book = $item->book;
-    //                     if ($book && $book->quantity >= $item->quantity) {
-    //                         $book->quantity -= $item->quantity;
-    //                         $book->save();
-    //                     }
-    //                 }
-    //             }
-
-    //             // Optional: clear cart only if not direct pay
-    //             if (str_starts_with($order->order_id, 'ORD-') && !str_starts_with($order->order_id, 'ORD-DIRECT-')) {
-    //                 $cart = $order->user->cart;
-    //                 if ($cart) {
-    //                     $cart->cartItems()->delete();
-    //                     $cart->delete();
-    //                     cookie()->queue(cookie()->forget('abandoned_cart'));
-    //                 }
-    //             }
-
-    //             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
-    //         }
-
-    //         return redirect()->route('order.success')->with('success', 'Payment completed.');
-    //     }
-
-    //     Log::error('❌ Payment not approved', ['response' => $response->json()]);
-    //     return redirect()->route('order.failed')->with('error', 'Payment failed or was canceled.');
-    // }
 
 
 
@@ -536,80 +459,202 @@ class TbcCheckoutController extends Controller
     // direct payment option for full blade
 
     public function directPayFromBook(Request $request)
-{
-    $validatedData = $request->validate([
-        'book_id' => 'required|exists:books,id',
-        'quantity' => 'required|integer|min:1',
-        'payment_method' => 'required|string',
-        'name' => 'required|string|max:255',
-        'phone' => ['required', 'digits:9'],
-        'address' => 'required|string|max:255',
-        'city' => 'required|string',
-    ]);
+    {
+        $validatedData = $request->validate([
+            'book_id'        => 'required|exists:books,id',
+            'quantity'       => 'required|integer|min:1',
+            'payment_method' => 'required|string|in:bank_transfer,courier',
+            'name'           => 'required|string|max:255',
+            'phone'          => ['required', 'digits:9'],
+            'address'        => 'required|string|max:255',
+            'city'           => 'required|string',
+            'size'           => 'nullable|string|in:XS,S,M,L,XL,XXL,XXXL', // 👈 add size validation
+        ]);
 
-    $book = \App\Models\Book::findOrFail($validatedData['book_id']);
-    $quantity = $validatedData['quantity'];
-    $subtotal = $book->price * $quantity;
-    $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00;
-    $total = $subtotal + $shipping;
+        $book = \App\Models\Book::with('genres')->findOrFail($validatedData['book_id']);
+        $quantity = $validatedData['quantity'];
+        $subtotal = $book->price * $quantity;
+        $shipping = ($validatedData['city'] === 'თბილისი') ? 5.00 : 7.00;
+        $total = $subtotal + $shipping;
 
-    // ✅ Create the order FIRST for both payment methods
-    $order = Order::create([
-        'user_id' => Auth::id(),
-        'subtotal' => $subtotal,
-        'shipping' => $shipping,
-        'total' => $total,
-        'status' => 'pending',  // Will change to 'processing' if courier
-        'order_id' => 'ORD-DIRECT-' . uniqid(),
-        'payment_method' => $validatedData['payment_method'],
-        'name' => $validatedData['name'],
-        'phone' => '+995' . $validatedData['phone'],
-        'address' => $validatedData['address'],
-        'city' => $validatedData['city'],
-    ]);
+        // 👀 If book is a Souvenir, enforce size
+        $isSouvenir = $book->genres->contains(function ($g) {
+            return ($g->name ?? '') === 'სუვენირები' || ($g->name_en ?? '') === 'Souvenirs';
+        });
 
-    // ✅ Attach the order item
-    OrderItem::create([
-        'order_id' => $order->id,
-        'book_id' => $book->id,
-        'quantity' => $quantity,
-        'price' => $book->price,
-    ]);
-
-    // 🚫 For bank transfer we WAIT for callback to reduce stock
-    // ✅ For courier we reduce stock immediately
-    if ($validatedData['payment_method'] === 'courier') {
-
-        // ✅ Reduce stock now
-        if ($book->quantity >= $quantity) {
-            $book->quantity -= $quantity;
-            $book->save();
+        if ($isSouvenir && empty($validatedData['size'])) {
+            return back()->withErrors(['size' => 'გთხოვთ აირჩიოთ ზომა'])->withInput();
         }
 
-        // ✅ Change order status to processing (not pending)
-        $order->status = 'processing';
-        $order->save();
+        // ✅ Create the order
+        $order = Order::create([
+            'user_id'       => Auth::id(),
+            'subtotal'      => $subtotal,
+            'shipping'      => $shipping,
+            'total'         => $total,
+            'status'        => 'pending', // default
+            'order_id'      => 'ORD-DIRECT-' . uniqid(),
+            'payment_method' => $validatedData['payment_method'],
+            'name'          => $validatedData['name'],
+            'phone'         => '+995' . $validatedData['phone'],
+            'address'       => $validatedData['address'],
+            'city'          => $validatedData['city'],
+        ]);
 
-        // ✅ Send confirmation email
-        Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+        // ✅ Attach the order item (including size if exists)
+        OrderItem::create([
+            'order_id' => $order->id,
+            'book_id'  => $book->id,
+            'quantity' => $quantity,
+            'price'    => $book->price,
+            'size'     => $validatedData['size'] ?? null, // 👈 store size in order_items
+        ]);
 
-        // ✅ Redirect to courier confirmation
-   // ✅ Redirect guests and logged users safely
-   if (Auth::check()) {
-    return redirect()->route('order_courier', ['orderId' => $order->id])
-        ->with('success', 'შეკვეთა მიღებულია. გადაიხდით კურიერთან.');
-} else {
-    return redirect()->route('guest.order.success', ['orderId' => $order->id])
-        ->with('success', 'შეკვეთა მიღებულია. გადაიხდით კურიერთან.');
-}
+        // 🚫 Bank transfer waits for callback to reduce stock
+        // ✅ Courier reduces immediately
+        if ($validatedData['payment_method'] === 'courier') {
+
+            if ($book->quantity >= $quantity) {
+                $book->quantity -= $quantity;
+                $book->save();
+            }
+
+
+            // Reduce stock for any bundle items on paid orders (bank transfer path)
+            $order->loadMissing('orderItems.bundle.books');
+            foreach ($order->orderItems as $it) {
+                if ($it->bundle_id && $it->bundle) {
+                    foreach ($it->bundle->books as $b) {
+                        $need = (int)$b->pivot->qty * (int)$it->quantity;
+                        if ($need > 0 && $b->quantity >= $need) {
+                            $b->decrement('quantity', $need);
+                        }
+                    }
+                }
+            }
+
+
+            $order->status = 'processing';
+            $order->save();
+
+            // ✅ Send confirmation email with size included
+            Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+
+            if (Auth::check()) {
+                return redirect()->route('order_courier', ['orderId' => $order->id])
+                    ->with('success', 'შეკვეთა მიღებულია. გადაიხდით კურიერთან.');
+            } else {
+                return redirect()->route('guest.order.success', ['orderId' => $order->id])
+                    ->with('success', 'შეკვეთა მიღებულია. გადაიხდით კურიერთან.');
+            }
+        }
+
+        if ($validatedData['payment_method'] === 'bank_transfer') {
+            return $this->processPayment($total, $order->order_id);
+        }
+
+        return back()->with('error', 'Payment method not recognized.');
     }
 
-    // ✅ If bank transfer: send to payment processor
-    if ($validatedData['payment_method'] === 'bank_transfer') {
+
+
+
+
+    public function directPayBundle(Request $request, Bundle $bundle)
+    {
+        $data = $request->validate([
+            'payment_method' => 'required|in:bank_transfer,courier',
+            'name'           => 'required|string|max:255',
+            'phone'          => ['required', 'regex:/^5\d{8}$/'],  // 9 digits starting with 5
+            'city'           => 'required|string',
+            'address'        => 'required|string|max:255',
+            'quantity'       => 'required|integer|min:1',
+            // if you added an email field in the form:
+            'email'          => Auth::check() ? 'nullable|email' : 'nullable|email',
+        ]);
+
+        // 1) Stock check via bundle->availableQuantity()
+        $max = (int) $bundle->availableQuantity();
+        $qty = min((int)$data['quantity'], $max);
+        if ($qty < 1) {
+            return back()->withErrors(['bundle' => __('This bundle is out of stock.')])->withInput();
+        }
+
+        // 2) Totals (same pattern as book)
+        $subtotal = $bundle->price * $qty;
+        $shipping = ($data['city'] === 'თბილისი') ? 5.00 : 7.00;
+        $total    = $subtotal + $shipping;
+
+        // 3) Satisfy NOT NULL user_id without schema changes
+        $userId = Auth::id();
+        if (!$userId) {
+            $guest = User::firstOrCreate(
+                ['email' => 'guest@bukinistebi.ge'],
+                ['name' => 'Guest', 'password' => bcrypt(Str::random(16))]
+            );
+            $userId = $guest->id;
+        }
+
+        // 4) Create the order (include required columns)
+        $order = Order::create([
+            'user_id'        => $userId,
+            'order_id'       => 'ORD-DIRECT-' . uniqid(),
+            'name'           => $data['name'],
+            'phone'          => '+995' . preg_replace('/\D/', '', $data['phone']),
+            'city'           => $data['city'],
+            'address'        => $data['address'],
+            'subtotal'       => $subtotal,
+            'shipping'       => $shipping,
+            'total'          => $total,
+            'status'         => 'pending',
+            'payment_method' => $data['payment_method'],
+        ]);
+
+        // 5) Add the bundle order-item
+        OrderItem::create([
+            'order_id'  => $order->id,
+            'bundle_id' => $bundle->id,
+            'book_id'   => null,
+            'quantity'  => $qty,
+            'price'     => $bundle->price, // unit price
+        ]);
+
+        // Optional: customer email for invoice
+        $customerEmail = Auth::user()->email ?? ($data['email'] ?? null);
+
+        // 6) Branch like your book method
+        if ($data['payment_method'] === 'courier') {
+            // Reduce stock now (for courier)
+            $bundle->load('books');
+            foreach ($bundle->books as $b) {
+                $need = (int)$b->pivot->qty * $qty;
+                if ($need > 0) {
+                    if ($b->quantity < $need) {
+                        return back()->withErrors(['bundle' => __('Sorry, the bundle just went out of stock.')]);
+                    }
+                    $b->decrement('quantity', $need);
+                }
+            }
+
+            $order->update(['status' => 'processing']);
+
+            // Admin notification
+            Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+
+            // (optional) Customer invoice
+            // if ($customerEmail) {
+            //     Mail::to($customerEmail)->send(new OrderReceipt($order));
+            // }
+
+            return redirect()->route('order_courier', ['orderId' => $order->id])
+                ->with('success', 'შეკვეთა მიღებულია. გადაიხდით კურიერთან.');
+        }
+
+        // BANK TRANSFER → do NOT reduce stock yet. TBC will call your callback.
+        if ($customerEmail) {
+            // stash for callback if user is guest
+            session(['checkout_email' => $customerEmail]);
+        }
         return $this->processPayment($total, $order->order_id);
     }
-
-    return back()->with('error', 'Payment method not recognized.');
-}
-
 }

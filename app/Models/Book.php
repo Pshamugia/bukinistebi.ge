@@ -39,6 +39,7 @@ class Book extends Model
         'uploader_id',
         'manual_created_at',
         'auction_only',
+        'size',
     ];
 
     // Relationships
@@ -101,6 +102,15 @@ public function auction()
 {
     return $this->hasOne(Auction::class);
 }
+
+
+ 
+// add inverse relation (keep your existing fields)
+public function bundles()
+{
+    return $this->belongsToMany(\App\Models\Bundle::class, 'bundle_book')->withPivot('qty');
+}
+
 
 
 }

@@ -150,12 +150,43 @@ class PaymentCallbackController extends Controller
         // 🔥 Reduce stock only for direct pay
         if (str_starts_with($order->order_id, 'ORD-DIRECT-') && $paymentStatus == "Succeeded") {
             Log::info("payment status is: " .  $paymentStatus);
-            foreach ($order->orderItems as $item) {
-                Log::info("in loop direct cb");
-                $book = $item->book;
-                if ($book && $book->quantity >= $item->quantity) {
-                    $book->quantity -= $item->quantity;
-                    $book->save();
+            $is_bundle = false;
+
+            foreach ($order->orderItems as $i) {
+                if ($i->bundle_id) {
+                    $is_bundle = true;
+                    break;
+                }
+            }
+
+            if (!$is_bundle) {
+                foreach ($order->orderItems as $item) {
+                    Log::info("in loop direct cb");
+                    $book = $item->book;
+                    if ($book && $book->quantity >= $item->quantity) {
+                        $book->quantity -= $item->quantity;
+                        $book->save();
+                    }
+                }
+            } else {
+                foreach ($order->orderItems as $item) {
+                    Log::info("DIRECT PAYMENT OF BUNDLE");
+                    foreach ($item->bundle->books as $book) {
+                        Log::info("DIRECT BOOKS FOUND");
+                        if ($book) {
+                            if ($book->quantity >= $item->quantity) {
+                                $book->quantity -= $item->quantity;
+                                $book->save();
+                            } else {
+                                Log::info("Books qty less then item qty", [
+                                    'book_qty' => $book->quantity,
+                                    'item_qty' => $item->quantity,
+                                ]);
+                            }
+                        } else {
+                            Log::info("DIRECT NO BOOKS");
+                        }
+                    }
                 }
             }
         }
@@ -169,23 +200,47 @@ class PaymentCallbackController extends Controller
             if (str_starts_with($order->order_id, 'ORD-DIRECT-') == false) {
                 $cart = $order->user->cart;
                 Log::info("authed code runnin");
-                
+
 
                 if ($cart) {
                     $quantityUpdateErrs = [];
                     foreach ($cart->cartItems as $cartItem) {
                         $book = $cartItem->book;
-                        if ($book->quantity >= $cartItem->quantity) {
-                            $book->quantity -= $cartItem->quantity;
-                            $book->save(); // Save updated quantity
+                        if ($book) {
+                            if ($book->quantity >= $cartItem->quantity) {
+                                $book->quantity -= $cartItem->quantity;
+                                $book->save(); // Save updated quantity
+                            } else {
+                                $quantityUpdateErrs = $book->id;
+                            }
+                        }
+
+                        if ($cartItem->bundle) {
+                            Log::info("CARTITEM HAS BUNDLE ATTACHED");
+                            $books = $cartItem->bundle->books;
+                            foreach ($books as $book) {
+                                if ($book) {
+                                    Log::info("FOUND BOOK");
+                                    if ($book->quantity >= $cartItem->quantity) {
+                                        $book->quantity -= $cartItem->quantity;
+                                        $book->save(); // Save updated quantity
+                                    } else {
+                                        $quantityUpdateErrs = $book->id;
+                                    }
+                                } else {
+                                    Log::info("COULDNT FIND BOOK");
+                                }
+                            }
                         } else {
-                            $quantityUpdateErrs = $book->id;
+                            Log::info("NO BUNDLE ATTACHED TO CART ITEM");
                         }
                     }
-    
+
+
+
                     $cart->cartItems()->delete();
                     $cart->delete();
-    
+
                     if (count($quantityUpdateErrs) > 0) {
                         Log::info("Failed to update book quantity", [
                             'id' => $paymentId,

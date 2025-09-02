@@ -478,9 +478,20 @@
 
                         </li>
 
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bundles.index.public') }}">
+                       {{ __('messages.sale') }}
+                            </a>
+                          </li>
+                          
+
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('souvenirs.index') }}">{{ __('messages.souvenirs') }}</a>
                         </li>
+
+
+                        
 
                         <li class="nav-item">
                             <a class="nav-link"

@@ -134,6 +134,33 @@
                             </div>
                         </div>
 
+
+
+
+                        @php
+                        $isSouvenir = $book->genres->contains(fn($g) =>
+                            ($g->name ?? '') === 'სუვენირები' || ($g->name_en ?? '') === 'Souvenirs'
+                        );
+                    
+                        $sizes = collect(explode(',', (string) $book->size))
+                            ->map(fn($s) => trim($s))
+                            ->filter()
+                            ->values();
+                    @endphp
+                    
+                    @if ($isSouvenir && $sizes->isNotEmpty())
+                        <div class="mb-3">
+                             <select id="size-select" class="form-select" style="width: 200px; height: 35px; font-size: 14px;">
+                                <option value="">{{ __('messages.size') ?? 'აირჩიე ზომა' }}</option>
+                                @foreach ($sizes as $s)
+                                    <option value="{{ $s }}">{{ $s }}</option>
+                                @endforeach
+                            </select>
+                         </div>
+                    @endif
+                    
+
+
                         <!-- Add to Cart Button -->
                         @if ($book->quantity >= 1)
                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
@@ -166,6 +193,8 @@
 
 
 
+                        
+
 
                     </div>
 
@@ -185,6 +214,8 @@
                             <!-- Hidden book data -->
                             <input type="hidden" name="book_id" value="{{ $book->id }}">
                             <input type="hidden" name="quantity" id="direct-pay-quantity" value="1">
+                            <input type="hidden" name="size" id="direct-pay-size" value="">
+
 
                             <!-- Payment Options -->
                             <h5><strong>{{ __('messages.choosePayment') }}</strong></h5>
@@ -531,6 +562,9 @@
                                             </button>
                                         @endif
                                     @endif
+
+
+                                    
                                 </div>
                             </div>
                         </div>
@@ -696,6 +730,27 @@
                 modalImage.src = imageUrl;
             }
         </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sizeRadios = document.querySelectorAll('input[name="selected_size"]');
+        const sizeHidden = document.getElementById('direct-pay-size');
+    
+        sizeRadios.forEach(r => {
+            r.addEventListener('change', function() {
+                sizeHidden.value = this.value;  // keep hidden field in sync
+            });
+        });
+    
+        // If the user opens Direct Pay without clicking a radio yet,
+        // prefill from any already-checked radio:
+        const checked = document.querySelector('input[name="selected_size"]:checked');
+        if (checked) sizeHidden.value = checked.value;
+    });
+    </script>
+
+
+
         <!-- Quantity Function Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -763,61 +818,96 @@
             });
         </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const isSouvenir = @json($isSouvenir);
+        const sizeSelect = document.getElementById('size-select');
+        const directPaySize = document.getElementById('direct-pay-size');
+
+        if (sizeSelect && directPaySize) {
+            // keep hidden input in sync for Direct Pay
+            const sync = () => directPaySize.value = sizeSelect.value || '';
+            sizeSelect.addEventListener('change', sync);
+            sync(); // init
+        }
+
+        // When user opens Direct Pay, make sure size is chosen for souvenirs
+        const directToggle = document.getElementById('direct-pay-toggle');
+        if (directToggle && isSouvenir && sizeSelect) {
+            directToggle.addEventListener('click', function (e) {
+                if (!sizeSelect.value) {
+                    e.preventDefault();
+                    alert('{{ __("messages.size") ?? "გთხოვთ აირჩიოთ ზომა" }}');
+                    sizeSelect.focus();
+                    return;
+                }
+            });
+        }
+    });
+</script>
 
 
 
         <!-- jQuery and CSRF Setup Script -->
         <script>
-            $('.toggle-cart-btn').click(function() {
-                var button = $(this);
-                var bookId = button.data('product-id');
-                var inCart = button.data('in-cart');
-                var quantity = $('#quantity-' + bookId).val() || 1;
+           (function () {
+        const isSouvenir = @json($isSouvenir);
+        const sizeSelect  = document.getElementById('size-select');
 
-                $.ajax({
-                    url: '{{ route('cart.toggle') }}',
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        book_id: bookId,
-                        quantity: quantity // ✅ pass quantity
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            if (response.action === 'added') {
-                                button.removeClass('btn-primary').addClass('btn-success');
-                                button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
-                                button.find('.cart-btn-text').text(translations.added);
-                                button.data('in-cart', true);
-                            } else if (response.action === 'removed') {
-                                button.removeClass('btn-success').addClass('btn-primary');
-                                button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
-                                button.find('.cart-btn-text').text(translations.addToCart);
-                                button.data('in-cart', false);
-                            }
+        $('.toggle-cart-btn').click(function () {
+            var button   = $(this);
+            var bookId   = button.data('product-id');
+            var quantity = $('#quantity-' + bookId).val() || 1;
 
-                            const cartCount = response.cart_count;
-                            const countEl = document.getElementById('cart-count');
-                            const bubble = document.getElementById('cart-bubble');
+            // require size for souvenirs
+            var selectedSize = sizeSelect ? sizeSelect.value : '';
+            if (isSouvenir && (!selectedSize || selectedSize === '')) {
+                alert('{{ __("messages.size") ?? "გთხოვთ აირჩიოთ ზომა" }}');
+                if (sizeSelect) sizeSelect.focus();
+                return;
+            }
 
-                            if (countEl && bubble) {
-                                countEl.textContent = cartCount;
-                                bubble.style.display = cartCount > 0 ? 'inline-block' : 'none';
-                            }
-
-                            if (cartCount > 0) {
-                                document.cookie = "abandoned_cart=true; max-age=86400; path=/";
-                            } else {
-                                document.cookie =
-                                    "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                            }
+            $.ajax({
+                url: '{{ route('cart.toggle') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    book_id: bookId,
+                    quantity: quantity,
+                    size: selectedSize || null, // ✅ pass size to backend
+                },
+                success: function (response) {
+                    if (response.success) {
+                        if (response.action === 'added') {
+                            button.removeClass('btn-primary').addClass('btn-success');
+                            button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+                            button.find('.cart-btn-text').text(@json(__('messages.added')));
+                            button.data('in-cart', true);
+                        } else if (response.action === 'removed') {
+                            button.removeClass('btn-success').addClass('btn-primary');
+                            button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
+                            button.find('.cart-btn-text').text(@json(__('messages.addtocart')));
+                            button.data('in-cart', false);
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        alert('{{ __('messages.loginrequired') }}');
+
+                        const cartCount = response.cart_count;
+                        const countEl   = document.getElementById('cart-count');
+                        const bubble    = document.getElementById('cart-bubble');
+                        if (countEl && bubble) {
+                            countEl.textContent = cartCount;
+                            bubble.style.display = cartCount > 0 ? 'inline-block' : 'none';
+                        }
+                        document.cookie = cartCount > 0
+                            ? "abandoned_cart=true; max-age=86400; path=/"
+                            : "abandoned_cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                     }
-                });
+                },
+                error: function () {
+                    alert('{{ __('messages.loginrequired') }}');
+                }
             });
+        });
+    })();
         </script>
     @endpush
 @endsection

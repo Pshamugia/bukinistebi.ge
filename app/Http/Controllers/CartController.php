@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Cart;
 use App\Models\CartItem;
-use App\Models\Book;
+use App\Models\Bundle;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+
 
 class CartController extends Controller
 {
@@ -15,22 +18,49 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = Auth::user()->cart()->with('cartItems.book.author')->first(); // Ensure you're getting a single cart instance
-         
+        $cart = Auth::user()->cart()
+            ->with([
+                'cartItems.book.author',
+                'cartItems.bundle.books' => function ($q) {
+                    $q->select('books.id', 'title', 'quantity');
+                },
+            ])->first();
 
         $subtotal = 0;
-        $shipping = 5.00; // Example fixed shipping cost
+        $shipping = 5;
 
+        // dd(1);
         if ($cart) {
-            $subtotal = $cart->cartItems->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
+            // dump("cart exists");
+            // attach a max_qty to each line (book or bundle)
+            foreach ($cart->cartItems as $ci) {
+           
+                if ($ci->bundle_id && $ci->bundle) {
+                        // dd($ci->bundle->books);
+                    // MIN( floor(books.quantity / max(1, pivot.qty)) )
+                    $ci->max_qty = (int) (DB::table('bundle_book')
+                        ->join('books', 'books.id', '=', 'bundle_book.book_id')
+                        ->where('bundle_book.bundle_id', $ci->bundle_id)
+                        ->selectRaw(
+                            'COALESCE(MIN(FLOOR(books.quantity / NULLIF(COALESCE(bundle_book.qty,1),0))),0) as maxqty'
+                        )
+                        ->value('maxqty') ?? 0);
+                } elseif ($ci->book) {
+                    $ci->max_qty = (int) ($ci->book->quantity ?? 0);
+                } else {
+                    $ci->max_qty = 0;
+                }
+            }
+
+            $subtotal = $cart->cartItems->sum(fn ($i) => (int)$i->price * (int)$i->quantity);
         }
 
         $total = $subtotal + $shipping;
         $isHomePage = false;
+
         return view('cart', compact('cart', 'subtotal', 'shipping', 'total', 'isHomePage'));
     }
+
 
 
     /**
@@ -38,9 +68,12 @@ class CartController extends Controller
      */
     public function add(Request $request, Book $book)
     {
-        $cart = Auth::user()->cart()->firstOrCreate([
-            'user_id' => Auth::id(),
-        ]);
+        $cart = auth()->user()->cart()
+            ->with([
+                'cartItems.book.author',
+                'cartItems.bundle.books' // includes pivot->qty
+            ])->first();
+
 
         $quantity = min($request->input('quantity', 1), $book->quantity); // Limit to max quantity available
         $cartItem = $cart->cartItems()->where('book_id', $book->id)->first();
@@ -91,16 +124,28 @@ class CartController extends Controller
 
 
 
-    public function clear()
-{
-    $user = auth()->user();
 
-    if ($user && $user->cart) {
-        $user->cart->cartItems()->delete(); // delete all items
+    public function removeBundle(\App\Models\Bundle $bundle)
+    {
+        $cart = auth()->user()->cart;
+        if ($cart) {
+            $cart->cartItems()->where('bundle_id', $bundle->id)->delete();
+        }
+        return back()->with('success', 'Bundle removed from cart.');
     }
 
-    return redirect()->route('cart.index')->with('success', 'კალათა გასუფთავდა!');
-}
+
+
+    public function clear()
+    {
+        $user = auth()->user();
+
+        if ($user && $user->cart) {
+            $user->cart->cartItems()->delete(); // delete all items
+        }
+
+        return redirect()->route('cart.index')->with('success', 'კალათა გასუფთავდა!');
+    }
 
 
 
@@ -109,43 +154,76 @@ class CartController extends Controller
      * Update the quantity of a book in the cart.
      */
     public function updateQuantity(Request $request)
-{
-    $bookId = $request->input('book_id');
-    $action = $request->input('action');
+    {
+        $request->validate([
+            'action'    => 'required|in:increase,decrease',
+            'book_id'   => 'nullable|integer',
+            'bundle_id' => 'nullable|integer',
+        ]);
 
-    $cartItem = CartItem::where('book_id', $bookId)
-        ->where('cart_id', Auth::user()->cart->id)
-        ->first();
+        $cart = Auth::user()->cart;
+        if (!$cart) {
+            return response()->json(['success' => false, 'message' => 'No cart found.']);
+        }
 
-    if (!$cartItem) {
-        return response()->json(['success' => false, 'message' => 'Item not found.']);
+        // Decide whether we’re updating a book line or a bundle line
+        if ($request->filled('bundle_id')) {
+            // ---- Bundle row ----
+            $item = CartItem::where('cart_id', $cart->id)
+                ->where('bundle_id', $request->bundle_id)
+                ->first();
+
+            if (!$item) {
+                return response()->json(['success' => false, 'message' => 'Bundle item not found.']);
+            }
+
+            $bundle = Bundle::with('books')->find($request->bundle_id);
+            if (!$bundle) {
+                return response()->json(['success' => false, 'message' => 'Bundle not found.']);
+            }
+
+            $maxStock = $bundle->availableQuantity(); // how many full bundles can be made
+
+        } else {
+            // ---- Single book row ----
+            $bookId = $request->input('book_id');
+
+            $item = CartItem::where('cart_id', $cart->id)
+                ->where('book_id', $bookId)
+                ->first();
+
+            if (!$item) {
+                return response()->json(['success' => false, 'message' => 'Item not found.']);
+            }
+
+            $book = Book::find($bookId);
+            $maxStock = $book?->quantity ?? 0;
+        }
+
+        // Adjust quantity with caps
+        $qty = (int)$item->quantity;
+        if ($request->action === 'increase') {
+            $qty = min($qty + 1, max(0, (int)$maxStock));
+        } else {
+            $qty = max(1, $qty - 1);
+        }
+
+        $item->update(['quantity' => $qty]);
+
+        // Recompute totals
+        $cart->load('cartItems');
+        $updatedTotal = (int)$item->price * (int)$item->quantity;
+        $cartTotal    = $cart->cartItems->sum(fn ($i) => (int)$i->price * (int)$i->quantity);
+
+        return response()->json([
+            'success'      => true,
+            'newQuantity'  => $item->quantity,
+            'updatedTotal' => $updatedTotal,
+            'cartTotal'    => $cartTotal + 5,  // keep your current shipping add-on
+            'bookStock'    => isset($book) ? ($book->quantity ?? 0) : $maxStock, // for UI messages
+        ]);
     }
 
-    $book = Book::find($bookId);
-
-    if ($action === 'increase' && $cartItem->quantity < $book->quantity) {
-        $cartItem->quantity += 1;
-    } elseif ($action === 'decrease' && $cartItem->quantity > 1) {
-        $cartItem->quantity -= 1;
-    }
-
-    $cartItem->save();
-
-    $updatedTotal = $cartItem->quantity * $cartItem->price;
-
-    $cart = Auth::user()->cart;
-    $newTotal = $cart->cartItems->sum(function ($item) {
-        return $item->price * $item->quantity;
-    });
-
-    return response()->json([
-        'success' => true,
-        'newQuantity' => $cartItem->quantity,
-        'updatedTotal' => $updatedTotal,
-        'cartTotal' => $newTotal + 5, // shipping
-        'bookStock' => $book->quantity, // ✅ add this line
-    ]);
-}
 
 
 
@@ -187,4 +265,100 @@ class CartController extends Controller
             'cart_count' => $cart->cartItems->count(),
         ]);
     }
+
+
+
+    public function addBundle(Bundle $bundle)
+    {
+        $bundle->load('books');
+
+        if ($bundle->availableQuantity() < 1) {
+            return back()->withErrors(['bundle' => __('This bundle is currently out of stock.')]);
+        }
+
+        $user = Auth::user();
+
+        // Ensure the user has a cart
+        $cart = $user->cart ?? $user->cart()->create(); // assumes User hasOne Cart
+
+        // Try to find existing line for this bundle
+        $item = $cart->cartItems()
+            ->whereNull('book_id')
+            ->where('bundle_id', $bundle->id)
+            ->first();
+
+        if (!$item) {
+
+            $data_set = [
+                'book_id'   => null,
+                'bundle_id' => $bundle->id,
+                'quantity'  => 1,
+                'price'     => (int)$bundle->price, // store unit price
+                'meta'      => [
+                    'original_price' => (int)$bundle->original_price,
+                    'savings'        => (int)$bundle->savings,
+                ],
+            ];
+
+            $cart->cartItems()->create($data_set);
+        } else {
+            $newQty = min($item->quantity + 1, $bundle->availableQuantity());
+            $item->update(['quantity' => $newQty]);
+        }
+
+        return back()->with('success', __('Bundle added to cart.'));
+    }
+
+
+    public function toggleBundle(Request $request)
+{
+    $request->validate([
+        'bundle_id' => 'required|integer|exists:bundles,id',
+    ]);
+
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $bundle = \App\Models\Bundle::with('books')->findOrFail($request->bundle_id);
+
+    // Ensure the user has a cart
+    $cart = $user->cart ?? $user->cart()->create();
+
+    // Find line for this bundle
+    $item = $cart->cartItems()
+        ->whereNull('book_id')
+        ->where('bundle_id', $bundle->id)
+        ->first();
+
+    if ($item) {
+        $item->delete();
+        $action = 'removed';
+    } else {
+        // respect stock for the full bundle
+        if ($bundle->availableQuantity() < 1) {
+            return response()->json(['success' => false, 'message' => __('This bundle is out of stock.')], 409);
+        }
+
+        $cart->cartItems()->create([
+            'book_id'   => null,
+            'bundle_id' => $bundle->id,
+            'quantity'  => 1,
+            'price'     => (int) $bundle->price,
+            'meta'      => [
+                'original_price' => (int) $bundle->original_price,
+                'savings'        => (int) $bundle->savings,
+            ],
+        ]);
+        $action = 'added';
+    }
+
+    return response()->json([
+        'success'     => true,
+        'action'      => $action,
+        'cart_count'  => $cart->cartItems()->count(),
+    ]);
+}
+
 }

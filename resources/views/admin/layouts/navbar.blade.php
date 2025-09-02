@@ -65,9 +65,19 @@
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.preferences.purchases') }}"><i class="bi bi-cookie"></i> ქუქი ჩანაწერები</a>
                     </li>
-                    <li class="nav-item">
+
+
+                      <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.keywords') }}"><i class="bi bi-search-heart"></i> რას ეძებენ</a>
                     </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('admin.bundles.index') }}">
+                          <i class="bi bi-search-heart"></i> საბითუმო
+                        </a>
+                      </li>
+                      
 
                     <li class="nav-item">
                         <a class="nav-link text-white" href="https://bukinistebi.ge/roundcube/" target="blank"><i class="bi bi-envelope"></i> EMAIL</a>

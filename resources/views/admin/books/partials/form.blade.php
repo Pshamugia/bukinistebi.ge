@@ -226,6 +226,69 @@
         </select>
 
 
+
+        @php
+    // Find the Souvenirs genre ID once (works for KA or EN)
+    $souvenirGenre = collect($genres)->first(function ($g) {
+        return ($g->name ?? '') === 'სუვენირები' || ($g->name_en ?? '') === 'Souvenirs';
+    });
+    $souvenirGenreId = $souvenirGenre->id ?? null;
+@endphp
+
+{{-- SIZE (hidden unless "Souvenirs" selected) --}}
+<div class="mb-3" id="sizeWrapper" style="display:none;">
+    <label for="size" class="form-label">ზომა</label>
+    <select name="size[]" id="size" class="chosen-size form-control" multiple>
+        <option value="XS" {{ collect(old('size', explode(',', $book->size ?? '')))->contains('XS') ? 'selected' : '' }}>XS</option>
+        <option value="S"  {{ collect(old('size', explode(',', $book->size ?? '')))->contains('S')  ? 'selected' : '' }}>S</option>
+        <option value="M"  {{ collect(old('size', explode(',', $book->size ?? '')))->contains('M')  ? 'selected' : '' }}>M</option>
+        <option value="L"  {{ collect(old('size', explode(',', $book->size ?? '')))->contains('L')  ? 'selected' : '' }}>L</option>
+        <option value="XL" {{ collect(old('size', explode(',', $book->size ?? '')))->contains('XL') ? 'selected' : '' }}>XL</option>
+        <option value="XXL" {{ collect(old('size', explode(',', $book->size ?? '')))->contains('XXL') ? 'selected' : '' }}>XXL</option>
+        <option value="XXXL" {{ collect(old('size', explode(',', $book->size ?? '')))->contains('XXXL') ? 'selected' : '' }}>XXXL</option>
+    </select>
+  </div>
+  
+  
+  <script>
+    (function () {
+      const SOUVENIR_ID = '{{ $souvenirGenreId }}';
+    
+      function isSouvenirSelected() {
+        const val = $('#genre_id').val() || [];
+        if (SOUVENIR_ID) return val.map(String).includes(String(SOUVENIR_ID));
+        return $('#genre_id option:selected').toArray().some(opt => {
+          const ka = ($(opt).data('name-ka') || '').trim();
+          const en = ($(opt).data('name-en') || '').trim();
+          return ka === 'სუვენირები' || en === 'Souvenirs';
+        });
+      }
+    
+      function toggleSize() {
+        if (isSouvenirSelected()) {
+          $('#sizeWrapper').show();
+        } else {
+          $('#size').val([]); // clear if leaving souvenirs
+          $('#sizeWrapper').hide();
+        }
+        $('#size').trigger('chosen:updated');
+      }
+    
+      $(function () {
+        $('.chosen-select').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
+        $('#genre_id').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
+        $('#size').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
+    
+        $('#genre_id').on('change', toggleSize);
+        toggleSize();
+      });
+    })();
+    </script>
+    
+    
+
+
+
     </div>
     <!-- jQuery (Chosen requires jQuery) -->
 
@@ -249,6 +312,18 @@
             });
         });
     </script>
+
+<script>
+    $(document).ready(function() {
+        $('.chosen-select').chosen({
+            no_results_text: "Oops, nothing found!"
+        });
+
+        $('.sizes').chosen({
+            no_results_text: "Oops, nothing found!"
+        });
+    });
+</script>
 
 <script>
     function updateLanguage(lang) {

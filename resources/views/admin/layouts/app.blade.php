@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    @stack('styles')
     <meta charset="UTF-8">
     <title>Admin - @yield('title')</title>
     <!-- Compiled CSS -->
@@ -69,6 +70,7 @@
         <p>© bukinistebi.ge </p>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.js"></script>
+    @stack('scripts')
 
 </body>
 

@@ -99,71 +99,82 @@ public function create(Request $request)
 
 
 
-    public function store(Request $request)
-    {
-        // Step 1: Validate incoming data
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'language' => 'required|in:ka,en',
-            'price' => 'required|numeric',
-            'new_price' => 'nullable|numeric',
-            'photo' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_2' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_3' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_4' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'video' => 'nullable|string',
-            'description' => 'required|string',
-            'quantity' => 'integer|min:1',
-            'full' => 'nullable|string',
-            'author_id' => 'required|exists:authors,id',
-            'genre_id' => 'nullable|array',
-            'genre_id.*' => 'exists:genres,id',
-            'status' => 'nullable|string',
-            'pages' => 'nullable|string|max:255',
-            'publishing_date' => 'nullable|string',
-            'cover' => 'nullable|string|max:255',
-            'manual_created_at' => 'nullable|date_format:Y-m-d\TH:i',
+public function store(Request $request)
+{
+    // Base validation
+    $validated = $request->validate([
+        'title'              => 'required|string|max:255',
+        'language'           => 'required|in:ka,en',
+        'price'              => 'required|numeric',
+        'new_price'          => 'nullable|numeric',
+        'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'video'              => 'nullable|string',
+        'description'        => 'required|string',
+        'quantity'           => 'integer|min:0',
+        'full'               => 'nullable|string',
+        'author_id'          => 'required|exists:authors,id',
+        'genre_id'           => 'nullable|array',
+        'genre_id.*'         => 'exists:genres,id',
+        'status'             => 'nullable|string',
+        'pages'              => 'nullable|string|max:255',
+        'publishing_date'    => 'nullable|string',
+        'cover'              => 'nullable|string|max:255',
+        'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
+    ]);
+
+    // Determine if "Souvenirs" is selected
+    $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
+        ->orWhere('name_en', 'Souvenirs')
+        ->value('id');
+    $genreIds = (array) $request->input('genre_id', []);
+
+    // Size validation (only for souvenirs)
+    if ($souvenirId && in_array($souvenirId, $genreIds)) {
+        $request->validate([
+            'size'   => ['required','array'],
+            'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
         ]);
-
-        // Step 2: Handle image uploads
-        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-            if ($request->hasFile($key)) {
-                $file = $request->file($key);
-                $uniqueFileName = time() . '_' . uniqid() . '.webp';
-                $image = Image::make($file)
-                    ->resize(800, 600, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->encode('webp', 65);
-
-                $imagePath = 'uploads/books/' . $uniqueFileName;
-                Storage::disk('public')->put($imagePath, $image);
-                $validatedData[$key] = $imagePath;
-            }
-        }
-
-        // Step 3: Format dates and uploader
-        if ($request->has('manual_created_at')) {
-            $validatedData['manual_created_at'] = Carbon::parse($request->input('manual_created_at'));
-        }
-        $validatedData['uploader_id'] = auth()->id();
-        $validatedData['auction_only'] = $request->has('auction_only');
-
-
-        // Step 4: Create book (excluding genres)
-        $book = Book::create(collect($validatedData)->except('genre_id')->toArray());  // ✅ exclude genre_id
-
-        // Step 5: Sync genres into pivot
-        if ($request->filled('genre_id')) {
-            $book->genres()->sync($request->input('genre_id'));
-        }
-
-        // Step 6: Notify + cache 
-        $this->rebuildHomePageCache();
-
-        return redirect()->route('admin.books.index')->with('success', 'წიგნი დამატებულია წარმატებით.');
+        $validated['size'] = implode(',', $request->input('size', []));
+    } else {
+        $validated['size'] = null;
     }
+
+    // Images -> put paths into $validated
+    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+        if ($request->hasFile($key)) {
+            $file = $request->file($key);
+            $uniqueFileName = time() . '_' . uniqid() . '.webp';
+            $image = \Intervention\Image\Facades\Image::make($file)
+                ->resize(800, null, function ($c) { $c->aspectRatio(); })
+                ->encode('webp', 75);
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+            Storage::disk('public')->put($imagePath, $image);
+            $validated[$key] = $imagePath;
+        }
+    }
+
+    if ($request->filled('manual_created_at')) {
+        $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
+    }
+    $validated['auction_only'] = $request->has('auction_only');
+    $validated['uploader_id']  = auth()->id();
+
+    // Create once (exclude pivot field)
+    $book = \App\Models\Book::create(collect($validated)->except('genre_id')->toArray());
+
+    // Sync genres
+    if (!empty($genreIds)) {
+        $book->genres()->sync($genreIds);
+    }
+
+    $this->rebuildHomePageCache();
+
+    return redirect()->route('admin.books.index')->with('success', 'წიგნი დამატებულია წარმატებით.');
+}
+
 
 
 
@@ -220,66 +231,85 @@ public function create(Request $request)
 
  
 
-    public function update(Request $request, Book $book)
-    {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'language' => 'required|in:ka,en',
-            'price' => 'required|numeric',
-            'new_price' => 'nullable|numeric',
-            'manual_created_at' => 'nullable|date_format:Y-m-d\TH:i',
-            'description' => 'required|string',
-            'quantity' => 'integer|min:0',
-            'video' => 'nullable|string',
-            'full' => 'nullable|string',
-            'author_id' => 'required|exists:authors,id',
-            'genre_id' => 'nullable|array',
-            'genre_id.*' => 'exists:genres,id',
-            'status' => 'nullable|string',
-            'pages' => 'nullable|string|max:255',
-            'publishing_date' => 'nullable|string',
-            'cover' => 'nullable|string|max:255',
+    public function update(Request $request, \App\Models\Book $book)
+{
+    // Base validation
+    $validated = $request->validate([
+        'title'              => 'required|string|max:255',
+        'language'           => 'required|in:ka,en',
+        'price'              => 'required|numeric',
+        'new_price'          => 'nullable|numeric',
+        'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
+        'description'        => 'required|string',
+        'quantity'           => 'integer|min:0',
+        'video'              => 'nullable|string',
+        'full'               => 'nullable|string',
+        'author_id'          => 'required|exists:authors,id',
+        'genre_id'           => 'nullable|array',
+        'genre_id.*'         => 'exists:genres,id',
+        'status'             => 'nullable|string',
+        'pages'              => 'nullable|string|max:255',
+        'publishing_date'    => 'nullable|string',
+        'cover'              => 'nullable|string|max:255',
+        'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+    ]);
+
+    // Determine if "Souvenirs" is selected
+    $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
+        ->orWhere('name_en', 'Souvenirs')
+        ->value('id');
+    $genreIds = (array) $request->input('genre_id', []);
+
+    // Size validation (only for souvenirs)
+    if ($souvenirId && in_array($souvenirId, $genreIds)) {
+        $request->validate([
+            'size'   => ['required','array'],
+            'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
         ]);
-
-        if ($request->has('manual_created_at')) {
-            $book->manual_created_at = Carbon::parse($request->input('manual_created_at'));
-        }
-
-        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-            if ($request->hasFile($key)) {
-                if ($book->{$key} && Storage::disk('public')->exists($book->{$key})) {
-                    Storage::disk('public')->delete($book->{$key});
-                }
-
-                $uniqueFileName = time() . '_' . uniqid() . '.webp';
-                $image = Image::make($request->file($key))
-                    ->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                    })
-                    ->encode('webp', 75);
-
-                $imagePath = 'uploads/books/' . $uniqueFileName;
-                Storage::disk('public')->put($imagePath, $image);
-                $validatedData[$key] = $imagePath;
-            }
-        }
-
-        $validatedData['auction_only'] = $request->has('auction_only');  
-
-
-        $book->update(collect($validatedData)->except('genre_id')->toArray());
-
-        // Update genres
-        if ($request->filled('genre_id')) {
-            $book->genres()->sync($request->input('genre_id'));
-        } else {
-            $book->genres()->detach(); // No genres selected
-        }
-
-        $this->rebuildHomePageCache();
-
-        return redirect()->route('admin.books.index')->with('success', 'წიგნი განახლდა წარმატებით.');
+        $validated['size'] = implode(',', $request->input('size', []));
+    } else {
+        $validated['size'] = null;
     }
+
+    // Images -> put paths into $validated
+    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+        if ($request->hasFile($key)) {
+            if ($book->{$key} && Storage::disk('public')->exists($book->{$key})) {
+                Storage::disk('public')->delete($book->{$key});
+            }
+            $uniqueFileName = time() . '_' . uniqid() . '.webp';
+            $image = \Intervention\Image\Facades\Image::make($request->file($key))
+                ->resize(800, null, function ($c) { $c->aspectRatio(); })
+                ->encode('webp', 75);
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+            Storage::disk('public')->put($imagePath, $image);
+            $validated[$key] = $imagePath;
+        }
+    }
+
+    if ($request->filled('manual_created_at')) {
+        $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
+    }
+    $validated['auction_only'] = $request->has('auction_only');
+
+    // Single update
+    $book->update(collect($validated)->except('genre_id')->toArray());
+
+    // Sync genres
+    if (!empty($genreIds)) {
+        $book->genres()->sync($genreIds);
+    } else {
+        $book->genres()->detach();
+    }
+
+    $this->rebuildHomePageCache();
+
+    return redirect()->route('admin.books.index')->with('success', 'წიგნი განახლდა წარმატებით.');
+}
+
 
 
 
