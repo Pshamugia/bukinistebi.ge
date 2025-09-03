@@ -39,6 +39,48 @@ class AuthorController extends Controller
     }
 
 
+    public function quickStore(Request $request)
+{
+    $request->validate([
+        'new_author_name' => ['required','string','max:255'],
+        'lang'            => ['nullable','in:ka,en'],
+    ]);
+
+    $lang = $request->input('lang', app()->getLocale()) ?: 'ka';
+    $name = trim($request->input('new_author_name'));
+
+    $existing = $lang === 'en'
+        ? Author::whereRaw('LOWER(name_en) = ?', [mb_strtolower($name)])->first()
+        : Author::whereRaw('LOWER(name) = ?',    [mb_strtolower($name)])->first();
+
+    if ($existing) {
+        return response()->json([
+            'success' => true,
+            'created' => false,
+            'author'  => [
+                'id'      => $existing->id,
+                'name'    => $existing->name,
+                'name_en' => $existing->name_en,
+            ],
+        ]);
+    }
+
+    $author = new Author();
+    if ($lang === 'en') { $author->name_en = $name; } else { $author->name = $name; }
+    $author->save();
+
+    return response()->json([
+        'success' => true,
+        'created' => true,
+        'author'  => [
+            'id'      => $author->id,
+            'name'    => $author->name,
+            'name_en' => $author->name_en,
+        ],
+    ], 201);
+}
+
+
 
     public function update(Request $request, Author $author)
     {

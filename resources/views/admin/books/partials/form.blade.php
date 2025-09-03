@@ -3,6 +3,7 @@
 @php
     $locale = $locale ?? app()->getLocale();
 @endphp
+
 <!-- Chosen JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 <div class="mb-3">
@@ -178,20 +179,32 @@
 
     <div class="mb-3">
         <label for="author_id" class="form-label"><i class="bi bi-person-lines-fill"></i> ავტორი</label>
-        <select name="author_id" class="chosen-select" id="author_id">
-            <option value=""></option>
+        <div class="d-flex align-items-start gap-2">
+          <select name="author_id" class="form-control chosen-select" id="author_id" data-placeholder="{{ __('messages.selectAuthor') }}">
+            <option value="">{{ __('messages.selectAuthor') }}</option>
             @foreach ($authors as $author)
-                <option value="{{ $author->id }}"
-                    data-name-en="{{ $author->name_en ?? '' }}"
-                    data-name-ka="{{ $author->name ?? '' }}"
-                    class="{{ $author->name_en ? 'has-en' : '' }} {{ $author->name ? 'has-ka' : '' }}"
-                    {{ (isset($book) && $book->author_id == $author->id) ? 'selected' : '' }}>
-                    {{ $locale === 'en' ? ($author->name_en ?? '') : ($author->name ?? '') }}
-                </option>
+              <option value="{{ $author->id }}"
+                      data-name-en="{{ $author->name_en ?? '' }}"
+                      data-name-ka="{{ $author->name ?? '' }}"
+                      class="{{ $author->name_en ? 'has-en' : '' }} {{ $author->name ? 'has-ka' : '' }}"
+                      {{ (isset($book) && $book->author_id == $author->id) ? 'selected' : '' }}>
+                {{ $locale === 'en' ? ($author->name_en ?? '') : ($author->name ?? '') }}
+              </option>
             @endforeach
-        </select>
+          </select>
+
         
-    </div>
+      
+          <button type="button"
+                  class="btn btn-link"
+                  id="openAddAuthorBtn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addAuthorModal" style="display:contents">
+            <i class="bi bi-plus-circle"></i> {{ __('messages.addAuthor') }}
+          </button>
+        </div>
+      </div>
+      
     
     
     
@@ -250,6 +263,41 @@
   </div>
   
   
+
+
+
+  <style>
+    .modal-backdrop{ z-index:104044!important; }
+    .modal{ z-index:105044!important; }
+    .alert-danger{ z-index:999944!important; position:relative; }
+  </style>
+  
+  <div class="modal fade" id="addAuthorModal" tabindex="-1" aria-labelledby="addAuthorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addAuthorModalLabel">{{ __('messages.addAuthor') }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- no form tag -->
+            <div class="mb-3">
+              <label for="new_author_name" class="form-label">{{ __('messages.authorName') }}</label>
+              <input type="text" id="new_author_name" class="form-control" required>
+              <div id="authorError" class="text-danger mt-2"></div>
+            </div>
+            <button type="button" class="btn btn-primary" id="addAuthorSubmit">
+              <span class="spinner-border spinner-border-sm me-2 d-none" id="addAuthorSpinner"></span>
+              {{ __('messages.add') }}
+            </button>
+          </div>
+          
+      </div>
+    </div>
+  </div>
+
+  
+
   <script>
     (function () {
       const SOUVENIR_ID = '{{ $souvenirGenreId }}';
@@ -325,6 +373,94 @@
     });
 </script>
 
+
+
+<script>
+    // init Chosen (keep your own initializers too)
+    $(function () {
+      $('#author_id').chosen({
+        width: '100%',
+        placeholder_text_single: "{{ __('messages.selectAuthor') }}"
+      });
+    });
+  
+    // Helper to read current language from your switcher
+    function currentLang() {
+      return ($('#languageSwitcher').val() || 'ka');
+    }
+  
+    // If user types in Chosen and there are no results, open the modal prefilled
+    $('#author_id').on('chosen:no-results', function (evt, params) {
+      const typed = params.chosen.search_input.val() || '';
+      $('#new_author_name').val(typed);
+      const modalEl = document.getElementById('addAuthorModal');
+      const modal   = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+    });
+  
+    // Submit "Add Author" via AJAX and inject into Chosen
+    $('#addAuthorSubmit').on('click', function () {
+  const name = $('#new_author_name').val().trim();
+  if (!name) { $('#authorError').text("{{ __('messages.required') }}"); return; }
+
+  $('#authorError').text('');
+  $('#addAuthorSpinner').removeClass('d-none');
+
+  $.ajax({
+    url: "{{ url('/admin/authors/quick-store') }}",
+    type: 'POST',
+    data: {
+      new_author_name: name,
+      lang: ($('#languageSwitcher').val() || 'ka'),
+      _token: '{{ csrf_token() }}'
+    }
+  })
+  .done(function (res) {
+    if (!res || !res.success) { $('#authorError').text(res?.message || 'Server error.'); return; }
+    const a = res.author;
+
+    let $opt = $('#author_id option[value="'+ a.id +'"]');
+    if (!$opt.length) $opt = $('<option/>', { value: a.id }).appendTo('#author_id');
+
+    $opt.attr('data-name-ka', a.name || '')
+        .attr('data-name-en', a.name_en || '')
+        .attr('class', (a.name_en ? 'has-en ' : '') + (a.name ? 'has-ka' : ''))
+        .prop('selected', true);
+
+    const langNow = ($('#languageSwitcher').val() || 'ka');
+    $opt.text(langNow === 'en' ? (a.name_en || a.name || '') : (a.name || a.name_en || ''));
+    $('#author_id').trigger('chosen:updated');
+    if (typeof updateLanguage === 'function') updateLanguage(langNow);
+
+    bootstrap.Modal.getInstance(document.getElementById('addAuthorModal'))?.hide();
+    $('#new_author_name').val('');
+  })
+  .fail(function (xhr) {
+    let msg = 'დაფიქსირდა შეცდომა.';
+    if (xhr.status === 419) msg = 'CSRF 419 — _token დაემატა მოთხოვნაში.';
+    else if (xhr.status === 404) msg = 'Route/URL არასწორია: /admin/authors/quick-store.';
+    else if (xhr.status === 422 && xhr.responseJSON?.errors?.new_author_name) {
+      msg = xhr.responseJSON.errors.new_author_name[0];
+    } else if (xhr.responseJSON?.message) {
+      msg = xhr.responseJSON.message;
+    }
+    $('#authorError').text(msg);
+    console.error('Add author failed:', xhr);
+  })
+  .always(function () {
+    $('#addAuthorSpinner').addClass('d-none');
+  });
+});
+
+
+  
+    // Optional: the “+ add author” button also pre-fills from the Chosen search box
+    $('#openAddAuthorBtn').on('click', function(){
+      const searchVal = $('#author_id_chosen .chosen-search input').val() || '';
+      if (searchVal) $('#new_author_name').val(searchVal);
+    });
+  </script>
+  
 <script>
     function updateLanguage(lang) {
         // Author options

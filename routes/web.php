@@ -407,6 +407,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
     Route::post('/admin/book-orders/{order}/done', [BookController::class, 'markDone'])
         ->name('admin.book_orders.done');
+
+
+        Route::post('authors/quick-store', [AdminAuthorController::class, 'quickStore'])
+        ->name('admin.authors.quick-store');
 });
 
 
