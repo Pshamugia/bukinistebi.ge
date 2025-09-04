@@ -27,9 +27,9 @@
         @endif
       </div>
     
-      @if($bundle->description)
-        <p>{{ $bundle->description }}</p>
-      @endif
+     <div style="padding: 15px; border:1px solid rgb(165, 165, 165); border-radius: 7px;"> @if($bundle->description)
+      <span><p>{{ $bundle->description }}</p> </span>
+      @endif </div>
     
       <h5 class="mt-4">{{ __('messages.includedBooks') }}</h5>
       @php use Illuminate\Support\Str; @endphp
@@ -45,9 +45,9 @@
         : null;
     @endphp
 
-    <li class="mb-1">
+    <li class="mb-1"> 
       {{-- Book title --}}
-      <a href="{{ route('full', ['title' => Str::slug($bk->title), 'id' => $bk->id]) }}"
+      <i class="bi bi-star"></i>  <a href="{{ route('full', ['title' => Str::slug($bk->title), 'id' => $bk->id]) }}"
          class="text-decoration-none">
         {{ $bk->title }}
       </a>
@@ -62,7 +62,7 @@
       @endif
 
       {{-- Qty --}}
-      <span class="text-muted"> — × {{ $bk->pivot->qty }}</span>
+      <span class="text-muted"> × {{ $bk->pivot->qty }}</span>
     </li>
   @endforeach
 </ul>
@@ -98,8 +98,7 @@
           class="btn {{ $inCart ? 'btn-success' : 'btn-primary' }} toggle-bundle-btn mt-1"
           data-bundle-id="{{ $bundle->id }}"
           data-in-cart="{{ $inCart ? 'true' : 'false' }}"
-          style="min-width: 200px;"
-        >
+          style="min-width: 200px;">
           <i class="bi {{ $inCart ? 'bi-check-circle' : 'bi-cart-plus' }}"></i>
           <span class="cart-btn-text">
             {{ $inCart ? __('messages.added') : __('messages.addtocart') }}
@@ -253,6 +252,19 @@
             <input type="text" name="address" class="form-control" required>
           </div>
     
+          
+          {{-- delivery --}}
+          <div class="deliveryFull">
+            <div class="border rounded p-3 mt-3 mt-md-0"
+                style=" box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+                <span>
+                    <p>🚚 <strong>მიწოდება</strong></p>
+                    <p>თბილისი: 5 ლარი / 2 სამუშაო დღე</p>
+                    <p>რეგიონი: 7 ლარი / 4 სამუშაო დღე</p>
+                </span>
+            </div>
+        </div>
+
           <div class="text-center mt-3" style="padding: 20px;">
             <button type="submit" class="btn btn-primary">
               <i class="bi bi-check-circle"></i> {{ __('messages.directPay') }}

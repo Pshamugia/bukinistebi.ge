@@ -2,9 +2,19 @@
 @section('title', __('Bundles'))
 
 @section('content')
-<div class="container" style="position:relative;top:50px">
-  <h4 class="mb-3"> <i class="bi bi-tags"></i>
-      {{ __('messages.sale') }}</h4>
+<h5 class="section-title"
+style="position: relative; margin-bottom:25px; top:30px;   align-items: left;
+justify-content: left;">
+<strong>
+  <i class="bi bi-tags"></i> {{ __('messages.sale') }}
+</strong>
+</h5>
+
+<div class="container" style="position:relative;top:50px' padding-bottom:30px">
+  
+
+    
+
   <div class="row g-3">
     @foreach($bundles as $b)
       @php $available = $b->availableQuantity(); @endphp

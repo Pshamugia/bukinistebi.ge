@@ -196,12 +196,13 @@
         
       
           <button type="button"
-                  class="btn btn-link"
-                  id="openAddAuthorBtn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addAuthorModal" style="display:contents">
-            <i class="bi bi-plus-circle"></i> {{ __('messages.addAuthor') }}
-          </button>
+          class="btn btn-link"
+          id="openAddAuthorBtn"
+          data-bs-toggle="modal"
+          data-bs-target="#addAuthorModal">
+    <i class="bi bi-plus-circle"></i> {{ __('messages.addAuthor') }}
+  </button>
+  
         </div>
       </div>
       
@@ -283,7 +284,7 @@
             <!-- no form tag -->
             <div class="mb-3">
               <label for="new_author_name" class="form-label">{{ __('messages.authorName') }}</label>
-              <input type="text" id="new_author_name" class="form-control" required>
+              <input type="text" id="new_author_name" class="form-control">
               <div id="authorError" class="text-danger mt-2"></div>
             </div>
             <button type="button" class="btn btn-primary" id="addAuthorSubmit">
@@ -492,12 +493,36 @@
         $('#langInput').val(lang);
     }
 
-    $(document).ready(function () {
-        $('#languageSwitcher').on('change', function () {
-            updateLanguage(this.value);
-        });
-
-        // Run once on load
-        updateLanguage($('#languageSwitcher').val());
+    <script>
+  function updateLanguage(lang) {
+    // Author: change text only
+    $('#author_id option').each(function () {
+      const $opt = $(this);
+      const text = (lang === 'en')
+        ? ($opt.data('name-en') || $opt.data('name-ka') || $opt.text())
+        : ($opt.data('name-ka') || $opt.data('name-en') || $opt.text());
+      $opt.text(text).show(); // never hide
     });
+    $('#author_id').trigger('chosen:updated');
+
+    // Genres: same idea
+    $('#genre_id option').each(function () {
+      const text = (lang === 'en')
+        ? ($(this).data('name-en') || $(this).data('name-ka') || $(this).text())
+        : ($(this).data('name-ka') || $(this).data('name-en') || $(this).text());
+      $(this).text(text);
+    });
+    $('#genre_id').trigger('chosen:updated');
+
+    $('#langInput').val?.(lang);
+  }
+
+  $(function () {
+    $('#languageSwitcher').on('change', function () {
+      updateLanguage(this.value);
+    });
+    updateLanguage($('#languageSwitcher').val());
+  });
+</script>
+
 </script>

@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Bundle;
 use App\Models\Book;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Str; 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -91,32 +92,35 @@ class BundleController extends Controller
     
 
     public function update(Request $request, Bundle $bundle)
-    {
-        $data = $request->validate([
-            'title'         => ['required','string','max:255'],
-            'slug'          => ['nullable','string','max:255','unique:bundles,slug,'.$bundle->id],
-            'price'         => ['required','integer','min:0'],
-            'active'        => ['nullable','boolean'],
-            'description'   => ['nullable','string'],
-            'image' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
-            'starts_at'     => ['nullable','date'],
-            'ends_at'       => ['nullable','date','after_or_equal:starts_at'],
-            'book_ids'      => ['required','array','min:2'],
-            'book_ids.*'    => ['integer','exists:books,id'],
-            'book_qtys'     => ['nullable','array'],
-        ]);
+{
+    $data = $request->validate([
+        'title'         => ['required','string','max:255'],
+        'slug'          => ['nullable','string','max:255','unique:bundles,slug,'.$bundle->id],
+        'price'         => ['required','integer','min:0'],
+        'active'        => ['nullable','boolean'],
+        'description'   => ['nullable','string'],
+        'image'         => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
+        'starts_at'     => ['nullable','date'],
+        'ends_at'       => ['nullable','date','after_or_equal:starts_at'],
+        'book_ids'      => ['required','array','min:2'],
+        'book_ids.*'    => ['integer','exists:books,id'],
+        'book_qtys'     => ['nullable','array'],
+        // 'remove_image'   => ['nullable','boolean'], // optional: if you want a “remove image” checkbox
+    ]);
 
+    DB::transaction(function () use ($bundle, $request, $data) {
+        // 1) Update non-file fields (do NOT touch 'image' here)
         $bundle->update([
-            'title' => $data['title'],
-            'slug'  => $data['slug'] ?? $bundle->slug,
-            'price' => $data['price'],
-            'active'=> $request->boolean('active'),
+            'title'       => $data['title'],
+            'slug'        => $data['slug'] ?? $bundle->slug,
+            'price'       => $data['price'],
+            'active'      => $request->boolean('active'),
             'description' => $data['description'] ?? null,
-            'image' => $data['image'] ?? null,
-            'starts_at' => $data['starts_at'] ?? null,
-            'ends_at'   => $data['ends_at'] ?? null,
+            'starts_at'   => $data['starts_at'] ?? null,
+            'ends_at'     => $data['ends_at'] ?? null,
         ]);
 
+        // 2) Sync books & quantities
         $attach = [];
         foreach ($data['book_ids'] as $bookId) {
             $qty = max(1, (int)($data['book_qtys'][$bookId] ?? 1));
@@ -124,22 +128,32 @@ class BundleController extends Controller
         }
         $bundle->books()->sync($attach);
 
-        $original = $bundle->books->sum(fn($b) => ($b->price ?? 0) * ($b->pivot->qty ?? 1));
-        $bundle->update(['original_price' => $original]);
+        // 3) Recompute original price (ensure fresh relation)
+        $bundle->load('books');
+        $original = $bundle->books->sum(fn($b) => (int)($b->price ?? 0) * (int)($b->pivot->qty ?? 1));
+        $bundle->original_price = $original;
 
-        // if a new image is uploaded, delete the old one and save the new path
-if ($request->hasFile('image')) {
-    if ($bundle->image) {
-        Storage::disk('public')->delete($bundle->image);
-    }
-    $path = $request->file('image')->store('bundles', 'public');
-    $bundle->update(['image' => $path]);
+        // 4) Handle image only if a new file is uploaded
+        if ($request->hasFile('image')) {
+            // delete old image if it existed
+            if ($bundle->getOriginal('image')) {
+                Storage::disk('public')->delete($bundle->getOriginal('image'));
+            }
+            $path = $request->file('image')->store('bundles', 'public');
+            $bundle->image = $path;
+        }
+
+        // Optional: allow explicit removal via checkbox
+        // if ($request->boolean('remove_image')) {
+        //     if ($bundle->image) Storage::disk('public')->delete($bundle->image);
+        //     $bundle->image = null;
+        // }
+
+        $bundle->save();
+    });
+
+    return redirect()->route('admin.bundles.index')->with('success', 'Bundle updated.');
 }
-
-
-        return redirect()->route('admin.bundles.index')->with('success', 'Bundle updated.');
-    }
-
     public function destroy(Bundle $bundle)
     {
         $bundle->delete();
