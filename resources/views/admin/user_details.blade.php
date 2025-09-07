@@ -57,7 +57,7 @@
                         <td class="{{ $order->created_at >= now()->subMinutes(5) ? 'text-danger' : '' }}">
                             {{ $order->total }} {{ __('ლარი') }}
                         </td>
-                        <td>{{ $order->created_at->format('Y-m-d H:i:s') }}</td>
+                        <td>{{ $order->created_at->format('M d, Y | H:i:s') }}</td>
                         <td>{{ $order->status }}</td>
                         <td>
                             <ul>

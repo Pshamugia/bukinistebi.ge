@@ -183,6 +183,29 @@ body.dark-mode .genre-badge{
 
 
 
+ 
+  .image-zoom-wrap{ position:relative; }
+  .image-zoom-lens{
+    position:absolute; width:140px; height:140px;
+    border:1px solid rgba(0,0,0,.25);
+    background: rgba(255,255,255,.15);
+    display:none; pointer-events:none; border-radius:4px;
+  }
+  .image-zoom-result{
+    position:absolute; top:0; left:calc(100% + 16px);
+    width:420px; height:420px; border:1px solid #eee; background:#fff no-repeat;
+    box-shadow:0 8px 24px rgba(0,0,0,.08); display:none; z-index:20;
+    pointer-events: none;   /* don't trap the cursor */
+
+  }
+  @media (max-width: 991.98px){
+    .image-zoom-lens, .image-zoom-result{ display:none !important; }
+  }
+ 
+
+
+
+
 @media (max-width: 768px) {
     .book-detail-page .toggle-cart-btn {
         font-size: 18px !important;

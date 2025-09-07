@@ -13,11 +13,28 @@
     </div>
     <div class="col-md-7">
       <h3>{{ $bundle->title }}</h3>
-      <p class="text-muted mb-2">
-        <del>{{ number_format($bundle->original_price) }} GEL</del>
-        <span class="ms-2 h5">{{ number_format($bundle->price) }} GEL</span>
-        <span class="badge bg-success ms-2">{{ __('messages.save') }} {{ number_format($bundle->savings) }} {{ __('messages.lari') }}</span>
-      </p>
+      @php
+      $hasDiscount = $bundle->original_price && $bundle->original_price > $bundle->price;
+      $percent = $hasDiscount
+          ? round((1 - ($bundle->price / $bundle->original_price)) * 100)
+          : 0;
+    @endphp
+    
+    <p class="text-muted mb-2 d-flex align-items-center gap-2">
+      @if($hasDiscount)
+        <del class="me-2">{{ number_format($bundle->original_price, 2) }} GEL</del>
+      @endif
+    
+      <span class="h5 mb-0">{{ number_format($bundle->price) }} GEL</span>
+    
+      @if($hasDiscount)
+        <span class="badge bg-danger ms-2">-{{ $percent }}%</span>
+        <span class="badge bg-success ms-1">
+          {{ __('messages.save') }} {{ number_format($bundle->original_price - $bundle->price) }} {{ __('messages.lari') }}
+        </span>
+      @endif
+    </p>
+    
     
       <div class="mb-3">
         @if($available > 0)
@@ -281,6 +298,41 @@
     </div>
   </div>
 </div>
+
+
+
+
+<!-- Modal for Enlarged Image -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true"
+style="z-index: 9999999999 !important">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="imageModalLabel"> </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <!-- Left Arrow -->
+            <button class="btn btn-light" id="prevArrow"
+                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Modal Image -->
+            <img src="{{ asset('storage/' . $bundle->image) }}" id="modalImage"
+                class="img-fluid" loading="lazy">
+
+            <!-- Right Arrow -->
+            <button class="btn btn-light" id="nextArrow"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
 @endsection
 
 @push('scripts')

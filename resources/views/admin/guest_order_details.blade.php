@@ -24,6 +24,7 @@
             <tr>
                 <th>Book</th>
                 <th>Qty</th>
+                <th>DATE</th>
                 <th>Book Price</th>
                 <th>Total price</th>
             </tr>
@@ -44,8 +45,11 @@
                     @endif
                 </td>
                     <td>{{ $item->quantity }}</td>
+                    <td>{{ $order->created_at->format('d M Y H:i') }}</td>
+
                     <td>{{ $item->price }} ლარი </td>
                     <td>{{ $item->order->total }} ლარი </td>
+                    
                 </tr>
             @endforeach
         </tbody>

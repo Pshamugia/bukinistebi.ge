@@ -481,7 +481,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('bundles.index.public') }}">
-                       {{ __('messages.sale') }}
+                       {{ __('messages.sets') }}
                             </a>
                           </li>
                           

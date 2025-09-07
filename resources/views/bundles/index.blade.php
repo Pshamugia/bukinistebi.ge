@@ -6,7 +6,7 @@
 style="position: relative; margin-bottom:25px; top:30px;   align-items: left;
 justify-content: left;">
 <strong>
-  <i class="bi bi-tags"></i> {{ __('messages.sale') }}
+  <i class="bi bi-tags"></i> {{ __('messages.sets') }}
 </strong>
 </h5>
 
@@ -23,7 +23,7 @@ justify-content: left;">
           @if($b->image)
           <div class="image-container"
           style="background-image: url('{{ asset('images/default_image.png') }}');">
-          <a class="btn btn-primary w-100" href="{{ route('bundles.show', $b->slug) }}"> 
+          <a class="" href="{{ route('bundles.show', $b->slug) }}"> 
             <img src="{{ asset('storage/' . $b->image) }}" alt="{{ $b->title }}"
               class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
               onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';"> </a>

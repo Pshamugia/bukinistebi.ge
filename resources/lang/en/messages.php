@@ -243,7 +243,7 @@ return [
     'sorPriceDesc' => 'Price descending',
     'souvenirs' => 'Souvenirs',
     'size' => 'select size',
-    'sale' => 'Sale',
+    'sets' => 'Sets',
     'includedBooks' => 'Included Books',
     'save' => 'Save',
 ];
