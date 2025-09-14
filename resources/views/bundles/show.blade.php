@@ -22,7 +22,7 @@
     
     <p class="text-muted mb-2 d-flex align-items-center gap-2">
       @if($hasDiscount)
-        <del class="me-2">{{ number_format($bundle->original_price, 2) }} GEL</del>
+        <del class="me-2">{{ number_format($bundle->original_price) }} GEL</del>
       @endif
     
       <span class="h5 mb-0">{{ number_format($bundle->price) }} GEL</span>
@@ -44,7 +44,7 @@
         @endif
       </div>
     
-     <div style="padding: 15px; border:1px solid rgb(165, 165, 165); border-radius: 7px;"> @if($bundle->description)
+     <div style="padding: 15px 15px 0px 15px; border:1px solid rgb(165, 165, 165); border-radius: 7px;"> @if($bundle->description)
       <span><p>{{ $bundle->description }}</p> </span>
       @endif </div>
     
@@ -72,10 +72,9 @@
       {{-- Author (if present) --}}
       @if ($author)
         <span class="text-muted"> — </span>
-        <a href="{{ route('full_author', ['id' => $author->id, 'name' => Str::slug($authorName)]) }}"
-           class="text-decoration-none">
+       
           {{ $authorName }}
-        </a>
+         
       @endif
 
       {{-- Qty --}}
@@ -132,7 +131,7 @@
       <div style="padding-bottom: 25px; ">
       @if($available >= 1)
         <button class="btn btn-warning mt-2" id="bundle-direct-pay-toggle" style="min-width:200px;">
-          <i class="bi bi-credit-card"></i> {{ __('messages.directPay') }}
+          <i class="bi bi-credit-card"></i> {{ __('messages.directPayBundle') }}
         </button>
       @endif
       </div>
@@ -277,14 +276,14 @@
                 <span>
                     <p>🚚 <strong>მიწოდება</strong></p>
                     <p>თბილისი: 5 ლარი / 2 სამუშაო დღე</p>
-                    <p>რეგიონი: 7 ლარი / 4 სამუშაო დღე</p>
+                    <p>რეგიონი: 7 ლარი / 3-5 სამუშაო დღე</p>
                 </span>
             </div>
         </div>
 
           <div class="text-center mt-3" style="padding: 20px;">
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-check-circle"></i> {{ __('messages.directPay') }}
+              <i class="bi bi-check-circle"></i> {{ __('messages.directPayBundle') }}
             </button>
           </div>
         </form>
@@ -312,21 +311,13 @@ style="z-index: 9999999999 !important">
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center">
-            <!-- Left Arrow -->
-            <button class="btn btn-light" id="prevArrow"
-                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
-                <i class="bi bi-chevron-left"></i>
-            </button>
+           
 
             <!-- Modal Image -->
             <img src="{{ asset('storage/' . $bundle->image) }}" id="modalImage"
                 class="img-fluid" loading="lazy">
 
-            <!-- Right Arrow -->
-            <button class="btn btn-light" id="nextArrow"
-                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
-                <i class="bi bi-chevron-right"></i>
-            </button>
+        
         </div>
     </div>
 </div>

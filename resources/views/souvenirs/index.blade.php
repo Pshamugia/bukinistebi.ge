@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('title', 'ბუკინისტები | სუვენირები')
+@section('og')
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="სუვენირები | BUKINISTEBI.GE">
+  <meta property="og:description" content="ბუკინისტური საჩუქრები - შეკვეთა ონლაინ.">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta property="og:image" content="{{ asset('images/og/souvenir_thubnail.webp') }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+@endsection
+
 
 @section('content')
 

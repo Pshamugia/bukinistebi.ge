@@ -281,17 +281,20 @@ class OrderController extends Controller
 
 
     public function purchaseHistory()
-    {
-        $userId = auth()->id(); // Get the authenticated user ID
+{
+    $userId = Auth::id();
+    abort_if(!$userId, 403);
 
-        // Fetch orders for the authenticated user, ordered by latest first
-        $orders = Order::with('orderItems') // Assuming you have a relationship defined
-            ->where('user_id', $userId)
-            ->orderBy('created_at', 'desc') // Order by creation date, latest first
-            ->paginate(10); // Retrieve 10 orders per page 
+    $orders = Order::with([
+            'orderItems.book:id,title',
+            'orderItems.bundle:id,title'
+        ])
+        ->where('user_id', $userId)
+        ->latest()
+        ->paginate(10);
 
-        return view('purchase-history', compact('orders'));
-    }
+    return view('purchase-history', compact('orders'));
+}
 
     public function status($id)
     {

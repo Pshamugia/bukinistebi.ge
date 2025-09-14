@@ -24,35 +24,48 @@
 
         gtag('config', 'G-D4Q2EZ7SGK');
     </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Language" content="ka">
-    <meta name="language" content="ka">
-    <meta name="description"
-        content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
-    <meta property="og:title"
-        content="{{ $isHomePage ? 'ბუკინისტები' : (isset($book) ? $book->title : (isset($booknews) ? $booknews->title : 'ბუკინისტები')) }}">
-    <meta property="og:description"
-        content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
-    <meta property="og:url" content="{{ Request::fullUrl() }}">
-    <meta property="og:image"
-        content="{{ $isHomePage ? asset('default.webp') : (isset($book) ? asset('storage/' . $book->photo) : (isset($booknews) ? asset('storage/' . $booknews->image) : asset('default.webp'))) }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="bukinistebi.ge">
-    <meta property="og:type" content="website" />
-    <meta name="keywords"
-        content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 
 
-    <!-- Additional Meta Tags -->
-    <meta name="keywords"
-        content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
-    <meta name="author" content="{{ $book->author->name ?? 'Unknown Author' }}">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @if (app()->getLocale() === 'en')
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+    {{-- Canonical + OG defaults --}}
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+
+    @if (View::hasSection('og'))
+        @yield('og')
+    @else 
+
+        <meta http-equiv="Content-Language" content="ka">
+        <meta name="language" content="ka">
+        <meta name="description"
+            content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
+        <meta property="og:title"
+            content="{{ $isHomePage ? 'ბუკინისტები' : (isset($book) ? $book->title : (isset($booknews) ? $booknews->title : 'ბუკინისტები')) }}">
+        <meta property="og:description"
+            content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
+        <meta property="og:url" content="{{ Request::fullUrl() }}">
+        <meta property="og:image"
+            content="{{ $isHomePage ? asset('default.webp') : (isset($book) ? asset('storage/' . $book->photo) : (isset($booknews) ? asset('storage/' . $booknews->image) : asset('default.webp'))) }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:site_name" content="bukinistebi.ge">
+        <meta property="og:type" content="website" />
+        <meta name="keywords"
+            content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
+
+
+
+        <!-- Additional Meta Tags -->
+        <meta name="keywords"
+            content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
+        <meta name="author" content="{{ $book->author->name ?? 'Unknown Author' }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        @if (app()->getLocale() === 'en')
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
+        @endif
+
     @endif
     <title>@yield('title', 'Bukinistebi.ge')</title>
 
@@ -209,11 +222,12 @@
                             {{ __('messages.login') }}
                         </a>
 
-                       
+
 
                         <!-- Dropdown with Tabs -->
                         <ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown"
-                            style="width: 350px; z-index: 1000000; position: relative; margin-left:20px" id="dropdown-menu">
+                            style="width: 350px; z-index: 1000000; position: relative; margin-left:20px"
+                            id="dropdown-menu">
                             <!-- Tab Navigation -->
                             <ul class="nav nav-tabs" id="authTabs" role="tablist">
                                 <li class="nav-item tabhover" role="presentation">
@@ -231,7 +245,7 @@
                                     </button>
                                 </li>
                             </ul>
-                            
+
 
                             <!-- Tab Content -->
                             <div class="tab-content" id="authTabsContent">
@@ -248,16 +262,16 @@
                                             <i class="bi bi-person-fill-add"></i> {{ __('messages.registration') }}</a>
                                     @endif
 
-                                    <!-- google auth--> 
-                                    <a href="{{ route('login.google') }}" 
-                                    class="btn w-100 d-flex align-items-center justify-content-center shadow-sm" 
-                                    style="background-color: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-weight: 500; margin-top:15px;">
-                                     <img src="https://developers.google.com/identity/images/g-logo.png" 
-                                          style="width: 20px; height: 20px; margin-right: 10px;" alt="Google Logo">
-                                     <span style="color: #555;">{{ __('messages.googleLogin') }}</span>
-                                 </a>
-                                 
-                                    
+                                    <!-- google auth-->
+                                    <a href="{{ route('login.google') }}"
+                                        class="btn w-100 d-flex align-items-center justify-content-center shadow-sm"
+                                        style="background-color: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-weight: 500; margin-top:15px;">
+                                        <img src="https://developers.google.com/identity/images/g-logo.png"
+                                            style="width: 20px; height: 20px; margin-right: 10px;" alt="Google Logo">
+                                        <span style="color: #555;">{{ __('messages.googleLogin') }}</span>
+                                    </a>
+
+
                                 </div>
 
                                 <!-- Bukinist login Tab -->
@@ -356,7 +370,7 @@
                         data-bs-toggle="dropdown">
                         <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20"
                             class="me-1">
-                    
+
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
                         <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
@@ -409,7 +423,7 @@
                         <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i
                                 class="bi bi-x-lg down"></i></button>
 
-                     </form>
+                    </form>
                 </div>
 
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
@@ -456,22 +470,22 @@
                                 </li>
 
                                 @foreach ($genres as $genre)
-    @php
-        $genreName =
-            app()->getLocale() === 'en' && $genre->name_en
-                ? $genre->name_en
-                : $genre->name;
-    @endphp
+                                    @php
+                                        $genreName =
+                                            app()->getLocale() === 'en' && $genre->name_en
+                                                ? $genre->name_en
+                                                : $genre->name;
+                                    @endphp
 
-    @if($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
-        <li class="genre-item" data-name="{{ $genreName }}">
-            <a class="dropdown-item"
-               href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
-                {{ $genreName }}
-            </a>
-        </li>
-    @endif
-@endforeach
+                                    @if ($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
+                                        <li class="genre-item" data-name="{{ $genreName }}">
+                                            <a class="dropdown-item"
+                                                href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
+                                                {{ $genreName }}
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endforeach
 
 
                             </ul>
@@ -481,17 +495,18 @@
 
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('bundles.index.public') }}">
-                       {{ __('messages.sets') }}
+                                {{ __('messages.sets') }}
                             </a>
-                          </li>
-                          
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('souvenirs.index') }}">{{ __('messages.souvenirs') }}</a>
                         </li>
 
 
-                        
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('souvenirs.index') }}">{{ __('messages.souvenirs') }}</a>
+                        </li>
+
+
+
 
                         <li class="nav-item">
                             <a class="nav-link"
@@ -512,9 +527,9 @@
                             <button class="btn btn-outline-success submit-search" type="submit"
                                 style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
                                     class="bi bi-search" style="position: relative;  "></i></button>
-                                    <div id="searchSuggestBox" class="suggest-box d-none"></div>
-                                
-                                </form>
+                            <div id="searchSuggestBox" class="suggest-box d-none"></div>
+
+                        </form>
 
 
                     </ul>
@@ -554,7 +569,18 @@
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.contact') }}</h5>
                     <ul class="list-unstyled">
-                        <span>bukinistebishop@gmail.com</span>
+                        <span>
+                            <a href="tel:555389965" style="text-decoration:none; color:inherit;">
+                              <i class="bi bi-telephone-fill"></i> (+995) 555-38-99-65
+                            </a>
+                          </span>
+                          <br>
+                          <span>
+                            <a href="mailto:info@bukinistebi.ge" style="text-decoration:none; color:inherit;">
+                              <i class="bi bi-envelope-fill"></i> info@bukinistebi.ge
+                            </a>
+                          </span>
+                          
                     </ul>
                 </div>
 
@@ -1061,101 +1087,56 @@
             });
         });
     </script>
-    
 
-    
+
+
     <script>
-        $(function(){
-          const $form  = $('form.d-none.d-lg-flex[role="search"]');
-          const $input = $('#searchInput');
-          const $box   = $('#searchSuggestBox');
-          let timer = null;
-        
-          function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-        
-          $input.on('input', function(){
-            const q = this.value.trim();
-            clearTimeout(timer);
-            if (q.length < 2){ $box.addClass('d-none').empty(); return; }
-        
-            timer = setTimeout(function(){
-              $.get('{{ route('search.suggest') }}', { q }, function(list){
-                if (!list || !list.length){
-                  $box.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>').removeClass('d-none');
-                  return;
-                }
-                let html = '<ul class="list-unstyled mb-0">';
-                list.forEach(it => {
-                  const title  = typeof it === 'string' ? it : (it.title || '');
-                  const author = (typeof it === 'object' && it.author) ? it.author : '';
-                  const url    = (typeof it === 'object' && it.url)    ? it.url    : '';
-                  const img    = (typeof it === 'object' && it.image)  ? it.image  : '{{ asset('default.webp') }}';
-        
-                  html += `
-  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
-    <span class="thumb-bg" style="background-image:url('${img}');"></span>
-    <div class="suggest-text">
-      <div class="suggest-title">${escapeHtml(title)}</div>
-      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
-    </div>
-  </li>`;
+        $(function() {
+            const $form = $('form.d-none.d-lg-flex[role="search"]');
+            const $input = $('#searchInput');
+            const $box = $('#searchSuggestBox');
+            let timer = null;
 
-                });
-                html += '</ul>';
-                $box.html(html).removeClass('d-none');
-              }).fail(function(){ $box.addClass('d-none').empty(); });
-            }, 250);
-          });
-        
-          // Click: go to URL if present; else fill+submit
-          $box.on('click', '.suggest-item', function(){
-            const url = $(this).data('url');
-            if (url) {
-              window.location.href = url;
-            } else {
-              $input.val($(this).data('title'));
-              $form.trigger('submit');
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, m => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                } [m]));
             }
-            $box.addClass('d-none').empty();
-          });
-        
-          $(document).on('click', function(e){
-            if (!$(e.target).closest('#searchInput, #searchSuggestBox').length){
-              $box.addClass('d-none').empty();
-            }
-          });
-        });
-        </script>
-        
 
-        <script>
-            $(function(){
-              const $mobileForm  = $('#mobileSearchOverlay form');
-              const $mobileInput = $('#mobileSearchOverlay input[name="title"]');
-              const $mobileBox   = $('#searchSuggestMobile');
-              let mTimer = null;
-            
-              function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-            
-              $mobileInput.on('input', function(){
+            $input.on('input', function() {
                 const q = this.value.trim();
-                clearTimeout(mTimer);
-                if (q.length < 2){ $mobileBox.addClass('d-none').empty(); return; }
-            
-                mTimer = setTimeout(function(){
-                  $.get('{{ route('search.suggest') }}', { q }, function(list){
-                    if (!list || !list.length){
-                      $mobileBox.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>').removeClass('d-none');
-                      return;
-                    }
-                    let html = '<ul class="list-unstyled mb-0">';
-                    list.forEach(it => {
-                      const title  = typeof it === 'string' ? it : (it.title || '');
-                      const author = (typeof it === 'object' && it.author) ? it.author : '';
-                      const url    = (typeof it === 'object' && it.url)    ? it.url    : '';
-                      const img    = (typeof it === 'object' && it.image)  ? it.image  : '{{ asset('default.webp') }}';
-            
-                      html += `
+                clearTimeout(timer);
+                if (q.length < 2) {
+                    $box.addClass('d-none').empty();
+                    return;
+                }
+
+                timer = setTimeout(function() {
+                    $.get('{{ route('search.suggest') }}', {
+                        q
+                    }, function(list) {
+                        if (!list || !list.length) {
+                            $box.html(
+                                '<div class="suggest-empty">{{ __('messages.noresult') }}</div>'
+                                ).removeClass('d-none');
+                            return;
+                        }
+                        let html = '<ul class="list-unstyled mb-0">';
+                        list.forEach(it => {
+                            const title = typeof it === 'string' ? it : (it.title ||
+                                '');
+                            const author = (typeof it === 'object' && it.author) ?
+                                it.author : '';
+                            const url = (typeof it === 'object' && it.url) ? it
+                                .url : '';
+                            const img = (typeof it === 'object' && it.image) ? it
+                                .image : '{{ asset('default.webp') }}';
+
+                            html += `
   <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
     <span class="thumb-bg" style="background-image:url('${img}');"></span>
     <div class="suggest-text">
@@ -1164,36 +1145,124 @@
     </div>
   </li>`;
 
+                        });
+                        html += '</ul>';
+                        $box.html(html).removeClass('d-none');
+                    }).fail(function() {
+                        $box.addClass('d-none').empty();
                     });
-                    html += '</ul>';
-                    $mobileBox.html(html).removeClass('d-none');
-                  }).fail(function(){ $mobileBox.addClass('d-none').empty(); });
                 }, 250);
-              });
-            
-              $mobileBox.on('click', '.suggest-item', function(){
+            });
+
+            // Click: go to URL if present; else fill+submit
+            $box.on('click', '.suggest-item', function() {
                 const url = $(this).data('url');
                 if (url) {
-                  window.location.href = url;
+                    window.location.href = url;
                 } else {
-                  $mobileInput.val($(this).data('title'));
-                  $mobileForm.trigger('submit');
+                    $input.val($(this).data('title'));
+                    $form.trigger('submit');
                 }
-                $mobileBox.addClass('d-none').empty();
-              });
-            
-              $(document).on('click', function(e){
-                if (!$(e.target).closest('#mobileSearchOverlay input[name="title"], #searchSuggestMobile').length){
-                  $mobileBox.addClass('d-none').empty();
-                }
-              });
-            
-              $('#mobileSearchToggle, #closeMobileSearch').on('click', function(){
-                $mobileBox.addClass('d-none').empty();
-              });
+                $box.addClass('d-none').empty();
             });
-            </script>
-            
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#searchInput, #searchSuggestBox').length) {
+                    $box.addClass('d-none').empty();
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        $(function() {
+            const $mobileForm = $('#mobileSearchOverlay form');
+            const $mobileInput = $('#mobileSearchOverlay input[name="title"]');
+            const $mobileBox = $('#searchSuggestMobile');
+            let mTimer = null;
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, m => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                } [m]));
+            }
+
+            $mobileInput.on('input', function() {
+                const q = this.value.trim();
+                clearTimeout(mTimer);
+                if (q.length < 2) {
+                    $mobileBox.addClass('d-none').empty();
+                    return;
+                }
+
+                mTimer = setTimeout(function() {
+                    $.get('{{ route('search.suggest') }}', {
+                        q
+                    }, function(list) {
+                        if (!list || !list.length) {
+                            $mobileBox.html(
+                                '<div class="suggest-empty">{{ __('messages.noresult') }}</div>'
+                                ).removeClass('d-none');
+                            return;
+                        }
+                        let html = '<ul class="list-unstyled mb-0">';
+                        list.forEach(it => {
+                            const title = typeof it === 'string' ? it : (it.title ||
+                                '');
+                            const author = (typeof it === 'object' && it.author) ?
+                                it.author : '';
+                            const url = (typeof it === 'object' && it.url) ? it
+                                .url : '';
+                            const img = (typeof it === 'object' && it.image) ? it
+                                .image : '{{ asset('default.webp') }}';
+
+                            html += `
+  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+    <span class="thumb-bg" style="background-image:url('${img}');"></span>
+    <div class="suggest-text">
+      <div class="suggest-title">${escapeHtml(title)}</div>
+      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+    </div>
+  </li>`;
+
+                        });
+                        html += '</ul>';
+                        $mobileBox.html(html).removeClass('d-none');
+                    }).fail(function() {
+                        $mobileBox.addClass('d-none').empty();
+                    });
+                }, 250);
+            });
+
+            $mobileBox.on('click', '.suggest-item', function() {
+                const url = $(this).data('url');
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    $mobileInput.val($(this).data('title'));
+                    $mobileForm.trigger('submit');
+                }
+                $mobileBox.addClass('d-none').empty();
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#mobileSearchOverlay input[name="title"], #searchSuggestMobile')
+                    .length) {
+                    $mobileBox.addClass('d-none').empty();
+                }
+            });
+
+            $('#mobileSearchToggle, #closeMobileSearch').on('click', function() {
+                $mobileBox.addClass('d-none').empty();
+            });
+        });
+    </script>
+
 
 </body>
 

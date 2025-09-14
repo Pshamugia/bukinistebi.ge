@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderInvoice;             // <—
+use Illuminate\Support\Facades\Cache;  // <— for idempotency
+
 
 class PaymentCallbackController extends Controller
 {
@@ -137,128 +140,132 @@ class PaymentCallbackController extends Controller
         }
 
         $data = $response->json();
-
         $paymentStatus = $data['status'] ?? '';
-
-        $order = Order::where('gate_id', $paymentId)->firstOrFail();
-
+        
+        /** Load order + relations for stock math and email */
+        $order = Order::with(['orderItems.book', 'orderItems.bundle.books', 'user'])
+            ->where('gate_id', $paymentId)
+            ->first();
+        
         if (!$order) {
-            Log::info("Can't find order");
+            Log::warning("Can't find order for paymentId {$paymentId}");
+            return response()->json(['error' => 'Order not found'], 404);
         }
-
-
-        // 🔥 Reduce stock only for direct pay
-        if (str_starts_with($order->order_id, 'ORD-DIRECT-') && $paymentStatus == "Succeeded") {
-            Log::info("payment status is: " .  $paymentStatus);
-            $is_bundle = false;
-
-            foreach ($order->orderItems as $i) {
-                if ($i->bundle_id) {
-                    $is_bundle = true;
-                    break;
-                }
-            }
-
-            if (!$is_bundle) {
-                foreach ($order->orderItems as $item) {
-                    Log::info("in loop direct cb");
-                    $book = $item->book;
-                    if ($book && $book->quantity >= $item->quantity) {
-                        $book->quantity -= $item->quantity;
-                        $book->save();
-                    }
-                }
-            } else {
-                foreach ($order->orderItems as $item) {
-                    Log::info("DIRECT PAYMENT OF BUNDLE");
-                    foreach ($item->bundle->books as $book) {
-                        Log::info("DIRECT BOOKS FOUND");
-                        if ($book) {
-                            if ($book->quantity >= $item->quantity) {
-                                $book->quantity -= $item->quantity;
-                                $book->save();
-                            } else {
-                                Log::info("Books qty less then item qty", [
-                                    'book_qty' => $book->quantity,
-                                    'item_qty' => $item->quantity,
-                                ]);
-                            }
-                        } else {
-                            Log::info("DIRECT NO BOOKS");
-                        }
-                    }
-                }
-            }
+        
+        /** Guard: callbacks can fire multiple times — lock per order to avoid double side-effects */
+        $lock = Cache::lock('payment_cb_'.$order->id, 15);
+        if (!$lock->get()) {
+            Log::info('Duplicate callback suppressed', ['order_id' => $order->id]);
+            return response()->json(['status' => 'duplicate'], 200);
         }
-
-        $order->status = $paymentStatus ?? 'Pending';
-        $order->save();
-
-
-
-        if ($paymentStatus == "Succeeded") {
-            if (str_starts_with($order->order_id, 'ORD-DIRECT-') == false) {
-                $cart = $order->user->cart;
-                Log::info("authed code runnin");
-
-
-                if ($cart) {
-                    $quantityUpdateErrs = [];
-                    foreach ($cart->cartItems as $cartItem) {
-                        $book = $cartItem->book;
-                        if ($book) {
-                            if ($book->quantity >= $cartItem->quantity) {
-                                $book->quantity -= $cartItem->quantity;
-                                $book->save(); // Save updated quantity
-                            } else {
-                                $quantityUpdateErrs = $book->id;
+        
+        try {
+            // Update status early so you can inspect from admin if something fails later
+            $order->status = $paymentStatus ?: 'Pending';
+            $order->save();
+        
+            if ($paymentStatus === "Succeeded") {
+        
+                /** DIRECT-PAY path — you already handle a subset; fix bundle math (qty * pivot->qty) */
+                if (str_starts_with($order->order_id, 'ORD-DIRECT-')) {
+        
+                    foreach ($order->orderItems as $item) {
+                        if ($item->book) {
+                            // Single book
+                            if ($item->book->quantity >= $item->quantity) {
+                                $item->book->decrement('quantity', $item->quantity);
                             }
-                        }
-
-                        if ($cartItem->bundle) {
-                            Log::info("CARTITEM HAS BUNDLE ATTACHED");
-                            $books = $cartItem->bundle->books;
-                            foreach ($books as $book) {
-                                if ($book) {
-                                    Log::info("FOUND BOOK");
-                                    if ($book->quantity >= $cartItem->quantity) {
-                                        $book->quantity -= $cartItem->quantity;
-                                        $book->save(); // Save updated quantity
-                                    } else {
-                                        $quantityUpdateErrs = $book->id;
-                                    }
+                        } elseif ($item->bundle) {
+                            // Bundle: decrement each member by item qty × bundle pivot qty
+                            foreach ($item->bundle->books as $b) {
+                                $need = (int)$item->quantity * (int)max(1, (int)$b->pivot->qty);
+                                if ($need > 0 && $b->quantity >= $need) {
+                                    $b->decrement('quantity', $need);
                                 } else {
-                                    Log::info("COULDNT FIND BOOK");
+                                    Log::info('Bundle member short on stock', [
+                                        'book_id' => $b->id,
+                                        'need'    => $need,
+                                        'have'    => $b->quantity,
+                                    ]);
                                 }
                             }
-                        } else {
-                            Log::info("NO BUNDLE ATTACHED TO CART ITEM");
                         }
                     }
-
-
-
-                    $cart->cartItems()->delete();
-                    $cart->delete();
-
-                    if (count($quantityUpdateErrs) > 0) {
-                        Log::info("Failed to update book quantity", [
-                            'id' => $paymentId,
-                            'failed_books' => json_encode($quantityUpdateErrs),
-                        ]);
+        
+                } else {
+                    /** CART checkout path: reduce using cart contents, then clear cart */
+                    $cart = optional($order->user)->cart;
+        
+                    if ($cart) {
+                        $quantityUpdateErrs = [];
+        
+                        foreach ($cart->cartItems as $cartItem) {
+                            if ($cartItem->book) {
+                                if ($cartItem->book->quantity >= $cartItem->quantity) {
+                                    $cartItem->book->decrement('quantity', $cartItem->quantity);
+                                } else {
+                                    $quantityUpdateErrs[] = $cartItem->book->id;
+                                }
+                            }
+        
+                            if ($cartItem->bundle) {
+                                foreach ($cartItem->bundle->books as $b) {
+                                    $need = (int)$cartItem->quantity * (int)max(1, (int)$b->pivot->qty);
+                                    if ($b->quantity >= $need) {
+                                        $b->decrement('quantity', $need);
+                                    } else {
+                                        $quantityUpdateErrs[] = $b->id;
+                                    }
+                                }
+                            }
+                        }
+        
+                        // Clear cart after successful stock ops
+                        $cart->cartItems()->delete();
+                        $cart->delete();
+        
+                        if (!empty($quantityUpdateErrs)) {
+                            Log::info("Failed to update some book quantities", [
+                                'failed_books' => $quantityUpdateErrs,
+                                'paymentId'    => $paymentId,
+                            ]);
+                        }
                     }
                 }
+        
+                /** Send emails
+                 *  - Admin (you already do)
+                 *  - Customer invoice (new): authenticated buyer only, or fallback if you store email on order/session
+                 */
+                $order->refresh()->loadMissing(['orderItems.book', 'orderItems.bundle.books', 'user']);
+        
+                // Admin notification (kept)
+                Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
+        
+                // Customer invoice (authenticated users)
+                $customerEmail = optional($order->user)->email
+                    ?? ($order->email ?? (session('checkout_email') ?: null)); // optional fallback if you later add order email
+        
+                if ($customerEmail) {
+                    Mail::to($customerEmail)->send(new OrderInvoice($order));
+                }
+            } else {
+                // Not succeeded — no stock change, no invoice
+                Log::info('Payment not finalized or failed', [
+                    'paymentId' => $paymentId, 'status' => $paymentStatus
+                ]);
             }
+        
+            Log::info('Payment callback handled', [
+                'id' => $paymentId, 'status' => $paymentStatus, 'order_id' => $order->id,
+            ]);
+        
+            return response()->json(['status' => 'ok'], 200);
+        
+        } finally {
+            optional($lock)->release();
         }
-
-        Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
-        Log::info('Got payment callback: ', [
-            'id' => $paymentId,
-            'status' => $paymentStatus,
-        ]);
-
-
-        return response()->json(['status' => 'ok'], 200);
+        
     }
 
     private function getAccessToken()

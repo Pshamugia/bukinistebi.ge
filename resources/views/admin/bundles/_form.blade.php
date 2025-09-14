@@ -58,6 +58,10 @@
     <label class="form-label">You save</label>
     <input type="text" class="form-control" id="you_save" value="0" readonly>
   </div>
+  <div class="col-md-3">
+    <label class="form-label">Discount %</label>
+    <input type="text" class="form-control" id="discount_percent" value="0%" readonly>
+  </div>
 </div>
 
 <div class="row g-3 mt-1">
@@ -119,19 +123,33 @@
     computeOriginal();
   }
 
+  function safeNum(n) {
+    const x = parseFloat(n);
+    return Number.isFinite(x) ? x : 0;
+  }
+
   function computeOriginal() {
     const selected = Array.from(document.querySelector('select[name="book_ids[]"]').selectedOptions).map(o=>+o.value);
     let sum = 0;
     selected.forEach(id=>{
       const book = BOOKS.find(b=>b.id===id);
       const qtyInput = document.querySelector(`input[name="book_qtys[${id}]"]`);
-      const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value||'1')) : 1;
-      sum += (book?.price || 0) * qty;
+      const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value||'1', 10)) : 1;
+      sum += (safeNum(book?.price) || 0) * qty;
     });
-    const priceInput = document.querySelector('input[name="price"]');
-    const bundlePrice = parseInt(priceInput.value || '0');
-    document.getElementById('original_sum').value = sum + ' GEL';
-    document.getElementById('you_save').value = Math.max(0, sum - bundlePrice) + ' GEL';
+
+    const priceInput  = document.querySelector('input[name="price"]');
+    const bundlePrice = safeNum(priceInput.value);
+
+    const youSave = Math.max(0, sum - bundlePrice);
+    const percent = (sum > 0 && bundlePrice < sum)
+      ? Math.round((1 - (bundlePrice / sum)) * 100)
+      : 0;
+
+    document.getElementById('original_sum').value   = sum.toFixed(2) + ' GEL';
+    document.getElementById('you_save').value       = youSave.toFixed(2) + ' GEL';
+    const pctEl = document.getElementById('discount_percent');
+    if (pctEl) pctEl.value = `-${percent}%`;
   }
 
   document.addEventListener('DOMContentLoaded', function(){

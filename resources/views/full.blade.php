@@ -424,7 +424,7 @@
                             <span>
                                 <p>🚚 <strong>მიწოდება</strong></p>
                                 <p>თბილისი: 5 ლარი / 2 სამუშაო დღე</p>
-                                <p>რეგიონი: 7 ლარი / 4 სამუშაო დღე</p>
+                                <p>რეგიონი: 7 ლარი / 3-5 სამუშაო დღე</p>
                             </span>
                         </div>
                     </div>
@@ -480,7 +480,8 @@
 
                                 <tbody style="border:1px solid rgb(226, 226, 226); border-top:none">
                                     <tr>
-                                        <td class="nowrap" style="border-top:none !Important"><strong> {{ __('messages.price') }}</strong></td>
+                                        <td class="nowrap" style="border-top:none !Important"><strong>
+                                                {{ __('messages.price') }}</strong></td>
                                         <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
                                         </td>
                                     </tr>

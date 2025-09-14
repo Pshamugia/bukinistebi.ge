@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('title', 'Current Auctions')
-
+@section('og')
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ბუკინისტური აუქციონი | BUKINISTEBI.GE">
+  <meta property="og:description" content="წიგნები, ხელნაწერები, ნივთები.">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta property="og:image" content="{{ asset('images/auction/auction.jpg') }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+@endsection
 @section('content')
 <h5 class="section-title"
         style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;

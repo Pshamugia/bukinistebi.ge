@@ -236,6 +236,7 @@ return [
     'acceptCookie' => 'თანხმობა',
     'declineCookie' => 'უარყოფა',
     'directPay' => 'შეიძინე',
+    'directPayBundle' => 'შეიძინე ნაკრები',
     'googleLogin' => 'Google-ით შესვლა',
     'video' => 'ვიდეო',
     'sortPriceDefault' => 'ფასის სორტირება',
@@ -244,7 +245,7 @@ return [
     'souvenirs' => 'სუვენირები',
     'size' => 'აირჩიე ზომა',
     'sets' => 'ნაკრები',
-    'includedBooks' => 'ნაკრები წიგნები',
+    'includedBooks' => 'შეათვალიერე ნაკრები საიტზე',
     'save' => 'დაზოგე',
 
 

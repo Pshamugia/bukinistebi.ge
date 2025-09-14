@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Bundle;
 use App\Models\Auction;
 use App\Models\OrderItem;
+use App\Mail\OrderInvoice;
 use Illuminate\Support\Str;
 use App\Mail\OrderPurchased;
 use Illuminate\Http\Request;
@@ -159,7 +160,14 @@ class TbcCheckoutController extends Controller
             $cart->delete();
             cookie()->queue(cookie()->forget('abandoned_cart'));
 
+            $customerEmail = optional(Auth::user())->email;
+
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+
+            // Send customer invoice if logged in
+            if ($customerEmail) {
+                Mail::to($customerEmail)->send(new OrderInvoice($order));
+            }
 
             return redirect()->route('order_courier', ['orderId' => $order->id])
                 ->with('success', 'Your order has been received. Pay with the courier.');
@@ -539,6 +547,14 @@ class TbcCheckoutController extends Controller
 
             // ✅ Send confirmation email with size included
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+
+            $customerEmail = optional(Auth::user())->email;
+
+             // Send customer invoice if logged in
+             if ($customerEmail) {
+                Mail::to($customerEmail)->send(new OrderInvoice($order));
+            }
+
 
             if (Auth::check()) {
                 return redirect()->route('order_courier', ['orderId' => $order->id])

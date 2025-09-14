@@ -1,7 +1,17 @@
 @extends('layouts.app')
 
 @section('title', $genre->name . ' წიგნები')
-
+@section('og')
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ __('messages.category') }}:
+  {{ app()->getLocale() === 'en' ? $genre->name_en : $genre->name }}">
+  <meta property="og:description" content="{{ __('messages.searchfor') }}">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta property="og:image" content="{{ asset('images/og/genres.svg') }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+@endsection
 @section('content')
 
 
@@ -27,7 +37,7 @@
             </label>
           
             <!-- Right: Sort by Price -->
-            <div class="d-flex align-items-center gap-2">
+            <div class="align-items-center gap-2">
                <select id="sortBooks" class="form-select form-select-sm w-auto">
                 <option value="">{{ __('messages.sortPriceDefault') ?? 'Default' }}</option>
                 <option value="price_asc"  {{ request('sort') === 'price_asc'  ? 'selected' : '' }}>

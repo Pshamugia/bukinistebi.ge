@@ -236,6 +236,7 @@ return [
     'acceptCookie' => 'Accept',
     'declineCookie' => 'Decline',
     'directPay' => 'Pay now',
+    'directPayBundle' => 'Buy now the bundle',
     'googleLogin' => 'Login with Google',
     'video' => 'Video',
     'sortPriceDefault' => 'Sort price',
@@ -244,6 +245,6 @@ return [
     'souvenirs' => 'Souvenirs',
     'size' => 'select size',
     'sets' => 'Sets',
-    'includedBooks' => 'Included Books',
+    'includedBooks' => 'Take a look at he bundle',
     'save' => 'Save',
 ];

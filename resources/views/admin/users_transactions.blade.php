@@ -71,7 +71,7 @@
                         <td>
                             @if ($user->orders->isNotEmpty())
                                 @php
-                                    $lastOrder = $user->orders->last();
+                                    $lastOrder = $user->orders->first();
                                     $statusMap = array_change_key_case(\App\Models\Order::$statusesMap, CASE_LOWER);
                                     $translatedStatus =
                                         $statusMap[strtolower($lastOrder->status)] ?? $lastOrder->status;
@@ -92,7 +92,7 @@
                         <td>
                             @if ($user->orders->isNotEmpty())
                                 @php
-                                    $lastOrder = $user->orders->last();
+                                    $lastOrder = $user->orders->first();
                                 @endphp
 
                                 @if ($lastOrder->status !== 'delivered')
@@ -125,7 +125,7 @@
                                 {{ __('არ არის შეკვეთა') }}
                             @endif
                         </td>
-                        <td>{{ $user->orders->isNotEmpty() ? $user->orders->last()->created_at->format('Y-m-d') : __('არ არის') }}
+                        <td>{{ $user->orders->isNotEmpty() ? $user->orders->first()->created_at->format('Y-m-d') : __('არ არის') }}
                         </td>
                     </tr>
                 @endforeach
