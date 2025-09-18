@@ -22,7 +22,8 @@ use Intervention\Image\Facades\Image; // Add this at the top of your controller
 use App\Exports\UserTransactionsExport; 
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+ 
+ 
 
 class BookController extends Controller
 {
@@ -424,64 +425,63 @@ public function store(Request $request)
     
     
     
-    public function usersTransactions(Request $request)
+ 
+
+public function usersTransactions(Request $request)
 {
-    // ✅ Fetch ALL users with their orders (not paginated yet)
-    $users = User::whereHas('orders', function ($query) use ($request) {
-            if ($request->delivery_filter === 'not_delivered') {
-                $query->where('status', '!=', 'delivered');
-            }
-        })
-        ->with(['orders' => function ($query) {
-            $query->orderBy('created_at', 'desc'); // latest order first
-        }])
-        ->get();  // <-- NOT paginate here!
+    $filterNotDelivered = $request->delivery_filter === 'not_delivered';
 
-    // ✅ Guest orders (latest first)
-    $guestOrders = Order::whereNull('user_id')
-        ->where('status', '!=', 'pending')   // Only show paid/successful
-        ->orderBy('created_at', 'desc')
-        ->get()
-        ->map(function ($order) {
-            return (object) [
-                'id' => null,
-                'name' => $order->name ?? 'Guest',
-                'phone' => $order->phone,
-                'orders' => collect([$order]),
-                'last_order_total' => $order->total ?? 0,
-                'last_order_date' => $order->created_at,
-            ];
-        });
+    // Load users with their orders (latest first)
+    $users = User::with(['orders' => fn($q) => $q->orderBy('created_at','desc')])
+        ->whereHas('orders') // must have at least one order
+        ->get();
 
-    // ✅ Add last_order_date to logged-in users
+    // Filter by the LATEST order only (collection side)
+    if ($filterNotDelivered) {
+        $users = $users->filter(function ($u) {
+            $last = $u->orders->first();
+            return $last && strtolower($last->status) !== 'delivered';
+        })->values();
+    }
+
+    // Guest orders → apply the same filter
+    $guestQuery = Order::whereNull('user_id')->orderBy('created_at','desc');
+    if ($filterNotDelivered) {
+        $guestQuery->where('status', '!=', 'delivered');
+    }
+    $guestOrders = $guestQuery->get()->map(function ($order) {
+        return (object)[
+            'id'               => null,
+            'name'             => $order->name ?? 'Guest',
+            'phone'            => $order->phone,
+            'orders'           => collect([$order]),
+            'last_order_total' => $order->total ?? 0,
+            'last_order_date'  => $order->created_at,
+        ];
+    });
+
+    // Add computed fields to real users
     $realUsers = $users->map(function ($user) {
-        $lastOrder = $user->orders->first();
-        $user->last_order_date = $lastOrder ? $lastOrder->created_at : null;
-        $user->last_order_total = $lastOrder ? $lastOrder->total : 0;  // ✅ ADD THIS LINE
+        $last = $user->orders->first();
+        $user->last_order_date  = $last?->created_at;
+        $user->last_order_total = $last?->total ?? 0;
         return $user;
     });
-    
 
-    // ✅ Merge & sort by last_order_date DESC
-    $merged = $realUsers->concat($guestOrders)
-        ->sortByDesc('last_order_date')
-        ->values();
-
-    // ✅ Manual pagination
-    $perPage = 10;
+    // Merge + sort + paginate
+    $merged      = $realUsers->concat($guestOrders)->sortByDesc('last_order_date')->values();
+    $perPage     = 10;
     $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    $pagedResults = $merged->slice(($currentPage - 1) * $perPage, $perPage)->values();
+    $paged       = $merged->slice(($currentPage - 1) * $perPage, $perPage)->values();
 
-    $allUsers = new LengthAwarePaginator(
-        $pagedResults,
-        $merged->count(),
-        $perPage,
-        $currentPage,
-        ['path' => request()->url()]
-    );
+    $allUsers = new LengthAwarePaginator($paged, $merged->count(), $perPage, $currentPage, [
+        'path' => request()->url(),
+        'query' => request()->query(),
+    ]);
 
     return view('admin.users_transactions', ['users' => $allUsers]);
 }
+
     
 
 
@@ -495,25 +495,29 @@ public function guestOrderDetails(Order $order)
 
 
 
-    public function markAsDelivered($orderId)
-    {
-        $order = Order::findOrFail($orderId);
-        $order->status = 'delivered'; // You can change 'delivered' to any text you want
-        $order->save();
+public function markAsDelivered($orderId)
+{
+    $order = Order::findOrFail($orderId);
+    $order->status = 'delivered';   // delivery complete
+    $order->save();
 
-        return redirect()->back()->with('success', 'შეკვეთა წარმატებით მონიშნულია როგორც მიწოდებული!');
-    }
+    return back()->with('success', 'შეკვეთა დასრულებულია!');
+}
 
-    public function undoDelivered($orderId)
-    {
-        $order = Order::findOrFail($orderId);
+public function undoDelivered($orderId)
+{
+    $order = Order::findOrFail($orderId);
 
-        // You can choose what status you want to restore
-        $order->status = 'pending'; // or maybe 'processing', or whatever your logic is
-        $order->save();
+    // Revert to a sensible *pre-delivery* status, not "pending"
+    $order->status = $order->payment_method === 'courier'
+        ? 'processing'  // courier: still to be delivered/handled
+        : 'paid';       // bank transfer/direct pay: already paid
 
-        return redirect()->back()->with('success', 'შეკვეთის სტატუსი შეცვლილია!');
-    }
+    $order->save();
+
+    return back()->with('success', 'შეკვეთის სტატუსი შეცვლილია!');
+}
+
 
 
 
@@ -604,10 +608,14 @@ public function guestOrderDetails(Order $order)
     }
 
     public function exportUserTransactions(Request $request)
-{
-    $from = $request->from_date;
-    $to = $request->to_date;
-
-    return Excel::download(new UserTransactionsExport($from, $to), 'user_transactions.xlsx');
-}
+    {
+        $from = $request->filled('from_date') ? Carbon::parse($request->from_date)->startOfDay() : null;
+        $to   = $request->filled('to_date')   ? Carbon::parse($request->to_date)->endOfDay()   : null;
+    
+        return Excel::download(
+            new \App\Exports\UserTransactionsExport($from, $to),
+            'user_transactions_'.now()->format('Ymd_His').'.xlsx'
+        );
+    }
+    
 }

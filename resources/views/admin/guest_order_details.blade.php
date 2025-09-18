@@ -9,9 +9,28 @@
     <p><strong>Name:</strong> {{ $order->name }}</p>
     <p>
         <strong>Phone:</strong>
-        <a href="tel:{{ $order->phone }}" style="text-decoration: none; color: inherit;">
-            {{ $order->phone }}
-        </a>
+        @php
+        $raw    = (string) $order->phone;
+        $digits = preg_replace('/\D+/', '', $raw);   // keep only digits
+        $local9 = substr($digits, -9);               // last 9 digits (e.g., 599999999)
+    
+        // Default fallbacks
+        $displayPhone = $raw;
+        $telPhone     = $raw;
+    
+        if (strlen($local9) === 9 && $local9[0] === '5') {
+            // Format: 599-99-99-99
+            $displayPhone = preg_replace('/^(\d{3})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3-$4', $local9);
+    
+            // Always dial with +995
+            $telPhone = '+995' . $local9;
+        }
+    @endphp
+    
+    <a href="tel:{{ $telPhone }}" style="text-decoration: none; color: inherit;">
+        {{ $displayPhone }}
+    </a>
+    
     </p>
         <p><strong>Address:</strong> {{ $order->address }}</p>
     <p><strong>City:</strong> {{ $order->city }}</p>

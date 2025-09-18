@@ -87,6 +87,7 @@ class TbcCheckoutController extends Controller
             'payment_method' => $validated['payment_method'],
             'name'           => $validated['name'],
             'phone'          => $validated['phone'],          // keep your original format
+            'email'          => optional(Auth::user())->email, // NEW
             'address'        => $validated['address'],
             'city'           => $validated['city'],
         ]);
@@ -474,6 +475,7 @@ class TbcCheckoutController extends Controller
             'payment_method' => 'required|string|in:bank_transfer,courier',
             'name'           => 'required|string|max:255',
             'phone'          => ['required', 'digits:9'],
+            'email'          => 'nullable|email', // NEW
             'address'        => 'required|string|max:255',
             'city'           => 'required|string',
             'size'           => 'nullable|string|in:XS,S,M,L,XL,XXL,XXXL', // 👈 add size validation
@@ -494,6 +496,9 @@ class TbcCheckoutController extends Controller
             return back()->withErrors(['size' => 'გთხოვთ აირჩიოთ ზომა'])->withInput();
         }
 
+        $customerEmail = optional(Auth::user())->email ?? ($validatedData['email'] ?? null);
+
+
         // ✅ Create the order
         $order = Order::create([
             'user_id'       => Auth::id(),
@@ -505,6 +510,7 @@ class TbcCheckoutController extends Controller
             'payment_method' => $validatedData['payment_method'],
             'name'          => $validatedData['name'],
             'phone'         => '+995' . $validatedData['phone'],
+            'email'         => $customerEmail, // NEW
             'address'       => $validatedData['address'],
             'city'          => $validatedData['city'],
         ]);
@@ -548,12 +554,11 @@ class TbcCheckoutController extends Controller
             // ✅ Send confirmation email with size included
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
 
-            $customerEmail = optional(Auth::user())->email;
-
-             // Send customer invoice if logged in
-             if ($customerEmail) {
-                Mail::to($customerEmail)->send(new OrderInvoice($order));
+            // Send customer invoice (auth or guest) if we have email
+            if ($order->email) {
+                Mail::to($order->email)->send(new OrderInvoice($order));
             }
+
 
 
             if (Auth::check()) {
@@ -589,6 +594,9 @@ class TbcCheckoutController extends Controller
             'email'          => Auth::check() ? 'nullable|email' : 'nullable|email',
         ]);
 
+        $customerEmail = optional(Auth::user())->email ?? ($data['email'] ?? null);
+
+
         // 1) Stock check via bundle->availableQuantity()
         $max = (int) $bundle->availableQuantity();
         $qty = min((int)$data['quantity'], $max);
@@ -617,6 +625,7 @@ class TbcCheckoutController extends Controller
             'order_id'       => 'ORD-DIRECT-' . uniqid(),
             'name'           => $data['name'],
             'phone'          => '+995' . preg_replace('/\D/', '', $data['phone']),
+            'email'          => $customerEmail, // NEW
             'city'           => $data['city'],
             'address'        => $data['address'],
             'subtotal'       => $subtotal,
@@ -655,7 +664,14 @@ class TbcCheckoutController extends Controller
             $order->update(['status' => 'processing']);
 
             // Admin notification
+ 
+            // Send admin notification (as you do)
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
+
+             if ($order->email) {
+                Mail::to($order->email)->send(new OrderInvoice($order));
+            }
+            
 
             // (optional) Customer invoice
             // if ($customerEmail) {
@@ -671,6 +687,10 @@ class TbcCheckoutController extends Controller
             // stash for callback if user is guest
             session(['checkout_email' => $customerEmail]);
         }
+        if (!Auth::check() && $order->email) {
+            session(['checkout_email' => $order->email]);
+        }
+        
         return $this->processPayment($total, $order->order_id);
     }
 }
