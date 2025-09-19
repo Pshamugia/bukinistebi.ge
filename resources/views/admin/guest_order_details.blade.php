@@ -32,6 +32,8 @@
     </a>
     
     </p>
+    <p><strong>E-mail:</strong> {{ $order->email }}</p>
+
         <p><strong>Address:</strong> {{ $order->address }}</p>
     <p><strong>City:</strong> {{ $order->city }}</p>
     <p><strong>Total:</strong> {{ $order->total }} ლარი </p>
