@@ -62,12 +62,16 @@ class AuctionFrontController extends Controller
             return back()->withErrors(['bid_amount' => 'ბიჯი უნდა იყოს მიმდინარე ფასზე მეტი.']);
         }
 
-        Bid::create([
-            'auction_id' => $auction->id,
-            'user_id' => Auth::id(),
-            'amount' => $bidAmount,
-            'created_at' => now(),
-        ]);
+        $isAnonymous = $request->has('is_anonymous'); // ✅ define the variable
+
+     Bid::create([
+    'auction_id' => $auction->id,
+'user_id' => Auth::id(),
+    'amount' => $bidAmount,
+    'is_anonymous' => $isAnonymous,
+    'created_at' => now(),
+]);
+
 
         $auction->current_price = $bidAmount;
         $auction->save();

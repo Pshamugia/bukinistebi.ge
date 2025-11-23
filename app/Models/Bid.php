@@ -10,7 +10,7 @@ class Bid extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['auction_id', 'user_id', 'amount', 'created_at'];
+    protected $fillable = ['auction_id', 'user_id', 'amount', 'created_at', 'is_anonymous'];
 
     public function user() {
         return $this->belongsTo(User::class);
@@ -19,4 +19,9 @@ class Bid extends Model
     public function auction() {
         return $this->belongsTo(Auction::class);
     }
+
+    protected $casts = [
+    'is_anonymous' => 'boolean',
+];
+
 }

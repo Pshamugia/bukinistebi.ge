@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Schema;
 
 use App\Models\EmailLog;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
+
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ChatbotController;
@@ -114,7 +116,7 @@ Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(
 Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])->middleware('auth')->name('auction.bid');
 Route::get('/auctions', [AuctionFrontController::class, 'index'])->name('auction.index');
 Route::get('/my-bids', [AuctionFrontController::class, 'myAuctionDashboard'])->middleware('auth')->name('my.bids');
-Route::get('/auction/{auction}/bids', [AuctionFrontController::class, 'getBids'])->name('auction.bids');
+Route::get('/auction/{auction}/bids', [AuctionFrontController::class, 'getBids'])->middleware('auth')->name('auction.bids');
 
 
 
@@ -336,6 +338,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
         ->name('admin.subscribeAllUsers');
     // Publishers Activity Route
     Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
+ 
+    
+
 
     // Authors CRUD routes (Admin)
     Route::resource('authors', AdminAuthorController::class, ['as' => 'admin']);
@@ -399,6 +404,19 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
     Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
         ->name('admin.users.transactions.export');
+
+         Route::get('/publishers/export', [AdminPublisherController::class, 'exportAllPublishers'])
+        ->name('admin.publishers.export');
+
+    // 2) Export a SINGLE publisher’s sales (date range optional)
+    Route::get('/publishers/{publisher}/export', [AdminPublisherController::class, 'exportPublisher'])
+        ->name('admin.publisher.export');
+
+    // 3) Export a SINGLE publisher as "Sold book title – price" (date range optional)
+    Route::get('/publishers/{publisher}/export-titles', [AdminPublisherController::class, 'exportPublisherTitles'])
+        ->name('admin.publisher.export.titles');
+ 
+
     Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
 
     Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access

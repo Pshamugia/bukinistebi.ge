@@ -7,6 +7,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\SearchKeyword;
 use App\Models\UserPreference;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PublishersAggregateExport;
+use App\Exports\PublisherSalesExport;
+use App\Exports\PublisherTitlesExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log; // Use the full namespace for Log
 use Carbon\Carbon;
@@ -101,7 +105,52 @@ class AdminPublisherController extends Controller
         return view('admin.user_keywords', compact('keywords', 'topKeywords'));
     }
     
-    
-    
+
+
+    public function exportAllPublishers(Request $request)
+{
+    $start = $request->query('start_date');
+    $end   = $request->query('end_date');
+
+    return Excel::download(
+        new PublishersAggregateExport($start, $end),
+        'publishers_aggregate_'.$start.'_'.$end.'.xlsx'
+    );
+}
+
+public function exportPublisher(Request $request, User $publisher)
+{
+    abort_unless($publisher->role === 'publisher', 404);
+
+    $start = $request->query('start_date');
+    $end   = $request->query('end_date');
+
+    return Excel::download(
+        new PublisherSalesExport($publisher->id, $start, $end),
+        'publisher_'.$publisher->id.'_sales_'.$start.'_'.$end.'.xlsx'
+    );
+}
+
+public function exportPublisherTitles(Request $request, User $publisher)
+{
+    abort_unless($publisher->role === 'publisher', 404);
+
+        $start = $request->query('start_date');
+        $end   = $request->query('end_date');
+
+        // ✅ Make sure Laravel-Excel temp dir exists & is writable on shared hosting
+        $tempDir = storage_path('laravel-excel');
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0775, true);
+        }
+        @chmod($tempDir, 0775);
+
+        // trigger the export download
+        return Excel::download(
+            new PublisherTitlesExport($publisher->id, $start, $end),
+            'publisher_'.$publisher->id.'_titles_'.$start.'_'.$end.'.xlsx'
+        );
+      
  }
 
+}

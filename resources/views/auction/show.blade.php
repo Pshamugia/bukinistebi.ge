@@ -70,15 +70,23 @@
                             @auth
                                 @if (Auth::user()->paidAuction($auction->id))
                                     <form method="POST" action="{{ route('auction.bid', $auction->id) }}" class="mt-3">
-                                        @csrf
-                                        <label for="bid_amount" class="form-label">გააკეთე ბიჯი:</label>
-                                        <input type="number" step="0.01" name="bid_amount" class="form-control mb-2"
-                                            id="bidAmount" required>
-                                        <input type="hidden" id="minBid" value="{{ $auction->min_bid }}">
-                                        <input type="hidden" id="maxBid" value="{{ $auction->max_bid }}">
-                                        <input type="hidden" id="currentPrice" value="{{ $auction->current_price }}">
-                                        <button type="submit" class="btn btn-primary w-100">დადება</button>
-                                    </form>
+    @csrf
+    <label for="bid_amount" class="form-label">გააკეთე ბიჯი:</label>
+    <input type="number" step="0.01" name="bid_amount" class="form-control mb-2" id="bidAmount" required>
+    <input type="hidden" id="minBid" value="{{ $auction->min_bid }}">
+    <input type="hidden" id="maxBid" value="{{ $auction->max_bid }}">
+    <input type="hidden" id="currentPrice" value="{{ $auction->current_price }}">
+
+    <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" name="is_anonymous" value="1" id="isAnonymous">
+        <label class="form-check-label" for="isAnonymous">
+            ანონიმური ბიჯი
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 mt-2">დადება</button>
+</form>
+
                                 @else
                                     <div class="alert alert-warning mt-3">
                                         @auth
@@ -265,20 +273,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // List of all images to navigate through
-            const images = [
-                @if ($auction->book->photo)
-                    "{{ asset('storage/' . $auction->book->photo) }}",
-                @endif
-                @if ($auction->book->photo_2)
-                    "{{ asset('storage/' . $auction->book->photo_2) }}",
-                @endif
-                @if ($auction->book->photo_3)
-                    "{{ asset('storage/' . $auction->book->photo_3) }}",
-                @endif
-                @if ($auction->book->photo_4)
-                    "{{ asset('storage/' . $auction->book->photo_4) }}",
-                @endif
-            ];
+          const images = [
+    @php
+        $photos = [];
+        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+            if ($auction->book->$key) {
+                $photos[] = asset('storage/' . $auction->book->$key);
+            }
+        }
+        echo implode(",\n", array_map(fn($p) => '"' . $p . '"', $photos));
+    @endphp
+];
+
 
             let currentIndex = 0; // Track the currently displayed image index
 

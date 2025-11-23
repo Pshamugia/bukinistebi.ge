@@ -569,12 +569,7 @@
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.contact') }}</h5>
                     <ul class="list-unstyled">
-                        <span>
-                            <a href="tel:555389965" style="text-decoration:none; color:inherit;">
-                              <i class="bi bi-telephone-fill"></i> (+995) 555-38-99-65
-                            </a>
-                          </span>
-                          <br>
+                         
                           <span>
                             <a href="mailto:info@bukinistebi.ge" style="text-decoration:none; color:inherit;">
                               <i class="bi bi-envelope-fill"></i> info@bukinistebi.ge

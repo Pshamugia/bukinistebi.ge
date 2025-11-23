@@ -53,79 +53,72 @@ class PublisherBookController extends Controller
     public function store(Request $request)
     {
         // Validate the request
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'photo' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_2' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_3' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-            'photo_4' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        $validator = Validator::make($request->all(), [
+        'title'           => 'required|string|max:255',
+        'price'           => 'required|numeric|min:0',
+        'photo'           => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_2'         => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_3'         => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'photo_4'         => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+        'description'     => 'required|string',
+        'quantity'        => 'required|integer|min:1',
+        'full'            => 'nullable|string',
+        'author_id'       => 'required|exists:authors,id',
+        'genre_id'        => 'nullable|array',
+        'genre_id.*'      => 'exists:genres,id',
+        'status'          => 'nullable|string|max:255',
+        'pages'           => 'nullable|integer|min:1',
+        'publishing_date' => 'nullable|string|max:50',
+        'cover'           => 'required|string|max:255',
+        'language'        => 'required|in:ka,en',
+    ]);
 
-            'description' => 'required|string',
-            'quantity' => 'integer|min:1',
-            'full' => 'nullable|string',
-            'author_id' => 'required|exists:authors,id',
-            'genre_id' => 'nullable|array',
-            'genre_id.*' => 'exists:genres,id',
-            'status' => 'nullable|string',
-            'pages' => 'nullable|string|max:255',
-            'publishing_date' => 'nullable|string',
-            'cover' => 'nullable|string|max:255',
-            'language' => 'required|in:ka,en',
-        ]);
-
-        // Handle photo uploads and WebP conversion
-        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-            if ($request->hasFile($key)) {
-                $file = $request->file($key);
-
-                $uniqueFileName = time() . '_' . uniqid() . '.webp';
-
-                $image = Image::make($file)
-                    ->resize(800, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                    })
-                    ->encode('webp', 75);
-
-                $imagePath = 'uploads/books/' . $uniqueFileName;
-                Storage::disk('public')->put($imagePath, $image);
-
-                $validatedData[$key] = $imagePath;
-            }
-        }
-
-        // Add uploader information
-        $validatedData['uploader_id'] = auth()->id();
-        $validatedData['language'] = $request->language;
-
-        // Set the `hide` attribute based on role
-        $validatedData['hide'] = auth()->user()->role === 'publisher' ? '1' : '0';
-
-        // Remove genre_id from insertable fields
-        $bookData = $validatedData;
-        unset($bookData['genre_id']);
-
-        // Create the book
-        $book = Book::create($bookData);
-
-        // Attach genres via pivot table
-        if ($request->filled('genre_id')) {
-            $book->genres()->sync($request->genre_id);
-        }
-
-        // Clear cache
-        Cache::forget('home_books');
-        Cache::forget('popular_books');
-        Cache::forget('top_books');
-
-        // Notify subscribers
-        //$this->notifySubscribers($book);
-
-        return redirect()->route('publisher.dashboard')->with(
-            'success',
-            'წიგნი წარმატებით აიტვირთა. მოდერაციის გავლის შემდეგ ის გამოჩნდება ჩვენს ვებსაიტზე'
-        );
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
     }
+
+    $validatedData = $validator->validated();
+
+    // --- image handling (unchanged) ---
+    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+        if ($request->hasFile($key)) {
+            $file = $request->file($key);
+            $uniqueFileName = time() . '_' . uniqid() . '.webp';
+            $image = \Intervention\Image\Facades\Image::make($file)
+                ->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                })
+                ->encode('webp', 75);
+
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+            \Illuminate\Support\Facades\Storage::disk('public')->put($imagePath, $image);
+            $validatedData[$key] = $imagePath;
+        }
+    }
+
+    // add uploader / language / hide
+    $validatedData['uploader_id'] = auth()->id();
+    $validatedData['language'] = $request->language;
+    $validatedData['hide'] = auth()->user()->role === 'publisher' ? '1' : '0';
+
+    // remove genre_id from mass-assign
+    $bookData = $validatedData;
+    unset($bookData['genre_id']);
+
+    $book = \App\Models\Book::create($bookData);
+
+    if ($request->filled('genre_id')) {
+        $book->genres()->sync($request->genre_id);
+    }
+
+    \Illuminate\Support\Facades\Cache::forget('home_books');
+    \Illuminate\Support\Facades\Cache::forget('popular_books');
+    \Illuminate\Support\Facades\Cache::forget('top_books');
+
+    return redirect()
+        ->route('publisher.dashboard')
+        ->with('success', 'წიგნი წარმატებით აიტვირთა. მოდერაციის გავლის შემდეგ ის გამოჩნდება ჩვენს ვებსაიტზე');
+}
 
 
 
