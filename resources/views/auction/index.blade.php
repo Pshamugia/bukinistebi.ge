@@ -21,6 +21,12 @@
     </h5>
 
 
+<a href="{{ route('auction.rules') }}" class="btn btn-outline-dark mb-3" target="_self">
+    📜 ნახე აუქციონის წესები
+</a>
+
+
+
 
     <!-- Featured Books -->
     <nav class="container mt-5" style="position:relative; min-height: 400px;">

@@ -57,6 +57,8 @@ class Kernel extends HttpKernel
         // Other middleware...
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'profile.complete' => \App\Http\Middleware\EnsureProfileIsComplete::class,
+
 
     ];
 

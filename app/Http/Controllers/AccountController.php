@@ -10,6 +10,7 @@ use App\Models\User; // Ensure you're importing the User model
 
 class AccountController extends Controller
 {
+    
     public function edit()
     {
         // Retrieve the currently authenticated user
@@ -24,6 +25,8 @@ class AccountController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'password' => 'nullable|string|min:8|confirmed', // Password is optional
+            'mobile' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
         ]);
 
         // Retrieve the currently authenticated user
@@ -32,6 +35,9 @@ class AccountController extends Controller
         // Update the user's name and email
         $user->name = $request->name;
         $user->email = $request->email;
+
+        $user->phone = $request->phone;   // ✅ update mobile
+        $user->address = $request->address; // ✅ update address
 
         // If the password field is filled, update the password
         if ($request->filled('password')) {

@@ -69,8 +69,9 @@
                             {{-- status  --}}
                             @auth
                                 @if (Auth::user()->paidAuction($auction->id))
-                                    <form method="POST" action="{{ route('auction.bid', $auction->id) }}" class="mt-3">
+<form method="POST" action="{{ route('auction.bid', $auction->id) }}" class="mt-3" id="bidForm">
     @csrf
+    <input type="hidden" name="allow_bid" id="allowBid" value="0">
     <label for="bid_amount" class="form-label">გააკეთე ბიჯი:</label>
     <input type="number" step="0.01" name="bid_amount" class="form-control mb-2" id="bidAmount" required>
     <input type="hidden" id="minBid" value="{{ $auction->min_bid }}">
@@ -84,7 +85,7 @@
         </label>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100 mt-2">დადება</button>
+<button type="submit" class="btn btn-primary w-100 mt-2">დადება</button>
 </form>
 
                                 @else
@@ -173,6 +174,24 @@
             </div>
         </div>
     </div>
+<!-- Modal -->
+<div class="modal fade" id="profileWarningModal" tabindex="-1" aria-labelledby="profileWarningModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">პროფილის შევსება აუცილებელია</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="დახურვა"></button>
+      </div>
+      <div class="modal-body">
+        აუქციონში მონაწილეობისათვის პროფილის რედაქტირებაში უნდა მიუთითოთ მობილურის ნომერი და საცხოვრებელი მისამართი.
+      </div>
+      <div class="modal-footer">
+        <a href="{{ route('account.edit') }}" class="btn btn-primary">პროფილის რედაქტირება</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">დახურვა</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
     @if (!$auction->is_active)
@@ -226,6 +245,7 @@
     </div>
     </div>
 
+ 
 
     <script>
         const endTime = new Date("{{ $auction->end_time }}").getTime();
@@ -348,41 +368,50 @@
             mainImage.onclick = function() {
                 modalImage.src = imageUrl;
             };
-            const bidForm = document.querySelector('form[action*="auction/bid"]');
-            const bidInput = document.getElementById('bidAmount');
+             
 
-            if (bidForm && bidInput) {
-                bidForm.addEventListener('submit', function(e) {
-                    const enteredBid = parseFloat(bidInput.value);
-                    const minBid = parseFloat(document.getElementById('minBid').value) || 0;
-                    const maxBid = parseFloat(document.getElementById('maxBid').value) || Infinity;
-                    const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+                   document.addEventListener('DOMContentLoaded', function () {
+    const bidForm = document.getElementById('bidForm');
 
-                    if (enteredBid < minBid) {
-                        if (!confirm(`მინიმალური ბიჯის თანხაა ${minBid} ₾. დარწმუნებული ხარ რომ გსურს გაგზავნა?`)) {
-                            e.preventDefault(); // Only prevent if user cancels
-                        }
-                    }
+    if (bidForm) {
+        bidForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-                    if (enteredBid <= currentPrice) {
-                        if (!confirm(
-                                `შენი ბიჯი უნდა იყოს მეტი ვიდრე მიმდინარე ფასი (${currentPrice} ₾). მაინც გააგრძელო?`
-                            )) {
-                            e.preventDefault();
-                        }
-                    }
+            // ✅ ADD THIS HERE
+            const enteredBid = parseFloat(document.getElementById('bidAmount').value);
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+            const maxBid = parseFloat(document.getElementById('maxBid').value);
 
-                    if (enteredBid > maxBid) {
-                        if (!confirm(
-                                `ბიჯი არ უნდა აღემატებოდეს მაქსიმალურ ზღვარს (${maxBid} ₾). მაინც გაგზავნო?`)) {
-                            e.preventDefault();
-                        }
-                    }
-
-                });
+            if (enteredBid <= currentPrice) {
+                if (!confirm(`შენი ბიჯი უნდა იყოს მეტი ვიდრე მიმდინარე ფასი (${currentPrice} ₾). მაინც გააგრძელო?`)) {
+                    return;
+                }
             }
 
-        }
+            if (enteredBid > maxBid) {
+                if (!confirm(`ბიჯი არ უნდა აღემატებოდეს მაქსიმალურ ზღვარს (${maxBid} ₾). მაინც გაგზავნო?`)) {
+                    return;
+                }
+            }
+
+            // Profile check
+            try {
+                const response = await fetch("{{ url('/check-user-profile') }}");
+                const result = await response.json();
+
+                if (result.missing_fields) {
+                    const modal = new bootstrap.Modal(document.getElementById('profileWarningModal'));
+                    modal.show();
+                } else {
+                    bidForm.submit(); // ✅ All good — submit the form
+                }
+            } catch (error) {
+                console.error('Error checking user profile:', error);
+                alert("დაფიქსირდა შეცდომა. სცადე მოგვიანებით.");
+            }
+        });
+    }
+});
     </script>
 
     <script>
@@ -398,14 +427,7 @@
     </script>
 
 
-    <script>
-        function updateMainImage(imageUrl) {
-            const mainImage = document.getElementById('thumbnailImage');
-            const modalImage = document.getElementById('modalImage');
-            mainImage.src = imageUrl;
-            modalImage.src = imageUrl;
-        }
-    </script>
+  
 
 
     @if ($errors->any())
@@ -420,5 +442,34 @@
             });
         </script>
     @endif
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const bidForm = document.getElementById('bidForm');
+
+        if (bidForm) {
+            bidForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                try {
+                    const response = await fetch("{{ url('/check-user-profile') }}");
+                    const result = await response.json();
+
+                    if (result.missing_fields) {
+                        const modal = new bootstrap.Modal(document.getElementById('profileWarningModal'));
+                        modal.show();
+                    } else {
+                        bidForm.submit(); // Continue submission only if profile is complete
+                    }
+                } catch (error) {
+                    console.error('Error checking user profile:', error);
+                    alert("დაფიქსირდა შეცდომა. სცადე მოგვიანებით.");
+                }
+            });
+        }
+    });
+</script>
+
 
 @endsection

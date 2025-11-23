@@ -35,6 +35,14 @@ class AuctionFrontController extends Controller
     {
         $bidAmount = $request->bid_amount;
 
+ 
+
+    if (empty(auth()->user()->phone) || empty(auth()->user()->address)) {
+    return response()->json([
+        'missing_fields' => true
+    ]);
+}
+
         // ✅ Check if user has paid the auction participation fee
         if (!Auth::user()->paidAuction($auction->id)) {
             return back()->withErrors(['bid_amount' => 'აუცილებელია აუქციონის სიმბოლური საფასურის გადახდა.']);
@@ -88,6 +96,12 @@ class AuctionFrontController extends Controller
         return view('auction.partials.bid_history', compact('auction'));
     }
 
+public function rules()
+{
+    return view('auction.rules');  // ✅ this matches resources/views/auction/rules.blade.php
+}
+
+
 
     public function myAuctionDashboard()
     {
@@ -113,6 +127,8 @@ class AuctionFrontController extends Controller
             'activeBids'
         ));
     }
+
+
 
 
 
