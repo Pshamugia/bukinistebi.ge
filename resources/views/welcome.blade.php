@@ -268,13 +268,13 @@
                     : asset('images/partners_logo/artanuji_logo.png'),
                 'alt' => 'Artanuji'
             ],
-            // [
-            //     'url' => 'https://tbcbank.ge/ka',
-            //     'image' => app()->getLocale() === 'en'
-            //         ? asset('images/partners_logo/TBC_Bank_logo.svg')
-            //         : asset('images/partners_logo/TBC_Bank_logo.svg'),
-            //     'alt' => 'TBC Bank'
-            // ],
+            [
+                'url' => 'https://www.palitral.ge/',
+                'image' => app()->getLocale() === 'en'
+                    ? asset('images/partners_logo/palitra.png')
+                    : asset('images/partners_logo/palitra.png'),
+                'alt' => 'Palitra L'
+            ],
         ];
 
         shuffle($partners);
