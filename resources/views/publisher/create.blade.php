@@ -251,10 +251,36 @@
       </div>
   </div>
 </div>
+
+<!-- Upload Spinner Overlay -->
+<div id="uploadSpinner" 
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(255,255,255,0.8); z-index:9999;
+            justify-content:center; align-items:center; flex-direction:column;">
+    
+    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status"></div>
+    <div class="mt-3 fs-4 text-primary">იტვირთება, გთხოვთ დაელოდოთ...</div>
+</div>
+
+
 @endsection
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form[action="{{ route('publisher.books.store') }}"]');
+
+    if (form) {
+        form.addEventListener('submit', function () {
+            document.getElementById('uploadSpinner').style.display = 'flex';
+        });
+    }
+});
+</script>
+
+
 
 <script>
 (function () {
