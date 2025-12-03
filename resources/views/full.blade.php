@@ -93,7 +93,7 @@
 
 
                 <!-- Display average rating -->
-                <div style="border:1px solid #ccc; border-radius:5px; padding:15px; margin-bottom:20px">
+                <div style="border:1px solid #ccc; border-radius:5px; padding:15px; margin-bottom:20px" class="d-none d-md-block">
                     @if ($averageRating)
                         <p> {{ number_format($averageRating) }} / 5 ({{ $ratingCount }} {{ __('messages.userRating') }})
                         </p>
@@ -139,6 +139,63 @@
                     </script>
 
                 </div>
+
+
+                @php
+        $partners = [
+            [
+                'url' => 'https://intelekti.ge/',
+                'image' =>
+                    app()->getLocale() === 'ka'
+                        ? asset('images/partners_logo/Intelekti Publishing_logo-geo.png')
+                        : asset('images/partners_logo/Intelekti_Publishing_logo_Eng.png'),
+                'alt' => 'Intelekti',
+            ],
+            [
+                'url' => 'https://sulakauri.ge/',
+                'image' =>
+                    app()->getLocale() === 'en'
+                        ? asset('images/partners_logo/sulakauri.png')
+                        : asset('images/partners_logo/sulakauri_logo.svg'),
+                'alt' => 'Sulakauri',
+            ],
+            [
+                'url' => 'https://www.artanuji.ge/',
+                'image' => app()->getLocale() === 'en'
+                    ? asset('images/partners_logo/artanuji_logo_en.png')
+                    : asset('images/partners_logo/artanuji_logo.png'),
+                'alt' => 'Artanuji'
+            ],
+            [
+                'url' => 'https://www.palitral.ge/',
+                'image' => app()->getLocale() === 'en'
+                    ? asset('images/partners_logo/palitra.png')
+                    : asset('images/partners_logo/palitra.png'),
+                'alt' => 'Palitra L'
+            ],
+        ];
+
+        shuffle($partners);
+    @endphp
+
+    <!-- Partners Section -->
+    <div class="container my-5 d-none d-md-block">
+        <div class="hr-with-text text-center mb-4">
+            <h2 style="font-size: 26px;">{{ __('messages.ourpartners') }}</h2>
+        </div>
+        <div class="row justify-content-center align-items-center">
+
+            @foreach ($partners as $partner)
+                <div class="col-6 col-md-3 mb-4">
+                    <a href="{{ $partner['url'] }}" target="blank">
+                        <img src="{{ $partner['image'] }}" alt="{{ $partner['alt'] }}" class="img-fluid partners"
+                            style="max-height: 60px;">
+                    </a>
+                </div>
+            @endforeach
+
+        </div>
+    </div>
             </div>
 
             <!-- Book Details -->

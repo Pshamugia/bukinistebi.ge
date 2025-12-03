@@ -368,6 +368,9 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
     // Auction Update/Edit Routes
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
+    Route::delete('/admin/auctions/{auction}', [AuctionController::class, 'destroy'])
+        ->name('admin.auctions.destroy');
+
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
     Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
     Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
@@ -433,8 +436,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');
     Route::put('/admin/orders/{order}/undo-delivered', [App\Http\Controllers\Admin\BookController::class, 'undoDelivered'])->name('admin.undoDelivered');
     Route::get('/admin/book-orders', [BookController::class, 'adminBookOrders'])->name('admin.book_orders');
-    Route::post('/admin/book-orders/{order}/done', [BookController::class, 'markDone'])
-        ->name('admin.book_orders.done');
+Route::post('/book-orders/{order}/done', [\App\Http\Controllers\Admin\BookController::class, 'markDone'])
+    ->name('admin.book_orders.done');
+    Route::get('/book-orders', [AdminBookController::class, 'searchOrders'])
+        ->name('admin.book_orders.index');
+
+
 
 
     Route::post('authors/quick-store', [AdminAuthorController::class, 'quickStore'])

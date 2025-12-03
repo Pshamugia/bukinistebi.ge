@@ -7,7 +7,7 @@
     <h2>ყველა აუქციონი</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
 
@@ -31,26 +31,39 @@
         </thead>
         <tbody>
             @forelse ($auctions as $auction)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>
-                        @if($auction->book)
-                            {{ $auction->book->title }}
-                        @else
-                            <span class="text-danger">წიგნი წაშლილია</span>
-                        @endif
-                    </td>                    <td>{{ number_format($auction->start_price, 2) }} GEL</td>
-                    <td>{{ number_format($auction->current_price, 2) }} GEL</td>
-                    <td>{{ $auction->start_time }}</td>
-                    <td>{{ $auction->end_time }}</td>
-                    <td>{{ $auction->is_active ? 'აქტიური' : 'დასრულებული' }}</td>
-                    <td><a href="{{ route('admin.auctions.edit', $auction) }}" class="btn btn-sm btn-info">Edit</a></td>
+            <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td>
+                    @if($auction->book)
+                    {{ $auction->book->title }}
+                    @else
+                    <span class="text-danger">წიგნი წაშლილია</span>
+                    @endif
+                </td>
+                <td>{{ number_format($auction->start_price, 2) }} GEL</td>
+                <td>{{ number_format($auction->current_price, 2) }} GEL</td>
+                <td>{{ $auction->start_time }}</td>
+                <td>{{ $auction->end_time }}</td>
+                <td>{{ $auction->is_active ? 'აქტიური' : 'დასრულებული' }}</td>
+                <td class="d-flex gap-2">
+                    <a href="{{ route('admin.auctions.edit', $auction) }}" class="btn btn-sm btn-info">
+                        Edit
+                    </a>
 
-                </tr>
+                    <form action="{{ route('admin.auctions.destroy', $auction->id) }}"
+                        method="POST"
+                        onsubmit="return confirm('დარწმუნებული ხარ რომ გსურს წაშლა?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+
+            </tr>
             @empty
-                <tr>
-                    <td colspan="7">აუქციონი არ მოიძებნა.</td>
-                </tr>
+            <tr>
+                <td colspan="7">აუქციონი არ მოიძებნა.</td>
+            </tr>
             @endforelse
         </tbody>
     </table>

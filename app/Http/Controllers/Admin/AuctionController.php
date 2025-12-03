@@ -90,6 +90,21 @@ public function update(Request $request, Auction $auction)
 }
 
 
+public function destroy(Auction $auction)
+{
+    // If auction has bids, optional protection:
+    if ($auction->bids()->count() > 0) {
+        return back()->with('error', '❌ ვერ წაშლიდა — აუქციონს უკვე აქვს ბიჯები.');
+    }
+
+    // Delete auction
+    $auction->delete();
+
+    return redirect()
+        ->route('admin.auctions.index')
+        ->with('success', '✔ აუქციონი წარმატებით წაიშალა!');
+}
+
 
 
 public function bidsPartial($id)

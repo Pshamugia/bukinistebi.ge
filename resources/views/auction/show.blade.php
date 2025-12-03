@@ -7,6 +7,31 @@
         .list-group-item.border-primary {
             box-shadow: 0 0 4px #0d6efd;
         }
+        .image-main-wrapper {
+    width: 100%;
+    height: 400px; /* EXACT old height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.main-image {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+    transition: none !important;
+}
+
+.image-main-wrapper {
+    pointer-events: none; /* wrapper ignores clicks */
+}
+
+.main-image {
+    pointer-events: auto; /* image receives clicks */
+}
+
+
     </style>
 
 
@@ -23,25 +48,29 @@
         <div class="row mt-4">
             <!-- Left column: Photos -->
             <div class="col-md-6">
-                <div class="position-relative border rounded shadow-sm p-2 text-center mb-3">
-                    @if ($auction->book->photo)
-                        <img src="{{ asset('storage/' . $auction->book->photo) }}" alt="{{ $auction->book->title }}"
-                            class="img-fluid rounded" id="thumbnailImage" style="cursor: pointer;" data-bs-toggle="modal"
-                            data-bs-target="#imageModal" loading="lazy">
-                    @else
-                        <img src="{{ asset('public/uploads/default-book.jpg') }}" class="img-fluid rounded shadow"
-                            loading="lazy">
-                    @endif
-                </div>
+<div class="position-relative border rounded shadow-sm p-2 text-center mb-3 image-main-wrapper">
+    @if ($auction->book?->photo)
+        <img src="{{ asset('storage/' . $auction->book?->photo) }}"
+     id="thumbnailImage"
+     class="img-fluid rounded main-image"
+     data-bs-toggle="modal"
+     data-bs-target="#imageModal"
+     style="cursor: pointer;">
+    @else
+        <img src="{{ asset('public/uploads/default-book.jpg') }}"
+             class="img-fluid rounded shadow main-image">
+    @endif
+</div>
+
 
                 <!-- Thumbnails -->
                 <div class="d-flex flex-wrap gap-2 justify-content-start mt-3">
                     @foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $photo)
-                        @if ($auction->book->$photo)
-                            <img src="{{ asset('storage/' . $auction->book->$photo) }}"
+                        @if ($auction->book?->$photo)
+                            <img src="{{ asset('storage/' . $auction->book?->$photo) }}"
                                 class="img-thumbnail small-thumbnail"
                                 style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $auction->book->$photo) }}')"
+                                onmouseover="updateMainImage('{{ asset('storage/' . $auction->book?->$photo) }}')"
                                 loading="lazy">
                         @endif
                     @endforeach
@@ -231,7 +260,7 @@
                     </button>
 
                     <!-- Modal Image -->
-                    <img src="{{ asset('storage/' . $auction->book->photo) }}" alt="{{ $auction->book->title }}"
+                    <img src="{{ asset('storage/' . $auction->book?->photo) }}" alt="{{ $auction->book->title }}"
                         id="modalImage" class="img-fluid" loading="lazy">
 
                     <!-- Right Arrow -->
@@ -293,17 +322,18 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // List of all images to navigate through
-          const images = [
-    @php
-        $photos = [];
-        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-            if ($auction->book->$key) {
-                $photos[] = asset('storage/' . $auction->book->$key);
-            }
+       const images = [
+@php
+    $photos = [];
+    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+        if ($auction->book?->$key) {   // <-- FIXED
+            $photos[] = asset('storage/' . $auction->book->$key);
         }
-        echo implode(",\n", array_map(fn($p) => '"' . $p . '"', $photos));
-    @endphp
+    }
+    echo implode(",\n", array_map(fn($p) => '"' . $p . '"', $photos));
+@endphp
 ];
+
 
 
             let currentIndex = 0; // Track the currently displayed image index
@@ -358,16 +388,16 @@
          * Updates the main image (hover effect) and sets it for the modal.
          */
         function updateMainImage(imageUrl) {
-            const mainImage = document.getElementById('thumbnailImage');
-            const modalImage = document.getElementById('modalImage');
+    const mainImage = document.getElementById('thumbnailImage');
+    const modalImage = document.getElementById('modalImage');
 
-            // Update the main image source
-            mainImage.src = imageUrl;
+    mainImage.src = imageUrl;
 
-            // Update the modal image source to match the main image
-            mainImage.onclick = function() {
-                modalImage.src = imageUrl;
-            };
+    mainImage.onclick = function() {
+        modalImage.src = imageUrl;
+    };
+}
+
              
 
                    document.addEventListener('DOMContentLoaded', function () {

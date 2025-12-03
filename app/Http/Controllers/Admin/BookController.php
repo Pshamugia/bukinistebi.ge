@@ -8,20 +8,21 @@ use App\Models\Genre;
 use App\Models\Author;
 use App\Models\BookNews;
 use App\Models\Category;
+use App\Models\BookOrder;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\SubscriptionNotification;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\UserTransactionsExport; 
 use App\Models\User; // Include the User model
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Order; // Make sure to include your Order model
 use Intervention\Image\Facades\Image; // Add this at the top of your controller
-use App\Exports\UserTransactionsExport; 
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Pagination\LengthAwarePaginator;
  
  
 
@@ -72,6 +73,28 @@ if ($request->filled('hidden') && $request->hidden == '1') {
     
 
     
+public function searchOrders(Request $request)
+{
+    $query = BookOrder::where(function ($q) {
+        $q->where('is_done', false)
+          ->orWhereNull('is_done');
+    });
+
+    if ($request->search) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'LIKE', "%{$search}%")
+              ->orWhere('author', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+
+    return view('admin.book_orders', compact('orders'));
+}
+
+
 
 public function create(Request $request)
 {
@@ -376,6 +399,19 @@ public function store(Request $request)
 
         return redirect()->back()->with('success', 'მასალა წარმატებით განახლდა.');
     }
+
+
+public function markDone(BookOrder $order)
+{
+    $order->update(['is_done' => true]);
+
+    return back()->with('success', 'შეკვეთა მონიშნულია დასრულებულად.');
+}
+
+
+
+
+
 
     // app/Http/Controllers/AdminController.php
 

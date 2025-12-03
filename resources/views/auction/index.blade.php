@@ -36,11 +36,11 @@
         @forelse($auctions as $auction)
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                    @if($auction->book->photo)
-                        <img src="{{ asset('storage/' . $auction->book->photo) }}" class="card-img-top" alt="{{ $auction->book->title }}">
+                    @if($auction->book?->photo)
+                        <img src="{{ asset('storage/' . $auction->book->photo) }}" class="card-img-top" alt="{{ $auction->book?->title }}">
                     @endif
                     <div class="card-body">
-                        <h5 class="card-title">{{ $auction->book->title }}</h5>
+                        <h5 class="card-title">{{ $auction->book?->title }}</h5>
                         <p>💰 მიმდინარე: <strong>{{ number_format($auction->current_price, 2) }}  <img src="{{ asset('images/GEL.png') }}" width="20px"></strong></p>
                         <p>⏳ სრულდება: {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}</p>
                         <a href="{{ route('auction.show', $auction->id) }}" class="btn btn-primary w-100">აუქციონის ნახვა</a>
