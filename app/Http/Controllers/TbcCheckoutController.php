@@ -583,6 +583,15 @@ class TbcCheckoutController extends Controller
 
     public function directPayBundle(Request $request, Bundle $bundle)
     {
+          $token = $request->submission_token;
+
+    // prevent duplicate
+    if (session()->has("used_token_$token")) {
+        return back()->with('warning', 'თქვენ უკვე გააგზავნეთ შეკვეთა.');
+    }
+
+    session()->put("used_token_$token", true);
+    
         $data = $request->validate([
             'payment_method' => 'required|in:bank_transfer,courier',
             'name'           => 'required|string|max:255',

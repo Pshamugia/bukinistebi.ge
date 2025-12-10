@@ -20,7 +20,7 @@ return [
     'locale' => 'ka',
 
     'fallback_locale' => 'ka',
-    
+
     'faker_locale' => 'ka_GE',
 
     'key' => env('APP_KEY'),
@@ -53,13 +53,17 @@ return [
          * Application Service Providers...
          */
 
-         Laravel\Socialite\SocialiteServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
 
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Milon\Barcode\BarcodeServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
+
+
     ])->toArray(),
 
     /*
@@ -77,5 +81,10 @@ return [
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class, // For Excel
         'Image' => Intervention\Image\Facades\Image::class, // For Intervention Image
+        'DNS1D' => Milon\Barcode\Facades\DNS1DFacade::class,
+        'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
+          'PDF'       => Barryvdh\DomPDF\Facade\Pdf::class,
+
+
     ])->toArray(),
 ];

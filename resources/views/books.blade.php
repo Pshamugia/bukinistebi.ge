@@ -59,7 +59,7 @@
                             class="card-link">
                             <div class="image-container"
                                 style="background-image: url('{{ asset('images/default_image.png') }}');">
-                                <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}"
+                                <img src="{{ asset('storage/' . $book->photo) }}" alt="წიგნის სურათი"
                                     class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
                                     onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';">
                             </div>

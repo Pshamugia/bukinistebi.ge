@@ -440,6 +440,9 @@ Route::post('/book-orders/{order}/done', [\App\Http\Controllers\Admin\BookContro
     ->name('admin.book_orders.done');
     Route::get('/book-orders', [AdminBookController::class, 'searchOrders'])
         ->name('admin.book_orders.index');
+        Route::get('/admin/orders/{order}/label', [AdminBookController::class, 'print'])
+    ->name('admin.order.label');
+
 
 
 

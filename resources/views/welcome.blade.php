@@ -5,8 +5,13 @@
 @section('content')
 
     <!-- Hero Section -->
-    <div class="hero-section"
-        style="background: url('{{ asset('uploads/book9.webp') }}') no-repeat center center; background-size: cover; background-attachment: fixed; ">
+   <div class="hero-section lazybg"
+    data-bg="{{ asset('uploads/book9.webp') }}"
+     style="
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center center;
+     ">
         <div class="hero-content" style="position: relative; padding-top: 15px;">
 
 
@@ -40,7 +45,7 @@
                                 style="background-image: url('{{ asset('images/default_image.png') }}');">
                                 <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}"
                                     class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';">
+onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
                             </div>
                         </a>
                         <div class="card-body">
@@ -132,8 +137,14 @@
     <!-- Overlay Section -->
 
     <div class="overlay-section">
-        <div class="fixed-background"
-            style="background: url('{{ asset('uploads/book1.webp') }}') no-repeat center center; background-size: cover; background-attachment: fixed;">
+        <div class="fixed-background lazybg"
+        data-bg="{{ asset('uploads/book1.webp') }}"
+        style="
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        ">
         </div>
         <div class="overlay-content">
             <h2>{{ __('messages.becomepartner') }}</h2>
@@ -175,7 +186,7 @@
                                     class="card-link text-decoration-none">
                                     @if (isset($item->image))
                                         <div class="image-container">
-                                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}"
+                                            <img src="{{ asset('storage/' . $item->image) }}" alt="წიგნის სურათი"
                                                 loading="lazy" class="card-img-top rounded-top img-fluid cover_news"
                                                 id="im_news">
                                         </div>
@@ -220,7 +231,7 @@
                                     class="card-link" style="text-decoration: none">
 
                                     @if (isset($book->photo))
-                                        <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}"
+                                        <img src="{{ asset('storage/' . $book->photo) }}" alt="წიგნის სურათი"
                                             class="cover img-fluid"
                                             style="border-radius: 4px; object-fit: cover; height: 50px; width: 50px; float:left; padding-right: 10px">
                                     @endif
@@ -326,8 +337,7 @@
 
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+ 
     <script>
         $.ajaxSetup({
             headers: {
@@ -336,6 +346,21 @@
         });
     </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.lazybg').forEach(div => {
+        const bg = div.dataset.bg;
+        if (bg) {
+            div.style.backgroundImage = `url('${bg}')`;
+            div.style.backgroundRepeat = 'no-repeat';
+            div.style.backgroundPosition = 'center center';
+            div.style.backgroundSize = 'cover';
+            div.style.backgroundAttachment = 'fixed'; // keep your old effect
+        }
+    });
+});
+</script>
 
 
 

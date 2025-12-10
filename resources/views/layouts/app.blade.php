@@ -2,28 +2,22 @@
 
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
-<script src="{{ asset('js/cookieConsent.js') }}"></script>
-<script>
-    window.cookieConsentConfig = {
-        csrf: '{{ csrf_token() }}',
-        user_name: '{{ Auth::check() ? Auth::user()->name : 'Guest' }}',
-        storeUrl: '{{ route('store-user-behavior') }}'
-    };
-</script>
 
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+<script defer src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
+<script>
+    window.addEventListener("load", function () {
+        setTimeout(function () {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-D4Q2EZ7SGK');
+        }, 1500);
+    });
+</script>
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'G-D4Q2EZ7SGK');
-    </script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,13 +79,31 @@
 
 
 
+ 
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+ 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="preload"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'">
+
+<noscript>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+</noscript>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let s = document.createElement("script");
+    s.src = "https://code.jquery.com/jquery-3.6.0.min.js";
+    s.defer = true;
+    document.body.appendChild(s);
+});
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 
     <!-- Custom CSS -->
@@ -107,6 +119,8 @@
             body {
                 font-family: 'Noto Serif', serif;
             }
+
+            
         </style>
     @endif
     @if (isset($book))
@@ -136,33 +150,32 @@
 
     <!-- Meta Pixel Code -->
     <script>
-        ! function(f, b, e, v, n, t, s) {
-            if (f.fbq) return;
-            n = f.fbq = function() {
-                n.callMethod ?
-                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n;
-            n.push = n;
-            n.loaded = !0;
-            n.version = '2.0';
-            n.queue = [];
-            t = b.createElement(e);
-            t.async = !0;
-            t.src = v;
-            s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1049503350038938');
-        fbq('track', 'PageView');
-    </script>
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            !function(f,b,e,v,n,t,s){
+                if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
+                s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)
+            }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+            fbq('init', '1049503350038938');
+            fbq('track', 'PageView');
+        }, 3000);
+    });
+</script>
+
     <noscript><img height="1" width="1" style="display:none"
             src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1" /></noscript>
     <!-- End Meta Pixel Code -->
 </head>
 
 <body>
+<div id="pageLoader">
+    <div class="loader"></div>
+</div>
 
     <!-- ✅ Top Navbar: right -->
     <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
@@ -195,7 +208,7 @@
                             }
                         @endphp
                         <!-- Cart Link in the Navbar -->
-                        <a class="nav-link" href="{{ route('cart.index') }}" style="position: relative;">
+                        <a class="nav-link" href="{{ route('cart.index') }}" aria-label="View cart" style="position: relative;">
                             <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
 
                             <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
@@ -369,7 +382,7 @@
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
                         data-bs-toggle="dropdown">
                         <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" width="20"
-                            class="me-1">
+                            class="me-1" alt="flags">
 
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
@@ -381,9 +394,11 @@
 
                 <!-- DARK MODE -->
                 <li class="nav-item kalata2">
-                    <button id="modeToggle" class="btn btn-inline-secondary btn-sm">
-                        <i class="bi bi-moon-fill"></i>
-                    </button>
+                   <button id="modeToggle" class="btn btn-inline-secondary btn-sm"
+        aria-label="Toggle dark mode">
+    <i class="bi bi-moon-fill"></i>
+</button>
+
                 </li>
 
             </ul>
@@ -399,16 +414,20 @@
 
 
 
-                <a class="navbar-brand" href="{{ url('/') }}"><img
+                <a class="navbar-brand" href="{{ url('/') }}" aria-label="Bukinistebi Home"><img
                         src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
                         style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
 
 
                 <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
-                <button class="btn d-block d-lg-none mx-2" id="mobileSearchToggle" type="button">
-                    <i class="bi bi-search fs-4"
-                        style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
-                </button>
+             <button class="btn d-block d-lg-none mx-2"
+        id="mobileSearchToggle"
+        type="button"
+        aria-label="Open search">
+    <i class="bi bi-search fs-4"
+       style="position: relative; top:3px; color:#7e7c7c; font-size: 18px !important"></i>
+</button>
+
                 <!-- 🔍 Popup Search Box (mobile only) -->
                 <div id="mobileSearchOverlay" class="d-lg-none mobileSearch"
                     style="display: none; position: absolute; top: 0; left: 0; right: 0; background: #F3F4F6; z-index: 9999; padding: 3px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -418,10 +437,16 @@
 
                         <input type="search" name="title" class="form-control me-2"
                             placeholder="{{ __('messages.booksearch') }}..." required autofocus>
+                            <div id="searchSpinnerMobile" class="search-spinner"></div>
+
                         <button type="submit" class="btn btn-outline-success me-2"><i
                                 class="bi bi-search down"></i></button>
-                        <button type="button" class="btn btn-outline-secondary" id="closeMobileSearch"><i
-                                class="bi bi-x-lg down"></i></button>
+                      <button type="button" class="btn btn-outline-secondary"
+        id="closeMobileSearch"
+        aria-label="Close search">
+    <i class="bi bi-x-lg down"></i>
+</button>
+
 
                     </form>
                 </div>
@@ -429,11 +454,17 @@
                 <!-- ✅ Mobile Language Switcher Floating Top-Right -->
 
 
-                <button id="mobileMenuToggle" class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <i class="bi bi-list fs-3"></i> <!-- bi-list = hamburger, bi-x = close -->
-                </button>
+              <button id="mobileMenuToggle"
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle menu">
+    <i class="bi bi-list fs-3"></i>
+</button>
+
 
 
 
@@ -442,7 +473,7 @@
 
                     <ul class="navbar-nav ms-auto" style="position: relative;   z-index: 100000;">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}">{{ __('messages.home') }}</a>
+                            <a class="nav-link" href="{{ url('/') }}" aria-label="Bukinistebi Home">{{ __('messages.home') }}</a>
                         </li>
 
 
@@ -524,11 +555,13 @@
                                 value="{{ request()->get('title') }}"
                                 placeholder="{{ __('messages.booksearch') }}..." aria-label="Search"
                                 id="searchInput">
-                            <button class="btn btn-outline-success submit-search" type="submit"
-                                style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
-                                    class="bi bi-search" style="position: relative;  "></i></button>
-                            <div id="searchSuggestBox" class="suggest-box d-none"></div>
+                                <div id="searchSpinner" class="search-spinner"></div>
 
+ <button class="btn btn-outline-success submit-search" type="submit"
+                                style="border-bottom-right-radius:0px; border-top-left-radius:0px; border:0px; "><i
+                                    class="bi bi-search" 
+aria-label="Search" style="position: relative;  "></i></button>
+                                                                <div id="searchSuggestBox" class="suggest-box d-none"></div>
                         </form>
 
 
@@ -568,15 +601,14 @@
                 <!-- Column 3 -->
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.contact') }}</h5>
-                    <ul class="list-unstyled">
-                         
-                          <span>
-                            <a href="mailto:info@bukinistebi.ge" style="text-decoration:none; color:inherit;">
-                              <i class="bi bi-envelope-fill"></i> info@bukinistebi.ge
-                            </a>
-                          </span>
-                          
-                    </ul>
+                  <ul class="list-unstyled">
+    <li>
+        <a href="mailto:info@bukinistebi.ge" style="text-decoration:none; color:inherit;">
+            <i class="bi bi-envelope-fill"></i> info@bukinistebi.ge
+        </a>
+    </li>
+</ul>
+
                 </div>
 
                 <!-- Column 4 -->
@@ -672,13 +704,13 @@
                     <div class="col text-center">
                         <h5 class="text-uppercase" style="position: relative; left:-15px">{{ __('messages.follow') }}
                         </h5>
-                        <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon" target="blank"><i
-                                class="bi bi-facebook fs-5"></i></a>
-                        <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank"><i
-                                class="bi bi-instagram fs-5"></i></a>
+                        <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon" target="blank" aria-label="Follow us on Facebook">
+                            <i class="bi bi-facebook fs-5"></i></a>
+                        <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank"  aria-label="Follow us on Instagram">
+                            <i class="bi bi-instagram fs-5"></i></a>
                         <a href="https://www.youtube.com/channel/UCrXyA0hq0gDJME5wgRGTbbA" class="youtube-icon"
-                            target="blank"><i class="bi bi-youtube fs-3"></i></a>
-                        <a href="#" class="tiktok-icon"><i class="bi bi-tiktok fs-5"></i></a>
+                            target="blank"   aria-label="Visit our YouTube channel"><i class="bi bi-youtube fs-3"></i></a>
+                        <a href="#" class="tiktok-icon" aria-label="Visit our TikTok"><i class="bi bi-tiktok fs-5"></i></a>
                     </div>
                 </div>
 
@@ -703,6 +735,14 @@
                 });
         }
     </script>
+<script src="{{ asset('js/cookieConsent.js') }}"></script>
+<script>
+    window.cookieConsentConfig = {
+        csrf: '{{ csrf_token() }}',
+        user_name: '{{ Auth::check() ? Auth::user()->name : 'Guest' }}',
+        storeUrl: '{{ route('store-user-behavior') }}'
+    };
+</script>
 
 
 
@@ -811,8 +851,7 @@
     </script>
 
 
-    <!-- Include jQuery -->
-
+ 
     <!-- Include Bootstrap JS if needed -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
 
@@ -1102,52 +1141,78 @@
                 } [m]));
             }
 
-            $input.on('input', function() {
-                const q = this.value.trim();
-                clearTimeout(timer);
-                if (q.length < 2) {
-                    $box.addClass('d-none').empty();
-                    return;
-                }
+         $input.on('input', function () {
+    const q = this.value.trim();
+    clearTimeout(timer);
 
-                timer = setTimeout(function() {
-                    $.get('{{ route('search.suggest') }}', {
-                        q
-                    }, function(list) {
-                        if (!list || !list.length) {
-                            $box.html(
-                                '<div class="suggest-empty">{{ __('messages.noresult') }}</div>'
-                                ).removeClass('d-none');
-                            return;
-                        }
-                        let html = '<ul class="list-unstyled mb-0">';
-                        list.forEach(it => {
-                            const title = typeof it === 'string' ? it : (it.title ||
-                                '');
-                            const author = (typeof it === 'object' && it.author) ?
-                                it.author : '';
-                            const url = (typeof it === 'object' && it.url) ? it
-                                .url : '';
-                            const img = (typeof it === 'object' && it.image) ? it
-                                .image : '{{ asset('default.webp') }}';
+    // SHOW SPINNER
+    $('#searchSpinner').show();
 
-                            html += `
-  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
-    <span class="thumb-bg" style="background-image:url('${img}');"></span>
-    <div class="suggest-text">
-      <div class="suggest-title">${escapeHtml(title)}</div>
-      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
-    </div>
-  </li>`;
+    if (q.length < 2) {
+        $box.addClass('d-none').empty();
+        $('#searchSpinner').hide();
+        return;
+    }
 
-                        });
-                        html += '</ul>';
+    timer = setTimeout(function () {
+        $.get('{{ route("search.suggest") }}', { q }, function (list) {
+
+            // HIDE SPINNER
+            $('#searchSpinner').hide();
+
+            if (!list || !list.length) {
+                $box.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
+                    .removeClass('d-none');
+                return;
+            }
+                         let html = '<ul class="list-unstyled mb-0">';
+
+list.forEach(it => {
+    const title = typeof it === 'string' ? it : (it.title || '');
+    const author = (typeof it === 'object' && it.author) ? it.author : '';
+    const url = (typeof it === 'object' && it.url) ? it.url : '';
+    const img = (typeof it === 'object' && it.image) ? it.image : '{{ asset('default.webp') }}';
+
+    html += `
+    <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+        <span class="thumb-bg" style="background-image:url('${img}');"></span>
+        <div class="suggest-text">
+            <div class="suggest-title">${escapeHtml(title)}</div>
+            ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+        </div>
+    </li>`;
+});
+
+// ONLY add See More if there ARE results
+if (list.length >= 4) {
+    html += `
+        <li class="suggest-see-more text-center p-2"
+            style="cursor:pointer; color:#c00505; font-weight:bold; border-top:1px solid #ddd;"
+            data-see-more>
+            {{ __('messages.seemore') }}
+        </li>`;
+}
+
+html += '</ul>';
+
+
+
                         $box.html(html).removeClass('d-none');
-                    }).fail(function() {
-                        $box.addClass('d-none').empty();
-                    });
-                }, 250);
-            });
+                    }).fail(function () {
+            $('#searchSpinner').hide();
+        });
+
+    }, 200);
+});
+
+    $box.on('click', '[data-see-more]', function () {
+    const q = $input.val().trim();
+    if (q.length > 0) {
+        window.location.href = '/search?title=' + encodeURIComponent(q);
+    }
+});
+
+
 
             // Click: go to URL if present; else fill+submit
             $box.on('click', '.suggest-item', function() {
@@ -1187,52 +1252,78 @@
                 } [m]));
             }
 
-            $mobileInput.on('input', function() {
-                const q = this.value.trim();
-                clearTimeout(mTimer);
-                if (q.length < 2) {
-                    $mobileBox.addClass('d-none').empty();
-                    return;
-                }
+            $mobileInput.on('input', function () {
+    const q = this.value.trim();
+    clearTimeout(mTimer);
 
-                mTimer = setTimeout(function() {
-                    $.get('{{ route('search.suggest') }}', {
-                        q
-                    }, function(list) {
-                        if (!list || !list.length) {
-                            $mobileBox.html(
-                                '<div class="suggest-empty">{{ __('messages.noresult') }}</div>'
-                                ).removeClass('d-none');
-                            return;
-                        }
+    // SHOW SPINNER
+    $('#searchSpinnerMobile').show();
+
+    if (q.length < 2) {
+        $mobileBox.addClass('d-none').empty();
+        $('#searchSpinnerMobile').hide();
+        return;
+    }
+
+    mTimer = setTimeout(function () {
+        $.get('{{ route("search.suggest") }}', { q }, function (list) {
+
+            // HIDE SPINNER
+            $('#searchSpinnerMobile').hide();
+
+            if (!list || !list.length) {
+                $mobileBox.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
+                    .removeClass('d-none');
+                return;
+            }
                         let html = '<ul class="list-unstyled mb-0">';
-                        list.forEach(it => {
-                            const title = typeof it === 'string' ? it : (it.title ||
-                                '');
-                            const author = (typeof it === 'object' && it.author) ?
-                                it.author : '';
-                            const url = (typeof it === 'object' && it.url) ? it
-                                .url : '';
-                            const img = (typeof it === 'object' && it.image) ? it
-                                .image : '{{ asset('default.webp') }}';
 
-                            html += `
-  <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
-    <span class="thumb-bg" style="background-image:url('${img}');"></span>
-    <div class="suggest-text">
-      <div class="suggest-title">${escapeHtml(title)}</div>
-      ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
-    </div>
-  </li>`;
+list.forEach(it => {
+    const title = typeof it === 'string' ? it : (it.title || '');
+    const author = (typeof it === 'object' && it.author) ? it.author : '';
+    const url = (typeof it === 'object' && it.url) ? it.url : '';
+    const img = (typeof it === 'object' && it.image) ? it.image : '{{ asset('default.webp') }}';
 
-                        });
-                        html += '</ul>';
+    html += `
+    <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+        <span class="thumb-bg" style="background-image:url('${img}');"></span>
+        <div class="suggest-text">
+            <div class="suggest-title">${escapeHtml(title)}</div>
+            ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+        </div>
+    </li>`;
+});
+
+// ONLY add See More if there ARE results
+if (list.length >= 4) {
+    html += `
+        <li class="suggest-see-more text-center p-2"
+            style="cursor:pointer; color:#c00505; font-weight:bold; border-top:1px solid #ddd;"
+            data-see-more>
+            {{ app()->getLocale() === 'ka' ? 'ნახე მეტი' : 'See More' }}
+        </li>`;
+}
+
+html += '</ul>';
+
+
+
+
+
+
                         $mobileBox.html(html).removeClass('d-none');
-                    }).fail(function() {
-                        $mobileBox.addClass('d-none').empty();
-                    });
-                }, 250);
-            });
+                    }).fail(function () {
+            $('#searchSpinnerMobile').hide();
+        });
+
+    }, 200);
+});
+
+$mobileBox.on('click', '[data-see-more]', function() {
+    const q = $mobileInput.val().trim();
+    window.location.href = '/search?title=' + encodeURIComponent(q);
+});
+
 
             $mobileBox.on('click', '.suggest-item', function() {
                 const url = $(this).data('url');
@@ -1258,6 +1349,11 @@
         });
     </script>
 
+<script>
+window.addEventListener("load", function() {
+    document.getElementById("pageLoader").style.display = "none";
+});
+</script>
 
 </body>
 

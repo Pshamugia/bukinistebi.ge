@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\SubscriptionNotification;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\UserTransactionsExport; 
 use App\Models\User; // Include the User model
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -428,37 +429,7 @@ public function markDone(BookOrder $order)
 
         return view('admin.users_list', compact('users'));
     }
-
-    // public function usersTransactions(Request $request)
-    // {
-    //     $users = User::whereHas('orders', function ($query) use ($request) {
-    //             if ($request->delivery_filter === 'not_delivered') {
-    //                 $query->where('status', '!=', 'delivered');
-    //             }
-    //         })
-    //         ->withCount(['orders as total_items' => function ($query) {
-    //             $query->join('order_items', 'orders.id', '=', 'order_items.order_id')
-    //                 ->selectRaw('sum(order_items.quantity)');
-    //         }])
-    //         ->select('users.*')
-    //         ->addSelect([
-    //             'last_order_total' => \App\Models\Order::select('total')
-    //                 ->whereColumn('orders.user_id', 'users.id')
-    //                 ->orderBy('created_at', 'desc')
-    //                 ->limit(1),
-    //             'last_order_date' => \App\Models\Order::select('created_at')
-    //                 ->whereColumn('orders.user_id', 'users.id')
-    //                 ->orderBy('created_at', 'desc')
-    //                 ->limit(1),
-    //         ])
-    //         ->orderByDesc('last_order_date')
-    //         ->paginate(10);
-    
-    //     $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
-    
-    //     return view('admin.users_transactions', compact('users', 'publishers'));
-    // }
-    
+ 
     
     
  
@@ -652,6 +623,18 @@ public function undoDelivered($orderId)
             new \App\Exports\UserTransactionsExport($from, $to),
             'user_transactions_'.now()->format('Ymd_His').'.xlsx'
         );
+    }
+
+
+    //printer
+
+     public function print(Order $order)
+    {
+        $pdf = Pdf::loadView('admin.labels.order_label', compact('order'))
+            ->setPaper([0, 0, 288, 432], 'portrait');  
+        // 4x6 inch → 288x432 points
+
+        return $pdf->stream("label-{$order->id}.pdf");
     }
     
 }

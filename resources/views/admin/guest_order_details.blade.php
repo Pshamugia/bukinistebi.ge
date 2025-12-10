@@ -56,6 +56,10 @@
                     <td><a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}" target="_blank">
                         {{ $item->book->title }}
                     </a>
+                     <a href="{{ route('admin.order.label', $order->id) }}" 
+       class="btn btn-dark btn-sm mt-1" target="_blank">
+       🖨️ ბეჭდვა
+    </a>
                 
                 
                     ({{ $item->quantity }})
@@ -64,6 +68,12 @@
                     @else
                         — <small>ჩემი წიგნებიდან</small>
                     @endif
+
+                      @if($item->book->full ?? null)
+<span style="font-size: 14px;">
+    {!! \Illuminate\Support\Str::limit($item->book->full, 25) !!}
+</span>
+                             @endif
                 </td>
                     <td>{{ $item->quantity }}</td>
                     <td>{{ $order->created_at->format('d M Y H:i') }}</td>

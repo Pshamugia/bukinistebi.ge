@@ -18,6 +18,11 @@
     .btn, .alert, .sticky-summary, .payment-card { display:none !important; }
     .card, .table { box-shadow:none !important; }
   }
+  .chosen-container-single .chosen-single span {
+ 
+    margin-top: 8px !important;
+  
+}
 </style>
 
 <div class="container cart-page">
@@ -86,7 +91,7 @@
                     @if ($isBundle && $item->bundle)
                       <div class="d-flex gap-3">
                         @if ($item->bundle->image_url)
-                          <img src="{{ $item->bundle->image_url }}" class="thumb shadow" alt="{{ $item->bundle->title }}">
+                          <img src="{{ $item->bundle->image_url }}" class="thumb shadow" alt="სტატიის სურათი">
                         @endif
                         <div>
                           <a href="{{ route('bundles.show', $item->bundle->slug) }}" class="text-decoration-none">

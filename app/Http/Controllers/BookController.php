@@ -502,6 +502,21 @@ class BookController extends Controller
         return redirect()->route('books.index')->with('success', 'Book deleted successfully.');
     }
 
+
+
+
+    private function detectLanguage($text)
+{
+    // Georgian Unicode range: 10A0–10FF and 2D00–2D2F
+    if (preg_match('/[\x{10A0}-\x{10FF}\x{2D00}-\x{2D2F}]/u', $text)) {
+        return 'ka';
+    }
+
+    // Default: English/Latin
+    return 'en';
+}
+
+
     /**
      * Search for books based on query.
      */
@@ -525,16 +540,29 @@ class BookController extends Controller
 
 
         // Apply search term filter (combine search fields inside a subquery)
-        if ($searchTerm) {
-            $query->where(function ($query) use ($searchTerm) {
-                $query->where('title', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('full', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('description', 'like', '%' . $searchTerm . '%') // ✅ Added description search
-                    ->orWhereHas('author', function ($query) use ($searchTerm) {
-                        $query->where('name', 'like', '%' . $searchTerm . '%');
-                    });
-            });
-        }
+       if ($searchTerm) {
+
+    $lang = $this->detectLanguage($searchTerm);
+    $qLower = mb_strtolower($searchTerm);
+
+    $query->where(function ($q) use ($qLower, $lang) {
+
+        // 1) TITLE match (ka + en)
+        $q->whereRaw('LOWER(title) LIKE ?', ["%{$qLower}%"]); 
+
+        // 2) AUTHOR match multilingual
+        $q->orWhereHas('author', function ($a) use ($qLower, $lang) {
+            $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+              ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
+        });
+
+        // 3) DESCRIPTION multilingual
+        $q->orWhereRaw('LOWER(description) LIKE ?', ["%{$qLower}%"]);
+        $q->orWhereRaw('LOWER(description_en) LIKE ?', ["%{$qLower}%"]);
+    });
+}
+
+
 
         // Apply price filter if provided
         if ($request->filled('price_from')) {
@@ -568,9 +596,38 @@ class BookController extends Controller
         }
 
         // Fetch the results
-        $books = $query->orderBy('id', 'DESC')
-            ->paginate(10)
-            ->appends($request->query());  // Keep the filters in the pagination links
+      $books = $query
+    ->select('*')
+    ->selectRaw("
+        CASE 
+            WHEN LOWER(title) LIKE ? THEN 1
+            WHEN EXISTS (
+                SELECT 1 FROM authors 
+                WHERE authors.id = books.author_id 
+                AND (LOWER(authors.name) LIKE ? OR LOWER(authors.name_en) LIKE ?)
+            ) THEN 2
+            WHEN LOWER(description) LIKE ? THEN 3
+            WHEN LOWER(description_en) LIKE ? THEN 3
+            ELSE 4
+        END AS priority
+    ", [
+        "%{$qLower}%",
+        "%{$qLower}%", "%{$qLower}%",
+        "%{$qLower}%",
+        "%{$qLower}%"
+    ])
+    ->orderBy('priority', 'ASC')         // priority ranking
+    ->orderByRaw("
+        CASE 
+            WHEN LOWER(language) = ? THEN 0 
+            ELSE 1 
+        END
+    ", [$lang])                           // LANGUAGE MATCH BOOST
+    ->orderBy('title', 'ASC')
+    ->paginate(10)
+    ->appends(request()->query());
+
+
 
         // Get the search count
         $search_count = $books->total();
@@ -604,27 +661,54 @@ class BookController extends Controller
         return response()->json([]);
     }
 
+    
+
+$qLower = mb_strtolower($q, 'UTF-8');
+
+// Detect language of query (KA or EN)
+$lang = $this->detectLanguage($q);
+
     $qLower = mb_strtolower($q, 'UTF-8');
 
-    $books = \App\Models\Book::query()
-        ->select('books.id', 'books.title', 'books.description', 'books.author_id', 'books.photo')
-        ->with(['author:id,name,name_en'])
-        ->where('books.hide', 0)
-        ->where('books.auction_only', false)
-        ->where('books.language', app()->getLocale())
-        ->where(function ($qq) use ($qLower) {
-            // case-insensitive, match ANYWHERE in title/description
-            $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
-               ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
-               ->orWhereHas('author', function ($a) use ($qLower) {
-                   // ✅ author name in KA or EN
-                   $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
-                     ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
-               });
-        })
-        ->orderByDesc('books.id')
-        ->limit(8)
-        ->get();
+   $books = Book::query()
+    ->select('books.id','books.title','books.description','books.description_en','books.author_id','books.photo','books.language')
+    ->with(['author:id,name,name_en'])
+    ->where('books.hide', 0)
+    ->where('books.auction_only', false)
+    ->where(function($qq) use ($qLower) {
+        $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
+           ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
+           ->orWhereRaw('LOWER(books.description_en) LIKE ?', ["%{$qLower}%"])
+           ->orWhereHas('author', function ($a) use ($qLower) {
+               $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+                 ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
+           });
+    })
+    ->selectRaw("
+        CASE
+            WHEN LOWER(title) LIKE ? THEN 1
+            WHEN EXISTS (
+                SELECT 1 FROM authors 
+                WHERE authors.id = books.author_id
+                AND (LOWER(authors.name) LIKE ? OR LOWER(authors.name_en) LIKE ?)
+            ) THEN 2
+            WHEN LOWER(description) LIKE ? THEN 3
+            WHEN LOWER(description_en) LIKE ? THEN 3
+            ELSE 4
+        END AS priority
+    ", [
+        "%{$qLower}%",
+        "%{$qLower}%", "%{$qLower}%",
+        "%{$qLower}%",
+        "%{$qLower}%"
+    ])
+    ->orderBy('priority')
+    ->orderByRaw("CASE WHEN LOWER(language) = ? THEN 0 ELSE 1 END", [$lang])
+    ->orderBy('title')
+    ->limit(8)
+    ->get();
+
+
 
     $items = $books->map(function ($b) {
         $authorName = app()->getLocale() === 'en'

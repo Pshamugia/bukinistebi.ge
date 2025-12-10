@@ -27,7 +27,7 @@
                 <a href="{{ route('full_news', ['title' => Str::slug($item->title), 'id' => $item->id]) }}" class="card-link text-decoration-none">
                     @if (isset($item->image))
                         <div class="image-container">
-                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}" class="card-img-top rounded-top img-fluid cover_news" id="im_news" loading="lazy">
+                            <img src="{{ asset('storage/' . $item->image) }}" alt="სტატიის სურათი" class="card-img-top rounded-top img-fluid cover_news" id="im_news" loading="lazy">
                         </div>
                     @endif
                     <div class="card-body">
