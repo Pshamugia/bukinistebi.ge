@@ -1168,20 +1168,28 @@ aria-label="Search" style="position: relative;  "></i></button>
                          let html = '<ul class="list-unstyled mb-0">';
 
 list.forEach(it => {
-    const title = typeof it === 'string' ? it : (it.title || '');
-    const author = (typeof it === 'object' && it.author) ? it.author : '';
-    const url = (typeof it === 'object' && it.url) ? it.url : '';
-    const img = (typeof it === 'object' && it.image) ? it.image : '{{ asset('default.webp') }}';
+    const title  = it.title || '';
+    const author = it.author || '';
+    const url    = it.url || '';
+    const img    = it.image || '{{ asset('default.webp') }}';
+    const sold   = !!it.sold;
 
     html += `
-    <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+    <li class="suggest-item ${sold ? 'suggest-sold' : ''}"
+        data-title="${escapeHtml(title)}"
+        data-url="${escapeHtml(url)}">
         <span class="thumb-bg" style="background-image:url('${img}');"></span>
-        <div class="suggest-text">
-            <div class="suggest-title">${escapeHtml(title)}</div>
-            ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
-        </div>
+      <div class="suggest-text">
+    <div class="suggest-title">
+        ${escapeHtml(title)}
+        ${sold ? `<span class="suggest-sold-badge">Sold</span>` : ``}
+    </div>
+    ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+</div>
+
     </li>`;
 });
+
 
 // ONLY add See More if there ARE results
 if (list.length >= 4) {
@@ -1279,20 +1287,28 @@ html += '</ul>';
                         let html = '<ul class="list-unstyled mb-0">';
 
 list.forEach(it => {
-    const title = typeof it === 'string' ? it : (it.title || '');
-    const author = (typeof it === 'object' && it.author) ? it.author : '';
-    const url = (typeof it === 'object' && it.url) ? it.url : '';
-    const img = (typeof it === 'object' && it.image) ? it.image : '{{ asset('default.webp') }}';
+    const title  = it.title || '';
+    const author = it.author || '';
+    const url    = it.url || '';
+    const img    = it.image || '{{ asset('default.webp') }}';
+    const sold   = !!it.sold;
 
     html += `
-    <li class="suggest-item" data-title="${escapeHtml(title)}" data-url="${escapeHtml(url)}">
+    <li class="suggest-item ${sold ? 'suggest-sold' : ''}"
+        data-title="${escapeHtml(title)}"
+        data-url="${escapeHtml(url)}">
         <span class="thumb-bg" style="background-image:url('${img}');"></span>
         <div class="suggest-text">
-            <div class="suggest-title">${escapeHtml(title)}</div>
-            ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
-        </div>
+    <div class="suggest-title">
+        ${escapeHtml(title)}
+        ${sold ? `<span class="suggest-sold-badge">Sold</span>` : ``}
+    </div>
+    ${author ? `<div class="suggest-author">${escapeHtml(author)}</div>` : ``}
+</div>
+
     </li>`;
 });
+
 
 // ONLY add See More if there ARE results
 if (list.length >= 4) {

@@ -670,12 +670,21 @@ $lang = $this->detectLanguage($q);
 
     $qLower = mb_strtolower($q, 'UTF-8');
 
-   $books = Book::query()
-    ->select('books.id','books.title','books.description','books.description_en','books.author_id','books.photo','books.language')
+  $books = Book::query()
+    ->select(
+        'books.id',
+        'books.title',
+        'books.description',
+        'books.description_en',
+        'books.author_id',
+        'books.photo',
+        'books.language',
+        'books.quantity'
+    )
     ->with(['author:id,name,name_en'])
     ->where('books.hide', 0)
     ->where('books.auction_only', false)
-    ->where(function($qq) use ($qLower) {
+    ->where(function ($qq) use ($qLower) {
         $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
            ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
            ->orWhereRaw('LOWER(books.description_en) LIKE ?', ["%{$qLower}%"])
@@ -686,42 +695,61 @@ $lang = $this->detectLanguage($q);
     })
     ->selectRaw("
         CASE
-            WHEN LOWER(title) LIKE ? THEN 1
+            WHEN LOWER(books.title) LIKE ? THEN 1
             WHEN EXISTS (
-                SELECT 1 FROM authors 
+                SELECT 1 FROM authors
                 WHERE authors.id = books.author_id
-                AND (LOWER(authors.name) LIKE ? OR LOWER(authors.name_en) LIKE ?)
+                  AND (
+                      LOWER(authors.name) LIKE ?
+                      OR LOWER(authors.name_en) LIKE ?
+                  )
             ) THEN 2
-            WHEN LOWER(description) LIKE ? THEN 3
-            WHEN LOWER(description_en) LIKE ? THEN 3
+            WHEN LOWER(books.description) LIKE ?
+              OR LOWER(books.description_en) LIKE ? THEN 3
             ELSE 4
-        END AS priority
+        END AS match_priority
     ", [
         "%{$qLower}%",
         "%{$qLower}%", "%{$qLower}%",
-        "%{$qLower}%",
-        "%{$qLower}%"
+        "%{$qLower}%", "%{$qLower}%"
     ])
-    ->orderBy('priority')
-    ->orderByRaw("CASE WHEN LOWER(language) = ? THEN 0 ELSE 1 END", [$lang])
-    ->orderBy('title')
+    ->selectRaw("
+        CASE
+            WHEN books.quantity <= 0 THEN 1
+            ELSE 0
+        END AS sold_priority
+    ")
+    ->orderBy('sold_priority')        
+    ->orderBy('match_priority')        
+    ->orderByRaw(
+        "CASE WHEN LOWER(books.language) = ? THEN 0 ELSE 1 END",
+        [$lang]
+    )
+    ->orderBy('books.title')
     ->limit(8)
     ->get();
 
 
 
-    $items = $books->map(function ($b) {
-        $authorName = app()->getLocale() === 'en'
-            ? ($b->author->name_en ?: $b->author->name)
-            : ($b->author->name ?: $b->author->name_en);
+$items = $books->map(function ($b) {
+    $authorName = app()->getLocale() === 'en'
+        ? ($b->author->name_en ?: $b->author->name)
+        : ($b->author->name ?: $b->author->name_en);
 
-        return [
-            'title'  => $b->title,
-            'author' => $authorName,
-            'url'    => route('full', ['title' => \Illuminate\Support\Str::slug($b->title), 'id' => $b->id]),
-            'image'  => $b->photo ? asset('storage/'.$b->photo) : asset('default.webp'),
-        ];
-    });
+    return [
+        'title'   => $b->title,
+        'author'  => $authorName,
+        'url'     => route('full', [
+            'title' => \Illuminate\Support\Str::slug($b->title),
+            'id' => $b->id
+        ]),
+        'image'   => $b->photo
+            ? asset('storage/'.$b->photo)
+            : asset('default.webp'),
+        'sold'    => $b->quantity <= 0
+    ];
+});
+
 
     return response()->json($items);
 }

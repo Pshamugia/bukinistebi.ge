@@ -165,25 +165,76 @@ body.dark-mode .genre-badge{
 
   /* Fixed-size cover using background image (immune to global img rules) */
   .suggest-item .thumb-bg{
-    width:40px; height:56px; flex:0 0 40px;
-    border-radius:4px;
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    display:block;
+ width: 42px;              /* keep your size */
+    height: 56px;             /* consistent height */
+    background-size: contain; /* 👈 THIS IS THE KEY */
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
   }
 
-  .suggest-text{ line-height:1.2; min-width:0; }
-  .suggest-title{ font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .suggest-author{ font-size:12px; color:#6b7280; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.suggest-text {
+    line-height: 1.2;
+    min-width: 0;
+    display: block; /* ← THIS restores 2 lines */
+}
+.suggest-author {
+    display: block;          /* ← THIS IS THE KEY */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+        opacity: 0.75;
+        font-size: 12px !important;
 
-  @media (max-width:576px){
-    .suggest-item .thumb-bg{ width:34px; height:48px; flex-basis:34px; }
-  }
-
+}
 
 
  
+
+
+.suggest-item.suggest-sold {
+    opacity: 0.6;
+}
+
+
+.suggest-title {
+    position: relative;
+    padding-right: 46px;          /* keep space for Sold badge */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;        /* 👈 TWO lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 600;             /* slightly stronger */
+}
+
+body.dark-mode .suggest-title {
+    color: #f1f1f1;
+}
+
+.suggest-author {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggest-sold-badge {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 11px;
+    background: #e80202;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+}
+
+
+ 
+ 
+
   .image-zoom-wrap{ position:relative; }
   .image-zoom-lens{
     position:absolute; width:140px; height:140px;
