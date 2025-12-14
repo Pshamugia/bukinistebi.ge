@@ -1,18 +1,20 @@
 <style>
     .sidebar {
-    height: 100vh; /* Full viewport height */
-    position: fixed; /* Fix it to the left */
-    top: 0;
-    left: 0;
-    padding-top: 1rem; /* Add some padding */
-}
-.main-content {
-    margin-left: 200px; /* Match sidebar width */
-}
+        height: 100vh;
+        /* Full viewport height */
+        position: fixed;
+        /* Fix it to the left */
+        top: 0;
+        left: 0;
+        padding-top: 1rem;
+        /* Add some padding */
+    }
 
-
-
-    </style>
+    .main-content {
+        margin-left: 200px;
+        /* Match sidebar width */
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
@@ -23,68 +25,94 @@
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin') }}">
                             <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px" style="position:relative; top:8px;" loading="lazy">
-                            <br><br> 
+                            <br><br>
                             <i class="bi bi-speedometer2"></i> Dashboard
-                             
+
                         </a>
                     </li>
+
+                    @if(auth()->user()->isAdmin())
+                    <li>
+                        <a class="nav-link text-white" href="{{ route('admin.subadmins') }}">
+                            <i class="bi bi-shield-lock"></i> Sub-admins
+                        </a>
+                    </li>
+                    @endif
+
                     <hr style="border: 0; border-bottom: 1px dashed #ccc; background: #999;">
-                
+
                     <li class="nav-item">
                         <a class="nav-link text-white dropdown-toggle" href="#uploadMaterials" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="uploadMaterials">
-                             <i class="bi bi-upload"></i> მასალების ატვირთვა
+                            <i class="bi bi-upload"></i> მასალების ატვირთვა
                         </a>
+
                         <div class="collapse" id="uploadMaterials">
                             <ul class="list-unstyled ps-5">
+
+                                @if(auth()->user()->hasAdminPermission(permission: 'books.manage'))
+
                                 <li><a class="nav-link text-white" href="{{ route('admin.books.index') }}"><i class="bi bi-book"></i> წიგნები</a></li>
+
+                                @endif
+
                                 <li><a class="nav-link text-white" href="{{ route('admin.book-news.index') }}"><i class="bi bi-megaphone"></i> ბუკ. ამბები</a></li>
                             </ul>
                         </div>
                     </li>
-                
+
+
                     <li><a class="nav-link text-white" href="{{ route('admin.auctions.index') }}"> <i class="bi bi-hammer"></i> აუქციონი !! </a></li>
                     <li><a class="nav-link text-white" href="{{ route('admin.genres.index') }}"><i class="bi bi-tags"></i> ჟანრები</a></li>
                     <li><a class="nav-link text-white" href="{{ route('admin.authors.index') }}"><i class="bi bi-person"></i> ავტორები</a></li>
-                
+
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.users.list') }}"><i class="bi bi-people"></i> მომხმარებლების სია</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.publishers.activity') }}"><i class="bi bi-person-workspace"></i> ბუკინისტების სია</a>
                     </li>
-                
+
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.subscribers') }}"><i class="bi bi-envelope-paper"></i> გამომწერების სია</a>
                     </li>
+
+                    @if(auth()->user()->hasAdminPermission(permission: 'transactions.manage'))
+
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.users_transactions') }}"><i class="bi bi-receipt"></i> ტრანზაქციები</a>
                     </li>
-                
+
+                    @endif
+
                     <li><a class="nav-link text-white" href="{{ route('admin.book_orders') }}"><i class="bi bi-cart4"></i> შეკვეთები</a></li>
-                
+
+                    @if(auth()->user()->hasAdminPermission(permission: 'qookies.manage'))
+
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.preferences.purchases') }}"><i class="bi bi-cookie"></i> ქუქი ჩანაწერები</a>
                     </li>
 
+                    @endif
 
-                      <li class="nav-item">
+
+                    <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.keywords') }}"><i class="bi bi-search-heart"></i> რას ეძებენ</a>
                     </li>
 
 
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.bundles.index') }}">
-                          <i class="bi bi-search-heart"></i> საბითუმო
+                            <i class="bi bi-search-heart"></i> საბითუმო
                         </a>
-                      </li>
-                      
+                    </li>
+
 
                     <li class="nav-item">
                         <a class="nav-link text-white" href="https://bukinistebi.ge/roundcube/" target="blank"><i class="bi bi-envelope"></i> EMAIL</a>
                     </li>
-                
+
                     <hr style="border: 0; border-bottom: 1px dashed #ccc; background: #999;">
-                
+
                     <li class="nav-item">
                         @auth
                         <div class="dropdown">
@@ -103,11 +131,11 @@
                         @endauth
                     </li>
                 </ul>
-                
+
             </div>
         </nav>
 
         <!-- Main Content Area -->
-       
+
     </div>
 </div>

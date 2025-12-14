@@ -1,13 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-
 use App\Models\EmailLog;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use App\Exports\UserTransactionsExport;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\BookController;
@@ -29,18 +29,19 @@ use App\Http\Controllers\AuctionFrontController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Admin\AuctionController;
 use App\Http\Controllers\CookieConsentController;
+use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
 use App\Http\Controllers\Publisher\PublisherBookController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Publisher\PublisherAuthorController;
 use App\Http\Controllers\Publisher\PublisherAccountController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
+
+
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
-
-
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -388,6 +389,19 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
     Route::get('/admin/guest-orders/{order}', [AdminBookController::class, 'guestOrderDetails'])
         ->name('admin.guest.order.details');
+
+
+
+        // subadmins
+Route::get('/sub-admins', [SubAdminController::class, 'index'])
+    ->name('admin.subadmins');
+
+Route::post('/sub-admins/{user}', [SubAdminController::class, 'update'])
+    ->name('admin.subadmins.update');
+
+Route::post('/sub-admins', [SubAdminController::class, 'create'])
+    ->name('admin.subadmins.create');
+
 
 
 

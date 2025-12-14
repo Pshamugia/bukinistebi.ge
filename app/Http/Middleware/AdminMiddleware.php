@@ -17,10 +17,13 @@ class AdminMiddleware
         }
 
         // Check if the logged-in user is an admin
-        if (Auth::user()->role === 'admin') {
-            return $next($request); // Allow admin users to proceed
+        // Allow admins AND sub-admins into admin panel
+        if (in_array(Auth::user()->role, ['admin', 'subadmin'])) {
+            return $next($request);
         }
 
+        // Block everyone else
+        abort(403);
         // If not an admin, redirect to the home page
         return redirect('/')->with('error', 'Unauthorized access.');
     }

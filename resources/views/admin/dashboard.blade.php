@@ -4,6 +4,8 @@
 
 @section('content')  
 
+@if(auth()->user()->hasAdminPermission(permission: 'orders.manage'))
+
 <div style="padding: 2px 22px 22px; border-radius:5px; border:1px solid #ccc; background-color: #ccc"> 
     <div class="row mt-4">
         <div style="position: relative; top:-10px">
@@ -83,11 +85,14 @@
 </div>
 
     </div>
-
+@endif
 
     
 
 <!-- Date Filter -->
+
+@if(auth()->user()->hasAdminPermission(permission: 'exports.manage'))
+
 <form action="{{ route('admin') }}" method="GET" class="mt-4">
     <div class="row">
         <div class="col-md-4">
@@ -107,10 +112,16 @@
 
 
 </form>
+
+@endif
 </div>
 
 
     <!-- Purchased Products Section -->
+
+    @if(auth()->user()->hasAdminPermission(permission: 'analytics.view'))
+
+
     <div class="mt-5" style="border:1px solid #ccc; border-radius: 5px; padding:33px">
         <h5><i class="bi bi-bar-chart-fill"></i> გაყიდვების ჩარტი</h5>
 
@@ -254,6 +265,9 @@
                 </table>
             </div>
         </div> 
+
+
+        @endif
 
     </div>
      

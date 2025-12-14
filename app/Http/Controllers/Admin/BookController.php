@@ -19,186 +19,198 @@ use Illuminate\Support\Facades\Cache;
 use App\Mail\SubscriptionNotification;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Exports\UserTransactionsExport; 
+use App\Exports\UserTransactionsExport;
 use App\Models\User; // Include the User model
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Order; // Make sure to include your Order model
 use Intervention\Image\Facades\Image; // Add this at the top of your controller
- 
- 
+
+
 
 class BookController extends Controller
 {
 
     public function index(Request $request)
-{
-    $query = Book::with(['author', 'genres', 'publisher']);
+    {
 
-    // ✅ Apply quantity filter
-    if ($request->filled('quantity')) {
-        if ($request->quantity === '3plus') {
-            $query->where('quantity', '>', 3);
+        abort_unless(auth()->user()->hasAdminPermission('books.manage'), 403);
+
+
+        $query = Book::with(['author', 'genres', 'publisher']);
+
+        // ✅ Apply quantity filter
+        if ($request->filled('quantity')) {
+            if ($request->quantity === '3plus') {
+                $query->where('quantity', '>', 3);
+            } else {
+                $query->where('quantity', $request->quantity);
+            }
+        }
+
+        // ✅ Apply "show only hidden" filter
+        if ($request->filled('hidden') && $request->hidden == '1') {
+            $query->where('hide', true);
+        }
+
+
+
+        // ✅ Sort by most viewed if checkbox is selected
+        if ($request->sort === 'views') {
+            $query->orderByDesc('views');
         } else {
-            $query->where('quantity', $request->quantity);
+            $query->latest(); // default sort by created_at
         }
+
+        // ✅ Get paginated books
+        $books = $query->paginate(10)->appends($request->all());
+
+        // ✅ For dropdown counts
+        $quantityCounts = Book::selectRaw('quantity, COUNT(*) as count')
+            ->groupBy('quantity')
+            ->pluck('count', 'quantity');
+
+        // ✅ Add 3+ count manually
+        $quantityCounts['3plus'] = Book::where('quantity', '>=', 3)->count();
+
+        return view('admin.books.index', compact('books', 'quantityCounts'));
     }
 
-    // ✅ Apply "show only hidden" filter
-if ($request->filled('hidden') && $request->hidden == '1') {
-    $query->where('hide', true);
-}
- 
 
 
-    // ✅ Sort by most viewed if checkbox is selected
-    if ($request->sort === 'views') {
-        $query->orderByDesc('views');
-    } else {
-        $query->latest(); // default sort by created_at
-    }
 
-    // ✅ Get paginated books
-    $books = $query->paginate(10)->appends($request->all());
-
-    // ✅ For dropdown counts
-    $quantityCounts = Book::selectRaw('quantity, COUNT(*) as count')
-        ->groupBy('quantity')
-        ->pluck('count', 'quantity');
-
-    // ✅ Add 3+ count manually
-    $quantityCounts['3plus'] = Book::where('quantity', '>=', 3)->count();
-
-    return view('admin.books.index', compact('books', 'quantityCounts'));
-}
-
-    
-
-    
-public function searchOrders(Request $request)
-{
-    $query = BookOrder::where(function ($q) {
-        $q->where('is_done', false)
-          ->orWhereNull('is_done');
-    });
-
-    if ($request->search) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('title', 'LIKE', "%{$search}%")
-              ->orWhere('author', 'LIKE', "%{$search}%")
-              ->orWhere('email', 'LIKE', "%{$search}%");
+    public function searchOrders(Request $request)
+    {
+        $query = BookOrder::where(function ($q) {
+            $q->where('is_done', false)
+                ->orWhereNull('is_done');
         });
-    }
 
-    $orders = $query->orderBy('created_at', 'desc')->paginate(20);
-
-    return view('admin.book_orders', compact('orders'));
-}
-
-
-
-public function create(Request $request)
-{
-    $locale = $request->get('lang', app()->getLocale());
-    app()->setLocale($locale);
-
-    // ✅ Load all authors with either Georgian or English name
-    $authors = Author::where(function ($query) {
-        $query->whereNotNull('name')->orWhereNotNull('name_en');
-    })->get();
-
-    // ✅ Load all genres (same as before)
-    if ($locale === 'en') {
-        $genres = Genre::whereNotNull('name_en')->get();
-    } else {
-        $genres = Genre::whereNotNull('name')->get();
-    }
-
-    return view('admin.books.create', compact('authors', 'genres', 'locale'));
-}
-
-
-
-
-
-
-
-
-public function store(Request $request)
-{
-    // Base validation
-    $validated = $request->validate([
-        'title'              => 'required|string|max:255',
-        'language'           => 'required|in:ka,en',
-        'price'              => 'required|numeric',
-        'new_price'          => 'nullable|numeric',
-        'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'video'              => 'nullable|string',
-        'description'        => 'required|string',
-        'quantity'           => 'integer|min:0',
-        'full'               => 'nullable|string',
-        'author_id'          => 'required|exists:authors,id',
-        'genre_id'           => 'nullable|array',
-        'genre_id.*'         => 'exists:genres,id',
-        'status'             => 'nullable|string',
-        'pages'              => 'nullable|string|max:255',
-        'publishing_date'    => 'nullable|string',
-        'cover'              => 'nullable|string|max:255',
-        'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
-    ]);
-
-    // Determine if "Souvenirs" is selected
-    $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
-        ->orWhere('name_en', 'Souvenirs')
-        ->value('id');
-    $genreIds = (array) $request->input('genre_id', []);
-
-    // Size validation (only for souvenirs)
-    if ($souvenirId && in_array($souvenirId, $genreIds)) {
-        $request->validate([
-            'size'   => ['required','array'],
-            'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
-        ]);
-        $validated['size'] = implode(',', $request->input('size', []));
-    } else {
-        $validated['size'] = null;
-    }
-
-    // Images -> put paths into $validated
-    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-        if ($request->hasFile($key)) {
-            $file = $request->file($key);
-            $uniqueFileName = time() . '_' . uniqid() . '.webp';
-            $image = \Intervention\Image\Facades\Image::make($file)
-                ->resize(800, null, function ($c) { $c->aspectRatio(); })
-                ->encode('webp', 75);
-            $imagePath = 'uploads/books/' . $uniqueFileName;
-            Storage::disk('public')->put($imagePath, $image);
-            $validated[$key] = $imagePath;
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('author', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
         }
+
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        return view('admin.book_orders', compact('orders'));
     }
 
-    if ($request->filled('manual_created_at')) {
-        $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
+
+
+    public function create(Request $request)
+    {
+        $locale = $request->get('lang', app()->getLocale());
+        app()->setLocale($locale);
+
+        // ✅ Load all authors with either Georgian or English name
+        $authors = Author::where(function ($query) {
+            $query->whereNotNull('name')->orWhereNotNull('name_en');
+        })->get();
+
+        // ✅ Load all genres (same as before)
+        if ($locale === 'en') {
+            $genres = Genre::whereNotNull('name_en')->get();
+        } else {
+            $genres = Genre::whereNotNull('name')->get();
+        }
+
+        return view('admin.books.create', compact('authors', 'genres', 'locale'));
     }
-    $validated['auction_only'] = $request->has('auction_only');
-    $validated['uploader_id']  = auth()->id();
 
-    // Create once (exclude pivot field)
-    $book = \App\Models\Book::create(collect($validated)->except('genre_id')->toArray());
 
-    // Sync genres
-    if (!empty($genreIds)) {
-        $book->genres()->sync($genreIds);
+
+
+
+
+
+
+    public function store(Request $request)
+    {
+
+
+        abort_unless(auth()->user()->hasAdminPermission('books.manage'), 403);
+
+
+
+        // Base validation
+        $validated = $request->validate([
+            'title'              => 'required|string|max:255',
+            'language'           => 'required|in:ka,en',
+            'price'              => 'required|numeric',
+            'new_price'          => 'nullable|numeric',
+            'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'video'              => 'nullable|string',
+            'description'        => 'required|string',
+            'quantity'           => 'integer|min:0',
+            'full'               => 'nullable|string',
+            'author_id'          => 'required|exists:authors,id',
+            'genre_id'           => 'nullable|array',
+            'genre_id.*'         => 'exists:genres,id',
+            'status'             => 'nullable|string',
+            'pages'              => 'nullable|string|max:255',
+            'publishing_date'    => 'nullable|string',
+            'cover'              => 'nullable|string|max:255',
+            'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
+        ]);
+
+        // Determine if "Souvenirs" is selected
+        $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
+            ->orWhere('name_en', 'Souvenirs')
+            ->value('id');
+        $genreIds = (array) $request->input('genre_id', []);
+
+        // Size validation (only for souvenirs)
+        if ($souvenirId && in_array($souvenirId, $genreIds)) {
+            $request->validate([
+                'size'   => ['required', 'array'],
+                'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
+            ]);
+            $validated['size'] = implode(',', $request->input('size', []));
+        } else {
+            $validated['size'] = null;
+        }
+
+        // Images -> put paths into $validated
+        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+            if ($request->hasFile($key)) {
+                $file = $request->file($key);
+                $uniqueFileName = time() . '_' . uniqid() . '.webp';
+                $image = \Intervention\Image\Facades\Image::make($file)
+                    ->resize(800, null, function ($c) {
+                        $c->aspectRatio();
+                    })
+                    ->encode('webp', 75);
+                $imagePath = 'uploads/books/' . $uniqueFileName;
+                Storage::disk('public')->put($imagePath, $image);
+                $validated[$key] = $imagePath;
+            }
+        }
+
+        if ($request->filled('manual_created_at')) {
+            $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
+        }
+        $validated['auction_only'] = $request->has('auction_only');
+        $validated['uploader_id']  = auth()->id();
+
+        // Create once (exclude pivot field)
+        $book = \App\Models\Book::create(collect($validated)->except('genre_id')->toArray());
+
+        // Sync genres
+        if (!empty($genreIds)) {
+            $book->genres()->sync($genreIds);
+        }
+
+        $this->rebuildHomePageCache();
+
+        return redirect()->route('admin.books.index')->with('success', 'წიგნი დამატებულია წარმატებით.');
     }
-
-    $this->rebuildHomePageCache();
-
-    return redirect()->route('admin.books.index')->with('success', 'წიგნი დამატებულია წარმატებით.');
-}
 
 
 
@@ -254,86 +266,88 @@ public function store(Request $request)
     }
 
 
- 
+
 
     public function update(Request $request, \App\Models\Book $book)
-{
-    // Base validation
-    $validated = $request->validate([
-        'title'              => 'required|string|max:255',
-        'language'           => 'required|in:ka,en',
-        'price'              => 'required|numeric',
-        'new_price'          => 'nullable|numeric',
-        'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
-        'description'        => 'required|string',
-        'quantity'           => 'integer|min:0',
-        'video'              => 'nullable|string',
-        'full'               => 'nullable|string',
-        'author_id'          => 'required|exists:authors,id',
-        'genre_id'           => 'nullable|array',
-        'genre_id.*'         => 'exists:genres,id',
-        'status'             => 'nullable|string',
-        'pages'              => 'nullable|string|max:255',
-        'publishing_date'    => 'nullable|string',
-        'cover'              => 'nullable|string|max:255',
-        'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-        'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
-    ]);
-
-    // Determine if "Souvenirs" is selected
-    $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
-        ->orWhere('name_en', 'Souvenirs')
-        ->value('id');
-    $genreIds = (array) $request->input('genre_id', []);
-
-    // Size validation (only for souvenirs)
-    if ($souvenirId && in_array($souvenirId, $genreIds)) {
-        $request->validate([
-            'size'   => ['required','array'],
-            'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
+    {
+        // Base validation
+        $validated = $request->validate([
+            'title'              => 'required|string|max:255',
+            'language'           => 'required|in:ka,en',
+            'price'              => 'required|numeric',
+            'new_price'          => 'nullable|numeric',
+            'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
+            'description'        => 'required|string',
+            'quantity'           => 'integer|min:0',
+            'video'              => 'nullable|string',
+            'full'               => 'nullable|string',
+            'author_id'          => 'required|exists:authors,id',
+            'genre_id'           => 'nullable|array',
+            'genre_id.*'         => 'exists:genres,id',
+            'status'             => 'nullable|string',
+            'pages'              => 'nullable|string|max:255',
+            'publishing_date'    => 'nullable|string',
+            'cover'              => 'nullable|string|max:255',
+            'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
+            'photo_4'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
         ]);
-        $validated['size'] = implode(',', $request->input('size', []));
-    } else {
-        $validated['size'] = null;
-    }
 
-    // Images -> put paths into $validated
-    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-        if ($request->hasFile($key)) {
-            if ($book->{$key} && Storage::disk('public')->exists($book->{$key})) {
-                Storage::disk('public')->delete($book->{$key});
-            }
-            $uniqueFileName = time() . '_' . uniqid() . '.webp';
-            $image = \Intervention\Image\Facades\Image::make($request->file($key))
-                ->resize(800, null, function ($c) { $c->aspectRatio(); })
-                ->encode('webp', 75);
-            $imagePath = 'uploads/books/' . $uniqueFileName;
-            Storage::disk('public')->put($imagePath, $image);
-            $validated[$key] = $imagePath;
+        // Determine if "Souvenirs" is selected
+        $souvenirId = \App\Models\Genre::where('name', 'სუვენირები')
+            ->orWhere('name_en', 'Souvenirs')
+            ->value('id');
+        $genreIds = (array) $request->input('genre_id', []);
+
+        // Size validation (only for souvenirs)
+        if ($souvenirId && in_array($souvenirId, $genreIds)) {
+            $request->validate([
+                'size'   => ['required', 'array'],
+                'size.*' => ['in:XS,S,M,L,XL,XXL,XXXL'],
+            ]);
+            $validated['size'] = implode(',', $request->input('size', []));
+        } else {
+            $validated['size'] = null;
         }
+
+        // Images -> put paths into $validated
+        foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
+            if ($request->hasFile($key)) {
+                if ($book->{$key} && Storage::disk('public')->exists($book->{$key})) {
+                    Storage::disk('public')->delete($book->{$key});
+                }
+                $uniqueFileName = time() . '_' . uniqid() . '.webp';
+                $image = \Intervention\Image\Facades\Image::make($request->file($key))
+                    ->resize(800, null, function ($c) {
+                        $c->aspectRatio();
+                    })
+                    ->encode('webp', 75);
+                $imagePath = 'uploads/books/' . $uniqueFileName;
+                Storage::disk('public')->put($imagePath, $image);
+                $validated[$key] = $imagePath;
+            }
+        }
+
+        if ($request->filled('manual_created_at')) {
+            $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
+        }
+        $validated['auction_only'] = $request->has('auction_only');
+
+        // Single update
+        $book->update(collect($validated)->except('genre_id')->toArray());
+
+        // Sync genres
+        if (!empty($genreIds)) {
+            $book->genres()->sync($genreIds);
+        } else {
+            $book->genres()->detach();
+        }
+
+        $this->rebuildHomePageCache();
+
+        return redirect()->route('admin.books.index')->with('success', 'წიგნი განახლდა წარმატებით.');
     }
-
-    if ($request->filled('manual_created_at')) {
-        $validated['manual_created_at'] = \Carbon\Carbon::parse($request->input('manual_created_at'));
-    }
-    $validated['auction_only'] = $request->has('auction_only');
-
-    // Single update
-    $book->update(collect($validated)->except('genre_id')->toArray());
-
-    // Sync genres
-    if (!empty($genreIds)) {
-        $book->genres()->sync($genreIds);
-    } else {
-        $book->genres()->detach();
-    }
-
-    $this->rebuildHomePageCache();
-
-    return redirect()->route('admin.books.index')->with('success', 'წიგნი განახლდა წარმატებით.');
-}
 
 
 
@@ -348,38 +362,46 @@ public function store(Request $request)
 
 
     public function edit(Book $book)
-{
-    $locale = app()->getLocale();
+    {
+        $locale = app()->getLocale();
 
-    // Load genres relation so we can detect which ones are already assigned
-    $book->load('genres');
+        // Load genres relation so we can detect which ones are already assigned
+        $book->load('genres');
 
-    $authors = Author::query();
-    if ($locale === 'en') {
-        $authors = $authors->whereNotNull('name_en');
-    } else {
-        $authors = $authors->whereNotNull('name');
+        $authors = Author::query();
+        if ($locale === 'en') {
+            $authors = $authors->whereNotNull('name_en');
+        } else {
+            $authors = $authors->whereNotNull('name');
+        }
+        $authors = $authors->get();
+
+        $genres = Genre::query();
+        if ($locale === 'en') {
+            $genres = $genres->whereNotNull('name_en');
+        } else {
+            $genres = $genres->whereNotNull('name');
+        }
+        $genres = $genres->get();
+
+        $categories = Category::all();
+
+        return view('admin.books.edit', compact('book', 'authors', 'categories', 'genres', 'locale'));
     }
-    $authors = $authors->get();
 
-    $genres = Genre::query();
-    if ($locale === 'en') {
-        $genres = $genres->whereNotNull('name_en');
-    } else {
-        $genres = $genres->whereNotNull('name');
-    }
-    $genres = $genres->get();
 
-    $categories = Category::all();
-
-    return view('admin.books.edit', compact('book', 'authors', 'categories', 'genres', 'locale'));
-}
-
-    
 
 
     public function destroy(Book $book)
     {
+
+        abort_unless(auth()->user()->hasAdminPermission(permission: 'books.delete'), 403);
+
+
+         abort_unless(
+        auth()->user()->hasAdminPermission('books.delete'),
+        403
+    );
         if ($book->photo) {
             Storage::delete('public/' . $book->photo);
         }
@@ -402,12 +424,12 @@ public function store(Request $request)
     }
 
 
-public function markDone(BookOrder $order)
-{
-    $order->update(['is_done' => true]);
+    public function markDone(BookOrder $order)
+    {
+        $order->update(['is_done' => true]);
 
-    return back()->with('success', 'შეკვეთა მონიშნულია დასრულებულად.');
-}
+        return back()->with('success', 'შეკვეთა მონიშნულია დასრულებულად.');
+    }
 
 
 
@@ -424,134 +446,134 @@ public function markDone(BookOrder $order)
             ->where('role', '!=', 'admin')
             ->paginate(10);
 
-                        $publishers = User::where('role', 'publisher')->with('books')->get();
+        $publishers = User::where('role', 'publisher')->with('books')->get();
 
 
         return view('admin.users_list', compact('users'));
     }
- 
-    
-    
- 
 
-public function usersTransactions(Request $request)
-{
-    $filterNotDelivered = $request->delivery_filter === 'not_delivered';
 
-    // Load users with their orders (latest first)
-    $users = User::with(['orders' => fn($q) => $q->orderBy('created_at','desc')])
-        ->whereHas('orders') // must have at least one order
-        ->get();
 
-    // Filter by the LATEST order only (collection side)
-    if ($filterNotDelivered) {
-        $users = $users->filter(function ($u) {
-            $last = $u->orders->first();
-            return $last && strtolower($last->status) !== 'delivered';
-        })->values();
+
+
+    public function usersTransactions(Request $request)
+    {
+        $filterNotDelivered = $request->delivery_filter === 'not_delivered';
+
+        // Load users with their orders (latest first)
+        $users = User::with(['orders' => fn($q) => $q->orderBy('created_at', 'desc')])
+            ->whereHas('orders') // must have at least one order
+            ->get();
+
+        // Filter by the LATEST order only (collection side)
+        if ($filterNotDelivered) {
+            $users = $users->filter(function ($u) {
+                $last = $u->orders->first();
+                return $last && strtolower($last->status) !== 'delivered';
+            })->values();
+        }
+
+        // Guest orders → apply the same filter
+        $guestQuery = Order::whereNull('user_id')->orderBy('created_at', 'desc');
+        if ($filterNotDelivered) {
+            $guestQuery->where('status', '!=', 'delivered');
+        }
+        $guestOrders = $guestQuery->get()->map(function ($order) {
+            return (object)[
+                'id'               => null,
+                'name'             => $order->name ?? 'Guest',
+                'phone'            => $order->phone,
+                'orders'           => collect([$order]),
+                'last_order_total' => $order->total ?? 0,
+                'last_order_date'  => $order->created_at,
+            ];
+        });
+
+        // Add computed fields to real users
+        $realUsers = $users->map(function ($user) {
+            $last = $user->orders->first();
+            $user->last_order_date  = $last?->created_at;
+            $user->last_order_total = $last?->total ?? 0;
+            return $user;
+        });
+
+        // Merge + sort + paginate
+        $merged      = $realUsers->concat($guestOrders)->sortByDesc('last_order_date')->values();
+        $perPage     = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $paged       = $merged->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $allUsers = new LengthAwarePaginator($paged, $merged->count(), $perPage, $currentPage, [
+            'path' => request()->url(),
+            'query' => request()->query(),
+        ]);
+
+        return view('admin.users_transactions', ['users' => $allUsers]);
     }
 
-    // Guest orders → apply the same filter
-    $guestQuery = Order::whereNull('user_id')->orderBy('created_at','desc');
-    if ($filterNotDelivered) {
-        $guestQuery->where('status', '!=', 'delivered');
+
+
+
+    public function guestOrderDetails(Order $order)
+    {
+        // load order items and books for display
+        $order->load('orderItems.book');
+
+        return view('admin.guest_order_details', compact('order'));
     }
-    $guestOrders = $guestQuery->get()->map(function ($order) {
-        return (object)[
-            'id'               => null,
-            'name'             => $order->name ?? 'Guest',
-            'phone'            => $order->phone,
-            'orders'           => collect([$order]),
-            'last_order_total' => $order->total ?? 0,
-            'last_order_date'  => $order->created_at,
-        ];
-    });
-
-    // Add computed fields to real users
-    $realUsers = $users->map(function ($user) {
-        $last = $user->orders->first();
-        $user->last_order_date  = $last?->created_at;
-        $user->last_order_total = $last?->total ?? 0;
-        return $user;
-    });
-
-    // Merge + sort + paginate
-    $merged      = $realUsers->concat($guestOrders)->sortByDesc('last_order_date')->values();
-    $perPage     = 10;
-    $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    $paged       = $merged->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-    $allUsers = new LengthAwarePaginator($paged, $merged->count(), $perPage, $currentPage, [
-        'path' => request()->url(),
-        'query' => request()->query(),
-    ]);
-
-    return view('admin.users_transactions', ['users' => $allUsers]);
-}
-
-    
-
-
-public function guestOrderDetails(Order $order)
-{
-    // load order items and books for display
-    $order->load('orderItems.book');
-
-    return view('admin.guest_order_details', compact('order'));
-}
 
 
 
-public function markAsDelivered($orderId)
-{
-    $order = Order::findOrFail($orderId);
-    $order->status = 'delivered';   // delivery complete
-    $order->save();
+    public function markAsDelivered($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $order->status = 'delivered';   // delivery complete
+        $order->save();
 
-    return back()->with('success', 'შეკვეთა დასრულებულია!');
-}
+        return back()->with('success', 'შეკვეთა დასრულებულია!');
+    }
 
-public function undoDelivered($orderId)
-{
-    $order = Order::findOrFail($orderId);
+    public function undoDelivered($orderId)
+    {
+        $order = Order::findOrFail($orderId);
 
-    // Revert to a sensible *pre-delivery* status, not "pending"
-    $order->status = $order->payment_method === 'courier'
-        ? 'processing'  // courier: still to be delivered/handled
-        : 'paid';       // bank transfer/direct pay: already paid
+        // Revert to a sensible *pre-delivery* status, not "pending"
+        $order->status = $order->payment_method === 'courier'
+            ? 'processing'  // courier: still to be delivered/handled
+            : 'paid';       // bank transfer/direct pay: already paid
 
-    $order->save();
+        $order->save();
 
-    return back()->with('success', 'შეკვეთის სტატუსი შეცვლილია!');
-}
+        return back()->with('success', 'შეკვეთის სტატუსი შეცვლილია!');
+    }
 
 
 
 
     public function showUserDetails($id)
-{
-    // Fetch user with orders, order items, books, and publishers
-    $user = User::with([
-        'orders' => function ($query) {
-            $query->orderBy('created_at', 'desc');
-        },
-        'orders.orderItems.book.publisher'
-    ])->findOrFail($id);
+    {
+        // Fetch user with orders, order items, books, and publishers
+        $user = User::with([
+            'orders' => function ($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'orders.orderItems.book.publisher'
+        ])->findOrFail($id);
 
-    // Calculate totals
-    $newPurchaseTotal = 0;
-    $oldTotal = 0;
+        // Calculate totals
+        $newPurchaseTotal = 0;
+        $oldTotal = 0;
 
-    if ($user->orders->isNotEmpty()) {
-        $newPurchaseTotal = $user->orders->first()->total;
-        $oldTotal = $user->orders->sum('total') - $newPurchaseTotal;
+        if ($user->orders->isNotEmpty()) {
+            $newPurchaseTotal = $user->orders->first()->total;
+            $oldTotal = $user->orders->sum('total') - $newPurchaseTotal;
+        }
+
+        // (Optional) You can still load all publishers for another use if needed
+        $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
+
+        return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal', 'publishers'));
     }
-
-    // (Optional) You can still load all publishers for another use if needed
-    $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
-
-    return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal', 'publishers'));
-}
 
 
     public function adminsearch(Request $request)
@@ -618,23 +640,22 @@ public function undoDelivered($orderId)
     {
         $from = $request->filled('from_date') ? Carbon::parse($request->from_date)->startOfDay() : null;
         $to   = $request->filled('to_date')   ? Carbon::parse($request->to_date)->endOfDay()   : null;
-    
+
         return Excel::download(
             new \App\Exports\UserTransactionsExport($from, $to),
-            'user_transactions_'.now()->format('Ymd_His').'.xlsx'
+            'user_transactions_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 
 
     //printer
 
-     public function print(Order $order)
+    public function print(Order $order)
     {
         $pdf = Pdf::loadView('admin.labels.order_label', compact('order'))
-            ->setPaper([0, 0, 288, 432], 'portrait');  
+            ->setPaper([0, 0, 288, 432], 'portrait');
         // 4x6 inch → 288x432 points
 
         return $pdf->stream("label-{$order->id}.pdf");
     }
-    
 }

@@ -22,7 +22,16 @@ class User extends Authenticatable
         'address',
         'phone',
         'iban',
+        'admin_permissions', 
+
     ];
+
+ 
+    protected $casts = [
+    'admin_permissions' => 'array',
+];
+
+
 
     // Relationship with the Cart model (one cart per user)
     public function cart()
@@ -85,4 +94,30 @@ class User extends Authenticatable
             ->whereNotNull('auction_users.paid_at')
             ->exists();
     }
+
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+   public function hasAdminPermission(string $permission): bool
+{
+    // full admin
+    if ($this->role === 'admin') {
+        return true;
+    }
+
+    // FORCE fresh data from DB (this is the fix)
+    $permissions = $this->fresh()->admin_permissions;
+
+    if (!is_array($permissions)) {
+        return false;
+    }
+
+    return in_array($permission, $permissions, true);
+}
+
+
+
 }
