@@ -96,14 +96,7 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 </noscript>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    let s = document.createElement("script");
-    s.src = "https://code.jquery.com/jquery-3.6.0.min.js";
-    s.defer = true;
-    document.body.appendChild(s);
-});
-</script>
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 
     <!-- Custom CSS -->
@@ -997,16 +990,10 @@ aria-label="Search" style="position: relative;  "></i></button>
             addToCart: @json(__('messages.addtocart'))
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.cart-btn-text').forEach(function(el) {
-                const state = el.getAttribute('data-state');
-                if (state === 'added') {
-                    el.textContent = translations.added;
-                } else {
-                    el.textContent = translations.addToCart;
-                }
-            });
-        });
+    document.addEventListener('DOMContentLoaded', function () {
+    initCartButtons();
+});
+
 
         function updateCartCount(count) {
             const countElement = document.getElementById('cart-count');
@@ -1029,7 +1016,7 @@ aria-label="Search" style="position: relative;  "></i></button>
                 addToCart: @json(__('messages.addtocart'))
             };
 
-            $('.toggle-cart-btn').click(function() {
+$(document).on('click', '.toggle-cart-btn', function () {
                 var button = $(this);
                 var bookId = button.data('product-id');
                 var quantity = parseInt($('#quantity').val()) || 1;
@@ -1369,6 +1356,21 @@ $mobileBox.on('click', '[data-see-more]', function() {
 window.addEventListener("load", function() {
     document.getElementById("pageLoader").style.display = "none";
 });
+</script>
+<script>
+function initCartButtons(scope = document) {
+    const translations = {
+        added: @json(__('messages.added')),
+        addToCart: @json(__('messages.addtocart'))
+    };
+
+    scope.querySelectorAll('.cart-btn-text').forEach(function(el) {
+        const state = el.getAttribute('data-state');
+        el.textContent = state === 'added'
+            ? translations.added
+            : translations.addToCart;
+    });
+}
 </script>
 
 </body>

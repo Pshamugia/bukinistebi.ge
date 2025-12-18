@@ -90,67 +90,60 @@
     </p></h4>
  
 
-    <div class="row">
-        @foreach ($books as $book)
-        <div class="col-md-6" style="position: relative; padding-bottom: 25px">
-            <div class="card book-card">
-                <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}" class="card-link">
-                    @if (isset($book->photo))
-                        <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="cover" id="im" loading="lazy">
-                    @endif
-                </a>
-                <div class="card-body">
-                    <h4><strong> {{ $book->title }} </strong></h4>
-                    <p style="font-size: 14px">
-                        <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)])}}" style="text-decoration: none">
-                            <span>  
-                                {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
-                            </span>
-                        </a> 
-                    </p>
-                    <p style="font-size: 18px; color: #333;">
-                        <strong> {{ number_format($book->price) }} <a style="color: #b8b5b5;">&#x20BE; </strong></a> 
-                        <span style="position: relative; top:5px">
-                        @if($book->quantity == 0)
-                        <span style="font-size: 13px; float: right; color:red"> <i class="bi bi-x-circle text-danger"></i> მარაგი ამოწურულია</span>
- @elseif($book->quantity >= 1)
- <span style="font-size: 13px; float: right;">{{ __('messages.available')}}</span>
- 
- @endif
-                        </span>  </p>
-                         {{-- Cart Buttons --}}
-                         @if($book->quantity >= 1)
-                         @if (!auth()->check() || auth()->user()->role !== 'publisher')
-                             @if (in_array($book->id, $cartItemIds))
-                                 <button class="btn btn-success toggle-cart-btn w-100"
-                                     data-product-id="{{ $book->id }}" data-in-cart="true">
-                                     <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
-                                         data-state="added"></span>
-                                 </button>
-                             @else
-                                 <button class="btn btn-primary toggle-cart-btn w-100"
-                                     data-product-id="{{ $book->id }}" data-in-cart="false">
-                                     <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
-                                 </button>
-                             @endif
-                         @endif
-                         
-                         @endif
-                         @if ($book->quantity == 0)
-                         <button class="btn btn-light w-100" style="color:#b9b9b9 !important"
-                         data-product-id="{{ $book->id }}" data-in-cart="false">
-                         <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
-                     </button>
-                           @endif
-                     </div>
-                 </div>
-             </div>
-         @endforeach
-    </div>
-
-    <br><br>
-    {{ $books->links('pagination.custom-pagination') }}
+<div id="search-results" class="row">
+    @include('partials.search-results', ['books' => $books])
 </div>
+
+@if ($books->hasMorePages())
+<div class="text-center mt-4">
+    <button id="load-more"
+            class="btn btn-outline-danger"
+            data-next-page="{{ $books->currentPage() + 1 }}">
+                                            {{ __('messages.seemore') }}
+    </button>
+</div>
+@endif
+</div>
+
+
+
+
+    <br>
+  
+<script>
+document.getElementById('load-more')?.addEventListener('click', function () {
+    const btn = this;
+    const page = btn.dataset.nextPage;
+
+    btn.disabled = true;
+btn.innerText = @json(__('messages.loading'));
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.text())
+    .then(html => {
+    const container = document.getElementById('search-results');
+
+    container.insertAdjacentHTML('beforeend', html);
+
+    // 🔥 THIS LINE FIXES YOUR PROBLEM
+    initCartButtons(container);
+
+    btn.dataset.nextPage = parseInt(page) + 1;
+    btn.disabled = false;
+    btn.innerText = @json(__('messages.seemore'));
+
+    if (html.trim() === '') {
+        btn.remove();
+    }
+});
+
+});
+</script>
 
 @endsection
  

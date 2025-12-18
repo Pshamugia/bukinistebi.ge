@@ -52,8 +52,8 @@ class BookController extends Controller
         $locale = app()->getLocale();
 
         $news = BookNews::query()
-            ->when($locale === 'en', fn ($q) => $q->whereNotNull('title_en'))
-            ->when($locale === 'ka', fn ($q) => $q->whereNotNull('title'))
+            ->when($locale === 'en', fn($q) => $q->whereNotNull('title_en'))
+            ->when($locale === 'ka', fn($q) => $q->whereNotNull('title'))
             ->where('title', '!=', 'წესები და პირობები')
             ->where('title', '!=', 'ბუკინისტებისათვის')
             ->latest()
@@ -108,9 +108,39 @@ class BookController extends Controller
         });
 
         $georgianAlphabet = [
-            'ა', 'ბ', 'გ', 'დ', 'ე', 'ვ', 'ზ', 'თ', 'ი', 'კ', 'ლ', 'მ', 'ნ', 'ო', 'პ',
-            'ჟ', 'რ', 'ს', 'ტ', 'უ', 'ფ', 'ქ', 'ღ', 'ყ', 'შ', 'ჩ', 'ც', 'ძ', 'წ', 'ჭ',
-            'ხ', 'ჯ', 'ჰ'
+            'ა',
+            'ბ',
+            'გ',
+            'დ',
+            'ე',
+            'ვ',
+            'ზ',
+            'თ',
+            'ი',
+            'კ',
+            'ლ',
+            'მ',
+            'ნ',
+            'ო',
+            'პ',
+            'ჟ',
+            'რ',
+            'ს',
+            'ტ',
+            'უ',
+            'ფ',
+            'ქ',
+            'ღ',
+            'ყ',
+            'შ',
+            'ჩ',
+            'ც',
+            'ძ',
+            'წ',
+            'ჭ',
+            'ხ',
+            'ჯ',
+            'ჰ'
         ];
 
         $genres = \App\Models\Genre::all()->sortBy(function ($genre) use ($georgianAlphabet) {
@@ -156,7 +186,12 @@ class BookController extends Controller
 
         $query = $genre->books()
             ->where('hide', 0)
-            ->where('auction_only', false)
+            ->where('auction_only', 0)
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            })
+
             ->where('language', app()->getLocale())
             ->whereDoesntHave('genres', function ($q) {
                 $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
@@ -185,6 +220,14 @@ class BookController extends Controller
             if ($cart) {
                 $cartItemIds = $cart->cartItems->pluck('book_id')->toArray();
             }
+        }
+
+        // 🔥 AJAX RESPONSE (CRITICAL)
+        if (request()->ajax()) {
+            return view(
+                'partials.book-cards',
+                compact('books', 'cartItemIds')
+            )->render();
         }
 
         $isHomePage = false;
@@ -269,7 +312,7 @@ class BookController extends Controller
     }
 
 
-   
+
 
 
     public function books()
@@ -280,7 +323,12 @@ class BookController extends Controller
             ->whereDoesntHave('genres', function ($q) {
                 $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
             })
-            ->where('auction_only', false)
+            ->where('auction_only', 0)
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            })
+
             ->when(request('exclude_sold'), function ($q) {
                 $q->where('quantity', '>', 0);
             });
@@ -305,11 +353,15 @@ class BookController extends Controller
             }
         }
 
+        if (request()->ajax()) {
+            return view('partials.book-cards', compact('books', 'cartItemIds'))->render();
+        }
+
         $news = BookNews::latest()->paginate(6);
         $popularBooks = Book::orderBy('views', 'desc')->take(10)->get();
         $isHomePage = false;
 
-        return view('books', compact('books', 'cartItemIds', 'news', 'popularBooks', 'isHomePage'));
+        return view('books', data: compact('books', 'cartItemIds', 'news', 'popularBooks', 'isHomePage'));
     }
 
 
@@ -506,15 +558,15 @@ class BookController extends Controller
 
 
     private function detectLanguage($text)
-{
-    // Georgian Unicode range: 10A0–10FF and 2D00–2D2F
-    if (preg_match('/[\x{10A0}-\x{10FF}\x{2D00}-\x{2D2F}]/u', $text)) {
-        return 'ka';
-    }
+    {
+        // Georgian Unicode range: 10A0–10FF and 2D00–2D2F
+        if (preg_match('/[\x{10A0}-\x{10FF}\x{2D00}-\x{2D2F}]/u', $text)) {
+            return 'ka';
+        }
 
-    // Default: English/Latin
-    return 'en';
-}
+        // Default: English/Latin
+        return 'en';
+    }
 
 
     /**
@@ -536,31 +588,37 @@ class BookController extends Controller
         // Start a query for books that are not hidden
         $query = Book::where('hide', 0)
             ->where('language', app()->getLocale())
-            ->where('auction_only', false); // ✅ Exclude auction-only books
+            ->where('auction_only', 0)
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            });
+
+
 
 
         // Apply search term filter (combine search fields inside a subquery)
-       if ($searchTerm) {
+        if ($searchTerm) {
 
-    $lang = $this->detectLanguage($searchTerm);
-    $qLower = mb_strtolower($searchTerm);
+            $lang = $this->detectLanguage($searchTerm);
+            $qLower = mb_strtolower($searchTerm);
 
-    $query->where(function ($q) use ($qLower, $lang) {
+            $query->where(function ($q) use ($qLower, $lang) {
 
-        // 1) TITLE match (ka + en)
-        $q->whereRaw('LOWER(title) LIKE ?', ["%{$qLower}%"]); 
+                // 1) TITLE match (ka + en)
+                $q->whereRaw('LOWER(title) LIKE ?', ["%{$qLower}%"]);
 
-        // 2) AUTHOR match multilingual
-        $q->orWhereHas('author', function ($a) use ($qLower, $lang) {
-            $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
-              ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
-        });
+                // 2) AUTHOR match multilingual
+                $q->orWhereHas('author', function ($a) use ($qLower, $lang) {
+                    $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+                        ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
+                });
 
-        // 3) DESCRIPTION multilingual
-        $q->orWhereRaw('LOWER(description) LIKE ?', ["%{$qLower}%"]);
-        $q->orWhereRaw('LOWER(description_en) LIKE ?', ["%{$qLower}%"]);
-    });
-}
+                // 3) DESCRIPTION multilingual
+                $q->orWhereRaw('LOWER(description) LIKE ?', ["%{$qLower}%"]);
+                $q->orWhereRaw('LOWER(description_en) LIKE ?', ["%{$qLower}%"]);
+            });
+        }
 
 
 
@@ -596,9 +654,9 @@ class BookController extends Controller
         }
 
         // Fetch the results
-      $books = $query
-    ->select('*')
-    ->selectRaw("
+        $books = $query
+            ->select('*')
+            ->selectRaw("
         CASE 
             WHEN LOWER(title) LIKE ? THEN 1
             WHEN EXISTS (
@@ -611,21 +669,22 @@ class BookController extends Controller
             ELSE 4
         END AS priority
     ", [
-        "%{$qLower}%",
-        "%{$qLower}%", "%{$qLower}%",
-        "%{$qLower}%",
-        "%{$qLower}%"
-    ])
-    ->orderBy('priority', 'ASC')         // priority ranking
-    ->orderByRaw("
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%"
+            ])
+            ->orderBy('priority', 'ASC')         // priority ranking
+            ->orderByRaw("
         CASE 
             WHEN LOWER(language) = ? THEN 0 
             ELSE 1 
         END
     ", [$lang])                           // LANGUAGE MATCH BOOST
-    ->orderBy('title', 'ASC')
-    ->paginate(10)
-    ->appends(request()->query());
+            ->orderBy('title', 'ASC')
+            ->paginate(12)
+            ->appends(request()->query());
 
 
 
@@ -649,51 +708,77 @@ class BookController extends Controller
         $isHomePage = false;
 
         // Return the view with all required data
-        return view('search', compact('books', 'authors', 'searchTerm', 'cartItemIds', 'search_count', 'categories', 'genres', 'isHomePage'));
+
+        if ($request->ajax()) {
+            return view('partials.search-results', [
+                'books' => $books,
+                'cartItemIds' => Auth::check() && Auth::user()->cart
+                    ? Auth::user()->cart->cartItems->pluck('book_id')->toArray()
+                    : []
+            ])->render();
+        }
+
+
+        // 👇 KEEP normal page load for non-AJAX
+        return view('search', compact(
+            'books',
+            'authors',
+            'searchTerm',
+            'cartItemIds',
+            'search_count',
+            'categories',
+            'genres',
+            'isHomePage'
+        ));
     }
 
 
     // BookController.php
     public function suggest(\Illuminate\Http\Request $request)
-{
-    $q = trim((string) $request->get('q', ''));
-    if (mb_strlen($q) < 2) {
-        return response()->json([]);
-    }
+    {
+        $q = trim((string) $request->get('q', ''));
+        if (mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
 
-    
 
-$qLower = mb_strtolower($q, 'UTF-8');
 
-// Detect language of query (KA or EN)
-$lang = $this->detectLanguage($q);
+        $qLower = mb_strtolower($q, 'UTF-8');
 
-    $qLower = mb_strtolower($q, 'UTF-8');
+        // Detect language of query (KA or EN)
+        $lang = $this->detectLanguage($q);
 
-  $books = Book::query()
-    ->select(
-        'books.id',
-        'books.title',
-        'books.description',
-        'books.description_en',
-        'books.author_id',
-        'books.photo',
-        'books.language',
-        'books.quantity'
-    )
-    ->with(['author:id,name,name_en'])
-    ->where('books.hide', 0)
-    ->where('books.auction_only', false)
-    ->where(function ($qq) use ($qLower) {
-        $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
-           ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
-           ->orWhereRaw('LOWER(books.description_en) LIKE ?', ["%{$qLower}%"])
-           ->orWhereHas('author', function ($a) use ($qLower) {
-               $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
-                 ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
-           });
-    })
-    ->selectRaw("
+        $qLower = mb_strtolower($q, 'UTF-8');
+
+        $books = Book::query()
+            ->select(
+                'books.id',
+                'books.title',
+                'books.description',
+                'books.description_en',
+                'books.author_id',
+                'books.photo',
+                'books.language',
+                'books.quantity'
+            )
+            ->with(['author:id,name,name_en'])
+            ->where('books.hide', 0)
+            ->where('books.auction_only', false)
+            // ✅ THIS IS THE MISSING PART
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            })
+            ->where(function ($qq) use ($qLower) {
+                $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
+                    ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
+                    ->orWhereRaw('LOWER(books.description_en) LIKE ?', ["%{$qLower}%"])
+                    ->orWhereHas('author', function ($a) use ($qLower) {
+                        $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+                            ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
+                    });
+            })
+            ->selectRaw("
         CASE
             WHEN LOWER(books.title) LIKE ? THEN 1
             WHEN EXISTS (
@@ -709,92 +794,94 @@ $lang = $this->detectLanguage($q);
             ELSE 4
         END AS match_priority
     ", [
-        "%{$qLower}%",
-        "%{$qLower}%", "%{$qLower}%",
-        "%{$qLower}%", "%{$qLower}%"
-    ])
-    ->selectRaw("
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%"
+            ])
+            ->selectRaw("
         CASE
             WHEN books.quantity <= 0 THEN 1
             ELSE 0
         END AS sold_priority
     ")
-    ->orderBy('sold_priority')        
-    ->orderBy('match_priority')        
-    ->orderByRaw(
-        "CASE WHEN LOWER(books.language) = ? THEN 0 ELSE 1 END",
-        [$lang]
-    )
-    ->orderBy('books.title')
-    ->limit(8)
-    ->get();
+            ->orderBy('sold_priority')
+            ->orderBy('match_priority')
+            ->orderByRaw(
+                "CASE WHEN LOWER(books.language) = ? THEN 0 ELSE 1 END",
+                [$lang]
+            )
+            ->orderBy('books.title')
+            ->limit(8)
+            ->get();
 
 
 
-$items = $books->map(function ($b) {
-    $authorName = app()->getLocale() === 'en'
-        ? ($b->author->name_en ?: $b->author->name)
-        : ($b->author->name ?: $b->author->name_en);
+        $items = $books->map(function ($b) {
+            $authorName = app()->getLocale() === 'en'
+                ? ($b->author->name_en ?: $b->author->name)
+                : ($b->author->name ?: $b->author->name_en);
 
-    return [
-        'title'   => $b->title,
-        'author'  => $authorName,
-        'url'     => route('full', [
-            'title' => \Illuminate\Support\Str::slug($b->title),
-            'id' => $b->id
-        ]),
-        'image'   => $b->photo
-            ? asset('storage/'.$b->photo)
-            : asset('default.webp'),
-        'sold'    => $b->quantity <= 0
-    ];
-});
-
-
-    return response()->json($items);
-}
+            return [
+                'title'   => $b->title,
+                'author'  => $authorName,
+                'url'     => route('full', [
+                    'title' => \Illuminate\Support\Str::slug($b->title),
+                    'id' => $b->id
+                ]),
+                'image'   => $b->photo
+                    ? asset('storage/' . $b->photo)
+                    : asset('default.webp'),
+                'sold'    => $b->quantity <= 0
+            ];
+        });
 
 
-
-
-
-public function souvenirs()
-{
-    $genre = \App\Models\Genre::where('name', 'სუვენირები')
-        ->orWhere('name_en', 'Souvenirs')
-        ->firstOrFail();
-
-    $books = $genre->books()
-        ->where('hide', 0);
-
-    // Optional: exclude sold-out
-    if (request('exclude_sold')) {
-        $books->where('quantity', '>', 0);
+        return response()->json($items);
     }
 
-    // Sorting
-    if (request('sort') === 'price_asc') {
-        $books->orderBy('price', 'asc');
-    } elseif (request('sort') === 'price_desc') {
-        $books->orderBy('price', 'desc');
-    } else {
-        $books->latest(); // default
+
+
+
+
+    public function souvenirs()
+    {
+        $genre = \App\Models\Genre::where('name', 'სუვენირები')
+            ->orWhere('name_en', 'Souvenirs')
+            ->firstOrFail();
+
+        $books = $genre->books()
+            ->where('hide', 0);
+
+        // Optional: exclude sold-out
+        if (request('exclude_sold')) {
+            $books->where('quantity', '>', 0);
+        }
+
+        // Sorting
+        if (request('sort') === 'price_asc') {
+            $books->orderBy('price', 'asc');
+        } elseif (request('sort') === 'price_desc') {
+            $books->orderBy('price', 'desc');
+        } else {
+            $books->latest(); // default
+        }
+
+        $books = $books->paginate(9)->appends(request()->query());
+
+        $cartItemIds = auth()->check() && auth()->user()->cart
+            ? auth()->user()->cart->cartItems->pluck('book_id')->toArray()
+            : [];
+
+        $isHomePage = false;
+
+        return view('souvenirs.index', compact('genre', 'books', 'cartItemIds', 'isHomePage'));
     }
 
-    $books = $books->paginate(9)->appends(request()->query());
-
-    $cartItemIds = auth()->check() && auth()->user()->cart
-        ? auth()->user()->cart->cartItems->pluck('book_id')->toArray()
-        : [];
-
-    $isHomePage = false;
-
-    return view('souvenirs.index', compact('genre', 'books', 'cartItemIds', 'isHomePage'));
-}
 
 
-
-public function full_souvenir($title, $id)
+    public function full_souvenir($title, $id)
     {
         // Fetch the book by ID, including the author and ensure the book is not hidden
         $book = Book::with('author')->where('hide', '0')->findOrFail($id);
@@ -847,5 +934,4 @@ public function full_souvenir($title, $id)
         // Pass the book, ratings, average rating, and rating count to the view
         return view('souvenirs/full_souvenir', compact('book', 'full_author', 'cartItemIds', 'isHomePage', 'averageRating', 'ratingCount', 'relatedBooks'));
     }
-
 }

@@ -248,5 +248,6 @@ return [
     'includedBooks' => 'Take a look at he bundle',
     'save' => 'Save',
     'seemore' => 'See More',
+    'loading' => 'Loading...',
 
 ];

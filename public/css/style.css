@@ -2,11 +2,17 @@
      transition: all .2s ease-in-out;
  }
 
- .cover {
-     width: 100%;
-     height: 300px;
-     object-fit: cover;
- }
+.cover {
+    width: 100%;
+    object-fit: contain;
+    background: #f5f5f5;
+}
+
+@media (min-width: 992px) {
+    .cover {
+        max-height: 300px;
+    }
+}
 
  .cover:hover {
      transform: scale(1.0);
@@ -16,6 +22,8 @@
      transition: all .7s;
      cursor: pointer;
  }
+
+ 
 
 
  #im_news {
@@ -229,6 +237,18 @@ body.dark-mode .suggest-title {
     padding: 2px 6px;
     border-radius: 4px;
     line-height: 1.2;
+}
+
+.sold-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
 }
 
 
@@ -1122,6 +1142,63 @@ body.dark-mode .fb-icon-top:hover {
     to { transform: translateY(-50%) rotate(360deg); }
 }
 
+.search-results {
+    border-top: 1px solid #e5e5e5;
+}
+
+.search-row {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e5e5e5;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color .15s ease;
+}
+
+.search-row:hover {
+    background-color: #ffe3e3;
+}
+
+.search-thumb {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.search-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.search-content {
+    line-height: 1.2;
+}
+
+.search-badge {
+    display: inline-block;
+    background-color: #f8caca;
+    color: #8b0000;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 4px;
+}
+
+.search-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.search-author {
+    font-size: 13px;
+    color: #666;
+}
+
+
+
+
 
 
 #pageLoader {
@@ -1148,6 +1225,8 @@ body.dark-mode .fb-icon-top:hover {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+
 
 
  /* Fix dropdown hidden issue */
@@ -1855,4 +1934,25 @@ body.dark-mode .fb-icon-top:hover {
     padding:0px 0px 0px 0px!important;
  }
 
-   
+   @media (max-width: 768px) {
+
+    /* Kill the broken flex behavior */
+    .search-row {
+        justify-content: flex-start !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .search-row > a {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .search-actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+    }
+}
