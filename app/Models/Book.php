@@ -40,6 +40,7 @@ class Book extends Model
         'manual_created_at',
         'auction_only',
         'size',
+        'condition',   
     ];
 
     // Relationships

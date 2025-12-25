@@ -157,6 +157,7 @@ class BookController extends Controller
             'pages'              => 'nullable|string|max:255',
             'publishing_date'    => 'nullable|string',
             'cover'              => 'nullable|string|max:255',
+            'condition' => 'nullable|in:new,used',
             'manual_created_at'  => 'nullable|date_format:Y-m-d\TH:i',
         ]);
 
@@ -288,6 +289,7 @@ class BookController extends Controller
             'pages'              => 'nullable|string|max:255',
             'publishing_date'    => 'nullable|string',
             'cover'              => 'nullable|string|max:255',
+            'condition' => 'nullable|in:new,used',
             'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
@@ -511,6 +513,15 @@ class BookController extends Controller
         return view('admin.users_transactions', ['users' => $allUsers]);
     }
 
+
+    public function deleteOrder($orderId)
+{
+    $order = Order::findOrFail($orderId);
+
+    $order->delete();
+
+    return back()->with('success', 'შეკვეთა წაიშალა წარმატებით');
+}
 
 
 

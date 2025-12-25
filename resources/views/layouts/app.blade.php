@@ -5,7 +5,7 @@
 
 <head>
     <!-- Google tag (gtag.js) -->
-<script defer src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
 <script>
     window.addEventListener("load", function () {
         setTimeout(function () {
@@ -56,9 +56,11 @@
             content="ბუკინისტური წიგნები, ბუკინისტები, ძველი წიგნები, ბუკინისტური მაღაზია, წიგნების ყიდვა-გაყიდვა, წიგნები, books, rare books, used books, antique books">
         <meta name="author" content="{{ $book->author->name ?? 'Unknown Author' }}">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        @if (app()->getLocale() === 'en')
-            <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
-        @endif
+        
+       @if(app()->getLocale() === 'en')
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap">
+@endif
 
     @endif
     <title>@yield('title', 'Bukinistebi.ge')</title>
@@ -80,32 +82,38 @@
 
 
  
+<script>
+(function () {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+})();
+</script>
+
 
  
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
- 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+<link rel="stylesheet" href="/css/bootstrap.min.css">
 
-<link rel="preload"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-      as="style"
-      onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="/css/chosen.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/chosen.min.css"></noscript>
 
-<noscript>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-</noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
  
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+
+  
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 
     <!-- Custom CSS -->
     <link rel="icon" href="{{ asset('uploads/favicon/favicon.png') }}" type="image/x-icon">
 
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style.min.css') }}" rel="stylesheet">
 
     @if (app()->getLocale() === 'en')
         <style>
+            
             .navbar-nav .nav-link,
             .dropdown-menu .dropdown-item,
             .btn,
@@ -163,12 +171,13 @@
     <noscript><img height="1" width="1" style="display:none"
             src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1" /></noscript>
     <!-- End Meta Pixel Code -->
+     <link rel="preload" href="/fonts/noto.woff2" as="font" type="font/woff2" crossorigin>
+
+ 
 </head>
 
 <body>
-<div id="pageLoader">
-    <div class="loader"></div>
-</div>
+ 
 
     <!-- ✅ Top Navbar: right -->
     <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
@@ -179,9 +188,9 @@
             <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
                 <div class="col text-center">
 
-                    <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon-top" target="blank"><i
+                    <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon-top" target="blank" aria-label="Visit Bukinistebi on Facebook"><i
                             class="bi bi-facebook fs-5"></i></a>
-                    <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon-top" target="blank"><i
+                    <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon-top" target="blank"  aria-label="Visit Bukinistebi on Instagram"><i
                             class="bi bi-instagram fs-5"></i></a>
 
                 </div>
@@ -408,8 +417,8 @@
 
 
                 <a class="navbar-brand" href="{{ url('/') }}" aria-label="Bukinistebi Home"><img
-                        src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px"
-                        style="position:relative;  " loading="lazy" alt="bukinstebi_logo"></a>
+                        src="{{ asset('uploads/logo/bukinistebi.ge.png') }}"  width="130" 
+                        height="31" style="position:relative;" loading="lazy" alt="bukinstebi_logo"></a>
 
 
                 <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
@@ -653,7 +662,7 @@ aria-label="Search" style="position: relative;  "></i></button>
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body"
-                                style="color: black; display: flex; align-items: center; gap: 8px;">
+                                style="display: flex; align-items: center; gap: 8px; color:black !important">
                                 <i class="bi bi-check-circle-fill text-success fs-4"></i>
                                 <span>მადლობა გამოწერისთვის!</span>
                             </div>
@@ -787,66 +796,60 @@ aria-label="Search" style="position: relative;  "></i></button>
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle subscription success modal
-            const subscriptionSuccessFlag = document.getElementById('subscriptionSuccessFlag');
-            if (subscriptionSuccessFlag && subscriptionSuccessFlag.value === 'true') {
-                const subscriptionSuccessModal = new bootstrap.Modal(document.getElementById(
-                    'subscriptionSuccessModal'));
-                subscriptionSuccessModal.show();
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle subscription success modal
+        const subscriptionSuccessFlag = document.getElementById('subscriptionSuccessFlag');
+        if (subscriptionSuccessFlag && subscriptionSuccessFlag.value === 'true') {
+            const subscriptionSuccessModal = new bootstrap.Modal(
+                document.getElementById('subscriptionSuccessModal')
+            );
+            subscriptionSuccessModal.show();
+        }
 
-            // Handle subscription error modal
-            const subscriptionErrorFlag = document.getElementById('subscriptionErrorFlag');
-            if (subscriptionErrorFlag && subscriptionErrorFlag.value === 'true') {
-                const subscriptionErrorModal = new bootstrap.Modal(document.getElementById(
-                    'subscriptionErrorModalPageSpecific'));
-                const errorMessages = document.getElementById('subscriptionErrorMessages').value.split('|');
+        // Handle subscription error modal
+        const subscriptionErrorFlag = document.getElementById('subscriptionErrorFlag');
+        if (subscriptionErrorFlag && subscriptionErrorFlag.value === 'true') {
+            const subscriptionErrorModal = new bootstrap.Modal(
+                document.getElementById('subscriptionErrorModalPageSpecific')
+            );
+            const errorMessages = document.getElementById('subscriptionErrorMessages').value.split('|');
 
-                // Populate error messages in the modal
-                const errorList = document.getElementById('subscriptionErrorListPageSpecific');
-                errorList.innerHTML = ''; // Clear previous errors if any
-                errorMessages.forEach(message => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<i class="bi bi-exclamation-circle-fill text-danger"></i> ${message}`;
-                    errorList.appendChild(li);
-                });
-
-                subscriptionErrorModal.show();
-            }
-            const toggleBtn = document.getElementById('mobileSearchToggle');
-            const overlay = document.getElementById('mobileSearchOverlay');
-            const closeBtn = document.getElementById('closeMobileSearch');
-
-            toggleBtn.addEventListener('click', () => {
-                overlay.style.display = 'block';
+            const errorList = document.getElementById('subscriptionErrorListPageSpecific');
+            errorList.innerHTML = '';
+            errorMessages.forEach(message => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="bi bi-exclamation-circle-fill text-danger"></i> ${message}`;
+                errorList.appendChild(li);
             });
 
-            closeBtn.addEventListener('click', () => {
-                overlay.style.display = 'none';
+            subscriptionErrorModal.show();
+        }
+
+        // ✅ MOBILE SEARCH OPEN/CLOSE — SIMPLE VERSION
+        const openSearchBtn  = document.getElementById('mobileSearchToggle');
+        const mobileOverlay  = document.getElementById('mobileSearchOverlay');
+        const closeSearchBtn = document.getElementById('closeMobileSearch');
+
+        if (openSearchBtn && mobileOverlay && closeSearchBtn) {
+            // Start hidden (inline style is already display:none)
+            mobileOverlay.style.display = 'none';
+
+            openSearchBtn.addEventListener('click', function () {
+                mobileOverlay.style.display = 'block';
             });
-        });
 
+            closeSearchBtn.addEventListener('click', function () {
+                mobileOverlay.style.display = 'none';
+            });
+        }
+    });
+</script>
 
-        const toggleBtn = document.getElementById('mobileMenuToggle');
-        const icon = toggleBtn.querySelector('i');
-        const menu = document.getElementById('navbarNav');
-
-        menu.addEventListener('show.bs.collapse', function() {
-            icon.classList.remove('bi-list');
-            icon.classList.add('bi-x');
-        });
-
-        menu.addEventListener('hide.bs.collapse', function() {
-            icon.classList.remove('bi-x');
-            icon.classList.add('bi-list');
-        });
-    </script>
 
 
  
     <!-- Include Bootstrap JS if needed -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
 
 
 
@@ -920,8 +923,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
 
 
-    <!-- Include cookieConsent.js -->
-
+ 
 
 
 
@@ -1352,11 +1354,7 @@ $mobileBox.on('click', '[data-see-more]', function() {
         });
     </script>
 
-<script>
-window.addEventListener("load", function() {
-    document.getElementById("pageLoader").style.display = "none";
-});
-</script>
+ 
 <script>
 function initCartButtons(scope = document) {
     const translations = {

@@ -37,19 +37,35 @@
             </label>
           
             <!-- Right: Sort by Price -->
-            <div class="align-items-center gap-2">
-               <select id="sortBooks" class="form-select form-select-sm w-auto">
-                <option value="">{{ __('messages.sortPriceDefault') ?? 'Default' }}</option>
-                <option value="price_asc"  {{ request('sort') === 'price_asc'  ? 'selected' : '' }}>
-                  {{ __('messages.sorPriceAsc') ?? 'Price: Low to High' }}
-                </option>
-                <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>
-                  {{ __('messages.sorPriceDesc') ?? 'Price: High to Low' }}
-                </option>
-              </select>
-            </div>
-          
-          </div>
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+    <!-- Condition dropdown -->
+    <select id="conditionFilter" class="form-select form-select-sm w-auto">
+        <option value="">{{ __('messages.sortStatus') ?? 'ყველა' }}</option>
+                <option value="All">{{ __('messages.all') ?? 'ყველა' }}</option>
+
+        <option value="new" {{ request('condition') === 'new' ? 'selected' : '' }}>
+            {{ __('messages.newBooks') ?? 'ახალი წიგნები' }}
+        </option>
+        <option value="used" {{ request('condition') === 'used' ? 'selected' : '' }}>
+            {{ __('messages.usedBooks') ?? 'მეორადი წიგნები' }}
+        </option>
+    </select>
+
+    <!-- Sort dropdown -->
+    <select id="sortBooks" class="form-select form-select-sm w-auto">
+        <option value="">{{ __('messages.sortPriceDefault') ?? 'Default' }}</option>
+        <option value="price_asc"  {{ request(key: 'sort') === 'price_asc' ? 'selected' : '' }}>
+            {{ __('messages.sorPriceAsc') ?? 'Price: Low to High' }}
+        </option>
+        <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>
+            {{ __('messages.sorPriceDesc') ?? 'Price: High to Low' }}
+        </option>
+    </select>
+
+    
+  </div>
+
+</div>
         <div class="row" id="book-results">
     @include('partials.book-cards', ['books' => $books])
 </div>
@@ -96,6 +112,20 @@
         }
         window.location.href = url.toString();
     });
+
+    $('#conditionFilter').change(function(){
+    const url = new URL(window.location.href);
+    const value = $(this).val();
+
+    if (value) {
+        url.searchParams.set('condition', value);
+    } else {
+        url.searchParams.delete('condition');
+    }
+
+    window.location.href = url.toString();
+});
+
     </script>
 
     <script>

@@ -15,9 +15,11 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MessageController;
+
 use App\Http\Controllers\BookNewsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\GenreController;
@@ -33,14 +35,14 @@ use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
-use App\Http\Controllers\Publisher\PublisherBookController;
 
+use App\Http\Controllers\Publisher\PublisherBookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Publisher\PublisherAuthorController;
 use App\Http\Controllers\Publisher\PublisherAccountController;
+
+
 use App\Http\Controllers\Admin\BookController as AdminBookController;
-
-
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
 use App\Http\Controllers\Admin\BookNewsController as AdminBookNewsController;
@@ -400,7 +402,11 @@ Route::post('/sub-admins/{user}', [SubAdminController::class, 'update'])
     ->name('admin.subadmins.update');
 
 Route::post('/sub-admins', [SubAdminController::class, 'create'])
-    ->name('admin.subadmins.create');
+
+->name('admin.subadmins.create');
+
+Route::post('/admin/subadmins/delete/{id}', [SubAdminController::class, 'destroy'])
+    ->name('admin.subadmins.delete');
 
 
 
@@ -428,6 +434,12 @@ Route::post('/sub-admins', [SubAdminController::class, 'create'])
 
     //users transacions
     Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
+Route::delete('/admin/order/delete/{id}',
+    [AdminBookController::class, 'deleteOrder'])
+    ->name('admin.order.delete')
+    ->middleware('auth', 'admin');
+
+
     Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
     Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
         ->name('admin.users.transactions.export');
@@ -470,3 +482,10 @@ Route::post('/book-orders/{order}/done', [\App\Http\Controllers\Admin\BookContro
 
 Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class, 'toggleBundle'])
     ->name('cart.toggleBundle');
+
+
+    
+// AI CHAT 
+
+Route::post('/ai-chat', [AiChatController::class, 'chat'])
+    ->name('ai.chat');

@@ -239,7 +239,7 @@ return [
     'directPayBundle' => 'შეიძინე ნაკრები',
     'googleLogin' => 'Google-ით შესვლა',
     'video' => 'ვიდეო',
-    'sortPriceDefault' => 'ფასის სორტირება',
+    'sortPriceDefault' => 'სორტირება ფასით',
     'sorPriceAsc' => 'ფასი ზრდადობით',
     'sorPriceDesc' => 'ფასი კლებადობით',
     'souvenirs' => 'სუვენირები',
@@ -249,6 +249,9 @@ return [
     'save' => 'დაზოგე',
     'seemore' => 'ნახე მეტი',
     'loading' => 'იტვირთება...',
+    'newBooks' => 'ახალი წიგნები',
+    'usedBooks' => 'მეორადი წიგნები',
+    'sortStatus' => 'სორტირება სტატუსით',
 
 
 

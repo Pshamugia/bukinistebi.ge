@@ -115,6 +115,21 @@
 
 
 <div class="mb-3">
+    <label for="condition" class="form-label">მდგომარეობა</label>
+    <select name="condition" class="form-select">
+        <option value="">ყველა</option>
+        <option value="new" {{ old('condition', $book->condition ?? '') == 'new' ? 'selected' : '' }}>
+            ახალი
+        </option>
+        <option value="used" {{ old('condition', $book->condition ?? '') == 'used' ? 'selected' : '' }}>
+            მეორადი
+        </option>
+    </select>
+</div>
+
+
+
+<div class="mb-3">
     <label for="publishing_date" class="form-label">გამოცემის თარიღი</label>
     <div class="input-group">
         <span class="input-group-text"><i class="bi bi-calendar-event-fill"></i></span>

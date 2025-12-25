@@ -80,8 +80,21 @@
 
         <div class="card-footer text-end">
             <button class="btn btn-primary btn-sm">Save</button>
-        </div>
+        
     </form>
+
+    @if($user->role === 'subadmin')
+<form action="{{ route('admin.subadmins.delete', $user->id) }}"
+      method="POST"
+      class="mt-1"
+      onsubmit="return confirm('Delete this sub-admin?');">
+    @csrf
+    <button class="btn btn-danger btn-sm">
+        Delete
+    </button>
+</form>
+@endif 
+</div>
 
     @endforeach
 

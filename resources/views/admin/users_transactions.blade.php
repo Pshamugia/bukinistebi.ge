@@ -43,6 +43,8 @@
                     <th>{{ __('სტატუსი') }}</th>
                     <th>{{ __('მიტანა') }}</th> <!-- New column for the button -->
                     <th>{{ __('შეძენის თარიღი') }}</th>
+                        <th>წაშლა</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -127,6 +129,24 @@
                         </td>
                         <td>{{ $user->orders->isNotEmpty() ? $user->orders->first()->created_at->format('Y-m-d') : __('არ არის') }}
                         </td>
+                        <td>
+@if ($user->orders->isNotEmpty())
+    @php $lastOrder = $user->orders->first(); @endphp
+
+    <form action="{{ route('admin.order.delete', $lastOrder->id) }}"
+          method="POST"
+          onsubmit="return confirm('მართლა წაშლა გსურთ?');">
+        @csrf
+        @method('DELETE')
+        <button class="btn btn-sm btn-danger">
+            წაშლა
+        </button>
+    </form>
+@else
+    -
+@endif
+</td>
+
                     </tr>
                 @endforeach
             </tbody>

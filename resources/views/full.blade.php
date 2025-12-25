@@ -353,14 +353,26 @@
 
                             {{-- optional email for guests --}}
                             @guest
-                                <div class="mb-3">
-                                    <label for="bundle_phone" class="form-label">
-                                        <h4 style="position:relative;top:12px"><strong>{{ __('messages.email') }}</strong> <span style="font-size: 12px">
-                                           (არასავალდებულოა, მაგრამ თუ ინვოისის მიღება გსურთ, მიუთითეთ) </span> </h4>
-                                      </label>                                    <input type="email" name="email" id="email" class="form-control"
-                                        value="{{ old('email') }}">
-                                </div>
-                            @endguest
+<div class="mb-3">
+    <label for="email" class="form-label">
+        <h4 style="position:relative;top:12px">
+            <strong>{{ __('messages.email') }}</strong>
+            <span style="font-size:12px">
+                (ინვოისს მიიღებთ ამ ელფოსტაზე)
+            </span>
+        </h4>
+    </label>
+
+    <input type="email"
+           name="email"
+           id="email"
+           class="form-control"
+           value="{{ old('email') }}"
+           placeholder="{{ __('messages.email') }}"
+           required>
+</div>
+@endguest
+
 
 
                             <!-- City -->

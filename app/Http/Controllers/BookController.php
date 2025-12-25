@@ -198,7 +198,16 @@ class BookController extends Controller
             })
             ->when(request('exclude_sold'), function ($q) {
                 $q->where('quantity', '>', 0);
+            })
+            ->when(request('condition'), function ($q) {
+                if (request('condition') === 'new') {
+                    $q->where('condition', 'new');
+                } elseif (request('condition') === 'used') {
+                    $q->where('condition', 'used');
+                }
             });
+
+
 
         // ✅ Sorting (same logic as in books())
         if (request('sort') === 'price_asc') {
@@ -331,7 +340,16 @@ class BookController extends Controller
 
             ->when(request('exclude_sold'), function ($q) {
                 $q->where('quantity', '>', 0);
+            })
+
+            ->when(request('condition'), function ($q) {
+                if (request('condition') === 'new') {
+                    $q->where('condition', 'new');
+                } elseif (request('condition') === 'used') {
+                    $q->where('condition', 'used');
+                }
             });
+
 
         // ✅ Sorting
         if (request('sort') === 'price_asc') {

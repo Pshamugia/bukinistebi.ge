@@ -130,21 +130,26 @@ class TbcCheckoutController extends Controller
                         $totalNeed     = $needPerBundle * (int)$cartItem->quantity;
 
                         $book = \App\Models\Book::find($b->id);
-                        if ($book && $book->quantity >= $totalNeed) {
-                            $book->quantity -= $totalNeed;
-                            $book->save();
-                        } else {
+                        $affected = DB::table('books')
+                            ->where('id', $book->id)
+                            ->where('quantity', '>=', $totalNeed)
+                            ->decrement('quantity', $totalNeed);
+
+                        if ($affected === 0) {
                             $quantityUpdateErrs[] = $b->id;
                         }
                     }
                 } else {
                     // Single-book item
                     $book = $cartItem->book;
-                    if ($book && $book->quantity >= $cartItem->quantity) {
-                        $book->quantity -= $cartItem->quantity;
-                        $book->save();
-                    } else {
-                        if ($book) $quantityUpdateErrs[] = $book->id;
+
+                    $affected = DB::table('books')
+                        ->where('id', $book->id)
+                        ->where('quantity', '>=', $cartItem->quantity)
+                        ->decrement('quantity', $cartItem->quantity);
+
+                    if ($affected === 0) {
+                        $quantityUpdateErrs[] = $book->id;
                     }
                 }
             }
@@ -475,7 +480,7 @@ class TbcCheckoutController extends Controller
             'payment_method' => 'required|string|in:bank_transfer,courier',
             'name'           => 'required|string|max:255',
             'phone'          => ['required', 'digits:9'],
-            'email'          => 'nullable|email', // NEW
+    'email' => auth()->check() ? 'nullable|email' : 'required|email',
             'address'        => 'required|string|max:255',
             'city'           => 'required|string',
             'size'           => 'nullable|string|in:XS,S,M,L,XL,XXL,XXXL', // 👈 add size validation
@@ -528,10 +533,15 @@ class TbcCheckoutController extends Controller
         // ✅ Courier reduces immediately
         if ($validatedData['payment_method'] === 'courier') {
 
-            if ($book->quantity >= $quantity) {
-                $book->quantity -= $quantity;
-                $book->save();
+            $affected = DB::table('books')
+                ->where('id', $book->id)
+                ->where('quantity', '>=', $quantity)
+                ->decrement('quantity', $quantity);
+
+            if ($affected === 0) {
+                throw new \Exception("Out of stock");
             }
+
 
 
             // Reduce stock for any bundle items on paid orders (bank transfer path)
@@ -583,15 +593,15 @@ class TbcCheckoutController extends Controller
 
     public function directPayBundle(Request $request, Bundle $bundle)
     {
-          $token = $request->submission_token;
+        $token = $request->submission_token;
 
-    // prevent duplicate
-    if (session()->has("used_token_$token")) {
-        return back()->with('warning', 'თქვენ უკვე გააგზავნეთ შეკვეთა.');
-    }
+        // prevent duplicate
+        if (session()->has("used_token_$token")) {
+            return back()->with('warning', 'თქვენ უკვე გააგზავნეთ შეკვეთა.');
+        }
 
-    session()->put("used_token_$token", true);
-    
+        session()->put("used_token_$token", true);
+
         $data = $request->validate([
             'payment_method' => 'required|in:bank_transfer,courier',
             'name'           => 'required|string|max:255',
@@ -663,24 +673,28 @@ class TbcCheckoutController extends Controller
             foreach ($bundle->books as $b) {
                 $need = (int)$b->pivot->qty * $qty;
                 if ($need > 0) {
-                    if ($b->quantity < $need) {
+                    $affected = DB::table('books')
+                        ->where('id', $b->id)
+                        ->where('quantity', '>=', $need)
+                        ->decrement('quantity', $need);
+
+                    if ($affected === 0) {
                         return back()->withErrors(['bundle' => __('Sorry, the bundle just went out of stock.')]);
                     }
-                    $b->decrement('quantity', $need);
                 }
             }
 
             $order->update(['status' => 'processing']);
 
             // Admin notification
- 
+
             // Send admin notification (as you do)
             Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'courier'));
 
-             if ($order->email) {
+            if ($order->email) {
                 Mail::to($order->email)->send(new OrderInvoice($order));
             }
-            
+
 
             // (optional) Customer invoice
             // if ($customerEmail) {
@@ -699,7 +713,7 @@ class TbcCheckoutController extends Controller
         if (!Auth::check() && $order->email) {
             session(['checkout_email' => $order->email]);
         }
-        
+
         return $this->processPayment($total, $order->order_id);
     }
 }

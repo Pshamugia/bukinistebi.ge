@@ -37,4 +37,20 @@ class SubAdminController extends Controller
 
         return back()->with('success', 'Permissions updated');
     }
+
+
+    public function destroy($id)
+{
+    $user = User::findOrFail($id);
+
+    // Prevent deleting main admin
+    if ($user->role === 'admin') {
+        return back()->with('error', 'You cannot delete main admin.');
+    }
+
+    $user->delete();
+
+    return back()->with('success', 'Sub-admin deleted successfully');
+}
+
 }

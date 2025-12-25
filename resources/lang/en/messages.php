@@ -249,5 +249,8 @@ return [
     'save' => 'Save',
     'seemore' => 'See More',
     'loading' => 'Loading...',
+    'newBooks' => 'New books',
+    'usedBooks' => 'Second-hand books',
+    'sortStatus' => 'Sort by status',
 
 ];

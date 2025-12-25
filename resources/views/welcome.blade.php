@@ -36,16 +36,32 @@
 
 
         <div class="row">
-            @foreach ($books as $book)
+@foreach ($books as $index => $book)
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
                     <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
                         <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
                             class="card-link">
-                            <div class="image-container"
-                                style="background-image: url('{{ asset('images/default_image.png') }}');">
-                                <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}"
-                                    class="cover img-fluid" style="border-radius: 8px 8px 0 0; object-fit: cover;"
-onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
+                            <div class="image-container">
+                               <img
+    src="{{ asset('storage/' . $book->photo) }}?v={{ $book->updated_at->timestamp }}"
+    alt="{{ $book->title }}"
+    class="cover img-fluid"
+    style="border-radius: 8px 8px 0 0; object-fit: cover;"
+    
+    @if($index < 4)
+        loading="eager"
+        fetchpriority="high"
+    @else
+        loading="lazy"
+        decoding="async"
+    @endif
+
+    width="265"
+    height="360"
+
+    onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
+
+
                             </div>
                         </a>
                         <div class="card-body">
@@ -318,7 +334,7 @@ onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; t
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-2">
             <div class="text-start text-dark">
                 {{ __('messages.cookie') }} <a href="{{ route('terms_conditions') }}"
-                    class="text-primary text-decoration-underline">{{ __('messages.seeRules') }}</a>.
+                    class="text-primary text-decoration-underline textForCookie">{{ __('messages.seeRules') }}</a>.
             </div>
             <div class="mt-3 mt-md-0">
                 <button id="accept-cookies"
