@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->string('size')->nullable()->after('status');
-        });
+      Schema::table('books', function (Blueprint $table) {
+    if (!Schema::hasColumn('books', 'size')) {
+        $table->string('size')->nullable()->after('status');
+    }
+});
+
     }
     
     public function down()

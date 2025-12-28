@@ -735,9 +735,7 @@ footer a {
     opacity:1 !important;
 }
 
-footer span {
-    color:#ffffff !important;
-}
+ 
 
 
 
@@ -1710,6 +1708,15 @@ body.dark-mode .fb-icon-top:hover {
      .nav-item.dropdown {
          position: relative !important;
      }
+
+
+     .mobileSearch.visible {
+    display:block !important;
+}
+
+.mobileSearch.hidden {
+    display:none !important;
+}
 
 
      #mobileSearchIcon i {

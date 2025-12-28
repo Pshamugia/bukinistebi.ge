@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('books', function (Blueprint $table) {
+   Schema::table('books', function (Blueprint $table) {
+    if (!Schema::hasColumn('books', 'new_price')) {
         $table->integer('new_price')->nullable()->after('price');
-    });
+    }
+});
+
 }
 
 public function down()

@@ -6,9 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::table('book_orders', function (Blueprint $table) {
-            $table->boolean('is_done')->default(false)->index()->after('email');
-        });
+       Schema::table('book_orders', function (Blueprint $table) {
+    if (!Schema::hasColumn('book_orders', 'is_done')) {
+        $table->boolean('is_done')->default(0)->after('email');
+    }
+});
+
     }
     public function down(): void {
         Schema::table('book_orders', function (Blueprint $table) {

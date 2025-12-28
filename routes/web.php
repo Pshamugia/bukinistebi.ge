@@ -33,15 +33,16 @@ use App\Http\Controllers\Admin\AuctionController;
 use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Admin\AdminPublisherController;
 
+use App\Http\Controllers\Admin\AdminPublisherController;
 use App\Http\Controllers\Publisher\PublisherBookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Publisher\PublisherAuthorController;
+
+
 use App\Http\Controllers\Publisher\PublisherAccountController;
-
-
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\AuthorController;  // This is for front-end authors
@@ -429,6 +430,14 @@ Route::post('/admin/subadmins/delete/{id}', [SubAdminController::class, 'destroy
         ->name('admin.user.preferences.chartdata');
 
 
+
+        // announcment crud
+ Route::get('/announcements', [AnnouncementController::class,'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class,'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class,'store'])->name('announcements.store');
+    Route::get('/announcements/toggle/{id}', [AnnouncementController::class,'toggle'])->name('announcements.toggle');
+    Route::delete('/announcements/{id}', [AnnouncementController::class,'destroy'])->name('announcements.delete');
+
     // FOR PUBLISHERS TO ALLOW HIDE/SHOW
     Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
 
@@ -485,7 +494,4 @@ Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class,
 
 
     
-// AI CHAT 
-
-Route::post('/ai-chat', [AiChatController::class, 'chat'])
-    ->name('ai.chat');
+ 

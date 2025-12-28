@@ -1369,8 +1369,75 @@ function initCartButtons(scope = document) {
             : translations.addToCart;
     });
 }
-</script>
+</script> 
+
+
+
+
 
 </body>
+@php
+$announcement = \App\Models\GlobalAnnouncement::where('is_active',1)
+    ->where(function($q){
+        $q->whereNull('starts_at')
+          ->orWhere('starts_at','<=',now());
+    })
+    ->where(function($q){
+        $q->whereNull('ends_at')
+          ->orWhere('ends_at','>=',now());
+    })
+    ->latest()
+    ->first();
+@endphp
+
+@if($announcement)
+<input type="hidden" id="announcement_id" value="{{ $announcement->id }}">
+
+<div class="modal fade show" id="announcementModal" tabindex="-1" style="display:block;background:rgba(0,0,0,.6)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+            {{ $announcement->title ?? 'Important Notice' }}
+        </h5>
+<button onclick="closeAnnouncement()" class="btn-close"></button>
+      </div>
+
+      <div class="modal-body">
+        {!! nl2br(e($announcement->message)) !!}
+      </div>
+
+      <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeAnnouncement()">
+დახურვა </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+@endif
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById('announcementModal');
+    const announcementId = document.getElementById('announcement_id')?.value;
+
+    if (!modal || !announcementId) return;
+
+    // If user already closed THIS announcement → don't show again
+    if (localStorage.getItem('announcement_closed_' + announcementId)) {
+        modal.remove();
+        return;
+    }
+
+    // Close + remember
+    window.closeAnnouncement = function () {
+        localStorage.setItem('announcement_closed_' + announcementId, true);
+        modal.remove();
+    };
+});
+</script>
+
 
 </html>

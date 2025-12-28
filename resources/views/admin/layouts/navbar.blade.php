@@ -94,6 +94,16 @@
 
                     @endif
 
+                       @if(auth()->user()->hasAdminPermission('announcement.manage'))
+<li class="nav-item">
+    <a class="nav-link text-white"
+       href="{{ route('announcements.index') }}">
+        <i class="bi bi-megaphone"></i> ანონსი
+    </a>
+</li>
+@endif
+
+
 
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('admin.user.keywords') }}"><i class="bi bi-search-heart"></i> რას ეძებენ</a>

@@ -778,6 +778,19 @@
                 no_results_text: "{{ __('messages.nocityfound') ?? 'No results matched' }}",
                 width: '100%' // Ensure full width
             });
+
+            $(document).on('submit', '#directCheckoutForm', function(e){
+    let city = $('select[name="city"]').val();
+
+    console.log('CITY => ', city);
+
+    if(!city){
+        e.preventDefault();
+        alert('გთხოვთ აირჩიოთ ქალაქი');
+        return false;
+    }
+});
+
         </script>
         <script>
             const translations = {

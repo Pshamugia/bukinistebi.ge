@@ -604,13 +604,14 @@ class BookController extends Controller
         }
 
         // Start a query for books that are not hidden
-        $query = Book::where('hide', 0)
-            ->where('language', app()->getLocale())
-            ->where('auction_only', 0)
-            ->whereDoesntHave('auction', function ($q) {
-                $q->where('is_active', true)
-                    ->where('end_time', '>', now());
-            });
+       $query = Book::where('hide', 0)
+    ->where('auction_only', 0)
+    ->whereDoesntHave('auction', function ($q) {
+        $q->where('is_active', true)
+          ->where('end_time', '>', now());
+    });
+
+        
 
 
 
@@ -618,16 +619,17 @@ class BookController extends Controller
         // Apply search term filter (combine search fields inside a subquery)
         if ($searchTerm) {
 
-            $lang = $this->detectLanguage($searchTerm);
+            $searchTerm = $request->get('title', '');
             $qLower = mb_strtolower($searchTerm);
+            $currentLocale = app()->getLocale();
 
-            $query->where(function ($q) use ($qLower, $lang) {
+            $query->where(column: function ($q) use ($qLower) {
 
                 // 1) TITLE match (ka + en)
                 $q->whereRaw('LOWER(title) LIKE ?', ["%{$qLower}%"]);
 
                 // 2) AUTHOR match multilingual
-                $q->orWhereHas('author', function ($a) use ($qLower, $lang) {
+                $q->orWhereHas('author', function ($a) use ($qLower) {
                     $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
                         ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
                 });
@@ -673,8 +675,8 @@ class BookController extends Controller
 
         // Fetch the results
         $books = $query
-            ->select('*')
-            ->selectRaw("
+    ->select('*')
+    ->selectRaw("
         CASE 
             WHEN LOWER(title) LIKE ? THEN 1
             WHEN EXISTS (
@@ -687,22 +689,32 @@ class BookController extends Controller
             ELSE 4
         END AS priority
     ", [
-                "%{$qLower}%",
-                "%{$qLower}%",
-                "%{$qLower}%",
-                "%{$qLower}%",
-                "%{$qLower}%"
-            ])
-            ->orderBy('priority', 'ASC')         // priority ranking
-            ->orderByRaw("
+        "%{$qLower}%",
+        "%{$qLower}%",
+        "%{$qLower}%",
+        "%{$qLower}%",
+        "%{$qLower}%"
+    ]) 
+    ->orderByRaw("
         CASE 
-            WHEN LOWER(language) = ? THEN 0 
-            ELSE 1 
+            WHEN quantity <= 0 THEN 1
+            ELSE 0
         END
-    ", [$lang])                           // LANGUAGE MATCH BOOST
-            ->orderBy('title', 'ASC')
-            ->paginate(12)
-            ->appends(request()->query());
+    ") 
+     ->orderBy('priority')
+
+     ->orderByRaw("
+        CASE 
+            WHEN LOWER(language) = ? THEN 0
+            ELSE 1
+        END
+    ", [$currentLocale])
+
+     ->orderBy('title','ASC')
+
+    ->paginate(12)
+    ->appends(request()->query());
+
 
 
 
