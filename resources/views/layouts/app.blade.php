@@ -1377,18 +1377,45 @@ function initCartButtons(scope = document) {
 
 </body>
 @php
-$announcement = \App\Models\GlobalAnnouncement::where('is_active',1)
+$announcement = \App\Models\GlobalAnnouncement::where('is_active', 1)
+
     ->where(function($q){
         $q->whereNull('starts_at')
-          ->orWhere('starts_at','<=',now());
+          ->orWhere('starts_at', '<=', now());
     })
+
     ->where(function($q){
         $q->whereNull('ends_at')
-          ->orWhere('ends_at','>=',now());
+          ->orWhere('ends_at', '>=', now());
     })
-    ->latest()
-    ->first();
+
+    ->get()
+    ->first(function($a){
+
+        $now = now();
+
+        if ($a->recurrence_type === 'none') return true;
+
+        if ($a->recurrence_time) {
+            if ($now->format('H:i') !== \Carbon\Carbon::parse($a->recurrence_time)->format('H:i')) {
+                return false;
+            }
+        }
+
+        if ($a->recurrence_type === 'daily') return true;
+
+        if ($a->recurrence_type === 'weekly') {
+            return $now->isSameDayOfWeek($a->starts_at ?? $a->created_at);
+        }
+
+        if ($a->recurrence_type === 'monthly') {
+            return $now->day === ($a->starts_at?->day ?? $a->created_at->day);
+        }
+
+        return false;
+    });
 @endphp
+
 
 @if($announcement)
 <input type="hidden" id="announcement_id" value="{{ $announcement->id }}">

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GlobalAnnouncement extends Model
 {
     protected $fillable = [
-        'title','message','is_active','starts_at','ends_at'
+        'title','message','is_active','starts_at','ends_at', 'recurrence_type', 'recurrence_time'
     ];
 
     protected $casts = [

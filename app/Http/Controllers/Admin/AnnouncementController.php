@@ -31,6 +31,9 @@ class AnnouncementController extends Controller
             'is_active' => $request->has('is_active'),
             'starts_at' => $request->starts_at,
             'ends_at'   => $request->ends_at,
+            'recurrence_type' => $request->recurrence_type ?? 'none',
+            'recurrence_time' => $request->recurrence_time,
+
         ]);
 
         return back()->with('success', 'Announcement created successfully');
