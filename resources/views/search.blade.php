@@ -198,7 +198,39 @@
 .chosen-container-single .chosen-single span {
     color:#777 !important;  /* change to your desired color */
 }
+ 
 
+    /* FORCE load more button style on mobile */
+@media (max-width: 768px) {
+    button.search-load-btn,
+    button.load-more-btn,
+    #load-more,
+    #load-more-books {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+
+        background: linear-gradient(135deg,#e63946,#d7263d) !important;
+        background-color:#d7263d !important;
+
+        color:#fff !important;
+        font-size:16px !important;
+        font-weight:700 !important;
+
+        padding:14px 40px !important;
+        border-radius:40px !important;
+
+        border:none !important;
+        outline:none !important;
+
+        display:-webkit-inline-flex !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        gap:8px !important;
+
+        box-shadow:0 12px 30px rgba(215,38,61,.35) !important;
+    }
+}
 
 
 </style>
@@ -309,14 +341,15 @@
 </div>
 
 @if ($books->hasMorePages())
-<div class="text-center mt-4">
+<div class="text-center mt-4 mb-4">
     <button id="load-more"
-            class="btn btn-outline-danger"
+            class="btn search-load-btn"
             data-next-page="{{ $books->currentPage() + 1 }}">
-                                            {{ __('messages.seemore') }}
+        📚 {{ __('messages.seemore') }}
     </button>
 </div>
 @endif
+
 </div>
 
 
@@ -325,12 +358,21 @@
     <br>
   
 <script>
-document.getElementById('load-more')?.addEventListener('click', function () {
+    document.getElementById('load-more')?.addEventListener('click', function () {
     const btn = this;
     const page = btn.dataset.nextPage;
 
+    // Save original label if not saved yet
+    if (!btn.dataset.label) {
+        btn.dataset.label = btn.innerHTML;
+    }
+
+    // Show spinner + loading text
     btn.disabled = true;
-btn.innerText = @json(__('messages.loading'));
+    btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        {{ app()->getLocale() == 'ka' ? 'იტვირთება...' : 'Loading...' }}
+    `;
 
     const url = new URL(window.location.href);
     url.searchParams.set('page', page);
@@ -340,23 +382,25 @@ btn.innerText = @json(__('messages.loading'));
     })
     .then(res => res.text())
     .then(html => {
-    const container = document.getElementById('search-results');
 
-    container.insertAdjacentHTML('beforeend', html);
+        const container = document.getElementById('search-results');
+        container.insertAdjacentHTML('beforeend', html);
 
-    // 🔥 THIS LINE FIXES YOUR PROBLEM
-    initCartButtons(container);
+        // Init cart again
+        initCartButtons(container);
 
-    btn.dataset.nextPage = parseInt(page) + 1;
-    btn.disabled = false;
-    btn.innerText = @json(__('messages.seemore'));
+        btn.dataset.nextPage = parseInt(page) + 1;
 
-    if (html.trim() === '') {
-        btn.remove();
-    }
+        // Restore icon text
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.label;
+
+        if (html.trim() === '') {
+            btn.remove();
+        }
+    });
 });
 
-});
 </script>
 
  

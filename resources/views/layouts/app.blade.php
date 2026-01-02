@@ -1374,8 +1374,6 @@ function initCartButtons(scope = document) {
 
 
 
-
-</body>
 @php
 $announcement = \App\Models\GlobalAnnouncement::where('is_active', 1)
 
@@ -1420,7 +1418,7 @@ $announcement = \App\Models\GlobalAnnouncement::where('is_active', 1)
 @if($announcement)
 <input type="hidden" id="announcement_id" value="{{ $announcement->id }}">
 
-<div class="modal fade show" id="announcementModal" tabindex="-1" style="display:block;background:rgba(0,0,0,.6)">
+<div class="modal fade" id="announcementModal" tabindex="-1" style="display:none;background:rgba(0,0,0,.6)">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
 
@@ -1458,6 +1456,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    // Show modal after page load + delay
+    window.addEventListener('load', function () {
+
+        setTimeout(function () {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+        }, 2500);   // 2500ms = 2.5 seconds (change if you want)
+
+    });
+
     // Close + remember
     window.closeAnnouncement = function () {
         localStorage.setItem('announcement_closed_' + announcementId, true);
@@ -1465,6 +1473,10 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 });
 </script>
+
+
+</body>
+
 
 
 </html>

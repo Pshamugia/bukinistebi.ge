@@ -459,59 +459,109 @@ class BookController extends Controller
 
 
     public function usersTransactions(Request $request)
-    {
-        $filterNotDelivered = $request->delivery_filter === 'not_delivered';
+{
+    $filterNotDelivered = $request->delivery_filter === 'not_delivered';
+    $search = trim($request->q);
 
-        // Load users with their orders (latest first)
-        $users = User::with(['orders' => fn($q) => $q->orderBy('created_at', 'desc')])
-            ->whereHas('orders') // must have at least one order
-            ->get();
+    /* ======================
+     | REAL USERS
+     ====================== */
+    $usersQuery = User::with(['orders' => function ($q) {
+            $q->orderBy('created_at', 'desc')
+              ->with('orderItems.book');
+        }])
+        ->whereHas('orders');
 
-        // Filter by the LATEST order only (collection side)
-        if ($filterNotDelivered) {
-            $users = $users->filter(function ($u) {
-                $last = $u->orders->first();
-                return $last && strtolower($last->status) !== 'delivered';
-            })->values();
-        }
+    if ($search) {
+    $usersQuery->where(function ($q) use ($search) {
+        $q->where('name', 'like', "%{$search}%")
+          ->orWhere('email', 'like', "%{$search}%")
+          ->orWhere('phone', 'like', "%{$search}%")
+          ->orWhereHas('orders.orderItems.book', function ($b) use ($search) {
+              $b->where('title', 'like', "%{$search}%");
+          });
+    });
+}
 
-        // Guest orders → apply the same filter
-        $guestQuery = Order::whereNull('user_id')->orderBy('created_at', 'desc');
-        if ($filterNotDelivered) {
-            $guestQuery->where('status', '!=', 'delivered');
-        }
-        $guestOrders = $guestQuery->get()->map(function ($order) {
-            return (object)[
-                'id'               => null,
-                'name'             => $order->name ?? 'Guest',
-                'phone'            => $order->phone,
-                'orders'           => collect([$order]),
-                'last_order_total' => $order->total ?? 0,
-                'last_order_date'  => $order->created_at,
-            ];
-        });
 
-        // Add computed fields to real users
-        $realUsers = $users->map(function ($user) {
-            $last = $user->orders->first();
-            $user->last_order_date  = $last?->created_at;
-            $user->last_order_total = $last?->total ?? 0;
-            return $user;
-        });
+    $users = $usersQuery->get();
 
-        // Merge + sort + paginate
-        $merged      = $realUsers->concat($guestOrders)->sortByDesc('last_order_date')->values();
-        $perPage     = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $paged       = $merged->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $allUsers = new LengthAwarePaginator($paged, $merged->count(), $perPage, $currentPage, [
-            'path' => request()->url(),
-            'query' => request()->query(),
-        ]);
-
-        return view('admin.users_transactions', ['users' => $allUsers]);
+    if ($filterNotDelivered) {
+        $users = $users->filter(function ($u) {
+            $last = $u->orders->first();
+            return $last && strtolower($last->status) !== 'delivered';
+        })->values();
     }
+
+    $realUsers = $users->map(function ($user) {
+        $last = $user->orders->first();
+        $user->last_order_date  = $last?->created_at;
+        $user->last_order_total = $last?->total ?? 0;
+        return $user;
+    });
+
+    /* ======================
+     | GUEST ORDERS
+     ====================== */
+    $guestQuery = Order::whereNull('user_id')
+        ->with('orderItems.book')
+        ->orderBy('created_at', 'desc');
+
+    if ($filterNotDelivered) {
+        $guestQuery->where('status', '!=', 'delivered');
+    }
+
+    if ($search) {
+        $guestQuery->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhereHas('orderItems.book', function ($b) use ($search) {
+                  $b->where('title', 'like', "%{$search}%");
+              });
+        });
+    }
+
+    $guestOrders = $guestQuery->get()->map(function ($order) {
+        return (object)[
+            'id'               => null,
+            'name'             => $order->name ?? 'Guest',
+            'orders'           => collect([$order]),
+            'last_order_total' => $order->total ?? 0,
+            'last_order_date'  => $order->created_at,
+        ];
+    });
+
+    /* ======================
+     | MERGE + PAGINATE
+     ====================== */
+    $merged = $realUsers
+        ->concat($guestOrders)
+        ->sortByDesc('last_order_date')
+        ->values();
+
+    $perPage     = 10;
+    $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+    $paged = $merged->slice(
+        ($currentPage - 1) * $perPage,
+        $perPage
+    )->values();
+
+    $allUsers = new LengthAwarePaginator(
+        $paged,
+        $merged->count(),
+        $perPage,
+        $currentPage,
+        [
+            'path'  => request()->url(),
+            'query' => request()->query(),
+        ]
+    );
+
+    return view('admin.users_transactions', [
+        'users' => $allUsers
+    ]);
+}
+
 
 
     public function deleteOrder($orderId)

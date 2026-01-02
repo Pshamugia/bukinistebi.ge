@@ -7,6 +7,37 @@
 @section('content')
 
     <div class="container">
+
+    
+    <form method="GET" action="{{ route('admin.users_transactions') }}" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text"
+               name="q"
+               value="{{ request('q') }}"
+               class="form-control"
+placeholder="სახელი, ელფოსტა, ტელეფონი ან წიგნის სახელი">
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-primary">
+            ძებნა
+        </button>
+
+        @if(request()->has('q'))
+            <a href="{{ route('admin.users_transactions') }}"
+               class="btn btn-outline-secondary ms-2">
+                გასუფთავება
+            </a>
+        @endif
+    </div>
+
+    {{-- preserve delivery filter --}}
+    @if(request('delivery_filter'))
+        <input type="hidden" name="delivery_filter" value="{{ request('delivery_filter') }}">
+    @endif
+</form>
+
+
         <h2>{{ __('ტრანზაქციები') }}</h2>
         <!-- Add the download button -->
         <form method="GET" action="{{ route('admin.users.transactions.export') }}" class="row g-3 mb-3">

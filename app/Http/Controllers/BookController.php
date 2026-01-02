@@ -325,62 +325,62 @@ class BookController extends Controller
 
 
     public function books()
-    {
-        $query = Book::query()
-            ->where('hide', '0')
-            ->where('language', app()->getLocale())
-            ->whereDoesntHave('genres', function ($q) {
-                $q->where('name', 'სუვენირები')->orWhere('name_en', 'Souvenirs');
-            })
-            ->where('auction_only', 0)
-            ->whereDoesntHave('auction', function ($q) {
-                $q->where('is_active', true)
-                    ->where('end_time', '>', now());
-            })
+{
+    $query = Book::query()
+        ->where('hide', 0)
+        ->where('language', app()->getLocale())
+        ->where('auction_only', 0)
+        ->whereDoesntHave('genres', function ($q) {
+            $q->where('name', 'სუვენირები')
+              ->orWhere('name_en', 'Souvenirs');
+        })
+        ->whereDoesntHave('auction', function ($q) {
+            $q->where('is_active', true)
+              ->where('end_time', '>', now());
+        })
+        ->when(request('exclude_sold'), fn ($q) => 
+            $q->where('quantity', '>', 0)
+        )
+        ->when(in_array(request('condition'), ['new', 'used']), fn ($q) => 
+            $q->where('condition', request('condition'))
+        );
 
-            ->when(request('exclude_sold'), function ($q) {
-                $q->where('quantity', '>', 0);
-            })
-
-            ->when(request('condition'), function ($q) {
-                if (request('condition') === 'new') {
-                    $q->where('condition', 'new');
-                } elseif (request('condition') === 'used') {
-                    $q->where('condition', 'used');
-                }
-            });
-
-
-        // ✅ Sorting
-        if (request('sort') === 'price_asc') {
-            $query->orderBy('price', 'asc');
-        } elseif (request('sort') === 'price_desc') {
-            $query->orderBy('price', 'desc');
-        } else {
-            $query->orderBy('id', 'desc'); // default (latest)
-        }
-
-        $books = $query->paginate(12)->appends(request()->query());
-
-        // Cart items
-        $cartItemIds = [];
-        if (Auth::check()) {
-            $cart = Auth::user()->cart;
-            if ($cart) {
-                $cartItemIds = $cart->cartItems->pluck('book_id')->toArray();
-            }
-        }
-
-        if (request()->ajax()) {
-            return view('partials.book-cards', compact('books', 'cartItemIds'))->render();
-        }
-
-        $news = BookNews::latest()->paginate(6);
-        $popularBooks = Book::orderBy('views', 'desc')->take(10)->get();
-        $isHomePage = false;
-
-        return view('books', data: compact('books', 'cartItemIds', 'news', 'popularBooks', 'isHomePage'));
+    // Sorting (stable)
+    if (request('sort') === 'price_asc') {
+        $query->orderBy('price', 'asc')->orderBy('id', 'desc');
+    } elseif (request('sort') === 'price_desc') {
+        $query->orderBy('price', 'desc')->orderBy('id', 'desc');
+    } else {
+        $query->latest('id');
     }
+
+    $books = $query->paginate(12);
+
+    // Cart items
+    $cartItemIds = [];
+    if (Auth::check() && Auth::user()->cart) {
+        $cartItemIds = Auth::user()
+            ->cart
+            ->cartItems
+            ->pluck('book_id')
+            ->toArray();
+    }
+
+    // AJAX response
+    if (request()->ajax()) {
+        return view('partials.book-cards', compact('books', 'cartItemIds'))->render();
+    }
+
+    // Full page
+    return view('books', [
+        'books' => $books,
+        'cartItemIds' => $cartItemIds,
+        'news' => BookNews::latest()->paginate(6),
+        'popularBooks' => Book::orderBy('views', 'desc')->take(10)->get(),
+        'isHomePage' => false,
+    ]);
+}
+
 
 
 
