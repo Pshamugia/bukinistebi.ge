@@ -5,11 +5,11 @@
             <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}" class="card-link">
                <div class="image-container">
                                <img
-    src="{{ asset('storage/' . $book->photo) }}?v={{ $book->updated_at->timestamp }}"
+    src="{{ asset('storage/' . ($book->thumb_image ?: $book->photo)) }}?v={{ $book->updated_at->timestamp }}"
     alt="{{ $book->title }}"
     class="cover img-fluid"
     style="border-radius: 8px 8px 0 0; object-fit: cover;"
-    
+
     @if($index < 4)
         loading="eager"
         fetchpriority="high"
@@ -22,6 +22,7 @@
     height="360"
 
     onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
+
 
 
                             </div>

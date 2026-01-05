@@ -7,8 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class Auction extends Model
 {
-    protected $fillable = ['book_id', 'start_price', 'current_price', 'start_time', 'end_time', 'is_active', 'winner_id', 'min_bid', 'max_bid', 'is_free_bid'];
+protected $fillable = [
+    'book_id',
+    'user_id',
+    'start_price',
+    'current_price',
+    'start_time',
+    'end_time',
+    'is_active',
+    'winner_id',
+    'min_bid',
+    'max_bid',
+    'is_free_bid',
+    'is_approved',
+    'approved_at',
+];
 
+
+
+public function getEffectiveCurrentPriceAttribute()
+{
+    return $this->bids()->exists()
+        ? $this->current_price
+        : $this->start_price;
+}
 
     public function book()
     {
@@ -24,6 +46,12 @@ class Auction extends Model
     {
         return $this->belongsTo(User::class, 'winner_id');
     }
+
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
 
     protected $casts = [
         'start_time' => 'datetime',

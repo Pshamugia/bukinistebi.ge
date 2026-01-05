@@ -4,6 +4,86 @@
 
 @section('content')
 
+<style>
+/* NEWS LIST */
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+/* NEWS ITEM */
+.news-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    padding: 14px 0;
+    border-bottom: 1px solid #e6e6e6;
+    transition: background 0.2s ease;
+}
+
+.news-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* THUMB */
+.news-thumb {
+    width: 80px;
+    height: 120px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f4f4f4;
+}
+
+.news-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* CONTENT */
+.news-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0; /* VERY IMPORTANT for mobile */
+}
+
+.news-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 6px 0;
+    line-height: 1.35;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.news-meta {
+    font-size: 13px;
+    color: #777;
+}
+
+/* MOBILE POLISH */
+@media (max-width: 575.98px) {
+    .news-thumb {
+        width: 70px;
+        height: 105px;
+    }
+
+    .news-title {
+        font-size: 15px;
+    }
+}
+    </style>
+
     <!-- Hero Section -->
    <div class="hero-section lazybg"
     data-bg="{{ asset('uploads/book9.webp') }}"
@@ -43,21 +123,22 @@
                             class="card-link">
                             <div class="image-container">
                               <img
-  src="{{ asset('storage/' . $book->photo) }}?v={{ $book->updated_at->timestamp }}"
-  alt="{{ $book->title }}"
-  class="cover img-fluid"
-  style="border-radius: 8px 8px 0 0; object-fit: cover;"
-  @if($index < 4)
-      loading="eager"
-      fetchpriority="high"
-  @else
-      loading="lazy"
-      decoding="async"
-  @endif
-  width="265"
-  height="360"
-  sizes="(max-width: 768px) 50vw, 265px"
-  onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
+    src="{{ asset('storage/' . ($book->thumb_image ?: $book->photo)) }}?v={{ $book->updated_at->timestamp }}"
+    alt="{{ $book->title }}"
+    class="cover img-fluid"
+    style="border-radius: 8px 8px 0 0; object-fit: cover;"
+    @if($index < 4)
+        loading="eager"
+        fetchpriority="high"
+    @else
+        loading="lazy"
+        decoding="async"
+    @endif
+    width="265"
+    height="360"
+    sizes="(max-width: 768px) 50vw, 265px"
+    onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}'; this.alt='Default book image';">
+
 
 
 
@@ -185,49 +266,51 @@
     <!-- New Sections: Book News and Popular Books -->
     <div class="container mt-5">
         <div class="row">
-            <!-- Book News (Two Columns) -->
-            <div class="col-md-8">
-                <div class="hr-with-text" style="position: relative; top:-12px">
+            <!-- Book News -->
+           <div class="col-md-8">
+   <div class="hr-with-text" style="position: relative; top:-12px">
                     <h2 style="position: relative; font-size: 26px;">
                         {{ __('messages.bookstories') }}
                     </h2>
                 </div>
 
-                <div class="row">
-                    @foreach ($news as $item)
-                        <div class="col-md-6 col-lg-6"> <!-- Adjusted columns for responsiveness -->
-                            <div class="card mb-4 shadow-sm border-0"> <!-- Added shadow and border styling -->
-                                <a href="{{ route('full_news', ['title' => Str::slug(app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title), 'id' => $item->id]) }}"
-                                    class="card-link text-decoration-none">
-                                    @if (isset($item->image))
-                                        <div class="image-container">
-                                            <img src="{{ asset('storage/' . $item->image) }}" alt="წიგნის სურათი"
-                                                loading="lazy" class="card-img-top rounded-top img-fluid cover_news"
-                                                id="im_news">
-                                        </div>
-                                    @endif
-                                    <div class="card-body">
-                                        <h4 class="card-title text-dark">
-                                            {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
-                                        </h4>
-                                        <!-- Limit title length -->
-                                    </div>
-                                </a>
+<div class="news-list">
+                @foreach ($news as $item)
+                    <a href="{{ route('full_news', [
+                        'title' => Str::slug(app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title),
+                        'id' => $item->id
+                    ]) }}" class="news-item">
+
+                        <div class="news-thumb">
+                            @if($item->image)
+                                <img src="{{ asset('storage/' . $item->image) }}"
+                                     alt="{{ $item->title }}"
+                                     loading="lazy">
+                            @endif
+                        </div>
+
+                        <div class="news-content">
+                            <h4 class="news-title">
+                                {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
+                            </h4>
+
+                            <div class="news-meta">
+                                <i class="bi bi-book"></i> {{ __('messages.bookstories') }}
                             </div>
                         </div>
-                    @endforeach
+                    </a>
+                @endforeach
+            </div>
 
-                </div>
 
-
-                <!-- "Read All Book News" Button -->
-                <div class="text-center mt-4" style="position: relative; top:-22px">
+   <div class="text-center mt-4" style="position: relative;">
                     <a href="{{ route('allbooksnews') }}" class="btn  btn-outline-secondary btn-lg"
                         style="font-size: 18px; ">
                         <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} </span>
                     </a>
                 </div>
-            </div>
+</div>
+
 
 
             <!-- Popular Books (One Block) -->

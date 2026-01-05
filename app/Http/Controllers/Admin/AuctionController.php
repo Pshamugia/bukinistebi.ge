@@ -11,11 +11,16 @@ use Illuminate\Support\Facades\Auth;
 
 class AuctionController extends Controller
 {
-    public function index()
-    {
-        $auctions = Auction::with('book')->latest()->paginate(10);
-        return view('admin.auctions.index', compact('auctions'));
-    }
+public function index()
+{
+    $auctions = Auction::with(['book', 'user'])
+        ->latest()
+        ->paginate(10);
+
+    return view('admin.auctions.index', compact('auctions'));
+}
+
+
 
     public function create()
     {
@@ -133,6 +138,16 @@ public function participants()
         ->get();
 
     return view('admin.auctions.participants', compact('auctions'));
+}
+
+public function approve(Auction $auction)
+{
+    $auction->update([
+        'is_approved' => true,
+        'is_active'   => true, // activate on approval
+    ]);
+
+    return back()->with('success', 'აუქციონი დამტკიცდა და გააქტიურდა.');
 }
 
 

@@ -33,6 +33,11 @@ class User extends Authenticatable
 
 
 
+public function auctions()
+{
+    return $this->hasMany(Auction::class);
+}
+
     // Relationship with the Cart model (one cart per user)
     public function cart()
     {

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Author;
-use App\Models\Category;
 use App\Models\CartItem;
-use App\Models\OrderItem;
+use App\Models\Category;
+use App\Models\BookImage;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Book extends Model
 {
@@ -17,6 +18,7 @@ class Book extends Model
     protected $fillable = [
         'language',
         'title',
+        'thumb_image', 
         'photo',
         'video',
         'photo_2',
@@ -50,6 +52,13 @@ class Book extends Model
      */
 
     protected $dates = ['manual_created_at'];  // To make sure it's treated as a date
+
+
+    public function images()
+{
+    return $this->hasMany(BookImage::class);
+}
+
 
 
     public function author()

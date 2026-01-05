@@ -23,50 +23,72 @@
 
                 <!-- Main Image -->
                 <div class="main-image-container mb-3">
-                    @if ($book->photo)
-                        <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="coverFull img-fluid"
-                            id="thumbnailImage" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal"
-                            loading="lazy">
-                    @else
-                        <img src="{{ asset('public/uploads/default-book.jpg') }}" alt="Default Image"
-                            class="img-fluid rounded shadow" loading="lazy">
-                    @endif
+                    @php
+    $mainImage = $book->thumb_image ?: $book->photo;
+@endphp
+
+@if ($mainImage)
+    <img
+        src="{{ asset('storage/' . $mainImage) }}"
+        alt="{{ $book->title }}"
+        id="thumbnailImage"
+        class="coverFull img-fluid-full"
+        style="cursor: pointer;"
+        data-bs-toggle="modal"
+        data-bs-target="#imageModal"
+        loading="lazy">
+@else
+    <img src="{{ asset('public/uploads/default-book.jpg') }}"
+         alt="Default Image"
+         class="img-fluid rounded shadow"
+         loading="lazy">
+@endif
+
                 </div>
 
                 <!-- Thumbnails for Additional Photos -->
                 <div class="row g-2">
-                    @if ($book->photo)
-                        <div class="col-3">
-                            <img src="{{ asset('storage/' . $book->photo) }}" height="80px" alt="Main Photo"
-                                class="img-thumbnail small-thumbnail" style="cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $book->photo) }}')" loading="lazy">
-                        </div>
-                    @endif
 
-                    @if ($book->photo_2)
-                        <div class="col-3">
-                            <img src="{{ asset('storage/' . $book->photo_2) }}" alt="Additional Photo 1"
-                                class="img-thumbnail small-thumbnail" style="cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $book->photo_2) }}')" loading="lazy">
-                        </div>
-                    @endif
+    {{-- THUMB IMAGE FIRST --}}
+    @if ($book->thumb_image)
+        <div class="col-3">
+            <img src="{{ asset('storage/' . $book->thumb_image) }}"
+                 alt="Thumbnail"
+                 class="img-thumbnail small-thumbnail"
+                 style="cursor: pointer;"
+                 onmouseover="updateMainImage('{{ asset('storage/' . $book->thumb_image) }}')"
+                 loading="lazy">
+        </div>
+    @endif
 
-                    @if ($book->photo_3)
-                        <div class="col-3">
-                            <img src="{{ asset('storage/' . $book->photo_3) }}" height="30px" alt="Additional Photo 2"
-                                class="img-thumbnail small-thumbnail" style="cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $book->photo_3) }}')" loading="lazy">
-                        </div>
-                    @endif
+    {{-- MAIN PHOTO --}}
+    @if ($book->photo)
+        <div class="col-3">
+            <img src="{{ asset('storage/' . $book->photo) }}"
+                 alt="Main Photo"
+                 class="img-thumbnail small-thumbnail"
+                 style="cursor: pointer;"
+                 onmouseover="updateMainImage('{{ asset('storage/' . $book->photo) }}')"
+                 loading="lazy">
+        </div>
+    @endif
 
-                    @if ($book->photo_4)
-                        <div class="col-3">
-                            <img src="{{ asset('storage/' . $book->photo_4) }}" alt="Additional Photo 3"
-                                class="img-thumbnail small-thumbnail" style="cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $book->photo_4) }}')" loading="lazy">
-                        </div>
-                    @endif
-                </div>
+    {{-- OTHER PHOTOS --}}
+    @foreach (['photo_2', 'photo_3', 'photo_4'] as $p)
+        @if ($book->{$p})
+            <div class="col-3">
+                <img src="{{ asset('storage/' . $book->{$p}) }}"
+                     alt="Additional Photo"
+                     class="img-thumbnail small-thumbnail"
+                     style="cursor: pointer;"
+                     onmouseover="updateMainImage('{{ asset('storage/' . $book->{$p}) }}')"
+                     loading="lazy">
+            </div>
+        @endif
+    @endforeach
+
+</div>
+
 
 
 
@@ -738,7 +760,7 @@
     <!-- Modal for Enlarged Image -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true"
         style="z-index: 9999999999 !important">
-        <div class="modal-dialog modal-dialog-centered">
+<div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel">{{ $book->title }}</h5>
@@ -752,8 +774,12 @@
                     </button>
 
                     <!-- Modal Image -->
-                    <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" id="modalImage"
-                        class="img-fluid" loading="lazy">
+                   <img
+    src="{{ asset('storage/' . ($book->thumb_image ?: $book->photo)) }}"
+    alt="{{ $book->title }}"
+    id="modalImage"
+    class="img-fluid">
+
 
                     <!-- Right Arrow -->
                     <button class="btn btn-light" id="nextArrow"
@@ -768,11 +794,16 @@
 
 
     @push('scripts')
+
+
+    
         <!-- JavaScript -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
         <script>
+
+            
             $('.chosen-select').chosen({
                 disable_search_threshold: 10,
                 no_results_text: "{{ __('messages.nocityfound') ?? 'No results matched' }}",
@@ -803,19 +834,23 @@
             document.addEventListener('DOMContentLoaded', function() {
                 // List of all images to navigate through
                 const images = [
-                    @if ($book->photo)
-                        "{{ asset('storage/' . $book->photo) }}",
-                    @endif
-                    @if ($book->photo_2)
-                        "{{ asset('storage/' . $book->photo_2) }}",
-                    @endif
-                    @if ($book->photo_3)
-                        "{{ asset('storage/' . $book->photo_3) }}",
-                    @endif
-                    @if ($book->photo_4)
-                        "{{ asset('storage/' . $book->photo_4) }}",
-                    @endif
-                ];
+    @if ($book->thumb_image)
+        "{{ asset('storage/' . $book->thumb_image) }}",
+    @endif
+    @if ($book->photo)
+        "{{ asset('storage/' . $book->photo) }}",
+    @endif
+    @if ($book->photo_2)
+        "{{ asset('storage/' . $book->photo_2) }}",
+    @endif
+    @if ($book->photo_3)
+        "{{ asset('storage/' . $book->photo_3) }}",
+    @endif
+    @if ($book->photo_4)
+        "{{ asset('storage/' . $book->photo_4) }}",
+    @endif
+];
+
 
                 let currentIndex = 0; // Track the currently displayed image index
 
@@ -893,14 +928,7 @@
             });
         </script>
  
-        <script>
-            function updateMainImage(imageUrl) {
-                const mainImage = document.getElementById('thumbnailImage');
-                const modalImage = document.getElementById('modalImage');
-                mainImage.src = imageUrl;
-                modalImage.src = imageUrl;
-            }
-        </script>
+    
         <!-- Quantity Function Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {

@@ -33,15 +33,16 @@ use App\Http\Controllers\Admin\AuctionController;
 use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\AuctionSubmissionController;
 use App\Http\Controllers\Admin\AnnouncementController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
 use App\Http\Controllers\Publisher\PublisherBookController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
+
 use App\Http\Controllers\Publisher\PublisherAuthorController;
-
-
 use App\Http\Controllers\Publisher\PublisherAccountController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
 
 
+Route::get('/admin/crop-test', fn() => view('admin.crop-test'));
 
 
 //FOR COOKIES
@@ -117,13 +119,32 @@ Route::get('/lang-test', function () {
 });
 
 // auction FRONT
-Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name('auction.show');
-Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
-    ->middleware(['auth', 'profile.complete'])->name('auction.bid');
+
 Route::get('/auctions', [AuctionFrontController::class, 'index'])->name('auction.index');
 Route::get('/my-bids', [AuctionFrontController::class, 'myAuctionDashboard'])->middleware('auth')->name('my.bids');
 Route::get('/auction/{auction}/bids', [AuctionFrontController::class, 'getBids'])->middleware('auth')->name('auction.bids');
 Route::get('/auctions/rules', [AuctionFrontController::class, 'rules'])->name('auction.rules');
+// auction SUBMISSION (logged-in users → pending approval)
+Route::middleware('auth')->group(function () {
+    Route::get('/auction/submit', [AuctionSubmissionController::class, 'create'])
+        ->name('auction.submit');
+
+    Route::post('/auction/submit', [AuctionSubmissionController::class, 'store'])
+        ->name('auction.submit.store');
+
+        Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name('auction.show');
+Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
+    ->middleware(['auth', 'profile.complete'])->name('auction.bid');
+
+    Route::post('/admin/auctions/{auction}/approve', 
+    [AuctionController::class, 'approve']
+)->name('admin.auctions.approve');
+
+        
+});
+
+
+
 
 Route::get('/check-user-profile', function () {
     $user = auth()->user();
@@ -364,7 +385,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/auctions', [AuctionController::class, 'index'])->name('admin.auctions.index');
     Route::get('/auctions/create', [AuctionController::class, 'create'])->name('admin.auctions.create');
     Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
-    Route::get('/admin/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
+    Route::get('/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
 
 
     Route::resource('bundles', BundleController::class, ['as' => 'admin']);
@@ -372,7 +393,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
     // Auction Update/Edit Routes
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
-    Route::delete('/admin/auctions/{auction}', [AuctionController::class, 'destroy'])
+    Route::delete('/auctions/{auction}', [AuctionController::class, 'destroy'])
         ->name('admin.auctions.destroy');
 
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
@@ -390,7 +411,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::resource('genres', GenreController::class, ['as' => 'admin']);
 
 
-    Route::get('/admin/guest-orders/{order}', [AdminBookController::class, 'guestOrderDetails'])
+    Route::get('/guest-orders/{order}', [AdminBookController::class, 'guestOrderDetails'])
         ->name('admin.guest.order.details');
 
 
@@ -448,6 +469,8 @@ Route::delete('/admin/order/delete/{id}',
     ->name('admin.order.delete')
     ->middleware('auth', 'admin');
 
+
+    
 
     Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
     Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])

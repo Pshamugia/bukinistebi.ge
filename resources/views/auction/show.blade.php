@@ -48,14 +48,22 @@
         <div class="row mt-4">
             <!-- Left column: Photos -->
             <div class="col-md-6">
+@php
+    $images = $auction->book->images ?? collect();
+    $mainImage =
+        $images->first()->path
+        ?? $auction->book->photo
+        ?? null;
+@endphp
+
 <div class="position-relative border rounded shadow-sm p-2 text-center mb-3 image-main-wrapper">
-    @if ($auction->book?->photo)
-        <img src="{{ asset('storage/' . $auction->book?->photo) }}"
-     id="thumbnailImage"
-     class="img-fluid rounded main-image"
-     data-bs-toggle="modal"
-     data-bs-target="#imageModal"
-     style="cursor: pointer;">
+    @if ($mainImage)
+        <img src="{{ asset('storage/' . $mainImage) }}"
+             id="thumbnailImage"
+             class="img-fluid rounded main-image"
+             data-bs-toggle="modal"
+             data-bs-target="#imageModal"
+             style="cursor: pointer;">
     @else
         <img src="{{ asset('public/uploads/default-book.jpg') }}"
              class="img-fluid rounded shadow main-image">
@@ -65,16 +73,27 @@
 
                 <!-- Thumbnails -->
                 <div class="d-flex flex-wrap gap-2 justify-content-start mt-3">
-                    @foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $photo)
-                        @if ($auction->book?->$photo)
-                            <img src="{{ asset('storage/' . $auction->book?->$photo) }}"
-                                class="img-thumbnail small-thumbnail"
-                                style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
-                                onmouseover="updateMainImage('{{ asset('storage/' . $auction->book?->$photo) }}')"
-                                loading="lazy">
-                        @endif
-                    @endforeach
-                </div>
+
+    {{-- NEW auction images --}}
+    @foreach ($auction->book->images ?? [] as $img)
+        <img src="{{ asset('storage/' . $img->path) }}"
+             class="img-thumbnail small-thumbnail"
+             style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+             onmouseover="updateMainImage('{{ asset('storage/' . $img->path) }}')">
+    @endforeach
+
+    {{-- OLD system fallback --}}
+    @foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $photo)
+        @if ($auction->book?->$photo)
+            <img src="{{ asset('storage/' . $auction->book->$photo) }}"
+                 class="img-thumbnail small-thumbnail"
+                 style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;"
+                 onmouseover="updateMainImage('{{ asset('storage/' . $auction->book->$photo) }}')">
+        @endif
+    @endforeach
+
+</div>
+
             </div>
 
             <!-- Right column: Info + bid form + bid history -->
@@ -89,7 +108,7 @@
                         <p><i class="bi bi-currency-exchange"></i> <strong>საწყისი ფასი:</strong>
                             {{ number_format($auction->start_price, 2) }} ₾</p>
                         <p><i class="bi bi-graph-up-arrow"></i> <strong>მიმდინარე ფასი:</strong>
-                            <span id="currentPrice">{{ number_format($auction->current_price, 2) }}</span> ₾
+{{ number_format($auction->effective_current_price, 2) }} ₾
                         </p>
                         <p><i class="bi bi-clock-history"></i> <strong>დასრულების დრო:</strong> <span id="countdown"></span>
                         </p>
@@ -260,8 +279,11 @@
                     </button>
 
                     <!-- Modal Image -->
-                    <img src="{{ asset('storage/' . $auction->book?->photo) }}" alt="{{ $auction->book->title }}"
-                        id="modalImage" class="img-fluid" loading="lazy">
+                   <img src="{{ $mainImage ? asset('storage/' . $mainImage) : asset('public/uploads/default-book.jpg') }}"
+     id="modalImage"
+     class="img-fluid"
+     loading="lazy">
+
 
                     <!-- Right Arrow -->
                     <button class="btn btn-light" id="nextArrow"
@@ -322,14 +344,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // List of all images to navigate through
-       const images = [
+      const images = [
 @php
     $photos = [];
-    foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
-        if ($auction->book?->$key) {   // <-- FIXED
+
+    foreach ($auction->book->images ?? [] as $img) {
+        $photos[] = asset('storage/' . $img->path);
+    }
+
+    foreach (['photo','photo_2','photo_3','photo_4'] as $key) {
+        if ($auction->book?->$key) {
             $photos[] = asset('storage/' . $auction->book->$key);
         }
     }
+
     echo implode(",\n", array_map(fn($p) => '"' . $p . '"', $photos));
 @endphp
 ];

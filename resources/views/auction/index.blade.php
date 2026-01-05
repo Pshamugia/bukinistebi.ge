@@ -12,13 +12,28 @@
   <meta name="twitter:card" content="summary_large_image">
 @endsection
 @section('content')
-<h5 class="section-title"
-        style="position: relative; margin-bottom:25px; top:30px; padding-bottom:25px; align-items: left;
+ 
+
+
+    <div class="d-flex justify-content-between align-items-center mb-4" 
+    style="position: relative; margin-bottom:25px; padding-top:45px; align-items: left;
     justify-content: left;">
-        <strong>
+   <h5 class="section-title">
+      <strong>
             <i class="bi bi-graph-up"></i> {{ __('messages.bookAuctions') }}
         </strong>
     </h5>
+
+    @auth
+        <a href="{{ route('auction.submit') }}" class="btn btn-primary">
+            ➕ აუქციონის შექმნა
+        </a>
+    @else
+        <a href="{{ route('login') }}" class="btn btn-outline-primary">
+            ავტორიზაცია აუქციონის შესაქმნელად
+        </a>
+    @endauth
+</div>
 
 
 <a href="{{ route('auction.rules') }}" class="btn btn-outline-dark mb-3" target="_self">

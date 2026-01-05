@@ -74,9 +74,17 @@
         @foreach ($books as $book)
         <tr>
             <td>
-                @if (isset($book->photo))
-                <img src="{{ asset('storage/' . $book->photo) }}" alt="{{ $book->title }}" class="img-fluid" width="150">
-                @endif
+               @php
+    $adminImage = $book->thumb_image ?: $book->photo;
+@endphp
+
+@if ($adminImage)
+    <img src="{{ asset('storage/' . $adminImage) }}"
+         alt="{{ $book->title }}"
+         class="img-fluid"
+         width="150">
+@endif
+
             </td>
             <td>
                 <div class="d-flex flex-column">

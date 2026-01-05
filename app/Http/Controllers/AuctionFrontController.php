@@ -11,16 +11,18 @@ class AuctionFrontController extends Controller
 {
 
 
-    public function index()
-    {
-        $auctions = Auction::with('book')
-            ->where('is_active', true)
-            ->where('end_time', '>', now()) // ✅ this is hiding expired auctions
-            ->orderBy('end_time')
-            ->paginate(10);
+   public function index()
+{
+    $auctions = Auction::with('book')
+        ->where('is_approved', true)   // 🔒 approval gate
+        ->where('is_active', true)
+        ->where('end_time', '>', now())
+        ->orderBy('end_time')
+        ->paginate(10);
 
-        return view('auction.index', compact('auctions'));
-    }
+    return view('auction.index', compact('auctions'));
+}
+
 
 
 

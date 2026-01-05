@@ -17,27 +17,106 @@
 </div>
  
 
-    <!-- Featured Books -->
+<style>
+    /* GRID */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 28px;
+}
+
+/* ITEM */
+.news-item {
+    display: flex;
+    gap: 14px;
+    text-decoration: none;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e6e6e6;
+    transition: background 0.2s ease;
+}
+
+.news-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* THUMB */
+.news-thumb {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f4f4f4;
+}
+
+.news-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* CONTENT */
+.news-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.news-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 6px 0;
+    line-height: 1.35;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.news-meta {
+    font-size: 13px;
+    color: #777;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+    </style>
+
+    <!-- news -->
 <div class="container mt-5" style="position:relative; ">
   
-    <div class="row">
-        @foreach($news as $item)
-        <div class="col-md-6 col-lg-6"> <!-- Adjusted columns for responsiveness -->
-            <div class="card mb-4 shadow-sm border-0"> <!-- Added shadow and border styling -->
-                <a href="{{ route('full_news', ['title' => Str::slug($item->title), 'id' => $item->id]) }}" class="card-link text-decoration-none">
-                    @if (isset($item->image))
-                        <div class="image-container">
-                            <img src="{{ asset('storage/' . $item->image) }}" alt="სტატიის სურათი" class="card-img-top rounded-top img-fluid cover_news" id="im_news" loading="lazy">
-                        </div>
-                    @endif
-                    <div class="card-body">
-                        <h4 class="card-title text-dark">{{ app()->getLocale() === 'en' ? $item->title_en : $item->title }}</h4> <!-- Limit title length -->
-                    </div>
-                </a>
+ <div class="news-grid">
+    @foreach ($news as $item)
+        <a href="{{ route('full_news', ['title' => Str::slug(app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title), 'id' => $item->id]) }}"
+           class="news-item">
+
+            <div class="news-thumb">
+                <img
+                    src="{{ asset('storage/' . $item->image) }}"
+                    alt="{{ $item->title }}"
+                    loading="lazy">
             </div>
-        </div>
-        @endforeach
-    </div>
+
+            <div class="news-content">
+                <h4 class="news-title">
+                    {{ app()->getLocale() === 'en' && $item->title_en ? $item->title_en : $item->title }}
+                </h4>
+
+                <div class="news-meta">
+                    <i class="bi bi-book"></i> {{ __('messages.bookstories') }}
+                </div>
+            </div>
+        </a>
+    @endforeach
+</div>
+
     {{ $news->links('pagination.custom-pagination') }}
 </div>
 @endsection

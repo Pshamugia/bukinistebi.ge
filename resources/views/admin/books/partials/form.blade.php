@@ -4,6 +4,9 @@
     $locale = $locale ?? app()->getLocale();
 @endphp
 
+ 
+
+
 <!-- Chosen JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 <div class="mb-3">
@@ -49,6 +52,32 @@
     </div>
 </div> --}}
 
+{{-- THUMB IMAGE --}}
+<div class="mb-3">
+    <label for="thumb_image" class="form-label">
+        <i class="bi bi-image"></i> Thumbnail image (small / grid / card)
+    </label>
+
+    @if (isset($book) && $book->thumb_image)
+        <div class="mb-2">
+            <img src="{{ asset('storage/' . $book->thumb_image) }}"
+                 class="img-thumbnail"
+                 width="120"
+                 alt="{{ $book->title }}">
+        </div>
+    @endif
+
+    <input type="file"
+           name="thumb_image"
+           class="form-control"
+           id="thumb_image"
+           accept="image/*">
+    <small class="text-muted">
+        Recommended: square image, will be resized automatically.
+    </small>
+</div>
+
+
 <div class="mb-3">
     <label for="photo" class="form-label"><i class="bi bi-image"></i> ფოტო 1</label>
     @if (isset($book) && $book->photo)
@@ -69,7 +98,7 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_2" class="form-control" id="photo" {{ isset($photo_2) }}>
+    <input type="file" name="photo_2" class="form-control" id="photo_2" {{ isset($photo_2) }}>
 </div>
 
 
@@ -81,7 +110,7 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_3" class="form-control" id="photo" {{ isset($photo_3) }}>
+    <input type="file" name="photo_3" class="form-control" id="photo_3" {{ isset($photo_3) }}>
 </div>
 
 
@@ -93,7 +122,7 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_4" class="form-control" id="photo" {{ isset($photo_4) }}>
+    <input type="file" name="photo_4" class="form-control" id="photo_4" {{ isset($photo_4) }}>
 </div>
 
 
@@ -508,8 +537,7 @@
         $('#langInput').val(lang);
     }
 
-    <script>
-  function updateLanguage(lang) {
+   function updateLanguage(lang) {
     // Author: change text only
     $('#author_id option').each(function () {
       const $opt = $(this);
@@ -538,6 +566,4 @@
     });
     updateLanguage($('#languageSwitcher').val());
   });
-</script>
-
-</script>
+</script> 

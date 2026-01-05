@@ -44,8 +44,27 @@
                 <td>{{ number_format($auction->current_price, 2) }} GEL</td>
                 <td>{{ $auction->start_time }}</td>
                 <td>{{ $auction->end_time }}</td>
-                <td>{{ $auction->is_active ? 'აქტიური' : 'დასრულებული' }}</td>
+                <td>
+                    @if(!$auction->is_approved)
+                    <span class="badge bg-warning text-dark">მოლოდინში</span>
+                    @elseif($auction->is_active)
+                    <span class="badge bg-success">აქტიური</span>
+                    @else
+                    <span class="badge bg-secondary">დასრულებული</span>
+                    @endif
+                </td>
                 <td class="d-flex gap-2">
+                    @if(!$auction->is_approved)
+                    <form method="POST"
+                        action="{{ route('admin.auctions.approve', $auction) }}"
+                        onsubmit="return confirm('დარწმუნებული ხარ რომ გსურს აუქციონის დამტკიცება?')">
+                        @csrf
+                        <button class="btn btn-sm btn-success">
+                            Approve
+                        </button>
+                    </form>
+                    @endif
+
                     <a href="{{ route('admin.auctions.edit', $auction) }}" class="btn btn-sm btn-info">
                         Edit
                     </a>

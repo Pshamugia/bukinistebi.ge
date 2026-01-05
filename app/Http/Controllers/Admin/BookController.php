@@ -142,6 +142,7 @@ class BookController extends Controller
             'language'           => 'required|in:ka,en',
             'price'              => 'required|numeric',
             'new_price'          => 'nullable|numeric',
+            'thumb_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/webp|max:5120',
             'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
@@ -177,6 +178,26 @@ class BookController extends Controller
         } else {
             $validated['size'] = null;
         }
+
+
+        // ===== THUMB IMAGE (SMALL, SQUARE) =====
+        if ($request->hasFile('thumb_image')) {
+
+            $file = $request->file('thumb_image');
+
+            $uniqueFileName = time() . '_' . uniqid() . '_thumb.webp';
+
+            $image = Image::make($file)
+                ->fit(400, 400) // square thumbnail
+                ->encode('webp', 80);
+
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+
+            Storage::disk('public')->put($imagePath, $image);
+
+            $validated['thumb_image'] = $imagePath;
+        }
+
 
         // Images -> put paths into $validated
         foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
@@ -290,6 +311,7 @@ class BookController extends Controller
             'publishing_date'    => 'nullable|string',
             'cover'              => 'nullable|string|max:255',
             'condition' => 'nullable|in:new,used',
+            'thumb_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/webp|max:5120',
             'photo'              => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_2'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
             'photo_3'            => 'nullable|image|mimetypes:image/jpeg,image/png,image/jpg,image/gif,image/svg,image/webp|max:5120',
@@ -312,6 +334,28 @@ class BookController extends Controller
         } else {
             $validated['size'] = null;
         }
+
+
+        // ===== THUMB IMAGE UPDATE =====
+        if ($request->hasFile('thumb_image')) {
+
+            if ($book->thumb_image && Storage::disk('public')->exists($book->thumb_image)) {
+                Storage::disk('public')->delete($book->thumb_image);
+            }
+
+            $uniqueFileName = time() . '_' . uniqid() . '_thumb.webp';
+
+            $image = Image::make($request->file('thumb_image'))
+                ->fit(400, 400)
+                ->encode('webp', 80);
+
+            $imagePath = 'uploads/books/' . $uniqueFileName;
+
+            Storage::disk('public')->put($imagePath, $image);
+
+            $validated['thumb_image'] = $imagePath;
+        }
+
 
         // Images -> put paths into $validated
         foreach (['photo', 'photo_2', 'photo_3', 'photo_4'] as $key) {
@@ -400,10 +444,10 @@ class BookController extends Controller
         abort_unless(auth()->user()->hasAdminPermission(permission: 'books.delete'), 403);
 
 
-         abort_unless(
-        auth()->user()->hasAdminPermission('books.delete'),
-        403
-    );
+        abort_unless(
+            auth()->user()->hasAdminPermission('books.delete'),
+            403
+        );
         if ($book->photo) {
             Storage::delete('public/' . $book->photo);
         }
@@ -459,119 +503,122 @@ class BookController extends Controller
 
 
     public function usersTransactions(Request $request)
-{
-    $filterNotDelivered = $request->delivery_filter === 'not_delivered';
-    $search = trim($request->q);
+    {
+        $filterNotDelivered = $request->delivery_filter === 'not_delivered';
+        $search = trim($request->q);
 
-    /* ======================
+        /* ======================
      | REAL USERS
      ====================== */
-    $usersQuery = User::with(['orders' => function ($q) {
+        $usersQuery = User::with(['orders' => function ($q) {
             $q->orderBy('created_at', 'desc')
-              ->with('orderItems.book');
+                ->with('orderItems.book');
         }])
-        ->whereHas('orders');
+            ->whereHas('orders');
 
-    if ($search) {
-    $usersQuery->where(function ($q) use ($search) {
-        $q->where('name', 'like', "%{$search}%")
-          ->orWhere('email', 'like', "%{$search}%")
-          ->orWhere('phone', 'like', "%{$search}%")
-          ->orWhereHas('orders.orderItems.book', function ($b) use ($search) {
-              $b->where('title', 'like', "%{$search}%");
-          });
-    });
-}
+        if ($search) {
+            $usersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhereHas('orders.orderItems.book', function ($b) use ($search) {
+                        $b->where('title', 'like', "%{$search}%");
+                    });
+            });
+        }
 
 
-    $users = $usersQuery->get();
+        $users = $usersQuery->get();
 
-    if ($filterNotDelivered) {
-        $users = $users->filter(function ($u) {
-            $last = $u->orders->first();
-            return $last && strtolower($last->status) !== 'delivered';
-        })->values();
-    }
+        if ($filterNotDelivered) {
+            $users = $users->filter(function ($u) {
+                $last = $u->orders->first();
+                return $last && strtolower($last->status) !== 'delivered';
+            })->values();
+        }
 
-    $realUsers = $users->map(function ($user) {
-        $last = $user->orders->first();
-        $user->last_order_date  = $last?->created_at;
-        $user->last_order_total = $last?->total ?? 0;
-        return $user;
-    });
+        $realUsers = $users->map(function ($user) {
+            $last = $user->orders->first();
+            $user->last_order_date  = $last?->created_at;
+            $user->last_order_total = $last?->total ?? 0;
+            return $user;
+        });
 
-    /* ======================
+        /* ======================
      | GUEST ORDERS
      ====================== */
-    $guestQuery = Order::whereNull('user_id')
-        ->with('orderItems.book')
-        ->orderBy('created_at', 'desc');
+        $guestQuery = Order::whereNull('user_id')
+            ->with('orderItems.book')
+            ->orderBy('created_at', 'desc');
 
-    if ($filterNotDelivered) {
-        $guestQuery->where('status', '!=', 'delivered');
-    }
+        if ($filterNotDelivered) {
+            $guestQuery->where('status', '!=', 'delivered');
+        }
 
-    if ($search) {
-        $guestQuery->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhereHas('orderItems.book', function ($b) use ($search) {
-                  $b->where('title', 'like', "%{$search}%");
-              });
+        if ($search) {
+            $guestQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhereHas('orderItems.book', function ($b) use ($search) {
+                        $b->where('title', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+
+        $guestOrders = $guestQuery->get()->map(function ($order) {
+            return (object)[
+                'id'               => null,
+                'name'             => $order->name ?? 'Guest',
+                'orders'           => collect([$order]),
+                'last_order_total' => $order->total ?? 0,
+                'last_order_date'  => $order->created_at,
+            ];
         });
-    }
 
-    $guestOrders = $guestQuery->get()->map(function ($order) {
-        return (object)[
-            'id'               => null,
-            'name'             => $order->name ?? 'Guest',
-            'orders'           => collect([$order]),
-            'last_order_total' => $order->total ?? 0,
-            'last_order_date'  => $order->created_at,
-        ];
-    });
-
-    /* ======================
+        /* ======================
      | MERGE + PAGINATE
      ====================== */
-    $merged = $realUsers
-        ->concat($guestOrders)
-        ->sortByDesc('last_order_date')
-        ->values();
+        $merged = $realUsers
+            ->concat($guestOrders)
+            ->sortByDesc('last_order_date')
+            ->values();
 
-    $perPage     = 10;
-    $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage     = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
-    $paged = $merged->slice(
-        ($currentPage - 1) * $perPage,
-        $perPage
-    )->values();
+        $paged = $merged->slice(
+            ($currentPage - 1) * $perPage,
+            $perPage
+        )->values();
 
-    $allUsers = new LengthAwarePaginator(
-        $paged,
-        $merged->count(),
-        $perPage,
-        $currentPage,
-        [
-            'path'  => request()->url(),
-            'query' => request()->query(),
-        ]
-    );
+        $allUsers = new LengthAwarePaginator(
+            $paged,
+            $merged->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
 
-    return view('admin.users_transactions', [
-        'users' => $allUsers
-    ]);
-}
+        return view('admin.users_transactions', [
+            'users' => $allUsers
+        ]);
+    }
 
 
 
     public function deleteOrder($orderId)
-{
-    $order = Order::findOrFail($orderId);
+    {
+        $order = Order::findOrFail($orderId);
 
-    $order->delete();
+        $order->delete();
 
-    return back()->with('success', 'შეკვეთა წაიშალა წარმატებით');
-}
+        return back()->with('success', 'შეკვეთა წაიშალა წარმატებით');
+    }
 
 
 
