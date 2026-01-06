@@ -463,8 +463,8 @@ Route::post('/admin/subadmins/delete/{id}', [SubAdminController::class, 'destroy
     Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
 
     //users transacions
-    Route::get('/admin/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
-Route::delete('/admin/order/delete/{id}',
+    Route::get('/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
+Route::delete('/order/delete/{id}',
     [AdminBookController::class, 'deleteOrder'])
     ->name('admin.order.delete')
     ->middleware('auth', 'admin');
@@ -472,8 +472,8 @@ Route::delete('/admin/order/delete/{id}',
 
     
 
-    Route::get('/admin/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
-    Route::get('/admin/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
+    Route::get('/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
+    Route::get('/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
         ->name('admin.users.transactions.export');
 
     Route::get('/publishers/export', [AdminPublisherController::class, 'exportAllPublishers'])
@@ -488,7 +488,7 @@ Route::delete('/admin/order/delete/{id}',
         ->name('admin.publisher.export.titles');
 
 
-    Route::get('/admin/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
+    Route::get('/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
 
     Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
     Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');

@@ -15,11 +15,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('searchkeywords:clear-old')->monthly();
         $schedule->command('search:cleanup')->monthly();
         $schedule->command('user-preferences:clean')->monthlyOn(1, '2:00');
+        $schedule->command('auctions:activate-approved')->everyMinute();
         $schedule->command('auctions:close-expired')->everyMinute();
         $schedule->command('queue:work --stop-when-empty')->everyMinute();
-
-
-
     }
 
     /**
@@ -27,7 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
@@ -36,5 +34,3 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DeleteOldUserPreferences::class, // ✅ Add this line
     ];
 }
-
-

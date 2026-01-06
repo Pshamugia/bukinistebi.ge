@@ -89,7 +89,8 @@
             <td>
                 <div class="d-flex flex-column">
                     <div>
-                        {{ $book->title }} <br> {{ $book->author->name }}
+                        {{ $book->title }} <br> {{ optional($book->author)->name ?? 'უცნობი ავტორი' }}
+
                     </div>
 
                     <div>

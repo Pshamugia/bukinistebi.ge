@@ -44,6 +44,7 @@ public function index()
 
     Auction::create([
         'book_id' => $request->book_id,
+        'user_id'       => Auth::id(), 
         'start_price' => $request->start_price,
         'current_price' => $request->start_price,
         'start_time' => $request->start_time,

@@ -20,6 +20,8 @@
         <thead>
             <tr>
                 <th>#</th>
+                <th>მომხმარებელი</th>
+
                 <th>პროდუქტი</th>
                 <th>საწყისი ფასი</th>
                 <th>მიმდინარე ფასი</th>
@@ -33,6 +35,16 @@
             @forelse ($auctions as $auction)
             <tr>
                 <td>{{ $loop->iteration }}</td>
+                  <td>
+    @if($auction->user)
+        <a href="{{ route('admin.user.details', $auction->user->id) }}"
+           class="fw-semibold text-decoration-none">
+            {{ $auction->user->name }}
+        </a>
+    @else
+        <span class="text-muted">—</span>
+    @endif
+</td>
                 <td>
                     @if($auction->book)
                     {{ $auction->book->title }}
@@ -40,6 +52,8 @@
                     <span class="text-danger">წიგნი წაშლილია</span>
                     @endif
                 </td>
+              
+
                 <td>{{ number_format($auction->start_price, 2) }} GEL</td>
                 <td>{{ number_format($auction->current_price, 2) }} GEL</td>
                 <td>{{ $auction->start_time }}</td>

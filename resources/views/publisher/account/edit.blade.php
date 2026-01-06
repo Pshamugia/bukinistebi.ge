@@ -7,6 +7,20 @@
         <strong><i class="bi bi-stack-overflow"></i> {{ __('messages.editProfile')}}</strong>
     </h5>
 
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+         <p class="mb-0">
+            {{ session('success') }}
+        </p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+
+    @if(session('error'))
+        <div class="alert alert-warning">{{ session('error') }}</div>
+    @endif
+
     <!-- Display validation errors -->
     @if ($errors->any())
     <div class="alert alert-danger">

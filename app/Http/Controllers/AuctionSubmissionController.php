@@ -32,24 +32,28 @@ class AuctionSubmissionController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
 
+            'min_bid'     => 'nullable|numeric|min:0',
+            'max_bid'     => 'nullable|numeric|gt:min_bid',
+            'is_free_bid' => 'nullable|boolean',
+
             // photos validation
             'photos' => 'required|array|min:1|max:4',
             'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         // Create book
-      $book = Book::create([
-    'title' => $request->title,
-    'description' => $request->description,
+        $book = Book::create([
+            'title' => $request->title,
+            'description' => $request->description,
 
-    // REQUIRED FIELDS – SYSTEM DEFAULTS
-    'price' => 0,                // real price comes from auction
-    'quantity' => 1,             // irrelevant for auctions
-    'author_id' => null,         // or a system “Unknown” author ID
-    'photo' => null,             // gallery is used instead
+            // REQUIRED FIELDS – SYSTEM DEFAULTS
+            'price' => 0,                // real price comes from auction
+            'quantity' => 1,             // irrelevant for auctions
+            'author_id' => null,         // or a system “Unknown” author ID
+            'photo' => null,             // gallery is used instead
 
-    'auction_only' => true,
-]);
+            'auction_only' => true,
+        ]);
 
 
         // Save photos
@@ -72,6 +76,9 @@ class AuctionSubmissionController extends Controller
             'current_price' => $request->start_price,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
+            'min_bid'       => $request->min_bid,
+            'max_bid'       => $request->max_bid,
+            'is_free_bid'   => $request->has('is_free_bid'),
             'is_approved' => false,
         ]);
 

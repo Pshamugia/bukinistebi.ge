@@ -17,6 +17,14 @@
     </div>
     @endif
 
+
+    @if(auth()->check() && (empty(auth()->user()->phone) || empty(auth()->user()->address)))
+    <div class="alert alert-info">
+        📌 აუქციონის დამატებისთვის საჭიროა პროფილის შევსება (ტელეფონი და მისამართი).
+    </div>
+@endif
+
+
     <!-- Display Validation Errors -->
     @if ($errors->any())
     <div class="alert alert-danger">
