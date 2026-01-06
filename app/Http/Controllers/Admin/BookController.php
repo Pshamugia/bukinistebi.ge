@@ -36,7 +36,11 @@ class BookController extends Controller
         abort_unless(auth()->user()->hasAdminPermission('books.manage'), 403);
 
 
-        $query = Book::with(['author', 'genres', 'publisher']);
+$query = Book::with(['author', 'genres', 'publisher'])
+    ->where(function ($q) {
+        $q->whereNull('auction_only')
+          ->orWhere('auction_only', false);
+    });
 
         // ✅ Apply quantity filter
         if ($request->filled('quantity')) {

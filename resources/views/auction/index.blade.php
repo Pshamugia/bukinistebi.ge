@@ -13,88 +13,188 @@
 @endsection
 @section('content')
  
+<style>
+    /* Auction page */
 
+.auction-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
-    <div class="d-flex justify-content-between align-items-center mb-4" 
-    style="position: relative; margin-bottom:25px; padding-top:45px; align-items: left;
-    justify-content: left;">
-   <h5 class="section-title">
-      <strong>
-            <i class="bi bi-graph-up"></i> {{ __('messages.bookAuctions') }}
-        </strong>
-    </h5>
+.auction-title {
+    font-size: 32px;
+    font-weight: 700;
+}
 
-    @auth
-        <a href="{{ route('auction.submit') }}" class="btn btn-primary">
-            ➕ აუქციონის შექმნა
-        </a>
-    @else
-        <a href="{{ route('login') }}" class="btn btn-outline-primary">
-            ავტორიზაცია აუქციონის შესაქმნელად
-        </a>
-    @endauth
-</div>
+.auction-subtitle {
+    color: #6c757d;
+    margin-top: 6px;
+}
 
+.auction-actions {
+    display: flex;
+    gap: 10px;
+}
 
-<a href="{{ route('auction.rules') }}" class="btn btn-outline-dark mb-3" target="_self">
-    📜 ნახე აუქციონის წესები
-</a>
+/* Card */
+.auction-card {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
 
+.auction-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0,0,0,.1);
+}
 
+/* Image */
+.auction-image {
+    position: relative;
+    background: #f8f9fa;
+}
 
+.auction-image img {
+    width: 100%;
+    height: 260px;
+    object-fit: contain;
+    padding: 12px;
+}
 
-    <!-- Featured Books -->
-    <nav class="container mt-5" style="position:relative; min-height: 400px;">
-   
+/* Badge */
+.auction-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,.75);
+    color: #fff;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
 
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-        <h5 class="mb-1">✔ აუქციონი მიღებულია</h5>
-        <p class="mb-0">
-            {{ session('success') }}
-        </p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+/* Body */
+.auction-body {
+    padding: 18px;
+}
+
+.auction-book-title {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+/* Price */
+.auction-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f3f5;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+.auction-price strong {
+    font-size: 18px;
+}
+
+</style>
+
+  <div class="container pt-5">
+    <div class="auction-hero mb-4" style="padding-top:45px; ">
+        <div>
+            <h1 class="auction-title">
+                <i class="bi bi-graph-up"></i> {{ __('messages.bookAuctions') }}
+            </h1>
+            <p class="auction-subtitle">
+                იშვიათი წიგნები, ხელნაწერები და უნიკალური ნივთები
+            </p>
+        </div>
+
+        <div class="auction-actions">
+            <a href="{{ route('auction.rules') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-file-text"></i> წესები
+            </a>
+
+            @auth
+                <a href="{{ route('auction.submit') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> აუქციონის შექმნა
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-outline-primary">
+                    ავტორიზაცია
+                </a>
+            @endauth
+        </div>
     </div>
-@endif
+</div>
+ 
 
-    <div class="row" >
+
+
+
+     
+    <div class="container pb-5">
+    @if(session('success'))
+        <div class="alert alert-success rounded-4 shadow-sm">
+            <strong>✔ აუქციონი მიღებულია</strong><br>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="row g-4">
         @forelse($auctions as $auction)
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    @php
-    $images = $auction->book?->images ?? collect();
-    $mainImage =
-        $images->first()->path
-        ?? $auction->book?->photo
-        ?? null;
-@endphp
+            @php
+                $images = $auction->book?->images ?? collect();
+                $mainImage = $images->first()->path ?? $auction->book?->photo;
+            @endphp
 
-@if ($mainImage)
-    <img src="{{ asset('storage/' . $mainImage) }}"
-         class="card-img-top"
-         alt="{{ $auction->book?->title }}"
-         style="object-fit: contain; height: 250px;">
-@else
-    <img src="{{ asset('public/uploads/default-book.jpg') }}"
-         class="card-img-top"
-         style="object-fit: contain; height: 250px;">
-@endif
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="auction-card">
+                    <div class="auction-image">
+                        <img src="{{ $mainImage ? asset('storage/'.$mainImage) : asset('images/default-book.jpg') }}"
+                             alt="{{ $auction->book?->title }}">
+                        <span class="auction-badge">
+                            ⏳ {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}
+                        </span>
+                    </div>
 
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $auction->book?->title }}</h5>
-                        <p>💰 მიმდინარე: <strong>{{ number_format($auction->current_price, 2) }}  <img src="{{ asset('images/GEL.png') }}" width="20px"></strong></p>
-                        <p>⏳ სრულდება: {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}</p>
-                        <a href="{{ route('auction.show', $auction->id) }}" class="btn btn-primary w-100">აუქციონის ნახვა</a>
+                    <div class="auction-body">
+                        <h3 class="auction-book-title">
+                            {{ $auction->book?->title }}
+                        </h3>
+
+                        <div class="auction-price">
+                            <span>მიმდინარე ფასი</span>
+                            <strong>
+                                {{ number_format($auction->current_price, 2) }} ₾
+                            </strong>
+                        </div>
+
+                        <a href="{{ route('auction.show', $auction->id) }}"
+                           class="btn btn-dark w-100 mt-3">
+                            აუქციონის ნახვა
+                        </a>
                     </div>
                 </div>
             </div>
         @empty
-            <p class="text-muted">ამჟამად აქტიური აუქციონი არ გვაქვს.</p>
+            <div class="text-center text-muted py-5">
+                ამჟამად აქტიური აუქციონი არ გვაქვს
+            </div>
         @endforelse
     </div>
 
-    <div class="mt-3">
+    <div class="mt-4">
         {{ $auctions->links() }}
     </div>
 </div>
+
 @endsection
