@@ -32,6 +32,7 @@
 }
 
 
+
     </style>
  
 
@@ -68,6 +69,9 @@
         <img src="{{ asset('public/uploads/default-book.jpg') }}"
              class="img-fluid rounded shadow main-image">
     @endif
+
+
+   
 </div>
 
 
@@ -101,22 +105,35 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
-                       @php
+                     @php
     $hasVideo = !empty($auction->video);
 @endphp
 
-{{-- TABS (only if video exists) --}}
-@if ($hasVideo)
-    <ul class="nav nav-tabs mb-3" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active"
-                    data-bs-toggle="tab"
-                    data-bs-target="#auction-desc"
-                    type="button"
-                    role="tab">
-                <i class="bi bi-info-circle"></i> აღწერა
-            </button>
-        </li>
+<ul class="nav nav-tabs mb-3" role="tablist">
+    {{-- DESCRIPTION --}}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active"
+                data-bs-toggle="tab"
+                data-bs-target="#auction-desc"
+                type="button"
+                role="tab">
+            <i class="bi bi-info-circle"></i> აღწერა
+        </button>
+    </li>
+
+    {{-- RULES --}}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#auction-rules"
+                type="button"
+                role="tab">
+            <i class="bi bi-shield-check"></i> წესები
+        </button>
+    </li>
+
+    {{-- VIDEO (only if exists) --}}
+    @if ($hasVideo)
         <li class="nav-item" role="presentation">
             <button class="nav-link"
                     data-bs-toggle="tab"
@@ -126,21 +143,43 @@
                 <i class="bi bi-youtube"></i> ვიდეო
             </button>
         </li>
-    </ul>
-@endif
+    @endif
+</ul>
+
 
 {{-- CONTENT --}}
-<div class="{{ $hasVideo ? 'tab-content' : '' }}">
+<div class="tab-content">
 
     {{-- DESCRIPTION --}}
-    <div class="{{ $hasVideo ? 'tab-pane fade show active' : '' }}"
+    <div class="tab-pane fade show active"
          id="auction-desc"
          role="tabpanel">
+        {!! $auction->book->description !!}
+    </div>
 
-        <p class="card-text">
-            {!! $auction->book->description !!}
-        </p>
+    {{-- RULES --}}
+    <div class="tab-pane fade"
+         id="auction-rules"
+         role="tabpanel">
 
+        <div class="auction-rules-card mt-4">
+            <div class="auction-rules-header">
+                <i class="bi bi-shield-check"></i>
+                <span>აუქციონის ძირითადი წესები</span>
+            </div>
+
+            <ul class="auction-rules-list">
+                <li><i class="bi bi-currency-exchange"></i> ბიჯი უნდა იყოს მეტი მიმდინარე ფასზე</li>
+                <li><i class="bi bi-clock-history"></i> დასრულების შემდეგ ბიჯის შეცვლა შეუძლებელია</li>
+                <li><i class="bi bi-person-check"></i> ანონიმური ბიჯი დაშვებულია</li>
+                <li><i class="bi bi-exclamation-triangle"></i> გამარჯვების შემთხვევაში გადახდა სავალდებულოა</li>
+            </ul>
+
+            <a href="{{ route('auction.rules') }}"
+               class="btn btn-outline-dark btn-sm auction-rules-btn">
+                წესების სრულად ნახვა
+            </a>
+        </div>
     </div>
 
     {{-- VIDEO --}}
@@ -162,18 +201,20 @@
                 <div class="ratio ratio-16x9 mt-3">
                     <iframe
                         src="https://www.youtube.com/embed/{{ $videoId }}"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen>
                     </iframe>
                 </div>
             @else
-                <small class="text-danger">არასწორი YouTube ბმული</small>
+                <div class="text-danger mt-2">
+                    არასწორი YouTube ბმული
+                </div>
             @endif
-
         </div>
     @endif
 
 </div>
+
+
 
 
                         <hr>

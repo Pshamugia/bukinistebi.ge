@@ -104,54 +104,69 @@
     .auction-price strong {
         font-size: 18px;
     }
+
     /* Ending soon pulse */
-.ending-soon {
-    background: #dc3545 !important;
-    animation: pulse 1.4s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(220,53,69,.6);
+    .ending-soon {
+        background: #dc3545 !important;
+        animation: pulse 1.4s infinite;
     }
-    70% {
-        box-shadow: 0 0 0 10px rgba(220,53,69,0);
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, .6);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
     }
-    100% {
-        box-shadow: 0 0 0 0 rgba(220,53,69,0);
+
+    .auction-price i.bi-arrow-up {
+        animation: priceUp .8s ease;
     }
-}
-.auction-price i.bi-arrow-up {
-    animation: priceUp .8s ease;
-}
 
-@keyframes priceUp {
-    from {
-        transform: translateY(6px);
-        opacity: 0;
+    @keyframes priceUp {
+        from {
+            transform: translateY(6px);
+            opacity: 0;
+        }
+
+        to {
+            transform: none;
+            opacity: 1;
+        }
     }
-    to {
-        transform: none;
-        opacity: 1;
+
+    /* List view */
+    .auction-container.list-view .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
+
+    .auction-container.list-view .auction-card {
+        display: flex;
+        height: 200px;
+    }
+
+    .auction-container.list-view .auction-image img {
+        height: 100%;
+        width: 200px;
+    }
+    .auction-image:hover img {
+    transform: scale(1.02);
 }
 
-/* List view */
-.auction-container.list-view .col-lg-4 {
-    flex: 0 0 100%;
-    max-width: 100%;
+.auction-image img {
+    transition: transform .25s ease;
 }
 
-.auction-container.list-view .auction-card {
-    display: flex;
-    height: 200px;
+.auction-book-title a:hover {
+    text-decoration: underline;
 }
-
-.auction-container.list-view .auction-image img {
-    height: 100%;
-    width: 200px;
-}
-
 
 </style>
 
@@ -168,13 +183,13 @@
 
         <div class="auction-actions">
             <div class="btn-group view-toggle" role="group">
-    <button class="btn btn-outline-secondary active" data-view="grid">
-        <i class="bi bi-grid-3x3-gap"></i>
-    </button>
-    <button class="btn btn-outline-secondary" data-view="list">
-        <i class="bi bi-list"></i>
-    </button>
-</div>
+                <button class="btn btn-outline-secondary active" data-view="grid">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                </button>
+                <button class="btn btn-outline-secondary" data-view="list">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
 
             <a href="{{ route('auction.rules') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-file-text"></i> წესები
@@ -206,10 +221,11 @@
     </div>
     @endif
 
-<div class="row g-4 auction-container grid-view">
+    <div class="row g-4 auction-container grid-view">
         @forelse($auctions as $auction)
         @php
         $endsSoon = \Carbon\Carbon::parse($auction->end_time)->diffInMinutes(now(), false) >= -60;
+        $auctionUrl = route('auction.show', $auction->id);
         @endphp
 
         @php
@@ -220,72 +236,79 @@
         <div class="col-12 col-sm-6 col-lg-4">
             <div class="auction-card">
                 <div class="auction-image">
+
+                <a href="{{ $auctionUrl }}" class="auction-image d-block text-decoration-none">
                     <img src="{{ $mainImage ? asset('storage/'.$mainImage) : asset('images/default-book.jpg') }}"
                         alt="{{ $auction->book?->title }}">
-                   <span class="auction-badge {{ $endsSoon ? 'ending-soon' : '' }}">
-    <i class="bi bi-clock"></i>
-    {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}
-</span>
+                </a>
 
-                </div>
+                <span class="auction-badge {{ $endsSoon ? 'ending-soon' : '' }}">
+                    <i class="bi bi-clock"></i>
+                    {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}
+                </span>
 
-                <div class="auction-body">
-                    <h3 class="auction-book-title">
+            </div>
+
+            <div class="auction-body">
+                <h3 class="auction-book-title">
+                    <a href="{{ $auctionUrl }}" class="text-dark text-decoration-none">
                         {{ $auction->book?->title }}
-                    </h3>
-
-                    @php
-    $priceUp = $auction->current_price > $auction->starting_price;
-@endphp
-
-                    <div class="auction-price">
-    <span>
-        მიმდინარე ფასი
-        @if($priceUp)
-            <i class="bi bi-arrow-up text-success"></i>
-        @else
-            <i class="bi bi-dash text-muted"></i>
-        @endif
-    </span>
-
-    <strong>
-        {{ number_format($auction->current_price, 2) }} ₾
-    </strong>
-</div>
-
-
-                    <a href="{{ route('auction.show', $auction->id) }}"
-                        class="btn btn-dark w-100 mt-3">
-                        აუქციონის ნახვა
                     </a>
+                </h3>
+
+
+                @php
+                $priceUp = $auction->current_price > $auction->starting_price;
+                @endphp
+
+                <div class="auction-price">
+                    <span>
+                        მიმდინარე ფასი
+                        @if($priceUp)
+                        <i class="bi bi-arrow-up text-success"></i>
+                        @else
+                        <i class="bi bi-dash text-muted"></i>
+                        @endif
+                    </span>
+
+                    <strong>
+                        {{ number_format($auction->current_price, 2) }} ₾
+                    </strong>
                 </div>
+
+
+                <a href="{{ route('auction.show', $auction->id) }}"
+                    class="btn btn-dark w-100 mt-3">
+                    აუქციონის ნახვა
+                </a>
             </div>
         </div>
-        @empty
-        <div class="text-center text-muted py-5">
-            ამჟამად აქტიური აუქციონი არ გვაქვს
-        </div>
-        @endforelse
     </div>
+    @empty
+    <div class="text-center text-muted py-5">
+        ამჟამად აქტიური აუქციონი არ გვაქვს
+    </div>
+    @endforelse
+</div>
 
-    <div class="mt-4">
-        {{ $auctions->links() }}
-    </div>
+<div class="mt-4">
+    {{ $auctions->links() }}
+</div>
 </div>
 
 <script>
-document.querySelectorAll('.view-toggle button').forEach(btn => {
-    btn.addEventListener('click', function () {
-        document.querySelectorAll('.view-toggle button')
-            .forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-toggle button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.view-toggle button')
+                .forEach(b => b.classList.remove('active'));
 
-        this.classList.add('active');
+            this.classList.add('active');
 
-        const container = document.querySelector('.auction-container');
-        container.classList.toggle('list-view', this.dataset.view === 'list');
-        container.classList.toggle('grid-view', this.dataset.view === 'grid');
+            const container = document.querySelector('.auction-container');
+            container.classList.toggle('list-view', this.dataset.view === 'list');
+            container.classList.toggle('grid-view', this.dataset.view === 'grid');
+        });
     });
-});
 </script>
 
 
