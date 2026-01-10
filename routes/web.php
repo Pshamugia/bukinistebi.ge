@@ -77,6 +77,7 @@ Route::get('/clear-all-cache', function () {
 Route::get('/bundles', [BundleFrontController::class, 'index'])->name('bundles.index.public');
 Route::get('/bundles/{slug}', [BundleFrontController::class, 'show'])->name('bundles.show');
 
+        //Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(name: 'auction.show');
 
 
 // Home Route - Display all books
@@ -132,16 +133,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/auction/submit', [AuctionSubmissionController::class, 'store'])
         ->name('auction.submit.store');
 
-        Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name('auction.show');
-Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
-    ->middleware(['auth', 'profile.complete'])->name('auction.bid');
-
-    Route::post('/admin/auctions/{auction}/approve', 
-    [AuctionController::class, 'approve']
-)->name('admin.auctions.approve');
-
-        
+    Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
+        ->middleware(['auth', 'profile.complete'])
+        ->name('auction.bid');
 });
+
+// ✅ public show route must be AFTER submit
+Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])
+    ->name('auction.show');
+
+ 
+        
+
 
 
 
@@ -359,6 +362,10 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
 
+   Route::post('/admin/auctions/{auction}/approve', 
+    [AuctionController::class, 'approve']
+)->name('admin.auctions.approve');
+
 
     Route::get('/email-stats', [SubscriptionController::class, 'emailStats'])->name('admin.email.stats');
 
@@ -489,6 +496,8 @@ Route::delete('/order/delete/{id}',
 
 
     Route::get('/users', [AdminBookController::class, 'usersList'])->name('admin.users.list')->middleware('auth', 'admin');
+    Route::delete('/users/{user}', [AdminBookController::class, 'deleteUser'])
+    ->name('admin.users.delete');
 
     Route::get('/search', [AdminBookController::class, 'adminsearch'])->name('admin.search')->middleware('auth', 'admin'); // Ensure only admin can access
     Route::put('/admin/orders/{order}/mark-delivered', [App\Http\Controllers\Admin\BookController::class, 'markAsDelivered'])->name('admin.markAsDelivered');

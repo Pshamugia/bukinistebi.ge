@@ -94,7 +94,8 @@ placeholder="სახელი, ელფოსტა, ტელეფონი
                         @else
                             {{-- Fallback --}}
                             {{ $user->name ?? 'Guest' }}
-                        @endif</td>
+                            
+                        @endif </td>
                         <td class="{{ $user->last_order_total >= 0 ? 'text-danger' : '' }}">
                             {{ $user->last_order_total ?? 0 }} {{ __('ლარი') }}
                             <!-- Show 0 if last_order_total is null -->
@@ -160,23 +161,26 @@ placeholder="სახელი, ელფოსტა, ტელეფონი
                         </td>
                         <td>{{ $user->orders->isNotEmpty() ? $user->orders->first()->created_at->format('Y-m-d') : __('არ არის') }}
                         </td>
-                        <td>
+                     <td>
 @if ($user->orders->isNotEmpty())
     @php $lastOrder = $user->orders->first(); @endphp
 
     <form action="{{ route('admin.order.delete', $lastOrder->id) }}"
           method="POST"
-          onsubmit="return confirm('მართლა წაშლა გსურთ?');">
+          onsubmit="return confirm('მართლა წაშლა გსურთ?');"
+          style="display:inline-block">
         @csrf
         @method('DELETE')
-        <button class="btn btn-sm btn-danger">
-            წაშლა
+
+        <button class="btn btn-sm btn-danger" title="წაშლა">
+            <i class="bi bi-trash"></i>
         </button>
     </form>
 @else
     -
 @endif
 </td>
+
 
                     </tr>
                 @endforeach

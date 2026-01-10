@@ -24,7 +24,7 @@
                 <!-- Main Image -->
                 <div class="main-image-container mb-3">
                     @php
-    $mainImage = $book->thumb_image ?: $book->photo;
+    $mainImage = $book->photo;
 @endphp
 
 @if ($mainImage)
@@ -48,18 +48,7 @@
 
                 <!-- Thumbnails for Additional Photos -->
                 <div class="row g-2">
-
-    {{-- THUMB IMAGE FIRST --}}
-    @if ($book->thumb_image)
-        <div class="col-3">
-            <img src="{{ asset('storage/' . $book->thumb_image) }}"
-                 alt="Thumbnail"
-                 class="img-thumbnail small-thumbnail"
-                 style="cursor: pointer;"
-                 onmouseover="updateMainImage('{{ asset('storage/' . $book->thumb_image) }}')"
-                 loading="lazy">
-        </div>
-    @endif
+ 
 
     {{-- MAIN PHOTO --}}
     @if ($book->photo)

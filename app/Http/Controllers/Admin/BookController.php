@@ -503,6 +503,23 @@ $query = Book::with(['author', 'genres', 'publisher'])
     }
 
 
+    public function deleteUser(User $user)
+{
+    abort_unless(auth()->user()->hasAdminPermission('users.delete'), 403);
+
+    // Safety: prevent deleting admins or publishers
+    if (in_array($user->role, ['admin', 'publisher'])) {
+        return back()->with('error', 'ამ მომხმარებლის წაშლა დაუშვებელია.');
+    }
+
+    // Optional: delete related data safely
+    // $user->orders()->delete();
+
+    $user->delete();
+
+    return back()->with('success', 'მომხმარებელი წარმატებით წაიშალა.');
+}
+
 
 
 

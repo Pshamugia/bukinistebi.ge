@@ -412,11 +412,6 @@ class TbcCheckoutController extends Controller
             return back()->with('success', 'You have already paid for this auction.');
         }
 
-        if (!$user->startedAuctionPayment($auctionId)) {
-            $user->paidAuctions()->attach($auctionId, [
-                'paid_at' => null,
-            ]);
-        }
 
         $paymentId = 'AUC-FEE-' . $user->id . '-' . $auctionId . '-' . uniqid();
 

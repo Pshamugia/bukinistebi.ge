@@ -33,7 +33,7 @@
 
 
     </style>
-
+ 
 
     @php
         session(['auction_id' => $auction->id]);
@@ -92,7 +92,8 @@
         @endif
     @endforeach
 
-</div>
+</div> 
+
 
             </div>
 
@@ -100,8 +101,80 @@
             <div class="col-md-6">
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
-                        <h4 class="card-title"><i class="bi bi-info-circle"></i> აღწერა</h4>
-                        <p class="card-text">{!! $auction->book->description !!}</p>
+                       @php
+    $hasVideo = !empty($auction->video);
+@endphp
+
+{{-- TABS (only if video exists) --}}
+@if ($hasVideo)
+    <ul class="nav nav-tabs mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#auction-desc"
+                    type="button"
+                    role="tab">
+                <i class="bi bi-info-circle"></i> აღწერა
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#auction-video"
+                    type="button"
+                    role="tab">
+                <i class="bi bi-youtube"></i> ვიდეო
+            </button>
+        </li>
+    </ul>
+@endif
+
+{{-- CONTENT --}}
+<div class="{{ $hasVideo ? 'tab-content' : '' }}">
+
+    {{-- DESCRIPTION --}}
+    <div class="{{ $hasVideo ? 'tab-pane fade show active' : '' }}"
+         id="auction-desc"
+         role="tabpanel">
+
+        <p class="card-text">
+            {!! $auction->book->description !!}
+        </p>
+
+    </div>
+
+    {{-- VIDEO --}}
+    @if ($hasVideo)
+        <div class="tab-pane fade"
+             id="auction-video"
+             role="tabpanel">
+
+            @php
+                preg_match(
+                    '~(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)([A-Za-z0-9_-]{11})~',
+                    $auction->video,
+                    $matches
+                );
+                $videoId = $matches[1] ?? null;
+            @endphp
+
+            @if ($videoId)
+                <div class="ratio ratio-16x9 mt-3">
+                    <iframe
+                        src="https://www.youtube.com/embed/{{ $videoId }}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            @else
+                <small class="text-danger">არასწორი YouTube ბმული</small>
+            @endif
+
+        </div>
+    @endif
+
+</div>
+
 
                         <hr>
 
@@ -138,38 +211,52 @@
 
                                 @else
                                     <div class="alert alert-warning mt-3">
-                                        @auth
-                                            @php
-                                                $user = Auth::user();
-                                                $auctionId = $auction->id;
-                                            @endphp
+                                       @auth
+    @php
+        $auctionId = $auction->id;
+        $isPaid = Auth::user()->paidAuction($auctionId);
+        $pending = session('auction_fee_pending') === $auctionId;
+    @endphp
 
-                                            @if (!$user->startedAuctionPayment($auctionId))
-                                                <form method="POST" action="{{ route('auction.fee.payment') }}">
-                                                    @csrf
-                                                    <input type="hidden" name="auction_id" value="{{ $auctionId }}">
-                                                    <button type="submit" class="btn btn-warning w-100 mt-2">
-                                                        აუქციონში მონაწილეობის სიმბოლური ფასი (1 ლარი)
-                                                    </button>
-                                                </form>
-                                            @elseif (!$user->paidAuction($auctionId))
-                                                <div class="alert alert-info mt-2 text-center">
-                                                    გადახდას ვამუშავებთ, გთხოვთ განაახლოთ გვერდი.
-                                                </div>
-                                            @else
-                                                <div class="alert alert-success mt-2 text-center">
-                                                    ✔ აუქციონში მონაწილეობა დადასტურებულია
-                                                </div>
-                                            @endif
-                                        @endauth
+    @if (!$isPaid)
+
+        @if ($pending)
+            <div class="alert alert-info text-center">
+                💳 გადახდა დაწყებულია. თუ ბანკიდან დაბრუნდით გადახდის გარეშე,
+                შეგიძლიათ თავიდან სცადოთ.
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('auction.fee.payment') }}">
+            @csrf
+            <input type="hidden" name="auction_id" value="{{ $auctionId }}">
+            <button class="btn btn-warning w-100 mt-2">
+                აუქციონში მონაწილეობის საფასური (1 ლარი)
+            </button>
+        </form>
+
+    @else
+        <div class="alert alert-success text-center mt-2">
+            ✔ აუქციონში მონაწილეობა დადასტურებულია
+        </div>
+    @endif
+
+@endauth
+
 
                                     </div>
                                 @endif
                             @else
-                                <p class="text-danger mt-3">
-                                    ბიჯის გასაკეთებლად <a href="{{ route('login') }}">შესვლა</a> აუცილებელია. აუქციონში
-                                    მონაწილეობის სიმბოლური საფასურია 1 ლარი.
-                                </p>
+                                <div class="alert alert-warning mt-3">
+        <i class="bi bi-lock-fill"></i>
+        <strong>ბიჯის გასაკეთებლად საჭიროა ავტორიზაცია.</strong>
+        <br>
+        თუ უკვე რეგისტრირებული ხართ, გაიარეთ ავტორიზაცია. თუ არ ხართ, შეგიძლიათ დარეგისტრირდეთ.
+    </div>
+
+    <a href="{{ route('login') }}" class="btn btn-primary w-100 mt-2">
+        🔐 შესვლა ბიჯისთვის
+    </a>
                             @endauth
                         @endif
 
@@ -223,7 +310,7 @@
         </div>
     </div>
 <!-- Modal -->
-<div class="modal fade" id="profileWarningModal" tabindex="-1" aria-labelledby="profileWarningModalLabel" aria-hidden="true">
+<div class="modal fade" id="profileWarningModal" tabindex="-1" aria-labelledby="profileWarningModalLabel" aria-hidden="true" style="z-index:1011 !important">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -264,10 +351,10 @@
 
 
     <!-- Modal for Enlarged Image -->
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" style="z-index:200000 !important">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header" style="margin-top:20px;">
                     <h5 class="modal-title" id="imageModalLabel">{{ $auction->book->title }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -297,6 +384,7 @@
     </div>
 
  
+    
 
     <script>
         const endTime = new Date("{{ $auction->end_time }}").getTime();

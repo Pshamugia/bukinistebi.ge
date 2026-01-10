@@ -12,8 +12,21 @@ justify-content: left;">
 </strong>
 </h5>
 
+
+
  
 <div class="container mt-5 col-md-6" style="position:relative; margin-top: -15px !important">
+
+
+@if (request('reason') === 'auction')
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        აუქციონების ნახვისა და მონაწილეობისთვის აუცილებელია ავტორიზაცია.
+    </div>
+@endif
+
+
+
     <!-- Email Errors -->
     @if ($errors->has('email'))
         <div class="alert alert-warning">

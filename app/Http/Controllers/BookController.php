@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Genre;
 use App\Models\Author;
+use App\Models\Auction;
 use App\Models\BookNews;
 use App\Models\Category;
 use App\Models\BookOrder;
@@ -154,6 +155,18 @@ class BookController extends Controller
 
         $isHomePage = true;
 
+
+        $activeAuctions = Auction::where('is_active', true)
+    ->where('is_approved', true)
+    ->where('end_time', '>', now())
+    ->with('book.images')
+    ->orderByDesc('created_at')
+    ->limit(5)
+    ->get();
+
+
+        $showAuctionSidebar = $activeAuctions->count() >= 3;
+
         return view('welcome', compact(
             'books',
             'cartItemIds',
@@ -163,7 +176,9 @@ class BookController extends Controller
             'bukinistebisatvis',
             'topBooks',
             'topRatedArticle',
-            'genres'
+            'genres',
+            'activeAuctions',
+            'showAuctionSidebar'
         ));
     }
 
@@ -325,61 +340,65 @@ class BookController extends Controller
 
 
     public function books()
-{
-    $query = Book::query()
-        ->where('hide', 0)
-        ->where('language', app()->getLocale())
-        ->where('auction_only', 0)
-        ->whereDoesntHave('genres', function ($q) {
-            $q->where('name', 'სუვენირები')
-              ->orWhere('name_en', 'Souvenirs');
-        })
-        ->whereDoesntHave('auction', function ($q) {
-            $q->where('is_active', true)
-              ->where('end_time', '>', now());
-        })
-        ->when(request('exclude_sold'), fn ($q) => 
-            $q->where('quantity', '>', 0)
-        )
-        ->when(in_array(request('condition'), ['new', 'used']), fn ($q) => 
-            $q->where('condition', request('condition'))
-        );
+    {
+        $query = Book::query()
+            ->where('hide', 0)
+            ->where('language', app()->getLocale())
+            ->where('auction_only', 0)
+            ->whereDoesntHave('genres', function ($q) {
+                $q->where('name', 'სუვენირები')
+                    ->orWhere('name_en', 'Souvenirs');
+            })
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            })
+            ->when(
+                request('exclude_sold'),
+                fn($q) =>
+                $q->where('quantity', '>', 0)
+            )
+            ->when(
+                in_array(request('condition'), ['new', 'used']),
+                fn($q) =>
+                $q->where('condition', request('condition'))
+            );
 
-    // Sorting (stable)
-    if (request('sort') === 'price_asc') {
-        $query->orderBy('price', 'asc')->orderBy('id', 'desc');
-    } elseif (request('sort') === 'price_desc') {
-        $query->orderBy('price', 'desc')->orderBy('id', 'desc');
-    } else {
-        $query->latest('id');
+        // Sorting (stable)
+        if (request('sort') === 'price_asc') {
+            $query->orderBy('price', 'asc')->orderBy('id', 'desc');
+        } elseif (request('sort') === 'price_desc') {
+            $query->orderBy('price', 'desc')->orderBy('id', 'desc');
+        } else {
+            $query->latest('id');
+        }
+
+        $books = $query->paginate(12);
+
+        // Cart items
+        $cartItemIds = [];
+        if (Auth::check() && Auth::user()->cart) {
+            $cartItemIds = Auth::user()
+                ->cart
+                ->cartItems
+                ->pluck('book_id')
+                ->toArray();
+        }
+
+        // AJAX response
+        if (request()->ajax()) {
+            return view('partials.book-cards', compact('books', 'cartItemIds'))->render();
+        }
+
+        // Full page
+        return view('books', [
+            'books' => $books,
+            'cartItemIds' => $cartItemIds,
+            'news' => BookNews::latest()->paginate(6),
+            'popularBooks' => Book::orderBy('views', 'desc')->take(10)->get(),
+            'isHomePage' => false,
+        ]);
     }
-
-    $books = $query->paginate(12);
-
-    // Cart items
-    $cartItemIds = [];
-    if (Auth::check() && Auth::user()->cart) {
-        $cartItemIds = Auth::user()
-            ->cart
-            ->cartItems
-            ->pluck('book_id')
-            ->toArray();
-    }
-
-    // AJAX response
-    if (request()->ajax()) {
-        return view('partials.book-cards', compact('books', 'cartItemIds'))->render();
-    }
-
-    // Full page
-    return view('books', [
-        'books' => $books,
-        'cartItemIds' => $cartItemIds,
-        'news' => BookNews::latest()->paginate(6),
-        'popularBooks' => Book::orderBy('views', 'desc')->take(10)->get(),
-        'isHomePage' => false,
-    ]);
-}
 
 
 
@@ -604,14 +623,14 @@ class BookController extends Controller
         }
 
         // Start a query for books that are not hidden
-       $query = Book::where('hide', 0)
-    ->where('auction_only', 0)
-    ->whereDoesntHave('auction', function ($q) {
-        $q->where('is_active', true)
-          ->where('end_time', '>', now());
-    });
+        $query = Book::where('hide', 0)
+            ->where('auction_only', 0)
+            ->whereDoesntHave('auction', function ($q) {
+                $q->where('is_active', true)
+                    ->where('end_time', '>', now());
+            });
 
-        
+
 
 
 
@@ -675,8 +694,8 @@ class BookController extends Controller
 
         // Fetch the results
         $books = $query
-    ->select('*')
-    ->selectRaw("
+            ->select('*')
+            ->selectRaw("
         CASE 
             WHEN LOWER(title) LIKE ? THEN 1
             WHEN EXISTS (
@@ -689,31 +708,31 @@ class BookController extends Controller
             ELSE 4
         END AS priority
     ", [
-        "%{$qLower}%",
-        "%{$qLower}%",
-        "%{$qLower}%",
-        "%{$qLower}%",
-        "%{$qLower}%"
-    ]) 
-    ->orderByRaw("
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%",
+                "%{$qLower}%"
+            ])
+            ->orderByRaw("
         CASE 
             WHEN quantity <= 0 THEN 1
             ELSE 0
         END
-    ") 
-     ->orderBy('priority')
+    ")
+            ->orderBy('priority')
 
-     ->orderByRaw("
+            ->orderByRaw("
         CASE 
             WHEN LOWER(language) = ? THEN 0
             ELSE 1
         END
     ", [$currentLocale])
 
-     ->orderBy('title','ASC')
+            ->orderBy('title', 'ASC')
 
-    ->paginate(12)
-    ->appends(request()->query());
+            ->paginate(12)
+            ->appends(request()->query());
 
 
 

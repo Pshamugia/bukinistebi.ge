@@ -74,32 +74,43 @@ class PaymentCallbackController extends Controller
         $userId = (int) $parts[2];
         $auctionId = (int) $parts[3];
 
-        DB::beginTransaction();
-        try {
-            $updated = DB::table('auction_users')
-                ->where('user_id', $userId)
-                ->where('auction_id', $auctionId)
-                ->whereNull('paid_at')
-                ->update([
-                    'paid_at' => now(),
-                    'updated_at' => now(),
-                ]);
 
-            if ($updated) {
-                DB::commit();
-                Log::info('Auction fee marked as paid', compact('userId', 'auctionId'));
-            } else {
-                DB::rollback();
-                Log::warning('No unpaid auction_users row found to update', compact('userId', 'auctionId'));
-            }
+        if (
+            DB::table('auction_users')
+            ->where('user_id', $userId)
+            ->where('auction_id', $auctionId)
+            ->whereNotNull('paid_at')
+            ->exists()
+        ) {
+            Log::info(
+                'Auction fee already paid, duplicate callback ignored',
+                compact('userId', 'auctionId')
+            );
+
+            return response()->json(['status' => 'already_paid'], 200);
+        }
+
+        try {
+            DB::table('auction_users')->updateOrInsert(
+                [
+                    'user_id'    => $userId,
+                    'auction_id' => $auctionId,
+                ],
+                [
+                    'paid_at'    => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            Log::info('Auction fee marked as paid (upsert)', compact('userId', 'auctionId'));
         } catch (\Exception $e) {
-            DB::rollback();
             Log::error('Database error in payment callback', [
                 'error' => $e->getMessage(),
                 'userId' => $userId,
                 'auctionId' => $auctionId
             ]);
         }
+
 
         return response()->json(['status' => 'ok'], 200);
     }
@@ -141,34 +152,34 @@ class PaymentCallbackController extends Controller
 
         $data = $response->json();
         $paymentStatus = $data['status'] ?? '';
-        
+
         /** Load order + relations for stock math and email */
         $order = Order::with(['orderItems.book', 'orderItems.bundle.books', 'user'])
             ->where('gate_id', $paymentId)
             ->first();
-        
+
         if (!$order) {
             Log::warning("Can't find order for paymentId {$paymentId}");
             return response()->json(['error' => 'Order not found'], 404);
         }
-        
+
         /** Guard: callbacks can fire multiple times — lock per order to avoid double side-effects */
-        $lock = Cache::lock('payment_cb_'.$order->id, 15);
+        $lock = Cache::lock('payment_cb_' . $order->id, 15);
         if (!$lock->get()) {
             Log::info('Duplicate callback suppressed', ['order_id' => $order->id]);
             return response()->json(['status' => 'duplicate'], 200);
         }
-        
+
         try {
             // Update status early so you can inspect from admin if something fails later
             $order->status = $paymentStatus ?: 'Pending';
             $order->save();
-        
+
             if ($paymentStatus === "Succeeded") {
-        
+
                 /** DIRECT-PAY path — you already handle a subset; fix bundle math (qty * pivot->qty) */
                 if (str_starts_with($order->order_id, 'ORD-DIRECT-')) {
-        
+
                     foreach ($order->orderItems as $item) {
                         if ($item->book) {
                             // Single book
@@ -191,14 +202,13 @@ class PaymentCallbackController extends Controller
                             }
                         }
                     }
-        
                 } else {
                     /** CART checkout path: reduce using cart contents, then clear cart */
                     $cart = optional($order->user)->cart;
-        
+
                     if ($cart) {
                         $quantityUpdateErrs = [];
-        
+
                         foreach ($cart->cartItems as $cartItem) {
                             if ($cartItem->book) {
                                 if ($cartItem->book->quantity >= $cartItem->quantity) {
@@ -207,7 +217,7 @@ class PaymentCallbackController extends Controller
                                     $quantityUpdateErrs[] = $cartItem->book->id;
                                 }
                             }
-        
+
                             if ($cartItem->bundle) {
                                 foreach ($cartItem->bundle->books as $b) {
                                     $need = (int)$cartItem->quantity * (int)max(1, (int)$b->pivot->qty);
@@ -219,11 +229,11 @@ class PaymentCallbackController extends Controller
                                 }
                             }
                         }
-        
+
                         // Clear cart after successful stock ops
                         $cart->cartItems()->delete();
                         $cart->delete();
-        
+
                         if (!empty($quantityUpdateErrs)) {
                             Log::info("Failed to update some book quantities", [
                                 'failed_books' => $quantityUpdateErrs,
@@ -232,40 +242,41 @@ class PaymentCallbackController extends Controller
                         }
                     }
                 }
-        
+
                 /** Send emails
                  *  - Admin (you already do)
                  *  - Customer invoice (new): authenticated buyer only, or fallback if you store email on order/session
                  */
                 $order->refresh()->loadMissing(['orderItems.book', 'orderItems.bundle.books', 'user']);
-        
+
                 // Admin notification (kept)
                 Mail::to('pshamugia@gmail.com')->send(new OrderPurchased($order, 'bank_transfer'));
-        
+
                 // Customer invoice (authenticated users)
                 $customerEmail = optional($order->user)->email
                     ?? ($order->email ?? (session('checkout_email') ?: null)); // optional fallback if you later add order email
-        
+
                 if ($customerEmail) {
                     Mail::to($customerEmail)->send(new OrderInvoice($order));
                 }
             } else {
                 // Not succeeded — no stock change, no invoice
                 Log::info('Payment not finalized or failed', [
-                    'paymentId' => $paymentId, 'status' => $paymentStatus
+                    'paymentId' => $paymentId,
+                    'status' => $paymentStatus
                 ]);
             }
-        
+
             Log::info('Payment callback handled', [
-                'id' => $paymentId, 'status' => $paymentStatus, 'order_id' => $order->id,
+                'id' => $paymentId,
+                'status' => $paymentStatus,
+                'order_id' => $order->id,
             ]);
-        
+
             return response()->json(['status' => 'ok'], 200);
-        
         } finally {
             optional($lock)->release();
         }
-        
     }
 
     private function getAccessToken()

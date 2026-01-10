@@ -14,6 +14,7 @@ protected $fillable = [
     'current_price',
     'start_time',
     'end_time',
+    'video',
     'is_active',
     'winner_id',
     'min_bid',

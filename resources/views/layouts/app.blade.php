@@ -120,7 +120,6 @@
             body {
                 font-family: 'Noto Serif', serif;
             }
-
             
         </style>
     @endif
@@ -1180,15 +1179,22 @@ list.forEach(it => {
 });
 
 
-// ONLY add See More if there ARE results
+ // ONLY add See More if there ARE results
 if (list.length >= 4) {
     html += `
-        <li class="suggest-see-more text-center p-2"
-            style="cursor:pointer; color:#c00505; font-weight:bold; border-top:1px solid #ddd;"
-            data-see-more>
-            {{ __('messages.seemore') }}
+        <li class="search-see-more" data-see-more>
+            <span class="see-more-icon">
+                <i class="bi bi-search"></i>
+            </span>
+            <span class="see-more-text">
+                {{ __('messages.seemore') }}
+            </span>
+            <span class="see-more-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </span>
         </li>`;
 }
+
 
 html += '</ul>';
 
@@ -1300,14 +1306,21 @@ list.forEach(it => {
 
 
 // ONLY add See More if there ARE results
-if (list.length >= 4) {
+ if (list.length >= 4) {
     html += `
-        <li class="suggest-see-more text-center p-2"
-            style="cursor:pointer; color:#c00505; font-weight:bold; border-top:1px solid #ddd;"
-            data-see-more>
-            {{ app()->getLocale() === 'ka' ? 'ნახე მეტი' : 'See More' }}
+        <li class="search-see-more" data-see-more>
+            <span class="see-more-icon">
+                <i class="bi bi-search"></i>
+            </span>
+            <span class="see-more-text">
+                {{ __('messages.seemore') }}
+            </span>
+            <span class="see-more-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </span>
         </li>`;
 }
+
 
 html += '</ul>';
 

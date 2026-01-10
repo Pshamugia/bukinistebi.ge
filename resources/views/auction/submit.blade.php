@@ -38,7 +38,7 @@
                 <h5 class="mb-3">📘 ძირითადი ინფორმაცია</h5>
 
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">წიგნის სათაური *</label>
+                    <label class="form-label fw-semibold"> დაასათაურე *</label>
                     <input type="text"
                            name="title"
                            class="form-control"
@@ -62,7 +62,7 @@
                               class="form-control"
                               rows="5"
                               required
-                              placeholder="მდგომარეობა, გამოცემა, შენიშვნები...">{{ old('description') }}</textarea>
+                              placeholder="წიგნის ან ნივთის მდგომარეობა, შენიშვნები...">{{ old('description') }}</textarea>
                 </div>
             </div>
         </div>
@@ -163,6 +163,23 @@
                 @endfor
             </div>
         </div>
+
+        <div class="mb-3">
+    <label class="form-label">
+        YouTube ვიდეო (არასავალდებულო)
+    </label>
+
+    <input type="url"
+           name="video"
+           class="form-control"
+           placeholder="https://www.youtube.com/watch?v=XXXXX"
+           value="{{ old('video') }}">
+
+    <small class="text-muted">
+        მხოლოდ YouTube ბმული (preview მოგვიანებით დაემატება)
+    </small>
+</div>
+
 
         {{-- ================= SUBMIT ================= --}}
         <div class="text-end">

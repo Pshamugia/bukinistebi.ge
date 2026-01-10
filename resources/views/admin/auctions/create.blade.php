@@ -25,6 +25,8 @@
             </select>
         </div>
 
+
+
         <script>
             $(document).ready(function() {
                 $('.book-chosen').chosen({
@@ -64,6 +66,49 @@
                 {{ old('is_free_bid', $auction->is_free_bid ?? false) ? 'checked' : '' }}>
             <label class="form-check-label">Allow Free Bidding (no min/max)</label>
         </div>
+
+
+        @if(isset($auction) && $auction->book)
+    <div class="mb-3">
+        <label class="fw-semibold">Book Images</label>
+
+        <div class="d-flex gap-2 flex-wrap">
+            @php
+                $images = $auction->book->images ?? collect();
+            @endphp
+
+            @foreach($images as $img)
+                <img src="{{ asset('storage/'.$img->path) }}"
+                     style="width:90px;height:120px;object-fit:cover;border-radius:6px;">
+            @endforeach
+
+            @if($images->isEmpty() && $auction->book->photo)
+                <img src="{{ asset('storage/'.$auction->book->photo) }}"
+                     style="width:90px;height:120px;object-fit:cover;border-radius:6px;">
+            @endif
+        </div>
+
+        <small class="text-muted d-block mt-1">
+            Images are managed in the book editor
+        </small>
+
+        <a href="{{ route('admin.books.edit', $auction->book->id) }}"
+           class="btn btn-sm btn-outline-secondary mt-2">
+            Edit Book Images →
+        </a>
+    </div>
+@endif
+
+
+
+        <div class="mb-3">
+    <label>YouTube ვიდეო</label>
+    <input type="url"
+           name="video"
+           class="form-control"
+           value="{{ old('video', $auction->video ?? '') }}">
+</div>
+
 
         <br>
 

@@ -31,6 +31,9 @@ class AuctionSubmissionController extends Controller
             'start_price' => 'required|numeric|min:1',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
+            'video' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//'
+            ],
+
 
             'min_bid'     => 'nullable|numeric|min:0',
             'max_bid'     => 'nullable|numeric|gt:min_bid',
@@ -76,6 +79,7 @@ class AuctionSubmissionController extends Controller
             'current_price' => $request->start_price,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
+            'video' => $request->video,
             'min_bid'       => $request->min_bid,
             'max_bid'       => $request->max_bid,
             'is_free_bid'   => $request->has('is_free_bid'),
