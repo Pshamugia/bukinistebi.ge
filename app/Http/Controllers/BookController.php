@@ -157,12 +157,12 @@ class BookController extends Controller
 
 
         $activeAuctions = Auction::where('is_active', true)
-    ->where('is_approved', true)
-    ->where('end_time', '>', now())
-    ->with('book.images')
-    ->orderByDesc('created_at')
-    ->limit(5)
-    ->get();
+            ->where('is_approved', true)
+            ->where('end_time', '>', now())
+            ->with('book.images')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
 
 
         $showAuctionSidebar = $activeAuctions->count() >= 3;
@@ -740,6 +740,64 @@ class BookController extends Controller
         // Get the search count
         $search_count = $books->total();
 
+        $suggestion = null;
+
+        if ($searchTerm && $search_count === 0) {
+
+            $normalizedSearch = mb_strtolower(trim($searchTerm));
+
+            // Collect candidates
+            $candidates = collect();
+
+            // Authors
+            Author::select('name', 'name_en')->get()->each(function ($author) use ($candidates) {
+                if ($author->name) {
+                    $candidates->push($author->name);
+                }
+                if ($author->name_en) {
+                    $candidates->push($author->name_en);
+                }
+            });
+
+            // Book titles
+            Book::select('title')->get()->each(function ($book) use ($candidates) {
+                if ($book->title) {
+                    $candidates->push($book->title);
+                }
+            });
+
+            // Similarity buckets
+            $matches90 = [];
+            $matches80 = [];
+            $matches70 = [];
+
+            foreach ($candidates as $candidate) {
+                $candidateLower = mb_strtolower($candidate);
+
+                similar_text($normalizedSearch, $candidateLower, $percent);
+
+                if ($percent >= 90) {
+                    $matches90[$candidate] = $percent;
+                } elseif ($percent >= 80) {
+                    $matches80[$candidate] = $percent;
+                } elseif ($percent >= 70) {
+                    $matches70[$candidate] = $percent;
+                }
+            }
+
+            // Decide which bucket wins
+            if (!empty($matches90)) {
+                arsort($matches90);
+                $suggestion = array_key_first($matches90);
+            } elseif (!empty($matches80)) {
+                arsort($matches80);
+                $suggestion = array_key_first($matches80);
+            } elseif (!empty($matches70)) {
+                arsort($matches70);
+                $suggestion = array_key_first($matches70);
+            }
+        }
+
         // Fetch authors and categories for any additional use (if needed)
         $authors = Author::all();
         $categories = Category::all();
@@ -777,27 +835,33 @@ class BookController extends Controller
             'search_count',
             'categories',
             'genres',
-            'isHomePage'
+            'isHomePage',
+            'suggestion'
+
         ));
     }
 
 
     // BookController.php
+    // BookController.php
     public function suggest(\Illuminate\Http\Request $request)
     {
         $q = trim((string) $request->get('q', ''));
         if (mb_strlen($q) < 2) {
-            return response()->json([]);
+            return response()->json([
+                'items' => [],
+                'didYouMean' => null
+            ]);
         }
-
-
 
         $qLower = mb_strtolower($q, 'UTF-8');
 
         // Detect language of query (KA or EN)
         $lang = $this->detectLanguage($q);
 
-        $qLower = mb_strtolower($q, 'UTF-8');
+        /* =========================================================
+       1) EXISTING BOOK SUGGEST LOGIC (UNCHANGED)
+    ========================================================= */
 
         $books = Book::query()
             ->select(
@@ -813,7 +877,6 @@ class BookController extends Controller
             ->with(['author:id,name,name_en'])
             ->where('books.hide', 0)
             ->where('books.auction_only', false)
-            // ✅ THIS IS THE MISSING PART
             ->whereDoesntHave('auction', function ($q) {
                 $q->where('is_active', true)
                     ->where('end_time', '>', now());
@@ -828,21 +891,21 @@ class BookController extends Controller
                     });
             })
             ->selectRaw("
-        CASE
-            WHEN LOWER(books.title) LIKE ? THEN 1
-            WHEN EXISTS (
-                SELECT 1 FROM authors
-                WHERE authors.id = books.author_id
-                  AND (
-                      LOWER(authors.name) LIKE ?
-                      OR LOWER(authors.name_en) LIKE ?
-                  )
-            ) THEN 2
-            WHEN LOWER(books.description) LIKE ?
-              OR LOWER(books.description_en) LIKE ? THEN 3
-            ELSE 4
-        END AS match_priority
-    ", [
+            CASE
+                WHEN LOWER(books.title) LIKE ? THEN 1
+                WHEN EXISTS (
+                    SELECT 1 FROM authors
+                    WHERE authors.id = books.author_id
+                      AND (
+                          LOWER(authors.name) LIKE ?
+                          OR LOWER(authors.name_en) LIKE ?
+                      )
+                ) THEN 2
+                WHEN LOWER(books.description) LIKE ?
+                  OR LOWER(books.description_en) LIKE ? THEN 3
+                ELSE 4
+            END AS match_priority
+        ", [
                 "%{$qLower}%",
                 "%{$qLower}%",
                 "%{$qLower}%",
@@ -850,11 +913,11 @@ class BookController extends Controller
                 "%{$qLower}%"
             ])
             ->selectRaw("
-        CASE
-            WHEN books.quantity <= 0 THEN 1
-            ELSE 0
-        END AS sold_priority
-    ")
+            CASE
+                WHEN books.quantity <= 0 THEN 1
+                ELSE 0
+            END AS sold_priority
+        ")
             ->orderBy('sold_priority')
             ->orderBy('match_priority')
             ->orderByRaw(
@@ -865,30 +928,88 @@ class BookController extends Controller
             ->limit(8)
             ->get();
 
-
-
         $items = $books->map(function ($b) {
             $authorName = app()->getLocale() === 'en'
                 ? ($b->author->name_en ?: $b->author->name)
                 : ($b->author->name ?: $b->author->name_en);
 
             return [
-                'title'   => $b->title,
-                'author'  => $authorName,
-                'url'     => route('full', [
+                'title'  => $b->title,
+                'author' => $authorName,
+                'url'    => route('full', [
                     'title' => \Illuminate\Support\Str::slug($b->title),
-                    'id' => $b->id
+                    'id'    => $b->id
                 ]),
-                'image'   => $b->photo
+                'image'  => $b->photo
                     ? asset('storage/' . $b->photo)
                     : asset('default.webp'),
-                'sold'    => $b->quantity <= 0
+                'sold'   => $b->quantity <= 0
             ];
         });
 
+        /* =========================================================
+       2) DID YOU MEAN (ONLY IF NO ITEMS)
+    ========================================================= */
 
-        return response()->json($items);
+        $didYouMean = null;
+
+        if ($items->isEmpty()) {
+
+            $needle = mb_strtolower($q, 'UTF-8');
+            $candidates = collect();
+
+            // Authors
+            \App\Models\Author::select('name', 'name_en')->get()->each(function ($a) use ($candidates) {
+                if ($a->name)    $candidates->push($a->name);
+                if ($a->name_en) $candidates->push($a->name_en);
+            });
+
+            // Book titles
+            Book::select('title')->get()->each(function ($b) use ($candidates) {
+                if ($b->title) $candidates->push($b->title);
+            });
+
+            $buckets = [
+                90 => [],
+                80 => [],
+                70 => [],
+            ];
+
+            foreach ($candidates as $candidate) {
+                similar_text(
+                    $needle,
+                    mb_strtolower($candidate, 'UTF-8'),
+                    $percent
+                );
+
+                if ($percent >= 90) {
+                    $buckets[90][$candidate] = $percent;
+                } elseif ($percent >= 80) {
+                    $buckets[80][$candidate] = $percent;
+                } elseif ($percent >= 70) {
+                    $buckets[70][$candidate] = $percent;
+                }
+            }
+
+            foreach ([90, 80, 70] as $tier) {
+                if (!empty($buckets[$tier])) {
+                    arsort($buckets[$tier]);
+                    $didYouMean = array_key_first($buckets[$tier]);
+                    break;
+                }
+            }
+        }
+
+        /* =========================================================
+       3) RESPONSE (BACKWARD-COMPATIBLE)
+    ========================================================= */
+
+        return response()->json([
+            'items' => $items->values(),
+            'didYouMean' => $didYouMean
+        ]);
     }
+
 
 
 

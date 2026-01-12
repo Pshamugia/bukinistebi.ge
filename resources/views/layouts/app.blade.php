@@ -120,6 +120,24 @@
             body {
                 font-family: 'Noto Serif', serif;
             }
+
+            .suggest-box {
+    padding: 6px 0;                /* top/bottom breathing */
+}
+            .suggest-didyoumean {
+    padding-left: 12px important;            
+    font-size: 12px;
+    background: #fff8e1;
+    border-bottom: 1px solid #eee;
+}
+
+.suggest-didyoumean a {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+
+
             
         </style>
     @endif
@@ -1143,17 +1161,41 @@ $(document).on('click', '.toggle-cart-btn', function () {
     }
 
     timer = setTimeout(function () {
-        $.get('{{ route("search.suggest") }}', { q }, function (list) {
+        $.get('{{ route("search.suggest") }}', { q }, function (res) {
 
-            // HIDE SPINNER
-            $('#searchSpinner').hide();
+    const list = res.items || [];
+    const didYouMean = res.didYouMean || null;
 
-            if (!list || !list.length) {
-                $box.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
-                    .removeClass('d-none');
-                return;
-            }
-                         let html = '<ul class="list-unstyled mb-0">';
+    // HIDE SPINNER
+    $('#searchSpinner').hide();
+
+    // 🔹 DID YOU MEAN (only if no items)
+    if (!list.length && didYouMean) {
+        $box.html(`
+            <div class="suggest-didyoumean" style="padding:10px;">
+                <i class="bi bi-lightbulb"></i>
+                {{ __('messages.didyoumean') }}
+                <a href="#" class="didyoumean-link">${escapeHtml(didYouMean)}</a>?
+            </div>
+        `).removeClass('d-none');
+
+        $box.find('.didyoumean-link').on('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/search?title=' + encodeURIComponent(didYouMean);
+        });
+
+        return;
+    }
+
+    // 🔹 NO RESULTS AT ALL
+    if (!list.length) {
+        $box.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
+            .removeClass('d-none');
+        return;
+    }
+
+    let html = '<ul class="list-unstyled mb-0">';
+
 
 list.forEach(it => {
     const title  = it.title || '';
@@ -1269,17 +1311,39 @@ html += '</ul>';
     }
 
     mTimer = setTimeout(function () {
-        $.get('{{ route("search.suggest") }}', { q }, function (list) {
+        $.get('{{ route("search.suggest") }}', { q }, function (res) {
 
-            // HIDE SPINNER
-            $('#searchSpinnerMobile').hide();
+    const list = res.items || [];
+    const didYouMean = res.didYouMean || null;
 
-            if (!list || !list.length) {
-                $mobileBox.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
-                    .removeClass('d-none');
-                return;
-            }
-                        let html = '<ul class="list-unstyled mb-0">';
+    // HIDE SPINNER
+    $('#searchSpinnerMobile').hide();
+
+    if (!list.length && didYouMean) {
+        $mobileBox.html(`
+            <div class="suggest-didyoumean">
+                <i class="bi bi-lightbulb"></i>
+                {{ __('messages.didyoumean') }}
+                <a href="#" class="didyoumean-link">${escapeHtml(didYouMean)}</a>?
+            </div>
+        `).removeClass('d-none');
+
+        $mobileBox.find('.didyoumean-link').on('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/search?title=' + encodeURIComponent(didYouMean);
+        });
+
+        return;
+    }
+
+    if (!list.length) {
+        $mobileBox.html('<div class="suggest-empty">{{ __("messages.noresult") }}</div>')
+            .removeClass('d-none');
+        return;
+    }
+
+    let html = '<ul class="list-unstyled mb-0">';
+
 
 list.forEach(it => {
     const title  = it.title || '';

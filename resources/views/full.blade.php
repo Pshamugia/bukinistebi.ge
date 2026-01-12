@@ -304,6 +304,12 @@
                       border-radius: 5px;">
                             @csrf
                             <div class="text-end" style="top:20px; position: relative;">
+
+                            @php use Illuminate\Support\Str; @endphp
+
+<input type="hidden" name="submission_token" value="{{ Str::uuid() }}">
+
+
                                 <button type="button" class="btn-close" aria-label="Close"
                                     onclick="document.getElementById('direct-pay-form').style.display = 'none';"></button>
                             </div>
