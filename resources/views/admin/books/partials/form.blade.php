@@ -214,8 +214,15 @@
     <label for="description" class="form-label"><i class="bi bi-info-circle"></i> აღწერა</label>
     <textarea name="description" class="form-control" id="description" required>{{ old('description', $book->description ?? '') }}</textarea>
 </div>
+
+
 <div class="mb-3">
-    <label for="full" class="form-label"><i class="bi bi-journal-richtext"></i> სრული ტექსტი</label>
+    
+    <label for="full" class="form-label"><i class="bi bi-journal-richtext"></i> სრული ტექსტი</label> 
+    
+                                <span style="color:red; font-weight:bold">
+// <small>ბუკინისტი: {{ $book->publisher->name ?? $book->publisher->title ?? '—' }}</small> </span>
+
     <textarea name="full" class="form-control" id="full" required>{{ old('full', $book->full ?? '') }}</textarea>
 </div>
 <div class="mb-3">

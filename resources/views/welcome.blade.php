@@ -305,12 +305,12 @@
             </div>
 
 
-            <div class="text-center mt-4" style="position: relative;">
-                <a href="{{ route('allbooksnews') }}" class="btn  btn-outline-secondary btn-lg"
-                    style="font-size: 18px; ">
-                    <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} </span>
-                </a>
-            </div>
+          <div class="text-center mt-3 ">
+                    <a href="{{ route('allbooksnews') }}"
+                        class="btn btn-light btn-sm w-100" style="border:1px solid #d3d6d8">
+                      <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} → </span>
+                    </a>
+                </div>
         </div>
 
 
