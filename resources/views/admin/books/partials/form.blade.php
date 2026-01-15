@@ -41,6 +41,31 @@
     </div>
 </div>
 
+
+<div class="mb-3">
+    <label for="acquisition_price" class="form-label">
+        შესყიდვის ფასი (Acquisition price)
+    </label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="bi bi-cart-plus"></i>
+        </span>
+        <input
+            type="number"
+            step="0.01"
+            name="acquisition_price"
+            id="acquisition_price"
+            class="form-control"
+            value="{{ old('acquisition_price', $book->acquisition_price ?? '') }}"
+            placeholder="რამდენად შეიძინეთ"
+        >
+    </div>
+    <small class="text-muted">
+        მხოლოდ შიდა გამოყენებისთვის — მომხმარებელს არ უჩნდება
+    </small>
+</div>
+
+
 {{-- ფასდაკლების კოდი  --}}
 
 {{-- <div class="mb-3">

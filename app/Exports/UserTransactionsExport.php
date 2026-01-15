@@ -1,81 +1,113 @@
 <?php
 
-// app/Exports/UserTransactionsExport.php
 namespace App\Exports;
 
 use App\Models\Order;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\{
-    FromCollection, WithHeadings, WithMapping, WithEvents, WithCustomStartCell, ShouldAutoSize
-};
-use Maatwebsite\Excel\Events\AfterSheet;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class UserTransactionsExport implements FromCollection, WithHeadings, WithMapping, WithEvents, WithCustomStartCell, ShouldAutoSize
+class UserTransactionsExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
-    public float $grandTotal = 0;
+    protected $from;
+    protected $to;
 
-    public function __construct(public $from = null, public $to = null) {}
-
-    public function collection(): Collection
+    public function __construct(?Carbon $from = null, ?Carbon $to = null)
     {
-        $q = Order::query()
-            ->with('user')
-            // exclude unwanted statuses
-            ->whereNotIn('status', ['pending', 'failed', 'expired']);
-
-        if ($this->from) $q->whereDate('created_at', '>=', $this->from);
-        if ($this->to)   $q->whereDate('created_at', '<=', $this->to);
-
-        // compute grand total with SAME filters
-        $this->grandTotal = (clone $q)->sum('total');
-
-        return $q->orderBy('created_at', 'desc')->get();
+        $this->from = $from;
+        $this->to   = $to;
     }
 
-    public function startCell(): string
+    /**
+     * =========================
+     * DATA SOURCE
+     * =========================
+     */
+    public function collection()
     {
-        return 'A3'; // leave room for the header lines
+        $query = Order::with([
+            'orderItems.book'
+        ])->orderBy('created_at', 'desc');
+
+        if ($this->from) {
+            $query->where('created_at', '>=', $this->from);
+        }
+
+        if ($this->to) {
+            $query->where('created_at', '<=', $this->to);
+        }
+
+        return $query->get()
+            ->flatMap(function ($order) {
+                return $order->orderItems->map(function ($item) use ($order) {
+                    return [
+                        'order' => $order,
+                        'item'  => $item,
+                        'book'  => $item->book,
+                    ];
+                });
+            });
     }
 
+    /**
+     * =========================
+     * TABLE HEADERS
+     * =========================
+     */
     public function headings(): array
     {
-        return ['Order #','Customer','Phone','Payment Method','Delivery Status','Total (GEL)','Created At'];
-    }
-
-    public function map($order): array
-    {
         return [
-            $order->order_id ?? $order->id,
-            optional($order->user)->name ?? ($order->name ?? 'Guest'),
-            $order->phone,
-            $order->payment_method,
-            $order->status,
-            (float) $order->total,
-            optional($order->created_at)?->format('Y-m-d H:i:s'),
+            'Order ID',
+            'Order Date',
+            'Customer',
+            'Book title',
+
+            'Selling price (₾)',
+            'Acquisition price (₾)',
+
+            'Quantity',
+
+            'Revenue (₾)',
+            'Cost (₾)',
+            'Profit (₾)',
         ];
     }
 
-    public function registerEvents(): array
+    /**
+     * =========================
+     * ROW MAPPING (IMPORTANT)
+     * =========================
+     */
+    public function map($row): array
     {
+        $order = $row['order'];
+        $item  = $row['item'];
+        $book  = $row['book'];
+
+        $sellingPrice    = (float) $item->price;
+        $acquisition     = (float) ($book->acquisition_price ?? 0);
+        $qty             = (int) $item->quantity;
+
+        $revenue = $sellingPrice * $qty;
+        $cost    = $acquisition * $qty;
+        $profit  = $revenue - $cost;
+
         return [
-            AfterSheet::class => function (AfterSheet $event) {
-                $sheet = $event->sheet;
+            $order->id,
+            optional($order->created_at)->format('Y-m-d H:i'),
+            $order->name ?? $order->user->name ?? 'Guest',
+            $book->title ?? '—',
 
-                // Header totals
-                $sheet->setCellValue('A1', 'საერთო ჯამი (GEL):');
-                $sheet->setCellValue('B1', $this->grandTotal);
+            number_format($sellingPrice, 2),
+            $book->acquisition_price !== null ? number_format($acquisition, 2) : '',
 
-                // Optional date range on row 2
-                $period = [];
-                if ($this->from) $period[] = 'დან: '.$this->from;
-                if ($this->to)   $period[] = 'მდე: '.$this->to;
-                if ($period) {
-                    $sheet->setCellValue('A2', implode('   ', $period));
-                }
+            $qty,
 
-                // Style
-                $sheet->getStyle('A1:B1')->getFont()->setBold(true);
-            },
+            number_format($revenue, 2),
+            number_format($cost, 2),
+            number_format($profit, 2),
         ];
     }
 }

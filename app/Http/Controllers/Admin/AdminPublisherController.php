@@ -125,32 +125,53 @@ public function exportPublisher(Request $request, User $publisher)
     $start = $request->query('start_date');
     $end   = $request->query('end_date');
 
+    $publisherName = $this->georgianToLatin($publisher->name);
+
     return Excel::download(
         new PublisherSalesExport($publisher->id, $start, $end),
-        'publisher_'.$publisher->id.'_sales_'.$start.'_'.$end.'.xlsx'
+        "{$publisherName}_sales_{$start}_{$end}.xlsx"
     );
+}
+
+
+
+
+private function georgianToLatin(string $text): string
+{
+    $map = [
+        'ა'=>'a','ბ'=>'b','გ'=>'g','დ'=>'d','ე'=>'e','ვ'=>'v','ზ'=>'z','თ'=>'t',
+        'ი'=>'i','კ'=>'k','ლ'=>'l','მ'=>'m','ნ'=>'n','ო'=>'o','პ'=>'p','ჟ'=>'zh',
+        'რ'=>'r','ს'=>'s','ტ'=>'t','უ'=>'u','ფ'=>'f','ქ'=>'k','ღ'=>'gh','ყ'=>'q',
+        'შ'=>'sh','ჩ'=>'ch','ც'=>'ts','ძ'=>'dz','წ'=>'ts','ჭ'=>'ch','ხ'=>'kh',
+        'ჯ'=>'j','ჰ'=>'h',
+    ];
+
+    $text = mb_strtolower($text);
+    $text = strtr($text, $map);
+    $text = preg_replace('/[^a-z0-9]+/', '_', $text);
+    $text = trim($text, '_');
+
+    return $text;
 }
 
 public function exportPublisherTitles(Request $request, User $publisher)
 {
     abort_unless($publisher->role === 'publisher', 404);
 
-        $start = $request->query('start_date');
-        $end   = $request->query('end_date');
+    $start = $request->query('start_date');
+    $end   = $request->query('end_date');
 
-        // ✅ Make sure Laravel-Excel temp dir exists & is writable on shared hosting
-        $tempDir = storage_path('laravel-excel');
-        if (!is_dir($tempDir)) {
-            @mkdir($tempDir, 0775, true);
-        }
-        @chmod($tempDir, 0775);
+    $publisherName = $this->georgianToLatin($publisher->name);
 
-        // trigger the export download
-        return Excel::download(
-            new PublisherTitlesExport($publisher->id, $start, $end),
-            'publisher_'.$publisher->id.'_titles_'.$start.'_'.$end.'.xlsx'
-        );
-      
- }
+    return Excel::download(
+        new PublisherTitlesExport($publisher->id, $start, $end),
+        "{$publisherName}_sold_{$start}_{$end}.xlsx"
+    );
+}
+
+
+
+
+
 
 }

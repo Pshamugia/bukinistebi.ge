@@ -31,6 +31,7 @@ class Book extends Model
         'author_id',
         'price',
         'new_price',
+        'acquisition_price', 
         'views',
         'quantity',
         'status',
@@ -50,6 +51,16 @@ class Book extends Model
     /**
      * Get the author of the book.
      */
+
+
+    protected $casts = [
+    'price'             => 'decimal:2',
+    'acquisition_price' => 'decimal:2',
+];
+
+
+
+
 
     protected $dates = ['manual_created_at'];  // To make sure it's treated as a date
 
@@ -121,6 +132,16 @@ public function bundles()
     return $this->belongsToMany(\App\Models\Bundle::class, 'bundle_book')->withPivot('qty');
 }
 
+
+
+public function getProfitAttribute()
+{
+    if ($this->acquisition_price === null) {
+        return null;
+    }
+
+    return $this->price - $this->acquisition_price;
+}
 
 
 }

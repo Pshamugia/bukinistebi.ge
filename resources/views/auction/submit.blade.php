@@ -9,6 +9,69 @@
         🏷️ აუქციონის დამატება
     </h2>
 
+    <style>
+        .auction-rules-accept {
+    display: flex;
+    align-items: center;
+}
+
+.rules-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.rules-check input {
+    display: none;
+}
+
+/* Custom checkbox */
+.rules-check .checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #8b5e3c;
+    border-radius: 5px;
+    background: #fffdf7;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Checked state */
+.rules-check input:checked + .checkmark {
+    background: #8b5e3c;
+    border-color: #8b5e3c;
+}
+
+.rules-check input:checked + .checkmark::after {
+    content: "✓";
+    position: absolute;
+    top: -1px;
+    left: 4px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Text */
+.rules-text {
+    font-size: 16px;
+    color: #4d3b2f;
+}
+
+.rules-text a {
+    color: #5a3e2b;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.rules-text a:hover {
+    color: #8b5e3c;
+}
+
+    </style>
+
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
         <h5 class="mb-1">✔ აუქციონი მიღებულია</h5>
@@ -179,6 +242,27 @@
         მხოლოდ YouTube ბმული (preview მოგვიანებით დაემატება)
     </small>
 </div>
+
+
+
+<div class="auction-rules-accept mt-4 mb-4">
+    <label class="rules-check">
+        <input
+            type="checkbox"
+            name="accept_rules"
+            required
+        >
+        <span class="checkmark"></span>
+
+        <span class="rules-text">
+            წავიკითხე და ვეთანხმები
+            <a href="{{ route('auction.rules') }}" target="_blank">
+                ბუკინისტური აუქციონის წესებს
+            </a>
+        </span>
+    </label>
+</div>
+
 
 
         {{-- ================= SUBMIT ================= --}}
