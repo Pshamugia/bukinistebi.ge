@@ -152,6 +152,26 @@
 
 
 
+                    {{-- Auction images --}}
+
+@if($book->images->count())
+    <div class="mb-3">
+        <label class="form-label fw-semibold">📷 არსებული სურათები</label>
+        <div class="d-flex flex-wrap gap-2">
+            @foreach($book->images as $img)
+                <div class="position-relative">
+                    <img src="{{ asset('storage/'.$img->path) }}"
+                         style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ddd">
+
+                    {{-- optional delete later --}}
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
+
+
 <div class="form-group">
     <label for="video">Video URL</label>
     <input type="text" name="video" class="form-control" value="{{ old('video', $book->video ?? '') }}">

@@ -8,11 +8,21 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class UserTransactionsExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class UserTransactionsExport implements
+    FromCollection,
+    WithHeadings,
+    WithMapping,
+    ShouldAutoSize,
+    WithEvents
 {
-    protected $from;
-    protected $to;
+    protected ?Carbon $from;
+    protected ?Carbon $to;
+
+    protected float $totalRevenue = 0;
+    protected float $totalCost = 0;
 
     public function __construct(?Carbon $from = null, ?Carbon $to = null)
     {
@@ -27,20 +37,21 @@ class UserTransactionsExport implements FromCollection, WithHeadings, WithMappin
      */
     public function collection()
     {
-        $query = Order::with([
-            'orderItems.book'
-        ])->orderBy('created_at', 'desc');
+        $query = Order::query()
+            ->with(['orderItems.book', 'user'])
+            ->whereIn('status', ['delivered', 'Succeeded'])
+            ->orderByDesc('created_at');
 
         if ($this->from) {
-            $query->where('created_at', '>=', $this->from);
+            $query->where('created_at', '>=', $this->from->startOfDay());
         }
 
         if ($this->to) {
-            $query->where('created_at', '<=', $this->to);
+            $query->where('created_at', '<=', $this->to->endOfDay());
         }
 
         return $query->get()
-            ->flatMap(function ($order) {
+            ->flatMap(function (Order $order) {
                 return $order->orderItems->map(function ($item) use ($order) {
                     return [
                         'order' => $order,
@@ -66,18 +77,18 @@ class UserTransactionsExport implements FromCollection, WithHeadings, WithMappin
 
             'Selling price (₾)',
             'Acquisition price (₾)',
-
             'Quantity',
 
             'Revenue (₾)',
             'Cost (₾)',
-            'Profit (₾)',
+
+            'მიტანა / გადახდა', // ✅ NEW COLUMN
         ];
     }
 
     /**
      * =========================
-     * ROW MAPPING (IMPORTANT)
+     * ROW MAPPING
      * =========================
      */
     public function map($row): array
@@ -86,18 +97,28 @@ class UserTransactionsExport implements FromCollection, WithHeadings, WithMappin
         $item  = $row['item'];
         $book  = $row['book'];
 
-        $sellingPrice    = (float) $item->price;
-        $acquisition     = (float) ($book->acquisition_price ?? 0);
-        $qty             = (int) $item->quantity;
+        $sellingPrice = (float) $item->price;
+        $acquisition  = (float) ($book->acquisition_price ?? 0);
+        $qty          = (int) $item->quantity;
 
         $revenue = $sellingPrice * $qty;
         $cost    = $acquisition * $qty;
-        $profit  = $revenue - $cost;
+
+        // ✅ accumulate totals
+        $this->totalRevenue += $revenue;
+        $this->totalCost    += $cost;
+
+        // ✅ delivery / payment type
+        $deliveryType = match ($order->payment_method) {
+            'courier'        => 'კურიერი',
+            'bank_transfer' => 'ბანკი',
+            default          => $order->payment_method ?? '—',
+        };
 
         return [
             $order->id,
             optional($order->created_at)->format('Y-m-d H:i'),
-            $order->name ?? $order->user->name ?? 'Guest',
+            $order->name ?? optional($order->user)->name ?? 'Guest',
             $book->title ?? '—',
 
             number_format($sellingPrice, 2),
@@ -107,7 +128,36 @@ class UserTransactionsExport implements FromCollection, WithHeadings, WithMappin
 
             number_format($revenue, 2),
             number_format($cost, 2),
-            number_format($profit, 2),
+
+            $deliveryType, // ✅ instead of profit
+        ];
+    }
+
+    /**
+     * =========================
+     * TOTAL ROW
+     * =========================
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+
+                $sheet   = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestRow() + 1;
+
+                // Label
+                $sheet->setCellValue("A{$lastRow}", 'TOTAL');
+
+                // Totals
+                $sheet->setCellValue("H{$lastRow}", number_format($this->totalRevenue, 2));
+                $sheet->setCellValue("I{$lastRow}", number_format($this->totalCost, 2));
+
+                // Styling
+                $sheet->getStyle("A{$lastRow}:J{$lastRow}")
+                    ->getFont()
+                    ->setBold(true);
+            },
         ];
     }
 }

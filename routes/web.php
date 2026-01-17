@@ -402,6 +402,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
     Route::delete('/auctions/{auction}', [AuctionController::class, 'destroy'])
         ->name('admin.auctions.destroy');
+        Route::put('/admin/auctions/{auction}', 
+    [AuctionController::class, 'updateFull']
+)->name('admin.auctions.update.full');
+
 
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
     Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');

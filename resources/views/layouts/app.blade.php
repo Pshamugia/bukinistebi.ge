@@ -638,25 +638,23 @@ aria-label="Search" style="position: relative;  "></i></button>
 
                         <input type="email" name="email" class="form-control mb-2"
                             placeholder="{{ __('messages.entermail') }}" required>
-                        @if ($errors->any() && count($errors->all()) > 0)
-                            <input type="hidden" id="subscriptionErrorFlag" value="true">
-                            <input type="hidden" id="subscriptionErrorMessages"
-                                value="{{ implode('|', $errors->all()) }}">
-                        @endif
+                     @php
+    $newsletterErrors = session()->get('errors')?->getBag('newsletter');
+@endphp
+
+@if ($newsletterErrors && $newsletterErrors->any())
+    <input type="hidden" id="subscriptionErrorFlag" value="true">
+    <input type="hidden" id="subscriptionErrorMessages"
+        value="{{ implode('|', $newsletterErrors->all()) }}">
+@endif
+
+
                         <button type="submit" class="btn btn-primary w-100">{{ __('messages.subscribe') }}</button>
                     </form>
 
                     <!-- Hidden input for success -->
-                    @if (session('subscription_success'))
-                        <input type="hidden" id="subscriptionSuccessFlag" value="true">
-                    @endif
-
-                    <!-- Hidden input for errors -->
-                    @if ($errors->any())
-                        <input type="hidden" id="subscriptionErrorFlag" value="true">
-                        <input type="hidden" id="subscriptionErrorMessages"
-                            value="{{ implode('|', $errors->all()) }}">
-                    @endif
+                   
+                  
 
                     <br>
 

@@ -72,6 +72,8 @@ public function edit(Auction $auction)
 
 
 
+
+
 public function update(Request $request, Auction $auction)
 {
     $request->validate([
@@ -98,6 +100,47 @@ public function update(Request $request, Auction $auction)
 
     return redirect()->route('admin.auctions.index')->with('success', 'Auction updated successfully.');
 }
+
+
+public function updateFull(Request $request, Auction $auction)
+{
+    $request->validate([
+        // Auction
+        'start_price' => 'required|numeric|min:0',
+        'start_time'  => 'required|date',
+        'end_time'    => 'required|date|after:start_time',
+        'min_bid'     => 'nullable|numeric|min:0',
+        'max_bid'     => 'nullable|numeric|gt:min_bid',
+        'is_free_bid' => 'nullable|boolean',
+        'video'       => 'nullable|url',
+
+        // Book
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string',
+    ]);
+
+    // ✅ Update AUCTION
+    $auction->update([
+        'start_price' => $request->start_price,
+        'start_time'  => $request->start_time,
+        'end_time'    => $request->end_time,
+        'min_bid'     => $request->min_bid,
+        'max_bid'     => $request->max_bid,
+        'is_free_bid' => $request->has('is_free_bid'),
+        'video'       => $request->video,
+    ]);
+
+    // ✅ Update BOOK (linked model)
+    $auction->book->update([
+        'title'       => $request->title,
+        'description' => $request->description,
+    ]);
+
+    return redirect()
+        ->back()
+        ->with('success', 'აუქციონი წარმატებით განახლდა');
+}
+
 
 
 public function destroy(Auction $auction)

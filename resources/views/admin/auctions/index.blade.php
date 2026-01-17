@@ -79,8 +79,14 @@
                     </form>
                     @endif
 
+
                     <a href="{{ route('admin.auctions.edit', $auction) }}" class="btn btn-sm btn-info">
-                        Edit
+    Edit
+</a>
+
+
+                    <a href="{{ route('admin.auctions.edit', $auction) }}" class="btn btn-sm btn-info">
+                        Edit images
                     </a>
 
                     <form action="{{ route('admin.auctions.destroy', $auction->id) }}"

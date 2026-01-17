@@ -101,15 +101,21 @@ class DashboardController extends Controller
         });
     
         // Cache the total purchased price
-        $totalPurchasedPrice = Cache::remember('total_purchased_price', 60, function () use ($startDate, $endDate) {
-            return DB::table('order_items')
-                ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->where('orders.status', 'delivered')
-                ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                    return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
-                })
-                ->sum(DB::raw('order_items.price * order_items.quantity'));
-        });
+      $totalPurchasedPrice = Cache::remember(
+    'total_purchased_price_' . md5($startDate . $endDate),
+    60,
+    function () use ($startDate, $endDate) {
+
+        return DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereIn('orders.status', ['delivered', 'Succeeded'])
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+            })
+            ->sum(DB::raw('order_items.price * order_items.quantity'));
+    }
+);
+
     
         // Cache the top 10 customers
         $topCustomers = Cache::remember('top_customers', 60, function () {

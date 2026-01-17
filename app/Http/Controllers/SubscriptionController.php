@@ -41,11 +41,12 @@ class SubscriptionController extends Controller
         'email.unique' => 'ეს ელფოსტა უკვე რეგისტრირებულია ჩვენს ბაზაში.',
     ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
-    }
+   if ($validator->fails()) {
+    return redirect()->back()
+        ->withErrors($validator, 'newsletter')
+        ->withInput();
+}
+
 
     Subscriber::create([
         'email' => $request->email,
