@@ -31,6 +31,24 @@
     pointer-events: auto; /* image receives clicks */
 }
 
+#imageModal .modal-dialog {
+    max-width: 95vw;
+}
+
+#imageModal .modal-body {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#imageModal img {
+    max-width: 100%;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
 
 
     </style>
@@ -235,10 +253,15 @@
     @csrf
     <input type="hidden" name="allow_bid" id="allowBid" value="0">
     <label for="bid_amount" class="form-label">გააკეთე ბიჯი:</label>
-    <input type="number" step="0.01" name="bid_amount" class="form-control mb-2" id="bidAmount" required>
+    <input type="number" step="0.01" name="bid_amount" class="form-control mb-2" id="bidAmount" min="{{ $basePrice + 0.01 }}" required>
     <input type="hidden" id="minBid" value="{{ $auction->min_bid }}">
     <input type="hidden" id="maxBid" value="{{ $auction->max_bid }}">
-    <input type="hidden" id="currentPrice" value="{{ $auction->current_price }}">
+@php
+    $lastBid = $auction->bids->max('amount');
+    $basePrice = $lastBid ?? $auction->start_price;
+@endphp
+
+<input type="hidden" id="currentPrice" value="{{ $basePrice }}">
 
     <div class="form-check mt-2">
         <input class="form-check-input" type="checkbox" name="is_anonymous" value="1" id="isAnonymous">
@@ -249,6 +272,11 @@
 
 <button type="submit" class="btn btn-primary w-100 mt-2">დადება</button>
 </form>
+
+
+
+
+
 
                                 @else
                                     <div class="alert alert-warning mt-3">
@@ -287,6 +315,28 @@
 
                                     </div>
                                 @endif
+
+
+                                <div class="alert alert-light border mb-3">
+
+    @if ($auction->is_free_bid)
+        <span class="badge bg-success">
+            🔓 თავისუფალი ბიჯი (შეზღუდვა არ აქვს)
+        </span>
+    @else
+        <div>
+            @if ($auction->min_bid)
+                <div>🔽 მინიმალური ბიჯი: <strong>{{ $auction->min_bid }} ₾</strong></div>
+            @endif
+
+            @if ($auction->max_bid)
+                <div>🔼 მაქსიმალური ბიჯი: <strong>{{ $auction->max_bid }} ₾</strong></div>
+            @endif
+        </div>
+    @endif
+
+</div>
+
                             @else
                                 <div class="alert alert-warning mt-3">
         <i class="bi bi-lock-fill"></i>
@@ -352,7 +402,7 @@
     </div>
 <!-- Modal -->
 <div class="modal fade" id="profileWarningModal" tabindex="-1" aria-labelledby="profileWarningModalLabel" aria-hidden="true" style="z-index:1011 !important">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">პროფილის შევსება აუცილებელია</h5>
@@ -401,7 +451,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <!-- Left Arrow -->
-                    <button class="btn btn-light" id="prevArrow"
+                    <button class="btn btn-dark" id="prevArrow"
                         style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
                         <i class="bi bi-chevron-left"></i>
                     </button>
@@ -414,7 +464,7 @@
 
 
                     <!-- Right Arrow -->
-                    <button class="btn btn-light" id="nextArrow"
+                    <button class="btn btn-dark" id="nextArrow"
                         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
                         <i class="bi bi-chevron-right"></i>
                     </button>

@@ -98,7 +98,7 @@
 
 
         <h1>{{ __('messages.bookstore') }}</h1>
-        <h5><a href="{{ route('books') }}" class="btn btn-outline-light"
+        <h5><a href="{{ route('books') }}{{ request('lang') ? '?lang=' . request('lang') : '' }}" class="btn btn-outline-light"
                 style="font-size: 18px">{{ __('messages.searchfor') }}</a></h5>
 
     </div>
@@ -110,7 +110,7 @@
     <div class="hr-with-text">
         <h2 style="position: relative; font-size: 26px; ">
 
-            {{ __('messages.recently') }}
+            {{ __('messages.recently') }} 
         </h2>
     </div>
 
@@ -121,7 +121,7 @@
         @foreach ($books as $index => $book)
         <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
             <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
-                <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
+                <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
                     class="card-link">
                     <div class="image-container">
                         <img
@@ -153,7 +153,7 @@
                         <i class="bi bi-person"></i>
                         <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                             class="text-decoration-none text-primary">
-                            {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
+                            {{ $book->author->getLocalizedName()  }}
 
                         </a>
                     </p>
@@ -305,12 +305,12 @@
             </div>
 
 
-          <div class="text-center mt-3 ">
-                    <a href="{{ route('allbooksnews') }}"
-                        class="btn btn-light btn-sm w-100" style="border:1px solid #d3d6d8">
-                      <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} → </span>
-                    </a>
-                </div>
+            <div class="text-center mt-3 ">
+                <a href="{{ route('allbooksnews') }}"
+                    class="btn btn-light btn-sm w-100" style="border:1px solid #d3d6d8">
+                    <span> <i class="bi bi-newspaper"></i> {{ __('messages.readmore') }} → </span>
+                </a>
+            </div>
         </div>
 
 
@@ -390,7 +390,7 @@
                 @foreach ($topRatedArticle as $book)
                 <div class="popular-book-item mb-2">
                     <div class="book-details">
-                        <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
+                        <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
                             class="card-link" style="text-decoration: none">
 
                             @if (isset($book->photo))
@@ -401,8 +401,7 @@
 
                             <span class="book-title" style="color:black">{{ $book->title }}</span> <br>
                             <span>
-                                {{ app()->getLocale() === 'en' && $book->author->name_en ? $book->author->name_en : $book->author->name }}
-                            </span>
+                                {{ $book->author->getLocalizedName() }} </span>
                         </a>
                     </div>
                 </div>

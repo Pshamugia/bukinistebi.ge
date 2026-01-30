@@ -1,7 +1,7 @@
 @foreach ($books as $index => $book)
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
                     <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
-                        <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}"
+                        <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
                             class="card-link">
                             <div class="image-container">
                               <img
@@ -31,7 +31,7 @@
                             {{-- Author --}}
                             <p class="text-muted mb-2" style="font-size: 14px;">
                                 <i class="bi bi-person"></i>
-                                <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
+                                <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
                                     class="text-decoration-none text-primary">
                                     {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
 

@@ -24,61 +24,65 @@ class AuthorController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'name_en' => 'nullable|string|max:255',
+            'name_ru' => 'nullable|string|max:255',
+
         ]);
 
-        Author::create($request->only('name', 'name_en'));
+Author::create(
+    $request->only('name', 'name_en', 'name_ru')
+);
 
         return redirect()->route('admin.authors.index')->with('success', 'Author created successfully.');
     }
 
 
-    
+
     public function edit(Author $author)
     {
         return view('admin.authors.edit', compact('author'));
     }
 
 
-    public function quickStore(Request $request)
+   public function quickStore(Request $request)
 {
     $request->validate([
         'new_author_name' => ['required','string','max:255'],
-        'lang'            => ['nullable','in:ka,en'],
+        'lang'            => ['nullable','in:ka,en,ru'],
     ]);
 
-    $lang = $request->input('lang', app()->getLocale()) ?: 'ka';
+    $lang = $request->input('lang', app()->getLocale());
     $name = trim($request->input('new_author_name'));
 
-    $existing = $lang === 'en'
-        ? Author::whereRaw('LOWER(name_en) = ?', [mb_strtolower($name)])->first()
-        : Author::whereRaw('LOWER(name) = ?',    [mb_strtolower($name)])->first();
+    $column = match ($lang) {
+        'en' => 'name_en',
+        'ru' => 'name_ru',
+        default => 'name',
+    };
+
+    $existing = Author::whereRaw(
+        "LOWER($column) = ?",
+        [mb_strtolower($name)]
+    )->first();
 
     if ($existing) {
         return response()->json([
             'success' => true,
             'created' => false,
-            'author'  => [
-                'id'      => $existing->id,
-                'name'    => $existing->name,
-                'name_en' => $existing->name_en,
-            ],
+            'author'  => $existing,
         ]);
     }
 
     $author = new Author();
-    if ($lang === 'en') { $author->name_en = $name; } else { $author->name = $name; }
+    $author->$column = $name;
     $author->save();
 
     return response()->json([
         'success' => true,
         'created' => true,
-        'author'  => [
-            'id'      => $author->id,
-            'name'    => $author->name,
-            'name_en' => $author->name_en,
-        ],
+        'author'  => $author,
     ], 201);
 }
+
 
 
 
@@ -89,7 +93,9 @@ class AuthorController extends Controller
             'name_en' => 'nullable|string|max:255',
         ]);
 
-        $author->update($request->only('name', 'name_en'));
+$author->update(
+    $request->only('name', 'name_en', 'name_ru')
+);
 
         return redirect()->route('admin.authors.index')->with('success', 'Author updated successfully.');
     }

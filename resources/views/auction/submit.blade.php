@@ -11,65 +11,64 @@
 
     <style>
         .auction-rules-accept {
-    display: flex;
-    align-items: center;
-}
+            display: flex;
+            align-items: center;
+        }
 
-.rules-check {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-}
+        .rules-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
 
-.rules-check input {
-    display: none;
-}
+        .rules-check input {
+            display: none;
+        }
 
-/* Custom checkbox */
-.rules-check .checkmark {
-    width: 22px;
-    height: 22px;
-    border: 2px solid #8b5e3c;
-    border-radius: 5px;
-    background: #fffdf7;
-    position: relative;
-    flex-shrink: 0;
-}
+        /* Custom checkbox */
+        .rules-check .checkmark {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #8b5e3c;
+            border-radius: 5px;
+            background: #fffdf7;
+            position: relative;
+            flex-shrink: 0;
+        }
 
-/* Checked state */
-.rules-check input:checked + .checkmark {
-    background: #8b5e3c;
-    border-color: #8b5e3c;
-}
+        /* Checked state */
+        .rules-check input:checked+.checkmark {
+            background: #8b5e3c;
+            border-color: #8b5e3c;
+        }
 
-.rules-check input:checked + .checkmark::after {
-    content: "✓";
-    position: absolute;
-    top: -1px;
-    left: 4px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-}
+        .rules-check input:checked+.checkmark::after {
+            content: "✓";
+            position: absolute;
+            top: -1px;
+            left: 4px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-/* Text */
-.rules-text {
-    font-size: 16px;
-    color: #4d3b2f;
-}
+        /* Text */
+        .rules-text {
+            font-size: 16px;
+            color: #4d3b2f;
+        }
 
-.rules-text a {
-    color: #5a3e2b;
-    font-weight: 600;
-    text-decoration: underline;
-}
+        .rules-text a {
+            color: #5a3e2b;
+            font-weight: 600;
+            text-decoration: underline;
+        }
 
-.rules-text a:hover {
-    color: #8b5e3c;
-}
-
+        .rules-text a:hover {
+            color: #8b5e3c;
+        }
     </style>
 
     @if(session('success'))
@@ -80,19 +79,19 @@
         </p>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-@endif
+    @endif
 
 
     @if(session('error'))
-        <div class="alert alert-warning">{{ session('error') }}</div>
+    <div class="alert alert-warning">{{ session('error') }}</div>
     @endif
 
-    
-    
+
+
 
     <form method="POST"
-          action="{{ route('auction.submit.store') }}"
-          enctype="multipart/form-data">
+        action="{{ route('auction.submit.store') }}"
+        enctype="multipart/form-data">
         @csrf
 
         {{-- ================= BASIC INFO ================= --}}
@@ -103,29 +102,43 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold"> დაასათაურე *</label>
                     <input type="text"
-                           name="title"
-                           class="form-control"
-                           required
-                           placeholder="მაგ: ძველი ქართული გამოცემა">
+                        name="title"
+                        class="form-control"
+                        required
+                        placeholder="მაგ: ძველი ქართული გამოცემა">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">ავტორი (არასავალდებულო)</label>
                     <input type="text"
-                           name="author"
-                           class="form-control"
-                           placeholder="მაგ: ილია ჭავჭავაძე">
+                        name="author"
+                        class="form-control"
+                        placeholder="მაგ: ილია ჭავჭავაძე">
                 </div>
+
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">კატეგორია *</label>
+                    <select name="auction_category_id" class="form-select" required>
+                        <option value="">აირჩიე კატეგორია</option>
+                        @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">
+                            {{ $cat->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">
                         აღწერა *
                     </label>
                     <textarea name="description"
-                              class="form-control"
-                              rows="5"
-                              required
-                              placeholder="წიგნის ან ნივთის მდგომარეობა, შენიშვნები...">{{ old('description') }}</textarea>
+                        class="form-control"
+                        rows="5"
+                        required
+                        placeholder="წიგნის ან ნივთის მდგომარეობა, შენიშვნები...">{{ old('description') }}</textarea>
                 </div>
             </div>
         </div>
@@ -139,26 +152,26 @@
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-semibold">საწყისი ფასი (₾) *</label>
                         <input type="number"
-                               step="0.01"
-                               name="start_price"
-                               class="form-control"
-                               required>
+                            step="0.01"
+                            name="start_price"
+                            class="form-control"
+                            required>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label class="form-label">დაწყების დრო *</label>
                         <input type="datetime-local"
-                               name="start_time"
-                               class="form-control"
-                               required>
+                            name="start_time"
+                            class="form-control"
+                            required>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label class="form-label">დასრულების დრო *</label>
                         <input type="datetime-local"
-                               name="end_time"
-                               class="form-control"
-                               required>
+                            name="end_time"
+                            class="form-control"
+                            required>
                     </div>
                 </div>
             </div>
@@ -173,30 +186,30 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">მინიმალური ბიჯი (₾)</label>
                         <input type="number"
-                               name="min_bid"
-                               id="minBid"
-                               class="form-control"
-                               step="0.01"
-                               placeholder="არასავალდებულო">
+                            name="min_bid"
+                            id="minBid"
+                            class="form-control"
+                            step="0.01"
+                            placeholder="არასავალდებულო">
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">მაქსიმალური ბიჯი (₾)</label>
                         <input type="number"
-                               name="max_bid"
-                               id="maxBid"
-                               class="form-control"
-                               step="0.01"
-                               placeholder="არასავალდებულო">
+                            name="max_bid"
+                            id="maxBid"
+                            class="form-control"
+                            step="0.01"
+                            placeholder="არასავალდებულო">
                     </div>
                 </div>
 
                 <div class="form-check mt-2">
                     <input class="form-check-input"
-                           type="checkbox"
-                           name="is_free_bid"
-                           value="1"
-                           id="isFreeBid">
+                        type="checkbox"
+                        name="is_free_bid"
+                        value="1"
+                        id="isFreeBid">
                     <label class="form-check-label" for="isFreeBid">
                         თავისუფალი ბიჯი (შეზღუდვების გარეშე)
                     </label>
@@ -219,49 +232,48 @@
 
                 @for($i = 0; $i < 4; $i++)
                     <input type="file"
-                           name="photos[]"
-                           class="form-control mb-2"
-                           accept="image/*"
-                           {{ $i === 0 ? 'required' : '' }}>
-                @endfor
+                    name="photos[]"
+                    class="form-control mb-2"
+                    accept="image/*"
+                    {{ $i === 0 ? 'required' : '' }}>
+                    @endfor
             </div>
         </div>
 
         <div class="mb-3">
-    <label class="form-label">
-        YouTube ვიდეო (არასავალდებულო)
-    </label>
+            <label class="form-label">
+                YouTube ვიდეო (არასავალდებულო)
+            </label>
 
-    <input type="url"
-           name="video"
-           class="form-control"
-           placeholder="https://www.youtube.com/watch?v=XXXXX"
-           value="{{ old('video') }}">
+            <input type="url"
+                name="video"
+                class="form-control"
+                placeholder="https://www.youtube.com/watch?v=XXXXX"
+                value="{{ old('video') }}">
 
-    <small class="text-muted">
-        მხოლოდ YouTube ბმული (preview მოგვიანებით დაემატება)
-    </small>
-</div>
+            <small class="text-muted">
+                მხოლოდ YouTube ბმული (preview მოგვიანებით დაემატება)
+            </small>
+        </div>
 
 
 
-<div class="auction-rules-accept mt-4 mb-4">
-    <label class="rules-check">
-        <input
-            type="checkbox"
-            name="accept_rules"
-            required
-        >
-        <span class="checkmark"></span>
+        <div class="auction-rules-accept mt-4 mb-4">
+            <label class="rules-check">
+                <input
+                    type="checkbox"
+                    name="accept_rules"
+                    required>
+                <span class="checkmark"></span>
 
-        <span class="rules-text">
-            წავიკითხე და ვეთანხმები
-            <a href="{{ route('auction.rules') }}" target="_blank">
-                ბუკინისტური აუქციონის წესებს
-            </a>
-        </span>
-    </label>
-</div>
+                <span class="rules-text">
+                    წავიკითხე და ვეთანხმები
+                    <a href="{{ route('auction.rules') }}" target="_blank">
+                        ბუკინისტური აუქციონის წესებს
+                    </a>
+                </span>
+            </label>
+        </div>
 
 
 
@@ -278,10 +290,10 @@
 
 {{-- UX helper --}}
 <script>
-document.getElementById('isFreeBid').addEventListener('change', function () {
-    const disabled = this.checked;
-    document.getElementById('minBid').disabled = disabled;
-    document.getElementById('maxBid').disabled = disabled;
-});
+    document.getElementById('isFreeBid').addEventListener('change', function() {
+        const disabled = this.checked;
+        document.getElementById('minBid').disabled = disabled;
+        document.getElementById('maxBid').disabled = disabled;
+    });
 </script>
 @endsection

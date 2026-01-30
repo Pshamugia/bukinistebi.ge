@@ -24,27 +24,29 @@ class PublisherBookController extends Controller
 
 
     public function create(Request $request)
-    {
-        $locale = $request->get('lang', app()->getLocale());
-        app()->setLocale($locale); // set locale dynamically for consistency
+{
+    $locale = $request->get('lang', app()->getLocale());
+    app()->setLocale($locale);
 
-        $authors = Author::query();
-        $genres = Genre::query();
+    $authors = Author::where(function ($q) {
+        $q->whereNotNull('name')
+          ->orWhereNotNull('name_en')
+          ->orWhereNotNull('name_ru');
+    })->get();
 
-        if ($locale === 'en') {
-            $authors = $authors->whereNotNull('name_en');
-            $genres = $genres->whereNotNull('name_en');
-        } else {
-            $authors = $authors->whereNotNull('name');
-            $genres = $genres->whereNotNull('name');
-        }
+    $genres = Genre::where(function ($q) {
+        $q->whereNotNull('name')
+          ->orWhereNotNull('name_en')
+          ->orWhereNotNull('name_ru');
+    })->get();
 
-        $authors = $authors->get();
-        $genres = $genres->get();
-        $isHomePage = false;
+    return view('publisher.create', compact(
+        'authors',
+        'genres',
+        'locale'
+    ));
+}
 
-        return view('publisher.create', compact('authors', 'genres', 'isHomePage', 'locale'));
-    }
 
 
 

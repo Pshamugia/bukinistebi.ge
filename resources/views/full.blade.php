@@ -18,6 +18,9 @@
     </style>
     <div class="container mt-5 book-detail-page" style="position: relative; padding-bottom: 5%; top:50px;">
         <div class="row">
+
+
+        
             <!-- Book Image -->
             <div class="col-md-5">
 
@@ -120,7 +123,7 @@
                     </div>
 
                     <!-- Rating Form -->
-                    <form id="rating-form" method="POST" action="{{ route('article.rate', $book->id) }}">
+                    <form id="rating-form" method="POST" action="@langurl(route('article.rate', $book->id))">
                         @csrf
                         <label for="rating">{{ __('messages.rate') }}</label>
                         <input type="radio" name="rating" value="1"> 1
@@ -213,15 +216,10 @@
             <div class="col-md-7">
                 <h2>{{ $book->title }}</h2>
                 <p class="text-muted"><span>{{ __('messages.author') }}:</span>
-                    <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
+                    <a href="@langurl(route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]))"
                         style="text-decoration: none">
-                        @php
-                            $authorName =
-                                app()->getLocale() === 'en'
-                                    ? $book->author->name_en ?? $book->author->name
-                                    : $book->author->name;
-                        @endphp
-                        <span> {{ $authorName }} </span>
+                       
+                        <span> {{ $book->author->getLocalizedName() }} </span>
                     </a>
                 </p>
                 <div class="row align-items-start" style="padding-bottom:20px">
@@ -235,7 +233,7 @@
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-x-circle text-danger"></i>
                                 {{ __('messages.useOrder') }} <a style="text-decoration: none"
-                                    href="{{ route('order_us') }}"> {{ __('messages.theOrder') }} </a>
+                                    href="@langurl(route('order_us'))"> {{ __('messages.theOrder') }} </a>
                                 {{ __('messages.feature') }}
                             </div>
                         @endif
@@ -299,7 +297,7 @@
                     <!-- Direct Pay Form -->
 
                     <div class="w-100 mt-4" id="direct-pay-form" style="display: none; ">
-                        <form action="{{ route('book.direct.pay') }}" method="POST" id="directCheckoutForm"
+                        <form action="@langurl(route('book.direct.pay'))" method="POST" id="directCheckoutForm"
                             style="padding: 0 20px; margin-top:-20px !important;  background-color: rgb(253, 205, 71); 
                       border-radius: 5px;">
                             @csrf
@@ -640,13 +638,15 @@
 
                             <div class="d-flex flex-wrap gap-2 tags">
                                 @foreach ($book->genres as $genre)
-                                    @php
-                                        $genreName =
-                                            app()->getLocale() === 'en'
-                                                ? $genre->name_en ?? $genre->name
-                                                : $genre->name;
-                                    @endphp
-                                    <a href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}"
+                                  @php
+    $genreName = match(app()->getLocale()) {
+        'ru' => $genre->name_ru ?? $genre->name_en ?? $genre->name,
+        'en' => $genre->name_en ?? $genre->name,
+        default => $genre->name,
+    };
+@endphp
+
+                                    <a href="@langurl(route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]))"
                                         class="text-decoration-none">
                                         <span
                                             class="badge genre-badge bg-light border border-dark text-dark px-3 py-2 shadow-sm">
@@ -674,7 +674,7 @@
                     @foreach ($relatedBooks as $related)
                         <div class="col-md-3" style="position: relative; ">
                             <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
-                                <a href="{{ route('full', ['title' => Str::slug($related->title), 'id' => $related->id]) }}"
+                                <a href="@langurl(route('full', ['title' => Str::slug($related->title), 'id' => $related->id]))"
                                     class="card-link">
                                     <div class="image-container"
                                         style="background-image: url('{{ asset('images/default_image.png') }}');">
@@ -691,15 +691,9 @@
                                     {{-- Author --}}
                                     <p class="text-muted mb-2" style="font-size: 14px;">
                                         <i class="bi bi-person"></i>
-                                        <a href="{{ route('full_author', ['id' => $related->author_id, 'name' => Str::slug($related->author->name)]) }}"
+                                        <a href="@langurl(route('full_author', ['id' => $related->author_id, 'name' => Str::slug($related->author->name)]))"
                                             class="text-decoration-none text-primary">
-                                            @php
-                                                $relatedAuthorName =
-                                                    app()->getLocale() === 'en'
-                                                        ? $related->author->name_en ?? $related->author->name
-                                                        : $related->author->name;
-                                            @endphp
-                                            {{ $relatedAuthorName }}
+{{ $related->author->getLocalizedName() }}
                                         </a>
                                     </p>
                                     <p style="font-size: 18px; color: #333;">

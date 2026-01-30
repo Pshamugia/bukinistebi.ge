@@ -23,6 +23,15 @@
     <input type="text" name="name_en" class="form-control" value="{{ old('name_en', $genre->name_en ?? '') }}">
 </div>
 
+
+<!-- Russian -->
+    <div class="mb-3">
+        <label>Название (Русский)</label>
+        <input type="text" name="name_ru"
+               class="form-control"
+               value="{{ old('name_ru', $genre->name_ru) }}">
+    </div>
+
         <button type="submit" class="btn btn-primary">განახლება</button>
         <a href="{{ route('admin.genres.index') }}" class="btn btn-secondary">დაბრუნება</a>
     </form>

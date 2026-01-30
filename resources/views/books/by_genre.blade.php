@@ -54,7 +54,7 @@
     justify-content: left;">
         <strong>
             <i class="bi bi-bookmarks-fill"></i> 
-            {{ app()->getLocale() === 'en' ? $genre->name_en : $genre->name }}
+            {{ $genre->getLocalizedName() }}
         </strong>
     </h5>
 

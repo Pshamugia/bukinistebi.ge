@@ -9,7 +9,7 @@ class Author extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'name_en'];
+    protected $fillable = ['name', 'name_en', 'name_ru'];
 
     // Relationships
 
@@ -20,4 +20,15 @@ class Author extends Model
     {
         return $this->hasMany(Book::class);
     }
+
+
+    public function getLocalizedName(): string
+{
+    return match (app()->getLocale()) {
+        'ru' => $this->name_ru ?: ($this->name_en ?: $this->name),
+        'en' => $this->name_en ?: $this->name,
+        default => $this->name,
+    };
+}
+
 }

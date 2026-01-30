@@ -38,10 +38,11 @@ use App\Http\Controllers\Admin\AnnouncementController;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
+use App\Http\Controllers\Admin\AuctionCategoryController;
 use App\Http\Controllers\Publisher\PublisherBookController;
+
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
-
 use App\Http\Controllers\Publisher\PublisherAuthorController;
 use App\Http\Controllers\Publisher\PublisherAccountController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
@@ -114,10 +115,8 @@ Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->n
 
 // 
 Route::get('lang/{locale}', [App\Http\Controllers\BookController::class, 'setLocale'])->name('setLocale');
-
-Route::get('/lang-test', function () {
-    return 'Current language is: ' . app()->getLocale();
-});
+Route::get('/locale/{locale}', [BookController::class, 'setLocale'])
+    ->name('locale.switch');
 
 // auction FRONT
 
@@ -125,6 +124,11 @@ Route::get('/auctions', [AuctionFrontController::class, 'index'])->name('auction
 Route::get('/my-bids', [AuctionFrontController::class, 'myAuctionDashboard'])->middleware('auth')->name('my.bids');
 Route::get('/auction/{auction}/bids', [AuctionFrontController::class, 'getBids'])->middleware('auth')->name('auction.bids');
 Route::get('/auctions/rules', [AuctionFrontController::class, 'rules'])->name('auction.rules');
+
+Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])
+    ->name('auction.fee.payment')
+    ->middleware('auth');
+
 // auction SUBMISSION (logged-in users → pending approval)
 Route::middleware('auth')->group(function () {
     Route::get('/auction/submit', [AuctionSubmissionController::class, 'create'])
@@ -394,6 +398,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::post('/auctions', [AuctionController::class, 'store'])->name('admin.auctions.store');
     Route::get('/auction-participants', [AuctionController::class, 'participants'])->name('admin.auction.participants');
 
+     Route::resource(
+        'auction-categories',
+        AuctionCategoryController::class,
+        ['as' => 'admin']
+    )->except(['create', 'show', 'edit']);
+
 
     Route::resource('bundles', BundleController::class, ['as' => 'admin']);
 
@@ -410,8 +420,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
     Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
     Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
-    Route::post('/pay-auction-fee', [TbcCheckoutController::class, 'payAuctionFee'])->name('auction.fee.payment')->middleware('auth');
-
+ 
 
     // Books CRUD routes (Admin)
     Route::resource('books', AdminBookController::class, ['as' => 'admin']);

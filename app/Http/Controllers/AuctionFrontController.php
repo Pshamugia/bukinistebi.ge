@@ -2,25 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Auction;
 use App\Models\Bid;
+use App\Models\Auction;
 use Illuminate\Http\Request;
+use App\Models\AuctionCategory;
 use Illuminate\Support\Facades\Auth;
 
 class AuctionFrontController extends Controller
 {
 
-
-public function index()
+ 
+public function index(Request $request)
 {
-    $auctions = Auction::with('book')
-        ->where('is_approved', true)
+    $categories = AuctionCategory::orderBy('name')->get();
+
+   $auctions = Auction::with(['book', 'auctionCategory'])
+      ->where('is_approved', true)
         ->where('is_active', true)
         ->where('end_time', '>', now())
-        ->orderByDesc('created_at')
-        ->paginate(10);
+    ->when(request('category'), function ($q) {
+        $q->whereHas('auctionCategory', function ($q2) {
+            $q2->where('slug', request('category'));
+        });
+    })
+    ->latest()
+    ->paginate(12);
 
-    return view('auction.index', compact('auctions'));
+    return view('auction.index', compact('auctions', 'categories'));
 }
 
 
@@ -38,13 +46,13 @@ public function index()
     {
         $bidAmount = $request->bid_amount;
 
- 
 
-    if (empty(auth()->user()->phone) || empty(auth()->user()->address)) {
-    return response()->json([
-        'missing_fields' => true
-    ]);
-}
+
+        if (empty(auth()->user()->phone) || empty(auth()->user()->address)) {
+            return response()->json([
+                'missing_fields' => true
+            ]);
+        }
 
         // ✅ Check if user has paid the auction participation fee
         if (!Auth::user()->paidAuction($auction->id)) {
@@ -69,19 +77,25 @@ public function index()
             }
         }
 
-        if ($bidAmount <= $auction->current_price) {
-            return back()->withErrors(['bid_amount' => 'ბიჯი უნდა იყოს მიმდინარე ფასზე მეტი.']);
+        $highestBid = $auction->bids()->max('amount');
+        $basePrice = $highestBid ?? $auction->start_price;
+
+        if ($bidAmount <= $basePrice) {
+            return back()->withErrors([
+                'bid_amount' => "ბიჯი უნდა იყოს მეტი ვიდრე მიმდინარე ფასი ({$basePrice} ₾)."
+            ]);
         }
+
 
         $isAnonymous = $request->has('is_anonymous'); // ✅ define the variable
 
-     Bid::create([
-    'auction_id' => $auction->id,
-'user_id' => Auth::id(),
-    'amount' => $bidAmount,
-    'is_anonymous' => $isAnonymous,
-    'created_at' => now(),
-]);
+        Bid::create([
+            'auction_id' => $auction->id,
+            'user_id' => Auth::id(),
+            'amount' => $bidAmount,
+            'is_anonymous' => $isAnonymous,
+            'created_at' => now(),
+        ]);
 
 
         $auction->current_price = $bidAmount;
@@ -99,10 +113,10 @@ public function index()
         return view('auction.partials.bid_history', compact('auction'));
     }
 
-public function rules()
-{
-    return view('auction.rules');  // ✅ this matches resources/views/auction/rules.blade.php
-}
+    public function rules()
+    {
+        return view('auction.rules');  // ✅ this matches resources/views/auction/rules.blade.php
+    }
 
 
 

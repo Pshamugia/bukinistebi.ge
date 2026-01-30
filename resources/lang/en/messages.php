@@ -252,5 +252,7 @@ return [
     'newBooks' => 'New books',
     'usedBooks' => 'Second-hand books',
     'sortStatus' => 'Sort by status',
+    'didyoumean' => 'Did you mean this? - ',
+
 
 ];

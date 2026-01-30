@@ -15,3 +15,10 @@
         <small class="text-danger">{{ $message }}</small>
     @enderror
 </div>
+
+<!-- Russian Name -->
+<div class="mb-3">
+    <label>Имя (Русский)</label>
+    <input type="text" name="name_ru" class="form-control"
+           value="{{ old('name_ru', $author->name_ru ?? '') }}">
+</div>

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Auction;
 use App\Models\Book;
+use App\Models\Auction;
 use Illuminate\Http\Request;
+use App\Models\AuctionCategory;
 use Illuminate\Support\Facades\Auth;
 
 class AuctionSubmissionController extends Controller
@@ -20,18 +21,28 @@ class AuctionSubmissionController extends Controller
                 ->with('error', 'აუქციონის შექმნამდე გთხოვთ შეავსოთ ტელეფონი და მისამართი.');
         }
 
-        return view('auction.submit');
+$categories = AuctionCategory::all();
+
+
+        return view('auction.submit', compact('categories'));
     }
+
+
+
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|min:10',
+            'auction_category_id' => 'required|exists:auction_categories,id',
             'start_price' => 'required|numeric|min:1',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'video' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//'
+            'video' => [
+                'nullable',
+                'url',
+                'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//'
             ],
 
 
@@ -75,6 +86,7 @@ class AuctionSubmissionController extends Controller
         Auction::create([
             'book_id' => $book->id,
             'user_id' => auth()->id(),
+            'auction_category_id' => $request->auction_category_id,
             'start_price' => $request->start_price,
             'current_price' => $request->start_price,
             'start_time' => $request->start_time,

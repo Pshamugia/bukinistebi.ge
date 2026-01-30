@@ -24,9 +24,11 @@ class GenreController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'name_en' => 'nullable|string|max:255',
+                        'name_ru' => 'nullable|string|max:255',
+
         ]);
     
-        Genre::create($request->only('name', 'name_en'));
+        Genre::create($request->only('name', 'name_en', 'name_ru'));
     
         return redirect()->route('admin.genres.index')->with('success', 'Genre created.');
     }
@@ -39,13 +41,16 @@ class GenreController extends Controller
     public function update(Request $request, Genre $genre)
     {
         $request->validate([
-            'name' => 'nullable|string|max:255',
+            'name'    => 'nullable|string|max:255',
             'name_en' => 'nullable|string|max:255',
+            'name_ru' => 'nullable|string|max:255',
         ]);
-    
-        $genre->update($request->only('name', 'name_en'));
-    
-        return redirect()->route('admin.genres.index')->with('success', 'Genre updated.');
+
+        $genre->update($request->only('name', 'name_en', 'name_ru'));
+
+        return redirect()
+            ->route('admin.genres.index')
+            ->with('success', 'Genre updated.');
     }
 
     public function destroy(Genre $genre)

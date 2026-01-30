@@ -62,6 +62,8 @@
 
 
                     <li><a class="nav-link text-white" href="{{ route('admin.auctions.index') }}"> <i class="bi bi-hammer"></i> აუქციონი !! </a></li>
+                    <li><a class="nav-link text-white" href="{{ route('admin.auction-categories.index') }}"> <i class="bi bi-hammer"></i> აუქციონის კატეგორიები </a></li>
+
                     <li><a class="nav-link text-white" href="{{ route('admin.genres.index') }}"><i class="bi bi-tags"></i> ჟანრები</a></li>
                     <li><a class="nav-link text-white" href="{{ route('admin.authors.index') }}"><i class="bi bi-person"></i> ავტორები</a></li>
 
@@ -94,14 +96,14 @@
 
                     @endif
 
-                       @if(auth()->user()->hasAdminPermission('announcement.manage'))
-<li class="nav-item">
-    <a class="nav-link text-white"
-       href="{{ route('announcements.index') }}">
-        <i class="bi bi-megaphone"></i> ანონსი
-    </a>
-</li>
-@endif
+                    @if(auth()->user()->hasAdminPermission('announcement.manage'))
+                    <li class="nav-item">
+                        <a class="nav-link text-white"
+                            href="{{ route('announcements.index') }}">
+                            <i class="bi bi-megaphone"></i> ანონსი
+                        </a>
+                    </li>
+                    @endif
 
 
 

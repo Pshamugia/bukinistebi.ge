@@ -2,6 +2,11 @@
 @section('title', 'ბუკინისტები | ძიება')
 @section('content')
 
+@if(request('lang'))
+    <input type="hidden" name="lang" value="{{ request('lang') }}">
+@endif
+
+
 <div class="container" style="position: relative;top:50px; ">
     
     <style>.filter-modern .form-control,
@@ -239,7 +244,7 @@
     
     <h4 style="margin-bottom:18px;">{{ __('messages.filtersearch')}}</h4>
 
-    <form action="{{ route('search') }}" method="GET" class="row g-3 mb-4">
+    <form action="@langurl(route('search'))" method="GET" class="row g-3 mb-4">
 
    <div class="col-md-2 material-field">
     <input name="title" class="form-control"

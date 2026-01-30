@@ -20,6 +20,12 @@ return [
     'locale' => 'ka',
 
     'fallback_locale' => 'ka',
+    
+    'supported_locales' => [
+    'ka' => 'ქართული',
+    'en' => 'English',
+    'ru' => 'Русский',
+],
 
     'faker_locale' => 'ka_GE',
 

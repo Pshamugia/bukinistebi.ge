@@ -42,6 +42,25 @@
                       rows="6">{{ old('description', $auction->book->description) }}</textarea>
         </div>
 
+
+        <div class="mb-3">
+    <label class="form-label">Auction Category</label>
+
+    <select name="auction_category_id"
+            class="form-select"
+            required>
+        <option value="">— Select category —</option>
+
+        @foreach($categories as $category)
+            <option value="{{ $category->id }}"
+                {{ old('auction_category_id', $auction->auction_category_id) == $category->id ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+
         {{-- ===============================
             AUCTION SECTION
         ================================ --}}

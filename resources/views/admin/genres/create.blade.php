@@ -22,6 +22,12 @@
             <input type="text" class="form-control" id="name_en" name="name_en">
         </div>
 
+         <!-- Russian -->
+    <div class="mb-3">
+        <label>Название (Русский)</label>
+        <input type="text" name="name_ru" class="form-control">
+    </div>
+
         <button type="submit" class="btn btn-success">შენახვა</button>
         <a href="{{ route('admin.genres.index') }}" class="btn btn-secondary">დაბრუნება</a>
     </form>

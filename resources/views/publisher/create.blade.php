@@ -53,7 +53,8 @@
               <select name="language" id="language"
                       class="form-select @error('language') is-invalid @enderror" required>
                   <option value="ka" {{ old('language', request('lang')) == 'ka' ? 'selected' : '' }}>ქართული</option>
-                  <option value="en" {{ old('language', request('lang')) == 'en' ? 'selected' : '' }}>English</option>
+    <option value="en" {{ old('language', request('lang')) == 'en' ? 'selected' : '' }}>English</option>
+    <option value="ru" {{ old('language', request('lang')) == 'ru' ? 'selected' : '' }}>Русский</option>
               </select>
               @error('language') <div class="invalid-feedback">{{ $message }}</div> @enderror
           </div>
@@ -184,15 +185,18 @@
       <div class="mb-3">
           <label for="author_id" class="form-label">{{ __('messages.author') }}</label>
           <select name="author_id" id="author_id"
-                  class="form-control chosen-select @error('author_id') is-invalid @enderror"
-                  data-placeholder="{{ __('messages.selectAuthor') }}" required>
-              <option value="">{{ __('messages.selectAuthor') }}</option>
-              @foreach ($authors as $author)
-                  <option value="{{ $author->id }}" {{ old('author_id') == $author->id ? 'selected' : '' }}>
-                      {{ $locale === 'en' ? $author->name_en : $author->name }}
-                  </option>
-              @endforeach
-          </select>
+        class="form-control chosen-select @error('author_id') is-invalid @enderror"
+        data-placeholder="{{ __('messages.selectAuthor') }}" required>
+    <option value="">{{ __('messages.selectAuthor') }}</option>
+
+    @foreach ($authors as $author)
+        <option value="{{ $author->id }}"
+            {{ old('author_id') == $author->id ? 'selected' : '' }}>
+            {{ $author->getLocalizedName() }}
+        </option>
+    @endforeach
+</select>
+
           @error('author_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
 
           <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#addAuthorModal">
@@ -205,15 +209,16 @@
           <label for="genre_id" class="form-label">{{ __('messages.category') }}</label>
           <select name="genre_id[]" class="form-select categoria chosen-select @error('genre_id') is-invalid @enderror" id="genre_id" multiple>
               @foreach ($genres as $genre)
-                  @php
-                      $genreName = $locale === 'en' && $genre->name_en ? $genre->name_en : $genre->name;
-                  @endphp
-                  @if($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
-                      <option value="{{ $genre->id }}" {{ collect(old('genre_id', []))->contains($genre->id) ? 'selected' : '' }}>
-                          {{ $genreName }}
-                      </option>
-                  @endif
-              @endforeach
+    @php $genreName = $genre->getLocalizedName(); @endphp
+
+    @if(!in_array($genreName, ['Souvenirs', 'სუვენირები', 'Сувениры']))
+        <option value="{{ $genre->id }}"
+            {{ collect(old('genre_id', []))->contains($genre->id) ? 'selected' : '' }}>
+            {{ $genreName }}
+        </option>
+    @endif
+@endforeach
+
           </select>
           @php
             $genreErrors = collect($errors->get('genre_id'))
@@ -242,7 +247,22 @@
               <form id="addAuthorForm">
                   <div class="mb-3">
                       <label for="new_author_name" class="form-label">{{ __('messages.authorName') }}</label>
-                      <input type="text" id="new_author_name" name="new_author_name" class="form-control" required>
+<div class="mb-2">
+    <label class="form-label">ქართული</label>
+    <input type="text" id="author_name" class="form-control">
+</div>
+
+<div class="mb-2">
+    <label class="form-label">English</label>
+    <input type="text" id="author_name_en" class="form-control">
+</div>
+
+<div class="mb-2">
+    <label class="form-label">Русский</label>
+    <input type="text" id="author_name_ru" class="form-control">
+</div>
+
+<div id="authorError" class="text-danger mt-2"></div>
                       <div id="authorError" class="text-danger"></div>
                   </div>
                   <button type="submit" class="btn btn-primary">{{ __('messages.add') }}</button>
@@ -343,39 +363,54 @@ document.addEventListener('DOMContentLoaded', function () {
 $('#addAuthorForm').on('submit', function (e) {
     e.preventDefault();
 
-    let newAuthorName = $('#new_author_name').val();
+    const data = {
+        name:    $('#author_name').val(),
+        name_en: $('#author_name_en').val(),
+        name_ru: $('#author_name_ru').val(),
+        _token: $('meta[name="csrf-token"]').attr('content')
+    };
 
     $.ajax({
         url: "{{ route('publisher.authors.store') }}",
         type: 'POST',
-        data: {
-            new_author_name: newAuthorName,
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function (response) {
-            if (response.success) {
-                let newOption = $('<option>')
-                    .val(response.author.id)
-                    .text(response.author.name);
+        data: data,
 
-                $('#author_id').append(newOption).trigger("chosen:updated");
-                $('#new_author_name').val('');
-                $('#addAuthorModal').modal('hide');
-                alert('ავტორი წარმატებით დაემატა!');
-            } else if (response.errors && response.errors.new_author_name) {
-                $('#authorError').text(response.errors.new_author_name[0]);
-            } else {
-                alert('დაფიქსირდა შეცდომა.');
-            }
+        success: function (response) {
+            if (!response.success) return;
+
+            const author = response.author;
+
+            const text =
+                author.name_ru ||
+                author.name_en ||
+                author.name;
+
+            const newOption = new Option(
+                text,
+                author.id,
+                true,
+                true
+            );
+
+            $('#author_id')
+                .append(newOption)
+                .trigger('chosen:updated');
+
+            $('#addAuthorModal').modal('hide');
+
+            $('#author_name').val('');
+            $('#author_name_en').val('');
+            $('#author_name_ru').val('');
+            $('#authorError').text('');
         },
+
         error: function (xhr) {
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                if (errors && errors.new_author_name) {
-                    $('#authorError').text(errors.new_author_name[0]);
-                }
+            if (xhr.responseJSON?.errors) {
+                $('#authorError').text(
+                    Object.values(xhr.responseJSON.errors)[0][0]
+                );
             } else {
-                alert('დაფიქსირდა შეცდომა: ' + (xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Unknown'));
+                $('#authorError').text('Server error');
             }
         }
     });

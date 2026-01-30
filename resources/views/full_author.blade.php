@@ -49,7 +49,7 @@
                                 <i class="bi bi-person"></i>
                                 <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
                                     class="text-decoration-none text-primary">
-                                    {{ app()->getLocale() === 'en' ? $book->author->name_en : $book->author->name }}
+                                    {{ $book->author->getLocalizedName() }}
                                 </a>
                             </p>
                             <p style="font-size: 18px; color: #333;">

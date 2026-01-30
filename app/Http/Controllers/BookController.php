@@ -184,15 +184,18 @@ class BookController extends Controller
 
 
 
-    public function setLocale($locale)
+    public function setLocale(string $locale): RedirectResponse
     {
-        Session::put('locale', $locale);
-        App::setLocale($locale);
-
-        Log::info('✅ setLocale triggered, locale set to: ' . $locale);
+        if (array_key_exists($locale, config('app.supported_locales'))) {
+            Session::put('locale', $locale);
+            Log::info('Locale switched to: ' . $locale);
+        } else {
+            Log::warning('Invalid locale attempt: ' . $locale);
+        }
 
         return redirect()->back();
     }
+
 
 
     public function byGenre($id)
@@ -595,15 +598,21 @@ class BookController extends Controller
 
 
     private function detectLanguage($text)
-    {
-        // Georgian Unicode range: 10A0–10FF and 2D00–2D2F
-        if (preg_match('/[\x{10A0}-\x{10FF}\x{2D00}-\x{2D2F}]/u', $text)) {
-            return 'ka';
-        }
-
-        // Default: English/Latin
-        return 'en';
+{
+    // Georgian
+    if (preg_match('/[\x{10A0}-\x{10FF}\x{2D00}-\x{2D2F}]/u', $text)) {
+        return 'ka';
     }
+
+    // Russian Cyrillic
+    if (preg_match('/[\x{0400}-\x{04FF}]/u', $text)) {
+        return 'ru';
+    }
+
+    // Default Latin
+    return 'en';
+}
+
 
 
     /**
@@ -649,13 +658,16 @@ class BookController extends Controller
 
                 // 2) AUTHOR match multilingual
                 $q->orWhereHas('author', function ($a) use ($qLower) {
-                    $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
-                        ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
-                });
+    $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+      ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"])
+      ->orWhereRaw('LOWER(name_ru) LIKE ?', ["%{$qLower}%"]);
+});
+
 
                 // 3) DESCRIPTION multilingual
-                $q->orWhereRaw('LOWER(description) LIKE ?', ["%{$qLower}%"]);
-                $q->orWhereRaw('LOWER(description_en) LIKE ?', ["%{$qLower}%"]);
+               $q->orWhereRaw('LOWER(description) LIKE ?', ["%{$qLower}%"]);
+
+
             });
         }
 
@@ -696,24 +708,29 @@ class BookController extends Controller
         $books = $query
             ->select('*')
             ->selectRaw("
-        CASE 
-            WHEN LOWER(title) LIKE ? THEN 1
-            WHEN EXISTS (
-                SELECT 1 FROM authors 
-                WHERE authors.id = books.author_id 
-                AND (LOWER(authors.name) LIKE ? OR LOWER(authors.name_en) LIKE ?)
-            ) THEN 2
-            WHEN LOWER(description) LIKE ? THEN 3
-            WHEN LOWER(description_en) LIKE ? THEN 3
-            ELSE 4
-        END AS priority
-    ", [
+    CASE 
+        WHEN LOWER(title) LIKE ? THEN 1
+        WHEN EXISTS (
+            SELECT 1 FROM authors 
+            WHERE authors.id = books.author_id 
+              AND (
+                  LOWER(authors.name) LIKE ?
+                  OR LOWER(authors.name_en) LIKE ?
+                  OR LOWER(authors.name_ru) LIKE ?
+              )
+        ) THEN 2
+       WHEN LOWER(description) LIKE ? THEN 3
+ 
+        ELSE 4
+    END AS priority
+", [
                 "%{$qLower}%",
                 "%{$qLower}%",
                 "%{$qLower}%",
                 "%{$qLower}%",
                 "%{$qLower}%"
             ])
+
             ->orderByRaw("
         CASE 
             WHEN quantity <= 0 THEN 1
@@ -750,14 +767,14 @@ class BookController extends Controller
             $candidates = collect();
 
             // Authors
-            Author::select('name', 'name_en')->get()->each(function ($author) use ($candidates) {
-                if ($author->name) {
-                    $candidates->push($author->name);
-                }
-                if ($author->name_en) {
-                    $candidates->push($author->name_en);
-                }
-            });
+           Author::all()->each(function ($author) use ($candidates) {
+    $name = $author->getLocalizedName();
+
+    if ($name) {
+        $candidates->push($name);
+    }
+});
+
 
             // Book titles
             Book::select('title')->get()->each(function ($book) use ($candidates) {
@@ -868,41 +885,49 @@ class BookController extends Controller
                 'books.id',
                 'books.title',
                 'books.description',
-                'books.description_en',
                 'books.author_id',
                 'books.photo',
                 'books.language',
                 'books.quantity'
             )
-            ->with(['author:id,name,name_en'])
+            ->with(['author:id,name,name_en,name_ru'])
             ->where('books.hide', 0)
             ->where('books.auction_only', false)
             ->whereDoesntHave('auction', function ($q) {
                 $q->where('is_active', true)
                     ->where('end_time', '>', now());
             })
-            ->where(function ($qq) use ($qLower) {
-                $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"])
-                    ->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"])
-                    ->orWhereRaw('LOWER(books.description_en) LIKE ?', ["%{$qLower}%"])
-                    ->orWhereHas('author', function ($a) use ($qLower) {
-                        $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
-                            ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"]);
-                    });
-            })
+          ->where(function ($qq) use ($qLower) {
+
+    // TITLE (neutral)
+    $qq->whereRaw('LOWER(books.title) LIKE ?', ["%{$qLower}%"]);
+
+    // DESCRIPTION (KA + RU)
+    $qq->orWhereRaw('LOWER(books.description) LIKE ?', ["%{$qLower}%"]);
+
+    // AUTHOR (KA + EN + RU)
+    $qq->orWhereHas('author', function ($a) use ($qLower) {
+        $a->whereRaw('LOWER(name) LIKE ?', ["%{$qLower}%"])
+          ->orWhereRaw('LOWER(name_en) LIKE ?', ["%{$qLower}%"])
+          ->orWhereRaw('LOWER(name_ru) LIKE ?', ["%{$qLower}%"]);
+    });
+})
+
+            
             ->selectRaw("
             CASE
                 WHEN LOWER(books.title) LIKE ? THEN 1
                 WHEN EXISTS (
-                    SELECT 1 FROM authors
-                    WHERE authors.id = books.author_id
-                      AND (
-                          LOWER(authors.name) LIKE ?
-                          OR LOWER(authors.name_en) LIKE ?
-                      )
-                ) THEN 2
-                WHEN LOWER(books.description) LIKE ?
-                  OR LOWER(books.description_en) LIKE ? THEN 3
+    SELECT 1 FROM authors
+    WHERE authors.id = books.author_id
+      AND (
+          LOWER(authors.name) LIKE ?
+          OR LOWER(authors.name_en) LIKE ?
+          OR LOWER(authors.name_ru) LIKE ?
+      )
+) THEN 2
+WHEN LOWER(books.description) LIKE ? THEN 3
+
                 ELSE 4
             END AS match_priority
         ", [
@@ -920,18 +945,14 @@ class BookController extends Controller
         ")
             ->orderBy('sold_priority')
             ->orderBy('match_priority')
-            ->orderByRaw(
-                "CASE WHEN LOWER(books.language) = ? THEN 0 ELSE 1 END",
-                [$lang]
-            )
+           
             ->orderBy('books.title')
             ->limit(8)
             ->get();
 
         $items = $books->map(function ($b) {
-            $authorName = app()->getLocale() === 'en'
-                ? ($b->author->name_en ?: $b->author->name)
-                : ($b->author->name ?: $b->author->name_en);
+            $authorName = $b->author->getLocalizedName();
+
 
             return [
                 'title'  => $b->title,
@@ -959,10 +980,13 @@ class BookController extends Controller
             $candidates = collect();
 
             // Authors
-            \App\Models\Author::select('name', 'name_en')->get()->each(function ($a) use ($candidates) {
-                if ($a->name)    $candidates->push($a->name);
-                if ($a->name_en) $candidates->push($a->name_en);
+            \App\Models\Author::all()->each(function ($a) use ($candidates) {
+                $name = $a->getLocalizedName();
+                if ($name) {
+                    $candidates->push($name);
+                }
             });
+
 
             // Book titles
             Book::select('title')->get()->each(function ($b) use ($candidates) {

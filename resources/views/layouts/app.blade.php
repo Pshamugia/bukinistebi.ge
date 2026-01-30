@@ -31,8 +31,9 @@
         @yield('og')
     @else 
 
-        <meta http-equiv="Content-Language" content="ka">
-        <meta name="language" content="ka">
+        <meta http-equiv="Content-Language" content="{{ app()->getLocale() }}">
+<meta name="language" content="{{ app()->getLocale() }}">
+
         <meta name="description"
             content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
         <meta property="og:title"
@@ -194,7 +195,8 @@
 </head>
 
 <body>
- 
+ @php $lang = request('lang'); @endphp
+
 
     <!-- ✅ Top Navbar: right -->
     <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
@@ -227,7 +229,7 @@
                             }
                         @endphp
                         <!-- Cart Link in the Navbar -->
-                        <a class="nav-link" href="{{ route('cart.index') }}" aria-label="View cart" style="position: relative;">
+                        <a class="nav-link" href="@langurl(route('cart.index'))" aria-label="View cart" style="position: relative;">
                             <i class="bi bi-cart-fill" style="position: relative; top:1px;"></i>
 
                             <span class="d-none d-md-inline"> <!-- Hide on mobile, show on md+ -->
@@ -286,16 +288,16 @@
                                 <div class="tab-pane fade show active" id="login" role="tabpanel"
                                     aria-labelledby="login-tab">
 
-                                    <a class="nav-link mt-2" href="{{ route('login') }}">
+                                    <a class="nav-link mt-2" href="@langurl(route('login'))">
                                         <i class="bi bi-key"></i> {{ __('messages.authorization') }}
                                     </a>
                                     @if (Route::has('register'))
-                                        <a class="nav-link mt-3" href="{{ route('register') }}">
+                                        <a class="nav-link mt-3" href="@langurl(route('register'))">
                                             <i class="bi bi-person-fill-add"></i> {{ __('messages.registration') }}</a>
                                     @endif
 
                                     <!-- google auth-->
-                                    <a href="{{ route('login.google') }}"
+                                    <a href="@langurl(route('login.google'))"
                                         class="btn w-100 d-flex align-items-center justify-content-center shadow-sm"
                                         style="background-color: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; font-weight: 500; margin-top:15px;">
                                         <img src="https://developers.google.com/identity/images/g-logo.png"
@@ -311,11 +313,11 @@
                                     aria-labelledby="register-tab">
 
 
-                                    <a class="nav-link mt-3" href="{{ route('login.publisher') }}">
+                                    <a class="nav-link mt-3" href="@langurl(route('login.publisher'))">
                                         <i class="bi bi-box-arrow-in-right"></i> {{ __('messages.booksellerauth') }}
                                     </a>
                                     @if (Route::has('register'))
-                                        <a class="nav-link mt-3" href="{{ route('register.publisher') }}">
+                                        <a class="nav-link mt-3" href="@langurl(route('register.publisher'))">
                                             <i class="bi bi-person-plus"></i> {{ __('messages.booksellerreg') }}</a>
                                     @endif
                                 </div>
@@ -350,38 +352,38 @@
                         <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1000000">
                             @if (Auth::user()->role === 'publisher')
                                 <li style="margin-top:15px;"><a class="dropdown-item"
-                                        href="{{ route('publisher.dashboard') }}">
+                                        href="@langurl(route('publisher.dashboard'))">
                                         <i class="bi bi-door-open"></i>&nbsp;{{ __('messages.booksellersRoom') }}
                                     </a></li>
-                                <li><a class="dropdown-item" href="{{ route('publisher.my_books') }}">
+                                <li><a class="dropdown-item" href="@langurl(route('publisher.my_books'))">
                                         <i class="bi bi-book"></i> &nbsp;{{ __('messages.myUploadedBooks') }}
                                     </a></li>
-                                <li><a class="dropdown-item" href="{{ route('publisher.account.edit') }}">
+                                <li><a class="dropdown-item" href="@langurl(route('publisher.account.edit'))">
                                         <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
                                     </a></li>
                             @else
                                 <li style="margin-top:15px;">
-                                    <a class="dropdown-item" href="{{ route('purchase.history') }}">
+                                    <a class="dropdown-item" href="@langurl(route('purchase.history'))">
                                         <i class="bi bi-credit-card-2-front"></i>
                                         &nbsp;{{ __('messages.purchaseHistory') }}
                                     </a>
                                 </li>
                                 <li style="margin-top:15px; padding-bottom:10px;">
-                                    <a class="dropdown-item" href="{{ route('account.edit') }}">
+                                    <a class="dropdown-item" href="@langurl(route('account.edit'))">
                                         <i class="bi bi-pencil"></i> &nbsp;{{ __('messages.editProfile') }}
                                     </a>
                                 </li>
 
                                 <li style="padding-bottom:10px;">
-                                    <a class="dropdown-item" href="{{ route('my.bids') }}">
+                                    <a class="dropdown-item" href="@langurl(route('my.bids'))">
                                         <i class="bi bi-hammer"></i> &nbsp;{{ __('messages.myAuctions') }}
                                     </a>
                                 </li>
                             @endif
                             <li>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="@langurl(route('logout'))">
                                     @csrf
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                    <a class="dropdown-item" href="@langurl(route('logout'))"
                                         onclick="event.preventDefault();
                  this.closest('form').submit();">
                                         <i class="bi bi-box-arrow-right"></i> &nbsp;{{ __('messages.logout') }}
@@ -405,8 +407,29 @@
 
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" style="z-index: 50000 !Important">
-                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('ka')">ქართული</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')">English</a></li>
+                        <li>
+    <a class="dropdown-item"
+       href="{{ request()->fullUrlWithQuery(['lang' => 'ka']) }}">
+        ქართული
+    </a>
+</li>
+
+<li>
+    <a class="dropdown-item"
+       href="{{ request()->fullUrlWithQuery(['lang' => 'en']) }}">
+        English
+    </a>
+</li>
+
+<li>
+    <a class="dropdown-item"
+       href="{{ request()->fullUrlWithQuery(['lang' => 'ru']) }}">
+        Русский
+    </a>
+</li>
+
+
+                        
                     </ul>
                 </li>
 
@@ -433,7 +456,7 @@
 
 
 
-                <a class="navbar-brand" href="{{ url('/') }}" aria-label="Bukinistebi Home"><img
+                <a class="navbar-brand" href="@langurl(('/'))" aria-label="Bukinistebi Home"><img
                         src="{{ asset('uploads/logo/bukinistebi.ge.png') }}"  width="130" 
                         height="31" style="position:relative;" loading="lazy" alt="bukinstebi_logo"></a>
 
@@ -450,7 +473,7 @@
                 <!-- 🔍 Popup Search Box (mobile only) -->
                 <div id="mobileSearchOverlay" class="d-lg-none mobileSearch"
                     style="display: none; position: absolute; top: 0; left: 0; right: 0; background: #F3F4F6; z-index: 9999; padding: 3px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <form action="{{ route('search') }}" method="GET" class="d-flex align-items-center"
+                    <form action="@langurl(route('search'))" method="GET" class="d-flex align-items-center"
                         style="width: 100%;">
                         <div id="searchSuggestMobile" class="suggest-box d-none"></div>
 
@@ -492,7 +515,7 @@
 
                     <ul class="navbar-nav ms-auto" style="position: relative;   z-index: 100000;">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}" aria-label="Bukinistebi Home">{{ __('messages.home') }}</a>
+                            <a class="nav-link" href="@langurl(url('/'))" aria-label="Bukinistebi Home">{{ __('messages.home') }}</a>
                         </li>
 
 
@@ -511,7 +534,7 @@
 
                                 <li class="genre-item all-item" data-name="{{ __('messages.all') }}">
                                     <a class="dropdown-item"
-                                        href="{{ route('books') }}">{{ __('messages.all') }}</a>
+                                        href="@langurl(route('books'))">{{ __('messages.all') }}</a>
                                 </li>
 
 
@@ -519,23 +542,20 @@
                                     {{ __('messages.noresult') }}
                                 </li>
 
-                                @foreach ($genres as $genre)
-                                    @php
-                                        $genreName =
-                                            app()->getLocale() === 'en' && $genre->name_en
-                                                ? $genre->name_en
-                                                : $genre->name;
-                                    @endphp
+                               @foreach ($genres as $genre)
+    @if (!$genre->isSouvenir())
+        <li class="genre-item" data-name="{{ $genre->getLocalizedName() }}">
+            <a class="dropdown-item"
+               href="@langurl(route('genre.books', [
+                   'id' => $genre->id,
+                   'slug' => Str::slug($genre->getLocalizedName())
+               ]))">
+                {{ $genre->getLocalizedName() }}
+            </a>
+        </li>
+    @endif
+@endforeach
 
-                                    @if ($genreName !== 'Souvenirs' && $genreName !== 'სუვენირები')
-                                        <li class="genre-item" data-name="{{ $genreName }}">
-                                            <a class="dropdown-item"
-                                                href="{{ route('genre.books', ['id' => $genre->id, 'slug' => Str::slug($genreName)]) }}">
-                                                {{ $genreName }}
-                                            </a>
-                                        </li>
-                                    @endif
-                                @endforeach
 
 
                             </ul>
@@ -544,7 +564,7 @@
 
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('bundles.index.public') }}">
+                            <a class="nav-link" href="@langurl(route('bundles.index.public'))">
                                 {{ __('messages.sets') }}
                             </a>
                         </li>
@@ -552,7 +572,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link"
-                                href="{{ route('souvenirs.index') }}">{{ __('messages.souvenirs') }}</a>
+                                href="@langurl(route('souvenirs.index'))">{{ __('messages.souvenirs') }}</a>
                         </li>
 
 
@@ -560,20 +580,24 @@
 
                         <li class="nav-item">
                             <a class="nav-link"
-                                href="{{ route('auction.index') }}">{{ __('messages.auctions') }}</a>
+                                href="@langurl(route('auction.index'))">{{ __('messages.auctions') }}</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('order_us') }}">{{ __('messages.order') }}</a>
+                            <a class="nav-link" href="@langurl(route('order_us'))">{{ __('messages.order') }}</a>
                         </li>
 
 
-                        <form class="d-none d-lg-flex" role="search" action="{{ route('search') }}" method="GET"
+                        <form class="d-none d-lg-flex" role="search" action="@langurl(route('search'))" method="GET"
                             onsubmit="return validateSearch()" style="position: relative;  ">
                             <input class="form-control me-2 styled-input" name="title" type="search"
                                 value="{{ request()->get('title') }}"
                                 placeholder="{{ __('messages.booksearch') }}..." aria-label="Search"
                                 id="searchInput">
+                                @if(request('lang'))
+    <input type="hidden" name="lang" value="{{ request('lang') }}">
+@endif
+
                                 <div id="searchSpinner" class="search-spinner"></div>
 
  <button class="btn btn-outline-success submit-search" type="submit"
@@ -611,7 +635,7 @@ aria-label="Search" style="position: relative;  "></i></button>
                 <div class="col-lg-3 offset-lg-1 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.forcustomers') }}</h5>
                     <p>
-                        <a href="{{ route('terms_conditions') }}" class="text-white text-decoration-none">
+                        <a href="@langurl(route('terms_conditions'))" class="text-white text-decoration-none">
                             <span>{{ __('messages.terms') }}</span>
                         </a>
                     </p>
@@ -633,7 +657,7 @@ aria-label="Search" style="position: relative;  "></i></button>
                 <!-- Column 4 -->
                 <div class="col-lg-2 col-md-5 mb-4 mb-md-0">
                     <h5>{{ __('messages.newsletter') }}</h5>
-                    <form id="subscriptionForm" method="POST" action="{{ route('subscribe') }}">
+                    <form id="subscriptionForm" method="POST" action="@langurl(route('subscribe'))">
                         @csrf
 
                         <input type="email" name="email" class="form-control mb-2"
@@ -743,15 +767,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
 
 
-
-    <script>
-        function switchLanguage(locale) {
-            fetch(`/lang/${locale}`)
-                .then(() => {
-                    location.reload(true); // force full reload
-                });
-        }
-    </script>
+ 
 <script src="{{ asset('js/cookieConsent.js') }}"></script>
 <script>
     window.cookieConsentConfig = {
@@ -949,7 +965,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
     @if (Auth::check() && Auth::user()->cart && Auth::user()->cart->cartItems()->count() > 0)
         <div class="sticky-cart-summary d-block d-md-none">
-            <a href="{{ route('cart.index') }}"
+            <a href="@langurl(route('cart.index'))"
                 class="btn btn-primary w-100 d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-cart-fill"></i> კალათაში {{ Auth::user()->cart->cartItems()->count() }} წიგნი
                     გაქვს </span>
@@ -988,7 +1004,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
                         banner.innerHTML = `
                 <i class="bi bi-cart-fill me-2"></i> თქვენ გაქვთ კალათაში {{ $cartItemCount }} წიგნი
-                <a href="{{ route('cart.index') }}" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
+                <a href="@langurl(route('cart.index'))" class="btn btn-sm btn-primary ms-2">ნახეთ კალათა</a>
                 <button type="button" class="btn-close" aria-label="Close" onclick="this.parentElement.remove()"></button>
             `;
 
@@ -1040,7 +1056,7 @@ $(document).on('click', '.toggle-cart-btn', function () {
 
 
                 $.ajax({
-                    url: '{{ route('cart.toggle') }}',
+url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -1178,9 +1194,14 @@ $(document).on('click', '.toggle-cart-btn', function () {
         `).removeClass('d-none');
 
         $box.find('.didyoumean-link').on('click', function (e) {
-            e.preventDefault();
-            window.location.href = '/search?title=' + encodeURIComponent(didYouMean);
-        });
+    e.preventDefault();
+
+    const lang = @json($lang);
+    window.location.href =
+        '/search?title=' + encodeURIComponent(didYouMean)
+        + (lang ? '&lang=' + lang : '');
+});
+
 
         return;
     }
@@ -1250,24 +1271,32 @@ html += '</ul>';
 
     $box.on('click', '[data-see-more]', function () {
     const q = $input.val().trim();
+    const lang = @json($lang);
+
     if (q.length > 0) {
-        window.location.href = '/search?title=' + encodeURIComponent(q);
+        window.location.href =
+            '/search?title=' + encodeURIComponent(q)
+            + (lang ? '&lang=' + lang : '');
     }
 });
 
 
 
+
             // Click: go to URL if present; else fill+submit
             $box.on('click', '.suggest-item', function() {
-                const url = $(this).data('url');
-                if (url) {
-                    window.location.href = url;
-                } else {
-                    $input.val($(this).data('title'));
-                    $form.trigger('submit');
-                }
-                $box.addClass('d-none').empty();
-            });
+    const url  = $(this).data('url');
+    const lang = @json($lang);
+
+    if (url) {
+        window.location.href =
+            url + (lang ? (url.includes('?') ? '&' : '?') + 'lang=' + lang : '');
+    } else {
+        $input.val($(this).data('title'));
+        $form.trigger('submit');
+    }
+});
+
 
             $(document).on('click', function(e) {
                 if (!$(e.target).closest('#searchInput, #searchSuggestBox').length) {
@@ -1327,9 +1356,14 @@ html += '</ul>';
         `).removeClass('d-none');
 
         $mobileBox.find('.didyoumean-link').on('click', function (e) {
-            e.preventDefault();
-            window.location.href = '/search?title=' + encodeURIComponent(didYouMean);
-        });
+    e.preventDefault();
+
+    const lang = @json($lang);
+    window.location.href =
+        '/search?title=' + encodeURIComponent(didYouMean)
+        + (lang ? '&lang=' + lang : '');
+});
+
 
         return;
     }
@@ -1401,20 +1435,28 @@ html += '</ul>';
 
 $mobileBox.on('click', '[data-see-more]', function() {
     const q = $mobileInput.val().trim();
-    window.location.href = '/search?title=' + encodeURIComponent(q);
+    const lang = @json($lang);
+
+    window.location.href =
+        '/search?title=' + encodeURIComponent(q)
+        + (lang ? '&lang=' + lang : '');
 });
 
 
+
             $mobileBox.on('click', '.suggest-item', function() {
-                const url = $(this).data('url');
-                if (url) {
-                    window.location.href = url;
-                } else {
-                    $mobileInput.val($(this).data('title'));
-                    $mobileForm.trigger('submit');
-                }
-                $mobileBox.addClass('d-none').empty();
-            });
+    const url  = $(this).data('url');
+    const lang = @json($lang);
+
+    if (url) {
+        window.location.href =
+            url + (lang ? (url.includes('?') ? '&' : '?') + 'lang=' + lang : '');
+    } else {
+        $mobileInput.val($(this).data('title'));
+        $mobileForm.trigger('submit');
+    }
+});
+
 
             $(document).on('click', function(e) {
                 if (!$(e.target).closest('#mobileSearchOverlay input[name="title"], #searchSuggestMobile')

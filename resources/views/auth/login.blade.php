@@ -43,8 +43,13 @@ justify-content: left;">
         </div>
     @endif
 
+
+    <div>     <h4>  <i class="bi bi-flag-fill"></i> {{ __('messages.ifNotRegistered')}}  <a href="{{ route('register')}}"> {{ __('messages.here')}} </a> </h4>
+</div>
     <div style="border-radius: 5px; border:1px solid #ccc; padding: 22px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
-        <form method="POST" action="{{ route('login') }}">
+        
+    
+    <form method="POST" action="{{ route('login') }}">
             @csrf
 
             <!-- Email Address -->

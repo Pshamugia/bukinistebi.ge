@@ -17,20 +17,25 @@ class PublisherAuthorController extends Controller
      {
          try {
              // Validate the input field
-             $validatedData = $request->validate([
-                 'new_author_name' => 'required|string|max:255|unique:authors,name',
-             ], [
-                 'new_author_name.unique' => 'ეს ავტორი უკვე დარეგისტრირებულია.', // Custom error message
-             ]);
-     
-             // Create the new author
-             $author = Author::create(['name' => $validatedData['new_author_name']]);
-     
-             // Return JSON response for AJAX
-             return response()->json([
-                 'success' => true,
-                 'author' => $author,
-             ]);
+            $validated = $request->validate([
+    'name'    => 'nullable|string|max:255',
+    'name_en' => 'nullable|string|max:255',
+    'name_ru' => 'nullable|string|max:255',
+]);
+
+if (!($validated['name'] || $validated['name_en'] || $validated['name_ru'])) {
+    return response()->json([
+        'success' => false,
+        'errors' => ['name' => ['At least one name is required']]
+    ], 422);
+}
+
+$author = Author::create($validated);
+
+return response()->json([
+    'success' => true,
+    'author'  => $author
+]);
          } catch (\Illuminate\Validation\ValidationException $e) {
              // Return validation errors
              return response()->json([

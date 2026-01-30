@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Book;
 use App\Models\Auction;
 use Illuminate\Http\Request;
+use App\Models\AuctionCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,8 +67,11 @@ public function edit(Auction $auction)
     $books = \App\Models\Book::with('author') // include author
         ->where('auction_only', true)
         ->get();
+        
+            $categories = AuctionCategory::orderBy('name')->get();
 
-    return view('admin.auctions.edit', compact('auction', 'books'));
+
+    return view('admin.auctions.edit', compact('auction', 'books', 'categories'));
 }
 
 
@@ -89,6 +93,7 @@ public function update(Request $request, Auction $auction)
 
     $auction->update([
         'book_id' => $request->book_id,
+        'auction_category_id' => $request->auction_category_id,
         'start_price' => $request->start_price,
         'start_time' => $request->start_time,
         'end_time' => $request->end_time,
@@ -106,6 +111,7 @@ public function updateFull(Request $request, Auction $auction)
 {
     $request->validate([
         // Auction
+        'auction_category_id' => 'required|exists:auction_categories,id',
         'start_price' => 'required|numeric|min:0',
         'start_time'  => 'required|date',
         'end_time'    => 'required|date|after:start_time',
@@ -121,6 +127,7 @@ public function updateFull(Request $request, Auction $auction)
 
     // ✅ Update AUCTION
     $auction->update([
+        'auction_category_id' => $request->auction_category_id,
         'start_price' => $request->start_price,
         'start_time'  => $request->start_time,
         'end_time'    => $request->end_time,

@@ -14,6 +14,8 @@
     <select name="language" id="languageSwitcher" class="form-select" required>
         <option value="ka" {{ old('language', $book->language ?? '') == 'ka' ? 'selected' : '' }}>ქართული</option>
         <option value="en" {{ old('language', $book->language ?? '') == 'en' ? 'selected' : '' }}>English</option>
+        <option value="ru" {{ old('language', $book->language ?? '') == 'ru' ? 'selected' : '' }}>Русский</option>
+
     </select>
 </div>
 
@@ -123,7 +125,7 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_2" class="form-control" id="photo_2" {{ isset($photo_2) }}>
+<input type="file" name="photo_2" class="form-control" id="photo_2">
 </div>
 
 
@@ -135,7 +137,7 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_3" class="form-control" id="photo_3" {{ isset($photo_3) }}>
+<input type="file" name="photo_3" class="form-control" id="photo_3">
 </div>
 
 
@@ -147,14 +149,14 @@
                 alt="{{ $book->title }}">
         </div>
     @endif
-    <input type="file" name="photo_4" class="form-control" id="photo_4" {{ isset($photo_4) }}>
+<input type="file" name="photo_4" class="form-control" id="photo_4">
 </div>
 
 
 
                     {{-- Auction images --}}
 
-@if($book->images->count())
+@if(isset($book) && $book && $book->images->count())
     <div class="mb-3">
         <label class="form-label fw-semibold">📷 არსებული სურათები</label>
         <div class="d-flex flex-wrap gap-2">
@@ -324,13 +326,20 @@
         <select name="genre_id[]" id="genre_id" class="genres form-control" multiple>
             <option value="">მონიშნე ჟანრი (არასავალდებულო)</option>
             @foreach ($genres as $genre)
-    <option value="{{ $genre->id }}"
-        data-name-en="{{ $genre->name_en }}"
-        data-name-ka="{{ $genre->name }}"
-        {{ (isset($book) && $book->genres->contains('id', $genre->id)) ? 'selected' : '' }}>
-        {{ $locale === 'en' ? ($genre->name_en ?? $genre->name) : $genre->name }}
-    </option>
+  <option value="{{ $genre->id }}"
+      data-name-ka="{{ $genre->name }}"
+      data-name-en="{{ $genre->name_en }}"
+      data-name-ru="{{ $genre->name_ru }}"
+      {{ (isset($book) && $book->genres->contains('id', $genre->id)) ? 'selected' : '' }}>
+      
+      {{ match($locale) {
+          'en' => $genre->name_en ?? $genre->name,
+          'ru' => $genre->name_ru ?? $genre->name,
+          default => $genre->name,
+      } }}
+  </option>
 @endforeach
+
 
         
         </select>

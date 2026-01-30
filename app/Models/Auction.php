@@ -10,6 +10,7 @@ class Auction extends Model
 protected $fillable = [
     'book_id',
     'user_id',
+    'auction_category_id',
     'start_price',
     'current_price',
     'start_time',
@@ -65,4 +66,20 @@ public function getEffectiveCurrentPriceAttribute()
             ->withPivot('paid_at')
             ->withTimestamps();
     }
+
+  public function category()
+{
+    return $this->belongsTo(
+        \App\Models\AuctionCategory::class,
+        'auction_category_id'
+    );
+}
+
+
+public function auctionCategory()
+{
+    return $this->belongsTo(\App\Models\AuctionCategory::class);
+}
+
+
 }

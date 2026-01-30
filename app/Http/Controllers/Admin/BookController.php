@@ -107,13 +107,20 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
     public function create(Request $request)
     {
-        $locale = $request->get('lang', app()->getLocale());
+        $locale = $request->get('lang', default: app()->getLocale());
         app()->setLocale($locale);
 
         // ✅ Load all authors with either Georgian or English name
-        $authors = Author::where(function ($query) {
-            $query->whereNotNull('name')->orWhereNotNull('name_en');
-        })->get();
+    $authors = Author::where(function ($query) use ($locale) {
+    if ($locale === 'en') {
+        $query->whereNotNull('name_en');
+    } elseif ($locale === 'ru') {
+        $query->whereNotNull('name_ru');
+    } else {
+        $query->whereNotNull('name');
+    }
+})->get();
+
 
         // ✅ Load all genres (same as before)
         if ($locale === 'en') {
@@ -122,7 +129,10 @@ $query = Book::with(['author', 'genres', 'publisher'])
             $genres = Genre::whereNotNull('name')->get();
         }
 
-        return view('admin.books.create', compact('authors', 'genres', 'locale'));
+            $book = null; // ✅ ADD THIS LINE
+
+
+        return view('admin.books.create', compact('book', 'authors', 'genres', 'locale'));
     }
 
 
@@ -143,7 +153,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
         // Base validation
         $validated = $request->validate([
             'title'              => 'required|string|max:255',
-            'language'           => 'required|in:ka,en',
+            'language'           => 'required|in:ka,en,ru',
             'price'              => 'required|numeric',
             'new_price'          => 'nullable|numeric',
             'acquisition_price' => 'nullable|numeric|min:0',
@@ -300,7 +310,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
         // Base validation
         $validated = $request->validate([
             'title'              => 'required|string|max:255',
-            'language'           => 'required|in:ka,en',
+            'language'           => 'required|in:ka,en,ru',
             'price'              => 'required|numeric',
             'new_price'          => 'nullable|numeric',
             'acquisition_price' => 'nullable|numeric|min:0',
