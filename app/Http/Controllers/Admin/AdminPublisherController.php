@@ -14,6 +14,8 @@ use App\Exports\PublisherTitlesExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log; // Use the full namespace for Log
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+
 
 
 class AdminPublisherController extends Controller
@@ -171,6 +173,31 @@ public function exportPublisherTitles(Request $request, User $publisher)
 
 
 
+
+public function destroyBook(Book $book)
+{
+    // Delete book images from storage
+    if (method_exists($book, 'images')) {
+        foreach ($book->images as $image) {
+            if ($image->image && Storage::disk('public')->exists($image->image)) {
+                Storage::disk('public')->delete($image->image);
+            }
+            $image->delete();
+        }
+    }
+
+    // Delete main image if exists
+    if ($book->photo && Storage::disk('public')->exists($book->photo)) {
+        Storage::disk('public')->delete($book->photo);
+    }
+
+    $book->delete();
+
+return response()->json([
+    'success' => true,
+    'book_id' => $book->id,
+]);
+}
 
 
 

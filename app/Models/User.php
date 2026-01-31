@@ -23,6 +23,8 @@ class User extends Authenticatable
         'phone',
         'iban',
         'admin_permissions', 
+        'admin_note',
+
 
     ];
 

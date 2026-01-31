@@ -385,6 +385,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     // Publishers Activity Route
     Route::get('/publishers/activity', [AdminPublisherController::class, 'activity'])->name('admin.publishers.activity');
 
+Route::delete('/admin/books/{book}', [
+    AdminPublisherController::class,
+    'destroyBook'
+])->name('admin.books.destroy');
 
 
 
@@ -482,12 +486,20 @@ Route::post('/admin/subadmins/delete/{id}', [SubAdminController::class, 'destroy
     // FOR PUBLISHERS TO ALLOW HIDE/SHOW
     Route::post('/books/{id}/toggle-visibility', [AdminPublisherController::class, 'toggleVisibility'])->name('books.toggleVisibility');
 
-    //users transacions
-    Route::get('/users-transactions', [AdminBookController::class, 'usersTransactions'])->name('admin.users_transactions')->middleware('auth', 'admin'); // Ensure only admin can access
-Route::delete('/order/delete/{id}',
-    [AdminBookController::class, 'deleteOrder'])
-    ->name('admin.order.delete')
-    ->middleware('auth', 'admin');
+    // users transactions
+Route::get('/users-transactions', [AdminBookController::class, 'usersTransactions'])
+    ->name('admin.users_transactions');
+
+// delete order
+Route::delete('/order/delete/{id}', [AdminBookController::class, 'deleteOrder'])
+    ->name('admin.order.delete');
+
+// ✅ ADMIN NOTE (FIXED)
+Route::post('/users/admin-note', [AdminBookController::class, 'saveAdminNote'])
+    ->name('admin.users.admin_note');
+
+
+
 
 
     

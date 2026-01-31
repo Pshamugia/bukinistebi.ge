@@ -644,6 +644,33 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
 
 
+ public function saveAdminNote(Request $request)
+{
+    $request->validate([
+        'type' => 'required|in:user,order',
+        'id'   => 'required|integer',
+        'note' => 'nullable|string',
+    ]);
+
+    if ($request->type === 'user') {
+        $user = User::findOrFail($request->id);
+        $user->admin_note = $request->note;
+        $user->save();
+    } else {
+        // ✅ Guest order
+        $order = Order::findOrFail($request->id);
+        $order->admin_note = $request->note;
+        $order->save();
+    }
+
+    return response()->json([
+        'ok' => true,
+    ]);
+}
+
+
+
+
     public function deleteOrder($orderId)
     {
         $order = Order::findOrFail($orderId);
