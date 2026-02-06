@@ -160,41 +160,48 @@
 
                     {{-- PRICE --}}
 
-                    <p style="font-size: 18px; color: #333;">
-                        @if ($book->new_price)
-                        {{-- New (discounted) price first --}}
-                        <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
-                        <span class="text-dark fw-semibold" style="position: relative; top:3px;">
-                            {{ number_format($book->new_price) }}
-                        </span>
-                        &nbsp;
-                        {{-- Old price after (with strikethrough) --}}
+                     <p style="font-size: 18px; color: #333;">
 
-                        <em class="text-secondary" style="text-decoration: line-through;  font-style: normal;  font-size: 16px; position: relative; top:3px;"> &#8382;
-                            {{ number_format($book->price) }}
-                        </em>
-                        @else
-                        {{-- Normal price --}}
-                        <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
-                        <span class="text-dark fw-semibold" style="position: relative; top:3px;">
-                            {{ number_format($book->price) }}
-                        </span>
-                        @endif
+                @php
+                $finalPrice = $book->new_price ?? $book->price;
+                $formatted = number_format($finalPrice, 2);
+                [$main, $cents] = explode('.', $formatted);
+                @endphp
 
-                        {{-- Availability badge --}}
-                        <span style="position: relative; top:5px;">
-                            @if ($book->quantity == 0)
-                            <span class="badge bg-danger" style="font-weight: 100; float: right;">
-                                {{ __('messages.outofstock') }}
-                            </span>
-                            @elseif($book->quantity >= 1)
-                            <span class="badge bg-success"
-                                style="font-size: 13px; font-weight: 100; float: right;">
-                                {{ __('messages.available') }}
-                            </span>
-                            @endif
-                        </span>
-                    </p>
+                {{-- AMAZON STYLE PRICE --}}
+                <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
+
+                <span class="text-dark fw-semibold" style="position: relative; top:3px; font-size:22px;">
+                    {{ $main }}
+                    <small style="font-size: 13px; position: relative; left:-2px; top: -6px;">
+                        {{ $cents }}
+                    </small>
+                </span>
+
+                {{-- OLD PRICE (IF DISCOUNT EXISTS) --}}
+                @if ($book->new_price)
+                &nbsp;
+                <em class="text-secondary"
+                    style="text-decoration: line-through; font: weight 100px; font-style: normal; font-size: 16px; position: relative; top:3px;">
+                    &#8382; {{ number_format($book->price, 2) }}
+                </em>
+                @endif
+
+                {{-- Availability badge --}}
+                <span style="position: relative; top:5px;">
+                    @if ($book->quantity == 0)
+                    <span class="badge bg-danger" style="font-weight: 100; float: right;">
+                        {{ __('messages.outofstock') }}
+                    </span>
+                    @elseif($book->quantity >= 1)
+                    <span class="badge bg-success"
+                        style="font-size: 13px; font-weight: 100; float: right;">
+                        {{ __('messages.available') }}
+                    </span>
+                    @endif
+                </span>
+
+            </p>
 
 
 
@@ -355,7 +362,7 @@
                         </h4>
 
                         <div class="news-meta">
-                            💰 {{ number_format($auction->current_price) }} ₾
+💰 {{ number_format($auction->effective_current_price, 2) }} ₾
                             · ⏳ {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}
                         </div>
                     </div>

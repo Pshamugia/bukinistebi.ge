@@ -38,7 +38,7 @@ class UserTransactionsExport implements
     public function collection()
     {
         $query = Order::query()
-            ->with(['orderItems.book', 'user'])
+->with(['orderItems.book', 'orderItems.bundle', 'user'])
             ->whereIn('status', ['delivered', 'Succeeded'])
             ->orderByDesc('created_at');
 
@@ -92,46 +92,54 @@ class UserTransactionsExport implements
      * =========================
      */
     public function map($row): array
-    {
-        $order = $row['order'];
-        $item  = $row['item'];
-        $book  = $row['book'];
+{
+    $order = $row['order'];
+    $item  = $row['item'];
+    $book  = $row['book'];
 
-        $sellingPrice = (float) $item->price;
-        $acquisition  = (float) ($book->acquisition_price ?? 0);
-        $qty          = (int) $item->quantity;
+    $sellingPrice = (float) $item->price;
+    $acquisition  = (float) optional($book)->acquisition_price ?? 0;
+    $qty          = (int) $item->quantity;
 
-        $revenue = $sellingPrice * $qty;
-        $cost    = $acquisition * $qty;
+    $revenue = $sellingPrice * $qty;
+    $cost    = $acquisition * $qty;
 
-        // ✅ accumulate totals
-        $this->totalRevenue += $revenue;
-        $this->totalCost    += $cost;
+    // accumulate totals
+    $this->totalRevenue += $revenue;
+    $this->totalCost    += $cost;
 
-        // ✅ delivery / payment type
-        $deliveryType = match ($order->payment_method) {
-            'courier'        => 'კურიერი',
-            'bank_transfer' => 'ბანკი',
-            default          => $order->payment_method ?? '—',
-        };
+    // delivery / payment type
+    $deliveryType = match ($order->payment_method) {
+        'courier'      => 'კურიერი',
+        'bank_transfer'=> 'ბანკი',
+        default        => $order->payment_method ?? '—',
+    };
 
-        return [
-            $order->id,
-            optional($order->created_at)->format('Y-m-d H:i'),
-            $order->name ?? optional($order->user)->name ?? 'Guest',
-            $book->title ?? '—',
+    return [
+        $order->id,
+        optional($order->created_at)->format('Y-m-d H:i'),
+        $order->name ?? optional($order->user)->name ?? 'Guest',
 
-            number_format($sellingPrice, 2),
-            $book->acquisition_price !== null ? number_format($acquisition, 2) : '',
+    optional($item->book)->title
+    ?? optional($item->bundle)->title
+    ?? '—',
 
-            $qty,
 
-            number_format($revenue, 2),
-            number_format($cost, 2),
+        number_format($sellingPrice, 2),
 
-            $deliveryType, // ✅ instead of profit
-        ];
-    }
+        optional($book)->acquisition_price !== null
+            ? number_format($acquisition, 2)
+            : '',
+
+        $qty,
+
+        number_format($revenue, 2),
+        number_format($cost, 2),
+
+        $deliveryType,
+    ];
+}
+
 
     /**
      * =========================

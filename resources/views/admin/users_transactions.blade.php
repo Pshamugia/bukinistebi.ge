@@ -26,6 +26,16 @@
     border: none;
 }
 
+/* Admin users table links */
+.table a {
+    text-decoration: none;
+ }
+
+.table a:hover {
+    text-decoration: underline; /* optional: show on hover */
+}
+
+
 </style>
 
     <form method="GET" action="{{ route('admin.users_transactions') }}" class="row g-3 mb-4">
@@ -255,7 +265,7 @@
                 <textarea id="adminNoteText"
                           class="form-control"
                           rows="4"
-                          placeholder="მაგ: წიგნის აღება სურს 17:00-ის შემდეგ"></textarea>
+                          placeholder="შენიშვნების გაკეთება"></textarea>
             </div>
 
             <div class="modal-footer">

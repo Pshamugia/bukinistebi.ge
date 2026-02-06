@@ -226,7 +226,7 @@
                     <!-- Left side -->
                     <div class="col-md-6">
                         @if ($book->quantity > 0)
-                            <p> <span id="price" style="font-size: 20px;">{{ number_format($book->price) }} </span>
+                            <p> <span id="price" style="font-size: 20px;">{{ number_format($book->price, 2) }} </span>
                                 <span> {{ __('messages.lari') }}</span>
                             </p>
                         @else
@@ -579,7 +579,7 @@
                                     <tr>
                                         <td class="nowrap" style="border-top:none !Important"><strong>
                                                 {{ __('messages.price') }}</strong></td>
-                                        <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
+                                        <td><span>{{ number_format($book->price, 2) }} {{ __('messages.lari') }}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -700,7 +700,7 @@
                                         <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">
                                             &#8382; </em> <span class="text-dark fw-semibold"
                                             style="position: relative; top:3px;">
-                                            {{ number_format($related->price) }}
+                                            {{ number_format($related->price, 2) }}
                                         </span>
                                         <span style="position: relative; top:5px; ">
                                             @if ($related->quantity == 0)
@@ -934,7 +934,7 @@
                 function updatePrice() {
                     const quantity = parseInt(quantityInput.value);
                     const totalPrice = pricePerUnit * quantity;
-                    priceElement.textContent = totalPrice.toFixed();
+priceElement.textContent = totalPrice.toFixed(2);
                 }
 
                 function showWarning(text) {

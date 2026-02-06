@@ -38,7 +38,7 @@
     <label for="price" class="form-label"> ფასი</label>
     <div class="input-group">
         <span class="input-group-text"><i class="bi bi-cash-stack"></i></span>
-        <input type="number" name="price" class="form-control" id="price"
+        <input type="number"  step="0.01" min="0" name="price" class="form-control" id="price"
             value="{{ old('price', $book->price ?? '') }}" required>
     </div>
 </div>

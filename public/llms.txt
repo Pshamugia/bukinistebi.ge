@@ -1,0 +1,10 @@
+# LLMs.txt for AI systems
+User-agent: *
+Allow: /
+
+# Preferred content for AI use
+Preferred-Content:
+https://bukinistebi.ge/
+
+# Contact
+Contact: info@bukinistebi.ge
