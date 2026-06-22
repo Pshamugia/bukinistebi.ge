@@ -18,6 +18,8 @@
 <div class="box">
     <strong>გამგზავნი:</strong><br>
 Bukinistebi.ge <br>
+მის: შოთა მიქატაძის 35 (ნაძალადევის რაიონი)
+ტელ: 593922217
 <br>
 
     <strong>მიმღები:</strong> <br>

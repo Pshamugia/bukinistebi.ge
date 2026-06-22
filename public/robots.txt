@@ -1,3 +1,13 @@
 User-agent: *
-Disallow: /admin/ 
-Disallow: /cart/
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /checkout
+Disallow: /cart
+Disallow: /api
+Disallow: /search?
+
+Allow: /
+
+Sitemap: https://bukinistebi.ge/sitemap.xml

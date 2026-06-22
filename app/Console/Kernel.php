@@ -18,6 +18,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('auctions:activate-approved')->everyMinute();
         $schedule->command('auctions:close-expired')->everyMinute();
         $schedule->command('queue:work --stop-when-empty')->everyMinute();
+         $schedule->command('orders:send-failed-payment-reminders')
+        ->everyFiveMinutes()
+        ->withoutOverlapping();
     }
 
     /**

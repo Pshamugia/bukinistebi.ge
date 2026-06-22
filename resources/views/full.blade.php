@@ -262,14 +262,17 @@
                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
                                 @if (in_array($book->id, $cartItemIds))
                                     <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
-                                        data-in-cart="true" style="width: 200px; font-size: 15px">
+                                        data-in-cart="true" data-book-title="{{ $book->title }}"
+data-book-price="{{ $book->new_price ?? $book->price }}" style="width: 200px; font-size: 15px">
                                         <i class="bi bi-check-circle"></i> <span
                                             class="cart-btn-text">{{ __('messages.added') }}</span>
                                     </button>
                                 @else
                                     <button class="btn btn-primary forFull toggle-cart-btn"
-                                        data-product-id="{{ $book->id }}" data-in-cart="false"
-                                        style="width: 200px; font-size: 14px">
+data-product-id="{{ $book->id }}"
+data-book-title="{{ $book->title }}"
+data-book-price="{{ $book->new_price ?? $book->price }}"
+data-in-cart="false"                                        style="width: 200px; font-size: 14px">
                                         <i class="bi bi-cart-plus"></i> <span
                                             class="cart-btn-text">{{ __('messages.addtocart') }}</span>
                                     </button>
@@ -721,7 +724,8 @@
                                     @if (!auth()->check() || auth()->user()->role !== 'publisher')
                                         @if (in_array($related->id, $cartItemIds))
                                             <button class="btn btn-success toggle-cart-btn w-100"
-                                                data-product-id="{{ $related->id }}" data-in-cart="true">
+                                                data-product-id="{{ $related->id }}" data-in-cart="true" data-book-title="{{ $book->title }}"
+data-book-price="{{ $book->new_price ?? $book->price }}">
                                                 <i class="bi bi-check-circle"></i>
                                                 <span class="cart-btn-text"
                                                     data-state="added">{{ __('messages.added') }}</span>
@@ -1011,6 +1015,20 @@
                                 button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
                                 button.find('.cart-btn-text').text(translations.added);
                                 button.data('in-cart', true);
+
+                                if (typeof gtag === 'function') {
+    gtag('event', 'add_to_cart', {
+        currency: 'GEL',
+        value: {{ (float) $book->price }} * parseInt(quantity),
+        items: [{
+            item_id: '{{ $book->id }}',
+            item_name: @json($book->title),
+            price: {{ (float) $book->price }},
+            quantity: parseInt(quantity)
+        }]
+    });
+}
+
                             } else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
                                 button.find('i').removeClass('bi-check-circle').addClass('bi-cart-plus');
@@ -1041,5 +1059,25 @@
                 });
             });
         </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof gtag === 'function') {
+        gtag('event', 'view_item', {
+            currency: 'GEL',
+            value: {{ (float) $book->price }},
+            items: [{
+                item_id: '{{ $book->id }}',
+                item_name: @json($book->title),
+                price: {{ (float) $book->price }},
+                quantity: 1
+            }]
+        });
+    }
+});
+</script>
+
+
     @endpush
 @endsection

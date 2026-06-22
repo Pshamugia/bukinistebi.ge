@@ -1,20 +1,19 @@
+@php use Illuminate\Support\Str; @endphp
 @php $isHomePage = $isHomePage ?? false; @endphp
 
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
 <head>
-    <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-D4Q2EZ7SGK"></script>
 <script>
-    window.addEventListener("load", function () {
-        setTimeout(function () {
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-D4Q2EZ7SGK');
-        }, 1500);
-    });
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    window.gtag = gtag;
+
+    gtag('js', new Date());
+    gtag('config', 'G-D4Q2EZ7SGK');
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -94,8 +93,7 @@
 
 
  
-<link rel="stylesheet" href="/css/bootstrap.min.css">
-
+<link rel="stylesheet" href="https://bukinistebi.ge/css/bootstrap.min.css">
 <link rel="preload" href="/css/chosen.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/chosen.min.css"></noscript>
 
@@ -108,9 +106,10 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 
     <!-- Custom CSS -->
-    <link rel="icon" href="{{ asset('uploads/favicon/favicon.png') }}" type="image/x-icon">
+    <link rel="icon" href="https://bukinistebi.ge/uploads/favicon/favicon.png" type="image/x-icon">
 
-    <link href="{{ asset('css/style.min.css') }}" rel="stylesheet">
+<link href="https://bukinistebi.ge/css/style.min.css" rel="stylesheet">
+
 
     @if (app()->getLocale() === 'en')
         <style>
@@ -202,6 +201,24 @@
     <nav id="topStickyNavbar" class="navbar navbar-light bg-dark border-bottom py-2">
         <div class="container d-flex justify-content-between align-items-center">
 
+@php
+    $isPublishing = request()->getHost() === 'publishing.bukinistebi.ge';
+@endphp
+
+
+            @if($isPublishing)
+
+<div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
+                <div class="col text-center">
+
+                    <a href="https://www.facebook.com/publishing.bukinistebi.ge" class="fb-icon-top" target="blank" aria-label="Visit Bukinistebi on Facebook"><i
+                            class="bi bi-facebook fs-5"></i></a>
+                    <a href="#" class="insta-icon-top" target="blank"  aria-label="Visit Bukinistebi on Instagram"><i
+                            class="bi bi-instagram fs-5"></i></a>
+
+                </div>
+            </div>
+            @else
 
             <!-- Right Side: Cart, Login, Language, Search -->
             <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
@@ -215,8 +232,47 @@
                 </div>
             </div>
 
+            @endif
+
             <!-- Right Side: Cart, Login, Language -->
+
+
+            @if($isPublishing)
+
+                        <ul class="navbar-nav flex-row align-items-center gap-0 flex-wrap ms-auto">
+                            <li> <i class="bi bi-envelope-fill"></i> publishing@bukinistebi.ge </li>
+</ul>
+
+
+@else
+
             <ul class="navbar-nav flex-row align-items-center gap-0 flex-wrap ms-auto">
+<!-- Forum -->
+ 
+<li class="nav-item forum-highlight" style="padding-right: 15px;">
+    <a class="nav-link" href="https://publishing.bukinistebi.ge/" target="_blank">
+        <i class="bi bi-book"></i>
+
+        <span class="d-none d-md-inline">
+            გამომცემლობა
+            <span class="badge bg-danger ms-1 forum-new-badge">NEW</span>
+        </span>
+    </a>
+</li>
+
+
+
+ <li class="nav-item forum-highlight" id="forumMenuItem">
+    <a class="nav-link" href="https://forum.bukinistebi.ge/" target="_blank">
+        <i class="bi bi-chat-dots"></i>
+
+        <span class="d-none d-md-inline">
+            ფორუმი
+            <span class="badge bg-danger ms-1 forum-new-badge">NEW</span>
+        </span>
+    </a>
+</li> 
+
 
 
                 <!-- Cart -->
@@ -444,6 +500,8 @@
                 </li>
 
             </ul>
+
+            @endif
         </div>
     </nav>
 
@@ -454,13 +512,14 @@
             style="position: fixed; top: 56px; width: 100%; z-index: 999;">
             <div class="container" style="position: relative; ">
 
+ 
 
-
+ 
                 <a class="navbar-brand" href="@langurl(('/'))" aria-label="Bukinistebi Home"><img
-                        src="{{ asset('uploads/logo/bukinistebi.ge.png') }}"  width="130" 
+                        src="https://bukinistebi.ge/uploads/logo/bukinistebi.ge.png"  width="130" 
                         height="31" style="position:relative;" loading="lazy" alt="bukinstebi_logo"></a>
 
-
+ 
                 <!-- 🔍 Mobile Search Icon (only visible on mobile) -->
              <button class="btn d-block d-lg-none mx-2"
         id="mobileSearchToggle"
@@ -511,7 +570,36 @@
 
 
                 <div class="collapse navbar-collapse" id="navbarNav">
+@php
+    $isPublishing = request()->getHost() === 'publishing.bukinistebi.ge';
+@endphp
 
+
+@if($isPublishing)
+
+<nav class="navbar navbar-expand-lg" style="background:#fff; border-bottom:1px solid #eee;">
+    <div class="container">
+
+        {{-- LOGO --}}
+      
+
+        {{-- SIMPLE MENU --}}
+        <div class="ms-auto d-flex gap-3">
+
+            <a href="https://bukinistebi.ge" class="btn btn-light">
+                <span> 📚 ბუკინისტური მაღაზია </span>
+            </a>
+
+            <a href="https://forum.bukinistebi.ge" class="btn btn-dark">
+               <span> 💬 ბუკინისტური ფორუმი </span>
+            </a>
+
+        </div>
+
+    </div>
+</nav>
+
+@else
 
                     <ul class="navbar-nav ms-auto" style="position: relative;   z-index: 100000;">
                         <li class="nav-item">
@@ -577,6 +665,12 @@
 
 
 
+<!-- <li class="nav-item">
+    <a class="nav-link" href="https://publishing.bukinistebi.ge" target="_blank">
+        გამომცემლობა
+    </a>
+</li> -->
+
 
                         <li class="nav-item">
                             <a class="nav-link"
@@ -610,7 +704,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
                     </ul>
 
-
+@endif
                 </div>
             </div>
         </nav>
@@ -626,12 +720,25 @@ aria-label="Search" style="position: relative;  "></i></button>
         <div class="container p-4">
             <div class="row">
                 <!-- Column 1 -->
+
+ @if($isPublishing)
+
+<div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                     <p><img src="https://bukinistebi.ge/uploads/logo/logo Geo.png" width="120px;"> </p>
+                </div>
+ @else
+
                 <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">Bukinistebi.ge</h5>
                     <p><span style="padding-right:33px">{{ __('messages.numberone') }}</span></p>
                 </div>
 
+                @endif
+
                 <!-- Terms and Conditions Column -->
+                  @if($isPublishing)
+
+                  @else
                 <div class="col-lg-3 offset-lg-1 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.forcustomers') }}</h5>
                     <p>
@@ -640,21 +747,33 @@ aria-label="Search" style="position: relative;  "></i></button>
                         </a>
                     </p>
                 </div>
+                @endif
 
                 <!-- Column 3 -->
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                  @if($isPublishing)
+                    
+ 
+        @else
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
                     <h5 class="text-uppercase">{{ __('messages.contact') }}</h5>
                   <ul class="list-unstyled">
-    <li>
+    <li></li>
         <a href="mailto:info@bukinistebi.ge" style="text-decoration:none; color:inherit;">
             <i class="bi bi-envelope-fill"></i> info@bukinistebi.ge
         </a>
+       
     </li>
 </ul>
 
                 </div>
+                 @endif
 
                 <!-- Column 4 -->
+
+                @if($isPublishing)
+
+
+                @else
                 <div class="col-lg-2 col-md-5 mb-4 mb-md-0">
                     <h5>{{ __('messages.newsletter') }}</h5>
                     <form id="subscriptionForm" method="POST" action="@langurl(route('subscribe'))">
@@ -687,6 +806,10 @@ aria-label="Search" style="position: relative;  "></i></button>
                     <script async src="//counter.top.ge/counter.js"></script>
                     <!-- / END OF TOP.GE COUNTER CODE -->
                 </div>
+
+@endif
+
+
 
                 <!-- Success Modal -->
                 <div class="modal fade" style="z-index: 101010101010 !important" id="subscriptionSuccessModal"
@@ -738,23 +861,34 @@ aria-label="Search" style="position: relative;  "></i></button>
                         </div>
                     </div>
                 </div>
+  @php
+                        $isPublishing = request()->getHost() === 'publishing.bukinistebi.ge';
+                        @endphp
 
+                        @if($isPublishing)
 
+                         @else
                 <div class="row mt-4">
                     <!-- Social Media -->
                     <div class="col text-center">
                         <h5 class="text-uppercase" style="position: relative; left:-15px">{{ __('messages.follow') }}
                         </h5>
+                        
+                      
+ 
+                        
+                       
                         <a href="https://www.facebook.com/bukinistebi.georgia" class="fb-icon" target="blank" aria-label="Follow us on Facebook">
                             <i class="bi bi-facebook fs-5"></i></a>
-                        <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank"  aria-label="Follow us on Instagram">
+                        <a href="https://www.instagram.com/bukinistebi.ge/" class="insta-icon" target="blank" aria-label="Follow us on Instagram">
                             <i class="bi bi-instagram fs-5"></i></a>
                         <a href="https://www.youtube.com/channel/UCrXyA0hq0gDJME5wgRGTbbA" class="youtube-icon"
-                            target="blank"   aria-label="Visit our YouTube channel"><i class="bi bi-youtube fs-3"></i></a>
+                            target="blank" aria-label="Visit our YouTube channel"><i class="bi bi-youtube fs-3"></i></a>
                         <a href="#" class="tiktok-icon" aria-label="Visit our TikTok"><i class="bi bi-tiktok fs-5"></i></a>
+                       
                     </div>
                 </div>
-
+ @endif
 
             </div>
 
@@ -790,8 +924,35 @@ aria-label="Search" style="position: relative;  "></i></button>
         }
     </script>
 
-    <!-- Add this JavaScript at the bottom of your Blade layout -->
-    <script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const forumItem = document.getElementById("forumMenuItem");
+    if (!forumItem) return;
+
+    const VISIT_LIMIT = 3;
+
+    let visits = localStorage.getItem("forumHighlightVisits");
+    visits = visits ? parseInt(visits) : 0;
+
+    if (visits < VISIT_LIMIT) {
+        forumItem.classList.add("glow");
+        localStorage.setItem("forumHighlightVisits", visits + 1);
+    } else {
+        // Remove badge after limit
+        const badge = forumItem.querySelector(".forum-new-badge");
+        if (badge) badge.remove();
+    }
+
+});
+</script>
+
+
+
+<script>
         // Prevent the dropdown from closing when interacting with tabs or dropdown content
         document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
             dropdown.addEventListener('click', function(e) {
@@ -1052,8 +1213,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 $(document).on('click', '.toggle-cart-btn', function () {
                 var button = $(this);
                 var bookId = button.data('product-id');
-                var quantity = parseInt($('#quantity').val()) || 1;
-
+var quantity = parseInt($('#quantity-' + bookId).val()) || 1;
 
                 $.ajax({
 url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
@@ -1065,12 +1225,29 @@ url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
                     },
                     success: function(response) {
                         if (response.success) {
-                            if (response.action === 'added') {
-                                button.removeClass('btn-primary').addClass('btn-success');
-                                button.find('i').removeClass('bi-cart-plus').addClass(
-                                    'bi-check-circle');
-                                button.find('.cart-btn-text').text(translations.added);
-                            } else if (response.action === 'removed') {
+                           if (response.action === 'added') {
+    button.removeClass('btn-primary').addClass('btn-success');
+    button.find('i').removeClass('bi-cart-plus').addClass('bi-check-circle');
+    button.find('.cart-btn-text').text(translations.added);
+    button.data('in-cart', true);
+
+    const itemId = button.data('product-id');
+    const itemName = button.data('book-title') || 'Unknown book';
+    const itemPrice = parseFloat(button.data('book-price')) || 0;
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'add_to_cart', {
+            currency: 'GEL',
+            value: itemPrice * quantity,
+            items: [{
+                item_id: String(itemId),
+                item_name: itemName,
+                price: itemPrice,
+                quantity: quantity
+            }]
+        });
+    }
+} else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
                                 button.find('i').removeClass('bi-check-circle').addClass(
                                     'bi-cart-plus');

@@ -202,14 +202,20 @@
                     @if($book->quantity >= 1)
                     @if (!auth()->check() || auth()->user()->role !== 'publisher')
                     @if (in_array($book->id, $cartItemIds))
-                    <button class="btn btn-success toggle-cart-btn w-100"
-                        data-product-id="{{ $book->id }}" data-in-cart="true">
+                 <button class="btn btn-success toggle-cart-btn w-100"
+    data-product-id="{{ $book->id }}"
+    data-book-title="{{ $book->title }}"
+    data-book-price="{{ $book->new_price ?? $book->price }}"
+    data-in-cart="true">
                         <i class="bi bi-check-circle"></i> <span class="cart-btn-text"
                             data-state="added"></span>
                     </button>
                     @else
                     <button class="btn btn-primary toggle-cart-btn w-100"
-                        data-product-id="{{ $book->id }}" data-in-cart="false">
+    data-product-id="{{ $book->id }}"
+    data-book-title="{{ $book->title }}"
+    data-book-price="{{ $book->new_price ?? $book->price }}"
+    data-in-cart="false">
                         <i class="bi bi-cart-plus"></i> <span class="cart-btn-text" data-state="add"></span>
                     </button>
                     @endif
@@ -355,7 +361,7 @@
                         </h4>
 
                         <div class="news-meta">
-                            💰 {{ number_format($auction->current_price) }} ₾
+💰 {{ number_format($auction->effective_current_price) }} ₾
                             · ⏳ {{ \Carbon\Carbon::parse($auction->end_time)->diffForHumans() }}
                         </div>
                     </div>
