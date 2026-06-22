@@ -994,8 +994,10 @@ data-book-price="{{ $book->new_price ?? $book->price }}">
 
         <!-- jQuery and CSRF Setup Script -->
         <script>
-            $('.toggle-cart-btn').click(function() {
-                var button = $(this);
+$('.toggle-cart-btn').click(function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+                    var button = $(this);
                 var bookId = button.data('product-id');
                 var inCart = button.data('in-cart');
                 var quantity = $('#quantity-' + bookId).val() || 1;

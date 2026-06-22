@@ -259,11 +259,14 @@ class CartController extends Controller
             $action = 'added';
         }
 
-        return response()->json([
-            'success' => true,
-            'action' => $action,
-            'cart_count' => $cart->cartItems->count(),
-        ]);
+       $cartCount = $cart->cartItems()->count();
+
+return response()->json([
+    'success' => true,
+    'action' => $action,
+    'cart_count' => $cartCount,
+]);
+
     }
 
 

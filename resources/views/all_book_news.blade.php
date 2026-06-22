@@ -138,8 +138,10 @@
 
 <script>
     $(document).ready(function() {
-      $('.toggle-cart-btn').click(function() {
-          var button = $(this);
+$('.toggle-cart-btn').click(function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+              var button = $(this);
           var bookId = button.data('product-id');
           var inCart = button.data('in-cart');
   

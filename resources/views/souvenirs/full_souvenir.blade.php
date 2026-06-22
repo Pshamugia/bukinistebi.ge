@@ -866,8 +866,10 @@
         const isSouvenir = @json($isSouvenir);
         const sizeSelect  = document.getElementById('size-select');
 
-        $('.toggle-cart-btn').click(function () {
-            var button   = $(this);
+$('.toggle-cart-btn').click(function (event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+                var button   = $(this);
             var bookId   = button.data('product-id');
             var quantity = $('#quantity-' + bookId).val() || 1;
 
