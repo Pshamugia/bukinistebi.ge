@@ -1,30 +1,110 @@
 <style>
+    .admin-mobile-navbar {
+        min-height: var(--admin-mobile-header-height, 64px);
+        z-index: 1040;
+    }
+
+    .admin-mobile-navbar .navbar-brand img {
+        max-height: 38px;
+        width: auto;
+    }
+
     .sidebar {
+        width: var(--admin-sidebar-width, 240px);
         height: 100vh;
-        /* Full viewport height */
         position: fixed;
-        /* Fix it to the left */
         top: 0;
         left: 0;
         padding-top: 1rem;
-        /* Add some padding */
+        overflow-y: auto;
+        z-index: 1030;
+        font-size: 14px;
     }
 
-    .main-content {
-        margin-left: 200px;
-        /* Match sidebar width */
+    .sidebar .nav-link {
+        align-items: center;
+        border-radius: .375rem;
+        display: flex;
+        gap: .45rem;
+        line-height: 1.3;
+        margin: 0 .5rem .15rem;
+        min-height: 42px;
+        overflow-wrap: anywhere;
+        padding: .55rem .75rem;
+        white-space: normal;
+    }
+
+    .sidebar .nav-link.dropdown-toggle {
+        justify-content: space-between;
+    }
+
+    .sidebar .nav-link i {
+        flex: 0 0 auto;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link:focus {
+        background-color: rgba(255, 255, 255, .12);
+    }
+
+    .sidebar-logo {
+        width: 130px;
+        max-width: calc(100% - 1rem);
+        height: auto;
+    }
+
+    .sidebar-logo-link {
+        display: block !important;
+        text-align: center;
+    }
+
+    @media (max-width: 767.98px) {
+        .sidebar {
+            top: var(--admin-mobile-header-height, 64px);
+            height: calc(100vh - var(--admin-mobile-header-height, 64px));
+            width: min(86vw, 320px);
+            padding-top: .75rem;
+            transform: translateX(-100%);
+            transition: transform .25s ease-in-out;
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .35);
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar .nav-link {
+            font-size: 15px;
+            margin-left: .75rem;
+            margin-right: .75rem;
+            min-height: 46px;
+        }
+
+        .sidebar .list-unstyled {
+            padding-left: 1rem !important;
+        }
     }
 </style>
-<div class="container-fluid">
-    <div class="row">
+<nav class="navbar navbar-dark bg-dark fixed-top d-md-none admin-mobile-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ route('admin') }}">
+            <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" alt="Bukinistebi admin" loading="lazy">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-expanded="false" aria-label="Toggle admin navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
         <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar" style="    font-size: 14px;
-        ">
+        <nav id="adminSidebar" class="collapse d-md-block bg-dark sidebar">
             <div class="position-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('admin') }}">
-                            <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" width="130px" style="position:relative; top:8px;" loading="lazy">
+                        <a class="nav-link text-white sidebar-logo-link" href="{{ route('admin') }}">
+                            <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" class="sidebar-logo" loading="lazy" alt="Bukinistebi admin">
                             <br><br>
                             <i class="bi bi-speedometer2"></i> Dashboard
 
