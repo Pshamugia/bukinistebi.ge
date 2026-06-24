@@ -226,9 +226,23 @@
                     <!-- Left side -->
                     <div class="col-md-6">
                         @if ($book->quantity > 0)
-                            <p> <span id="price" style="font-size: 20px;">{{ number_format($book->price) }} </span>
-                                <span> {{ __('messages.lari') }}</span>
-                            </p>
+                            <p>
+@if ($book->sale > 0)
+        <span id="price" style="font-size: 22px; font-weight:bold;">
+            {{ number_format($book->sale) }}
+        </span>
+        <span>{{ __('messages.lari') }}</span>
+
+        <span style="text-decoration: line-through; color:#888; margin-left:10px;">
+            {{ number_format($book->price) }} {{ __('messages.lari') }}
+        </span>
+    @else
+        <span id="price" style="font-size: 20px;">
+            {{ number_format($book->price) }}
+        </span>
+        <span>{{ __('messages.lari') }}</span>
+    @endif
+</p>
                         @else
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-x-circle text-danger"></i>
@@ -263,7 +277,7 @@
                                 @if (in_array($book->id, $cartItemIds))
                                     <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
                                         data-in-cart="true" data-book-title="{{ $book->title }}"
-data-book-price="{{ $book->new_price ?? $book->price }}" style="width: 200px; font-size: 15px">
+data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}" style="width: 200px; font-size: 15px">
                                         <i class="bi bi-check-circle"></i> <span
                                             class="cart-btn-text">{{ __('messages.added') }}</span>
                                     </button>
@@ -271,7 +285,7 @@ data-book-price="{{ $book->new_price ?? $book->price }}" style="width: 200px; fo
                                     <button class="btn btn-primary forFull toggle-cart-btn"
 data-product-id="{{ $book->id }}"
 data-book-title="{{ $book->title }}"
-data-book-price="{{ $book->new_price ?? $book->price }}"
+data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}"
 data-in-cart="false"                                        style="width: 200px; font-size: 14px">
                                         <i class="bi bi-cart-plus"></i> <span
                                             class="cart-btn-text">{{ __('messages.addtocart') }}</span>
@@ -537,15 +551,17 @@ data-in-cart="false"                                        style="width: 200px;
 
 
 
-                <!-- Book Description -->
-                <div class="mt-4" style="position: relative; top:-20px">
-                    <h4 style="position: relative; top: 8px"><i class="bi bi-file-text"></i>
-                        {{ __('messages.description') }}</h4>
-                    <p style="border:1px solid rgb(226, 226, 226); padding: 20px; margin-top:20px; border-radius: 3px">
-                        <span>
-                            {{ $book->description ?? 'აღწერა არ არის დამატებული.' }}
-                        </span>
-                    </p>
+               <!-- Book Description -->
+<div class="mt-4" style="position: relative; top:-20px">
+    <h4 style="position: relative; top: 8px">
+        <i class="bi bi-file-text"></i>
+        {{ __('messages.description') }}
+    </h4>
+
+    <div style="border:1px solid rgb(226, 226, 226); padding:20px; margin-top:20px; border-radius:3px;">
+       <span>  {!! $book->description ?? 'აღწერა არ არის დამატებული.' !!} </span>
+    </div>
+</div>
 
 
 
@@ -582,7 +598,15 @@ data-in-cart="false"                                        style="width: 200px;
                                     <tr>
                                         <td class="nowrap" style="border-top:none !Important"><strong>
                                                 {{ __('messages.price') }}</strong></td>
-                                        <td><span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
+                                        <td>
+                                       @if ($book->sale > 0)
+                                                <span>{{ number_format($book->sale) }} {{ __('messages.lari') }}</span>
+                                                <span style="text-decoration: line-through; color:#888; margin-left:10px;">
+                                                    {{ number_format($book->price) }} {{ __('messages.lari') }}
+                                                </span>
+                                            @else
+                                                <span>{{ number_format($book->price) }} {{ __('messages.lari') }}</span>
+                                            @endif
                                         </td>
                                     </tr>
                                     <tr>
@@ -700,11 +724,21 @@ data-in-cart="false"                                        style="width: 200px;
                                         </a>
                                     </p>
                                     <p style="font-size: 18px; color: #333;">
-                                        <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">
-                                            &#8382; </em> <span class="text-dark fw-semibold"
-                                            style="position: relative; top:3px;">
-                                            {{ number_format($related->price) }}
-                                        </span>
+                                        @if ($related->sale > 0)
+                                            <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
+                                            <span class="text-dark fw-semibold" style="position: relative; top:3px;">
+                                                {{ number_format($related->sale) }}
+                                            </span>
+                                            &nbsp;
+                                            <em class="text-secondary" style="text-decoration: line-through; font-style: normal; font-size: 16px; position: relative; top:3px;">
+                                                &#8382; {{ number_format($related->price) }}
+                                            </em>
+                                        @else
+                                            <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
+                                            <span class="text-dark fw-semibold" style="position: relative; top:3px;">
+                                                {{ number_format($related->price) }}
+                                            </span>
+                                        @endif
                                         <span style="position: relative; top:5px; ">
                                             @if ($related->quantity == 0)
                                                 <span class="badge bg-danger"
@@ -725,7 +759,7 @@ data-in-cart="false"                                        style="width: 200px;
                                         @if (in_array($related->id, $cartItemIds))
                                             <button class="btn btn-success toggle-cart-btn w-100"
                                                 data-product-id="{{ $related->id }}" data-in-cart="true" data-book-title="{{ $book->title }}"
-data-book-price="{{ $book->new_price ?? $book->price }}">
+data-book-price="{{ $related->sale > 0 ? $related->sale : $related->price }}">
                                                 <i class="bi bi-check-circle"></i>
                                                 <span class="cart-btn-text"
                                                     data-state="added">{{ __('messages.added') }}</span>
@@ -785,6 +819,20 @@ data-book-price="{{ $book->new_price ?? $book->price }}">
     </div>
     </div>
 
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof fbq === 'function') {
+        fbq('track', 'ViewContent', {
+            content_ids: ['{{ $book->id }}'],
+            content_name: @json($book->title),
+            content_type: 'product',
+            value: {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }},
+            currency: 'GEL'
+        });
+    }
+});
+</script>
 
     @push('scripts')
 
@@ -926,8 +974,7 @@ data-book-price="{{ $book->new_price ?? $book->price }}">
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const maxQuantity = {{ $book->quantity }}; // Max from DB
-                const pricePerUnit = {{ $book->price }}; // Price per unit
-
+const pricePerUnit = {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }};
                 const quantityInput = document.querySelector('.quantity-input');
                 const priceElement = document.getElementById('price');
                 const decreaseButton = document.querySelector('.decrease-quantity');
@@ -1005,11 +1052,12 @@ $('.toggle-cart-btn').click(function(event) {
                 $.ajax({
                     url: '{{ route('cart.toggle') }}',
                     method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        book_id: bookId,
-                        quantity: quantity // ✅ pass quantity
-                    },
+                  data: {
+    _token: '{{ csrf_token() }}',
+    book_id: bookId,
+    quantity: quantity,
+    in_cart: inCart
+},
                     success: function(response) {
                         if (response.success) {
                             if (response.action === 'added') {
@@ -1021,11 +1069,11 @@ $('.toggle-cart-btn').click(function(event) {
                                 if (typeof gtag === 'function') {
     gtag('event', 'add_to_cart', {
         currency: 'GEL',
-        value: {{ (float) $book->price }} * parseInt(quantity),
+        value: {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }} * parseInt(quantity),
         items: [{
             item_id: '{{ $book->id }}',
             item_name: @json($book->title),
-            price: {{ (float) $book->price }},
+            price: {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }},
             quantity: parseInt(quantity)
         }]
     });
@@ -1068,11 +1116,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof gtag === 'function') {
         gtag('event', 'view_item', {
             currency: 'GEL',
-            value: {{ (float) $book->price }},
+            value: {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }},
             items: [{
                 item_id: '{{ $book->id }}',
                 item_name: @json($book->title),
-                price: {{ (float) $book->price }},
+                price: {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }},
                 quantity: 1
             }]
         });

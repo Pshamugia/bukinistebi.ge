@@ -40,6 +40,27 @@
   $isFailed  = in_array($key, ['failed','canceled','cancelled','declined','error'], true);
 @endphp
 
+@if($isSuccess && isset($order))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof fbq === 'function') {
+        fbq('track', 'Purchase', {
+            value: {{ (float) ($order->total ?? 0) }},
+            currency: 'GEL',
+            content_type: 'product',
+            content_ids: [
+                @foreach($order->orderItems as $item)
+                    @if($item->book_id)
+                        '{{ $item->book_id }}'@if(!$loop->last),@endif
+                    @endif
+                @endforeach
+            ]
+        });
+    }
+});
+</script>
+@endif
+
 <style>
   .status-page { position:relative; top:30px; min-height:420px; }
   .card-soft   { border-radius:18px; }

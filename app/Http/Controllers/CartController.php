@@ -85,7 +85,7 @@ class CartController extends Controller
             $cart->cartItems()->create([
                 'book_id' => $book->id,
                 'quantity' => $quantity,
-                'price' => $book->price,
+'price' => $book->sale > 0 ? $book->sale : $book->price,
             ]);
         }
 
@@ -229,45 +229,50 @@ class CartController extends Controller
 
 
     public function toggle(Request $request)
-    {
-        $bookId = $request->input('book_id');
-        $quantity = $request->input('quantity', 1); // Default quantity to 1
+{
+    $bookId = $request->input('book_id');
+    $quantity = $request->input('quantity', 1); // Default quantity to 1
 
-        $user = Auth::user();
-        $cart = $user->cart ?? $user->cart()->create(); // Ensure cart exists or create it
+    $user = Auth::user();
+    $cart = $user->cart ?? $user->cart()->create(); // Ensure cart exists or create it
 
-        // Verify that the book exists
-        $book = Book::find($bookId);
-        if (!$book) {
-            return response()->json(['success' => false, 'message' => 'Book not found.']);
-        }
-
-        // Check if the book is already in the cart
-        $cartItem = $cart->cartItems()->where('book_id', $bookId)->first();
-
-        if ($cartItem) {
-            // If it's in the cart, remove it
-            $cartItem->delete();
-            $action = 'removed';
-        } else {
-            // If it's not in the cart, add it with the specified quantity
-            $cart->cartItems()->create([
-                'book_id' => $bookId,
-                'quantity' => $quantity,
-                'price' => $book->price,
-            ]);
-            $action = 'added';
-        }
-
-       $cartCount = $cart->cartItems()->count();
-
-return response()->json([
-    'success' => true,
-    'action' => $action,
-    'cart_count' => $cartCount,
-]);
-
+    // Verify that the book exists
+    $book = Book::find($bookId);
+    if (!$book) {
+        return response()->json(['success' => false, 'message' => 'Book not found.']);
     }
+
+    // Check if the book is already in the cart
+    $cartItem = $cart->cartItems()->where('book_id', $bookId)->first();
+    $hasClientState = $request->has('in_cart');
+    $clientSaysInCart = $request->boolean('in_cart');
+
+    if ($cartItem && (!$hasClientState || $clientSaysInCart)) {
+        // If the client clicked an "already in cart" button, remove it.
+        $cartItem->delete();
+        $action = 'removed';
+    } elseif (!$cartItem && (!$hasClientState || !$clientSaysInCart)) {
+        // If the client clicked an "add to cart" button, add it.
+        $cart->cartItems()->create([
+            'book_id' => $bookId,
+            'quantity' => $quantity,
+'price' => $book->sale > 0 ? $book->sale : $book->price,
+        ]);
+        $action = 'added';
+    } else {
+        // Idempotent fallback for duplicate/stale requests:
+        // do not remove an item when the client was trying to add it.
+        $action = $cartItem ? 'added' : 'removed';
+    }
+
+    $cartCount = $cart->cartItems()->count();
+
+    return response()->json([
+        'success' => true,
+        'action' => $action,
+        'cart_count' => $cartCount,
+    ]);
+}
 
 
 

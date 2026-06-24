@@ -16,6 +16,46 @@
     gtag('config', 'G-D4Q2EZ7SGK');
 </script>
 
+
+
+  <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{
+    if(f.fbq)return;
+    n=f.fbq=function(){
+        n.callMethod ?
+        n.callMethod.apply(n,arguments) :
+        n.queue.push(arguments)
+    };
+
+    if(!f._fbq)f._fbq=n;
+
+    n.push=n;
+    n.loaded=!0;
+    n.version='2.0';
+    n.queue=[];
+
+    t=b.createElement(e);
+    t.async=!0;
+    t.src=v;
+
+    s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s);
+
+}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '1716189809797389');
+fbq('track', 'PageView');
+</script>
+
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <meta charset="UTF-8">
@@ -137,6 +177,25 @@
 }
 
 
+.book-card {
+    position: relative;
+}
+
+.book-hover-title {
+    min-height: 28px;
+    line-height: 1.25;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .book-hover-title {
+        min-height: auto !important;
+        white-space: normal !important;
+        overflow: visible !important;
+    }
+}
+
+
 
             
         </style>
@@ -166,28 +225,7 @@
         </script>
     @endif
 
-    <!-- Meta Pixel Code -->
-    <script>
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            !function(f,b,e,v,n,t,s){
-                if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
-                s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)
-            }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-
-            fbq('init', '1049503350038938');
-            fbq('track', 'PageView');
-        }, 3000);
-    });
-</script>
-
-    <noscript><img height="1" width="1" style="display:none"
-            src="https://www.facebook.com/tr?id=1049503350038938&ev=PageView&noscript=1" /></noscript>
-    <!-- End Meta Pixel Code -->
+     
      <link rel="preload" href="/fonts/noto.woff2" as="font" type="font/woff2" crossorigin>
 
  
@@ -1137,6 +1175,32 @@ document.addEventListener("DOMContentLoaded", function () {
     @stack('scripts')
 
 
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.book-card').forEach(function (card) {
+        const title = card.querySelector('.book-hover-title');
+        if (!title) return;
+
+        // მხოლოდ desktop-ზე ვამუშავებთ hover-ს
+        if (window.innerWidth > 768) {
+            title.textContent = title.getAttribute('data-short');
+
+            card.addEventListener('mouseenter', function () {
+                title.textContent = title.getAttribute('data-full');
+            });
+
+            card.addEventListener('mouseleave', function () {
+                title.textContent = title.getAttribute('data-short');
+            });
+        }
+    });
+});
+</script>
+
+
+
     @if (Auth::check())
         @php
             $cartItemCount = Auth::user()->cart?->cartItems()->count() ?? 0;
@@ -1205,10 +1269,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         $(document).ready(function() {
-            const translations = {
-                added: @json(__('messages.added')),
-                addToCart: @json(__('messages.addtocart'))
-            };
+           
 
 $(document).on('click', '.toggle-cart-btn', function () {
                 var button = $(this);
@@ -1216,7 +1277,7 @@ $(document).on('click', '.toggle-cart-btn', function () {
 var quantity = parseInt($('#quantity-' + bookId).val()) || 1;
 
                 $.ajax({
-url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
+url: '{{ route('cart.toggle') }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -1247,6 +1308,15 @@ url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
             }]
         });
     }
+    if (typeof fbq === 'function') {
+    fbq('track', 'AddToCart', {
+        content_ids: [String(itemId)],
+        content_name: itemName,
+        content_type: 'product',
+        value: itemPrice * quantity,
+        currency: 'GEL'
+    });
+}
 } else if (response.action === 'removed') {
                                 button.removeClass('btn-success').addClass('btn-primary');
                                 button.find('i').removeClass('bi-check-circle').addClass(
@@ -1264,6 +1334,15 @@ url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
                 });
             });
         });
+
+
+
+
+
+      
+
+
+
 
         function updateCartCount(count) {
             const countElement = document.getElementById('cart-count');
@@ -1318,6 +1397,7 @@ url: '{{ route('cart.toggle') }}?lang={{ request('lang') }}',
             });
         });
     </script>
+
 
 
 

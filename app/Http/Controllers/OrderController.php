@@ -297,21 +297,23 @@ class OrderController extends Controller
 }
 
     public function status($id)
-    {
-        $order = Order::where('order_id', $id)->firstOrFail();
+{
+    $order = Order::with('orderItems.book', 'orderItems.bundle.books')
+        ->where('order_id', $id)
+        ->firstOrFail();
 
-        $statusKey = $order->status;
-        $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey;
+    $statusKey = $order->status;
+    $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey;
 
+    $status = new \stdClass();
+    $status->key = $statusKey;
+    $status->label = $translatedStatus;
 
-        $status = new \stdClass();
-        $status->key = $statusKey;
-        $status->label = $translatedStatus;
-
-        return view('order.status', [
-            'status' => $status,
-        ]);
-    }
+    return view('order.status', [
+        'status' => $status,
+        'order' => $order,
+    ]);
+}
 
 
 

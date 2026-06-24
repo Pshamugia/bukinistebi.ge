@@ -140,7 +140,7 @@
 
 
                     @php
-                    $priceUp = $auction->current_price > $auction->starting_price;
+$priceUp = $auction->effective_current_price > $auction->starting_price;
                     @endphp
 
                     <div class="auction-price">
@@ -154,7 +154,7 @@
                         </span>
 
                         <strong>
-                            {{ number_format($auction->current_price, 2) }} ₾
+    {{ number_format($auction->effective_current_price, 2) }} ₾
                         </strong>
                     </div>
 

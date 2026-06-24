@@ -83,6 +83,8 @@
             font-size: 15px;
         }
     }
+
+    
 </style>
 
 <!-- Hero Section -->
@@ -147,8 +149,11 @@
                     </div>
                 </a>
                 <div class="card-body">
-                    <h4 class="font-weight-bold">{{ \Illuminate\Support\Str::limit($book->title, 18) }}</h4>
-                    {{-- Author --}}
+<h4 class="font-weight-bold book-hover-title"
+    data-short="{{ \Illuminate\Support\Str::limit($book->title, 22) }}"
+    data-full="{{ e($book->title) }}">
+    {{ $book->title }}
+</h4>                  {{-- Author --}}
                     <p class="text-muted mb-2" style="font-size: 14px;">
                         <i class="bi bi-person"></i>
                         <a href="{{ route('full_author', ['id' => $book->author_id, 'name' => Str::slug($book->author->name)]) }}"
@@ -161,11 +166,11 @@
                     {{-- PRICE --}}
 
                     <p style="font-size: 18px; color: #333;">
-                        @if ($book->new_price)
+                        @if ($book->sale)
                         {{-- New (discounted) price first --}}
                         <em style="position: relative; font-style: normal; font-size: 20px; top:3px;">&#8382;</em>
                         <span class="text-dark fw-semibold" style="position: relative; top:3px;">
-                            {{ number_format($book->new_price) }}
+                            {{ number_format($book->sale) }}
                         </span>
                         &nbsp;
                         {{-- Old price after (with strikethrough) --}}
@@ -517,6 +522,7 @@ shuffle($partners);
         }
     });
 </script>
+
 
 
 <script>
