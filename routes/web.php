@@ -14,6 +14,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PublishingController;
+use App\Http\Controllers\Admin\PublishingController as AdminPublishingController;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AiChatController;
@@ -79,15 +80,17 @@ Route::get('/clear-all-cache', function () {
  
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
-    Route::get('/publishing', [PublishingController::class,'index'])->name('admin.publishing.index');
+    Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
 
-    Route::get('/publishing/create', [PublishingController::class,'create'])->name('admin.publishing.create');
+    Route::get('/publishing/create', [AdminPublishingController::class, 'create'])->name('admin.publishing.create');
 
-    Route::post('/publishing/store', [PublishingController::class,'store'])->name('admin.publishing.store');
+    Route::post('/publishing/store', [AdminPublishingController::class, 'store'])->name('admin.publishing.store');
 
-    Route::get('/publishing/edit/{id}', [PublishingController::class,'edit'])->name('admin.publishing.edit');
+    Route::get('/publishing/edit/{publishing}', [AdminPublishingController::class, 'edit'])->name('admin.publishing.edit');
 
-    Route::post('/publishing/update/{id}', [PublishingController::class,'update'])->name('admin.publishing.update');
+    Route::put('/publishing/update/{publishing}', [AdminPublishingController::class, 'update'])->name('admin.publishing.update');
+
+    Route::delete('/publishing/{publishing}', [AdminPublishingController::class, 'destroy'])->name('admin.publishing.destroy');
 
 });
 
@@ -106,7 +109,8 @@ Route::get('/', function () {
     return app(BookController::class)->welcome();
 })->name('welcome');
 
-Route::get('/publishing/{id}', [PublishingController::class, 'show'])->name('publishing.show');
+Route::get('/publishing', [PublishingController::class, 'landing'])->name('publishing.landing');
+Route::get('/publishing/{publishing}', [PublishingController::class, 'show'])->name('publishing.show');
 Route::post('/publishing/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
 Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_news.show');
