@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\AuctionCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuctionController extends Controller
 {
@@ -152,13 +153,11 @@ public function updateFull(Request $request, Auction $auction)
 
 public function destroy(Auction $auction)
 {
-    // If auction has bids, optional protection:
-    if ($auction->bids()->count() > 0) {
-        return back()->with('error', '❌ ვერ წაშლიდა — აუქციონს უკვე აქვს ბიჯები.');
-    }
-
-    // Delete auction
-    $auction->delete();
+    DB::transaction(function () use ($auction) {
+        $auction->paidUsers()->detach();
+        $auction->bids()->delete();
+        $auction->delete();
+    });
 
     return redirect()
         ->route('admin.auctions.index')
