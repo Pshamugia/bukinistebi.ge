@@ -275,9 +275,9 @@
 <div class="mb-3">
 
 
-    <div class="mb-3">
+    <div class="mb-3 author-field">
         <label for="author_id" class="form-label"><i class="bi bi-person-lines-fill"></i> ავტორი</label>
-        <div class="d-flex align-items-start gap-2">
+        <div class="author-field-row">
           <select name="author_id" class="form-control chosen-select" id="author_id" data-placeholder="{{ __('messages.selectAuthor') }}">
             <option value="">{{ __('messages.selectAuthor') }}</option>
             @foreach ($authors as $author)
@@ -294,7 +294,7 @@
         
       
           <button type="button"
-          class="btn btn-link"
+          class="btn btn-outline-primary author-add-btn"
           id="openAddAuthorBtn"
           data-bs-toggle="modal"
           data-bs-target="#addAuthorModal">
@@ -376,6 +376,61 @@
     .modal-backdrop{ z-index:104044!important; }
     .modal{ z-index:105044!important; }
     .alert-danger{ z-index:999944!important; position:relative; }
+    .author-field-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 12px;
+    }
+    .author-field .chosen-container {
+      width: 100% !important;
+      min-width: 0;
+      font-family: Sylfaen, "Noto Sans Georgian", system-ui, sans-serif !important;
+    }
+    .author-field .chosen-container-single .chosen-single {
+      display: flex !important;
+      align-items: center;
+      height: 44px;
+      border-color: #ced4da;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: none;
+      line-height: 1.3 !important;
+      padding-left: 12px;
+    }
+    .author-field .chosen-container-single .chosen-single span {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      line-height: 1.2 !important;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .author-field .chosen-container-single .chosen-single div b {
+      background-position-y: 12px;
+    }
+    .author-field select#author_id,
+    .author-field .chosen-search-input {
+      min-height: 44px;
+      line-height: 1.3;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      font-family: Sylfaen, "Noto Sans Georgian", system-ui, sans-serif !important;
+    }
+    .author-add-btn {
+      min-height: 40px;
+      white-space: nowrap;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    @media (max-width: 768px) {
+      .author-field-row {
+        grid-template-columns: 1fr;
+      }
+      .author-add-btn {
+        justify-self: start;
+      }
+    }
   </style>
   
   <div class="modal fade" id="addAuthorModal" tabindex="-1" aria-labelledby="addAuthorModalLabel" aria-hidden="true">
@@ -432,6 +487,13 @@
         $('.chosen-select').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
         $('#genre_id').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
         $('#size').chosen({width: '100%', no_results_text: 'Oops, nothing found!'});
+        $('#author_id_chosen .chosen-single span').css({
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          lineHeight: '1.2',
+          fontFamily: 'Sylfaen, "Noto Sans Georgian", system-ui, sans-serif'
+        });
     
         $('#genre_id').on('change', toggleSize);
         toggleSize();

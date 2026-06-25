@@ -289,6 +289,69 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
             padding: 4px 6px;
             border-radius: 999px;
         }
+
+        @media (max-width: 767.98px) {
+            #topStickyNavbar {
+                min-height: 56px;
+                padding-top: 6px !important;
+                padding-bottom: 6px !important;
+            }
+
+            #topStickyNavbar > .container {
+                justify-content: center !important;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            #topStickyNavbar .navbar-nav {
+                width: 100%;
+                flex-wrap: nowrap !important;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            #topStickyNavbar .nav-link {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+
+            #topStickyNavbar .forum-highlight {
+                padding-right: 0 !important;
+            }
+
+            .auction-top-item {
+                margin: 0;
+            }
+
+            .auction-top-link {
+                min-height: 34px;
+                padding: 4px 7px !important;
+                gap: 3px;
+                font-size: 12px;
+                box-shadow: 0 4px 12px rgba(128, 98, 19, .1);
+            }
+
+            .auction-top-link .auction-gold-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .auction-top-link .auction-gold-icon i {
+                font-size: 17px;
+            }
+
+            .auction-top-copy {
+                gap: 0;
+            }
+
+            .auction-top-label {
+                font-size: 12px;
+            }
+
+            .auction-top-badge {
+                display: none;
+            }
+        }
     </style>
 
  
@@ -356,8 +419,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
 
         <span class="d-none d-md-inline">
             გამომცემლობა
-            <span class="badge bg-danger ms-1 forum-new-badge">NEW</span>
-        </span>
+         </span>
     </a>
 </li>
 

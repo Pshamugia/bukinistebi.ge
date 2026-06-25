@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Publishing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class PublishingController extends Controller
 {
     public function landing()
     {
-        $items = Publishing::latest()->get();
+        $items = Schema::hasTable('publishing')
+            ? Publishing::latest()->get()
+            : collect();
 
         return view('publishing.landing', compact('items'));
     }

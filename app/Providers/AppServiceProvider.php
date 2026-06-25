@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Genre;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 use Illuminate\Support\Facades\Blade;
@@ -16,6 +17,11 @@ class AppServiceProvider extends ServiceProvider
     
     public function boot()
     {
+        if (request()->getHost() === 'publishing.bukinistebi.ge') {
+            URL::forceRootUrl('https://bukinistebi.ge');
+            URL::forceScheme('https');
+        }
+
         // ✅ LANG URL BLADE DIRECTIVE
         Blade::directive('langurl', function ($expression) {
             return "<?php

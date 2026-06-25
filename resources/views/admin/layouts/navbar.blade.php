@@ -166,6 +166,15 @@
 
                     @endif
 
+
+                                      <li class="nav-item">
+
+    <a class="nav-link text-white" href="{{ route('admin.publishing.index') }}">
+        <i class="fa fa-book"></i>
+        გამოცემა (Publishing)
+    </a>
+</li>
+
                     <li><a class="nav-link text-white" href="{{ route('admin.book_orders') }}"><i class="bi bi-cart4"></i> შეკვეთები</a></li>
 
                     @if(auth()->user()->hasAdminPermission(permission: 'qookies.manage'))

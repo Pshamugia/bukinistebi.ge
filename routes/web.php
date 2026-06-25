@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PublishingController;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AiChatController;
@@ -75,14 +76,35 @@ Route::get('/clear-all-cache', function () {
 
 
 
+use App\Http\Controllers\Admin\PublishingController as AdminPublishing;
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+
+    Route::get('/publishing', [AdminPublishing::class,'index'])->name('admin.publishing.index');
+
+    Route::get('/publishing/create', [AdminPublishing::class,'create'])->name('admin.publishing.create');
+
+    Route::post('/publishing/store', [AdminPublishing::class,'store'])->name('admin.publishing.store');
+
+});
+
 Route::get('/bundles', [BundleFrontController::class, 'index'])->name('bundles.index.public');
 Route::get('/bundles/{slug}', [BundleFrontController::class, 'show'])->name('bundles.show');
 
         //Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(name: 'auction.show');
 
 
-// Home Route - Display all books
-Route::get('/', [BookController::class, 'welcome'])->name('welcome');
+// Home Route - Display publishing landing on publishing subdomain, books elsewhere.
+Route::get('/', function () {
+    if (request()->getHost() === 'publishing.bukinistebi.ge') {
+        return app(PublishingController::class)->landing();
+    }
+
+    return app(BookController::class)->welcome();
+})->name('welcome');
+
+Route::get('/publishing/{id}', [PublishingController::class, 'show'])->name('publishing.show');
+Route::post('/publishing/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
 Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_news.show');
 Route::get('/all_book_news', [BookNewsController::class, 'allbooksnews'])->name('allbooksnews');
