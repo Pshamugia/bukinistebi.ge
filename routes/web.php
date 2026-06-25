@@ -34,11 +34,13 @@ use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\AuctionSubmissionController;
+use App\Http\Controllers\PublishingController;
 use App\Http\Controllers\Admin\AnnouncementController;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminPublisherController;
 use App\Http\Controllers\Admin\AuctionCategoryController;
+use App\Http\Controllers\Admin\PublishingController as AdminPublishingController;
 use App\Http\Controllers\Publisher\PublisherBookController;
 
 
@@ -80,6 +82,12 @@ Route::get('/bundles/{slug}', [BundleFrontController::class, 'show'])->name('bun
 
         //Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(name: 'auction.show');
 
+
+Route::domain('publishing.bukinistebi.ge')->group(function () {
+    Route::get('/', [PublishingController::class, 'landing'])->name('publishing.landing');
+    Route::get('/items/{id}', [PublishingController::class, 'show'])->name('publishing.show');
+    Route::post('/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
+});
 
 // Home Route - Display all books
 Route::get('/', [BookController::class, 'welcome'])->name('welcome');
@@ -140,6 +148,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
         ->middleware(['auth', 'profile.complete'])
         ->name('auction.bid');
+
+    Route::post('/auction/{auction}/buy-now', [AuctionFrontController::class, 'buyNow'])
+        ->middleware(['auth', 'profile.complete'])
+        ->name('auction.buy-now');
 });
 
 // ✅ public show route must be AFTER submit
@@ -370,6 +382,12 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     [AuctionController::class, 'approve']
 )->name('admin.auctions.approve');
 
+
+    Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
+    Route::get('/publishing/create', [AdminPublishingController::class, 'create'])->name('admin.publishing.create');
+    Route::post('/publishing/store', [AdminPublishingController::class, 'store'])->name('admin.publishing.store');
+    Route::get('/publishing/{id}/edit', [AdminPublishingController::class, 'edit'])->name('admin.publishing.edit');
+    Route::put('/publishing/{id}', [AdminPublishingController::class, 'update'])->name('admin.publishing.update');
 
     Route::get('/email-stats', [SubscriptionController::class, 'emailStats'])->name('admin.email.stats');
 

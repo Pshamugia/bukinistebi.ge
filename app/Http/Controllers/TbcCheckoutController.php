@@ -201,14 +201,15 @@ class TbcCheckoutController extends Controller
                 return back()->with('error', 'Unauthorized auction payment.');
             }
 
-            $paymentId = 'AUC-' . $auction->id . '-' . rand(1000, 9999);
+            $paymentId = 'AUC-PAY-' . Auth::id() . '-' . $auction->id . '-' . uniqid();
 
             $payload = [
                 'amount' => [
                     'currency' => 'GEL',
                     'total' => number_format($auction->current_price, 0, '.', ''), // real amount
                 ],
-                'returnurl' => 'https://bukinistebi.ge/tbc-callback',
+                'returnurl' => str_replace('http://', 'https://', route('auction.show', $auction)),
+                'callbackUrl' => str_replace('http://', 'https://', route('payment.callback.auction')),
                 'description' => 'Auction Payment', // ≤ 30 characters!
                 'merchantPaymentId' => $paymentId,
             ];

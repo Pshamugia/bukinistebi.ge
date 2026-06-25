@@ -86,7 +86,15 @@
     <div class="alert alert-warning">{{ session('error') }}</div>
     @endif
 
-
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
 
     <form method="POST"
@@ -104,6 +112,7 @@
                     <input type="text"
                         name="title"
                         class="form-control"
+                        value="{{ old('title') }}"
                         required
                         placeholder="მაგ: ძველი ქართული გამოცემა">
                 </div>
@@ -113,6 +122,7 @@
                     <input type="text"
                         name="author"
                         class="form-control"
+                        value="{{ old('author') }}"
                         placeholder="მაგ: ილია ჭავჭავაძე">
                 </div>
 
@@ -122,7 +132,7 @@
                     <select name="auction_category_id" class="form-select" required>
                         <option value="">აირჩიე კატეგორია</option>
                         @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">
+                        <option value="{{ $cat->id }}" {{ old('auction_category_id') == $cat->id ? 'selected' : '' }}>
                             {{ $cat->name }}
                         </option>
                         @endforeach
@@ -155,7 +165,20 @@
                             step="0.01"
                             name="start_price"
                             class="form-control"
+                            value="{{ old('start_price') }}"
                             required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-semibold">ბლიც-ფასი (₾)</label>
+                        <input type="number"
+                            step="0.01"
+                            min="0"
+                            name="buy_now_price"
+                            class="form-control"
+                            value="{{ old('buy_now_price') }}"
+                            placeholder="არასავალდებულო">
+                        <small class="text-muted">თუ შეივსება, ფასი უნდა იყოს საწყის ფასზე მეტი.</small>
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -163,6 +186,7 @@
                         <input type="datetime-local"
                             name="start_time"
                             class="form-control"
+                            value="{{ old('start_time') }}"
                             required>
                     </div>
 
@@ -171,6 +195,7 @@
                         <input type="datetime-local"
                             name="end_time"
                             class="form-control"
+                            value="{{ old('end_time') }}"
                             required>
                     </div>
                 </div>
@@ -190,6 +215,7 @@
                             id="minBid"
                             class="form-control"
                             step="0.01"
+                            value="{{ old('min_bid') }}"
                             placeholder="არასავალდებულო">
                     </div>
 
@@ -200,6 +226,7 @@
                             id="maxBid"
                             class="form-control"
                             step="0.01"
+                            value="{{ old('max_bid') }}"
                             placeholder="არასავალდებულო">
                     </div>
                 </div>
@@ -209,7 +236,8 @@
                         type="checkbox"
                         name="is_free_bid"
                         value="1"
-                        id="isFreeBid">
+                        id="isFreeBid"
+                        {{ old('is_free_bid') ? 'checked' : '' }}>
                     <label class="form-check-label" for="isFreeBid">
                         თავისუფალი ბიჯი (შეზღუდვების გარეშე)
                     </label>

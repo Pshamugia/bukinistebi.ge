@@ -21,17 +21,30 @@ class PublishingController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'shop_url' => ['nullable', 'url', 'max:255'],
+            'image_1' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_2' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_3' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_4' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
 
         foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
             if ($request->hasFile($img)) {
                 $data[$img] = $request->file($img)->store('publishing', 'public');
+            } else {
+                unset($data[$img]);
             }
         }
 
         Publishing::create($data);
 
-        return redirect()->route('admin.publishing.index');
+        return redirect()
+            ->route('admin.publishing.index')
+            ->with('success', 'Publishing item created successfully.');
     }
 
     public function edit($id)
@@ -45,16 +58,29 @@ class PublishingController extends Controller
     {
         $item = Publishing::findOrFail($id);
 
-        $data = $request->all();
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'shop_url' => ['nullable', 'url', 'max:255'],
+            'image_1' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_2' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_3' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image_4' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
 
         foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
             if ($request->hasFile($img)) {
                 $data[$img] = $request->file($img)->store('publishing', 'public');
+            } else {
+                unset($data[$img]);
             }
         }
 
         $item->update($data);
 
-        return redirect()->route('admin.publishing.index');
+        return redirect()
+            ->route('admin.publishing.index')
+            ->with('success', 'Publishing item updated successfully.');
     }
 }

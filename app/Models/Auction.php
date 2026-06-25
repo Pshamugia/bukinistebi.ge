@@ -12,12 +12,15 @@ protected $fillable = [
     'user_id',
     'auction_category_id',
     'start_price',
+    'buy_now_price',
     'current_price',
     'start_time',
     'end_time',
     'video',
     'is_active',
     'winner_id',
+    'buy_now_user_id',
+    'bought_now_at',
     'min_bid',
     'max_bid',
     'is_free_bid',
@@ -58,6 +61,7 @@ public function getEffectiveCurrentPriceAttribute()
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'bought_now_at' => 'datetime',
     ];
 
     public function paidUsers()
@@ -79,6 +83,11 @@ public function getEffectiveCurrentPriceAttribute()
 public function auctionCategory()
 {
     return $this->belongsTo(\App\Models\AuctionCategory::class);
+}
+
+public function buyNowUser()
+{
+    return $this->belongsTo(User::class, 'buy_now_user_id');
 }
 
 
