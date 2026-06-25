@@ -29,6 +29,7 @@
                 <th>პროდუქტი</th>
                 <th>საწყისი ფასი</th>
                 <th>მიმდინარე ფასი</th>
+                <th>ბლიც-ფასი</th>
                 <th>დაწყების დრო</th>
                 <th>დასრულების დრო</th>
                 <th>სტატუსი</th>
@@ -60,11 +61,20 @@
 
                 <td>{{ number_format($auction->start_price, 2) }} GEL</td>
                 <td>{{ number_format($auction->current_price, 2) }} GEL</td>
+                <td>
+                    @if($auction->buy_now_price)
+                        {{ number_format($auction->buy_now_price, 2) }} GEL
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
+                </td>
                 <td>{{ $auction->start_time }}</td>
                 <td>{{ $auction->end_time }}</td>
                 <td>
                     @if(!$auction->is_approved)
                     <span class="badge bg-warning text-dark">მოლოდინში</span>
+                    @elseif($auction->buy_now_user_id)
+                    <span class="badge bg-warning text-dark">ბლიცით გაყიდული</span>
                     @elseif($auction->is_active)
                     <span class="badge bg-success">აქტიური</span>
                     @else

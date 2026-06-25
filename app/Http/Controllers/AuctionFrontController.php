@@ -7,6 +7,7 @@ use App\Models\Auction;
 use Illuminate\Http\Request;
 use App\Models\AuctionCategory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuctionFrontController extends Controller
 {
@@ -105,6 +106,48 @@ public function index(Request $request)
     }
 
 
+
+
+    public function buyNow(Request $request, Auction $auction)
+    {
+        if (empty(auth()->user()->phone) || empty(auth()->user()->address)) {
+            return back()->withErrors([
+                'buy_now' => 'ბლიც-ფასით ყიდვისთვის გთხოვთ შეავსოთ ტელეფონი და მისამართი პროფილში.',
+            ]);
+        }
+
+        $auction = DB::transaction(function () use ($auction) {
+            $lockedAuction = Auction::whereKey($auction->id)->lockForUpdate()->firstOrFail();
+
+            if (!$lockedAuction->is_approved || !$lockedAuction->is_active || $lockedAuction->end_time <= now()) {
+                return null;
+            }
+
+            if ($lockedAuction->buy_now_price === null) {
+                return null;
+            }
+
+            $lockedAuction->update([
+                'current_price' => $lockedAuction->buy_now_price,
+                'winner_id' => Auth::id(),
+                'buy_now_user_id' => Auth::id(),
+                'bought_now_at' => now(),
+                'is_active' => false,
+            ]);
+
+            return $lockedAuction->fresh('book');
+        });
+
+        if (!$auction || $auction->winner_id !== Auth::id()) {
+            return back()->withErrors([
+                'buy_now' => 'აუქციონი უკვე დასრულებულია ან ბლიც-ფასი აღარ არის ხელმისაწვდომი.',
+            ]);
+        }
+
+        $request->merge(['auction_id' => $auction->id]);
+
+        return app(TbcCheckoutController::class)->initializeAuctionPayment($request);
+    }
 
     public function getBids(Auction $auction)
     {

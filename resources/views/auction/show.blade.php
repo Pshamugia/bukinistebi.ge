@@ -56,6 +56,9 @@
 
     @php
         session(['auction_id' => $auction->id]);
+
+        $lastBid = $auction->bids->max('amount');
+        $basePrice = $lastBid ?? $auction->start_price;
     @endphp
 
 
@@ -242,6 +245,29 @@
                         <p><i class="bi bi-graph-up-arrow"></i> <strong>მიმდინარე ფასი:</strong>
 {{ number_format($auction->effective_current_price, 2) }} ₾
                         </p>
+                        @if($auction->buy_now_price && $auction->is_active)
+                            <div class="alert alert-warning border-0 shadow-sm">
+                                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                                    <div>
+                                        <strong>⚡ ბლიც-ფასი:</strong>
+                                        {{ number_format($auction->buy_now_price, 2) }} ₾
+                                        <div class="small text-muted">ვინც პირველი იყიდის ბლიც-ფასად, აუქციონი მაშინვე დასრულდება.</div>
+                                    </div>
+                                    @auth
+                                        <form method="POST" action="{{ route('auction.buy-now', $auction) }}" onsubmit="return confirm('დარწმუნებული ხარ, რომ გსურს ბლიც-ფასად ყიდვა?')">
+                                            @csrf
+                                            <button type="submit" class="btn btn-warning fw-semibold">
+                                                ⚡ ბლიც-ფასად ყიდვა
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('login') }}" class="btn btn-warning fw-semibold">
+                                            შესვლა ბლიც-ყიდვისთვის
+                                        </a>
+                                    @endauth
+                                </div>
+                            </div>
+                        @endif
                         <p><i class="bi bi-clock-history"></i> <strong>დასრულების დრო:</strong> <span id="countdown"></span>
                         </p>
 

@@ -37,6 +37,7 @@ public function index()
     $request->validate([
         'book_id' => 'required|exists:books,id',
         'start_price' => 'required|numeric|min:0',
+        'buy_now_price' => 'nullable|numeric|gt:start_price',
         'start_time' => 'required|date',
         'end_time' => 'required|date|after:start_time',
         'video' => 'nullable|url',
@@ -50,6 +51,7 @@ public function index()
         'user_id'       => Auth::id(), 
         'start_price' => $request->start_price,
         'current_price' => $request->start_price,
+        'buy_now_price' => $request->buy_now_price,
         'start_time' => $request->start_time,
         'end_time' => $request->end_time,
         'video'         => $request->video,
@@ -84,6 +86,7 @@ public function update(Request $request, Auction $auction)
     $request->validate([
         'book_id' => 'required|exists:books,id',
         'start_price' => 'required|numeric|min:0',
+        'buy_now_price' => 'nullable|numeric|gt:start_price',
         'start_time' => 'required|date',
         'end_time' => 'required|date|after:start_time',
         'video' => 'nullable|url',
@@ -96,6 +99,7 @@ public function update(Request $request, Auction $auction)
         'book_id' => $request->book_id,
         'auction_category_id' => $request->auction_category_id,
         'start_price' => $request->start_price,
+        'buy_now_price' => $request->buy_now_price,
         'start_time' => $request->start_time,
         'end_time' => $request->end_time,
         'video'       => $request->video, 
@@ -114,6 +118,7 @@ public function updateFull(Request $request, Auction $auction)
         // Auction
         'auction_category_id' => 'required|exists:auction_categories,id',
         'start_price' => 'required|numeric|min:0',
+        'buy_now_price' => 'nullable|numeric|gt:start_price',
         'start_time'  => 'required|date',
         'end_time'    => 'required|date|after:start_time',
         'min_bid'     => 'nullable|numeric|min:0',
@@ -130,6 +135,7 @@ public function updateFull(Request $request, Auction $auction)
     $auction->update([
         'auction_category_id' => $request->auction_category_id,
         'start_price' => $request->start_price,
+        'buy_now_price' => $request->buy_now_price,
         'start_time'  => $request->start_time,
         'end_time'    => $request->end_time,
         'min_bid'     => $request->min_bid,

@@ -41,6 +41,12 @@
         </div>
 
         <div class="mb-3">
+            <label>ბლიც-ფასი / მყისიერი ყიდვა (GEL)</label>
+            <input type="number" name="buy_now_price" class="form-control" step="0.01" min="0" value="{{ old('buy_now_price') }}">
+            <small class="text-muted">თუ ცარიელია, ბლიც-ყიდვა გამორთული იქნება. ფასი უნდა იყოს საწყის ფასზე მეტი.</small>
+        </div>
+
+        <div class="mb-3">
             <label>აუქციონის დაწყების დრო</label>
             <input type="datetime-local" name="start_time" class="form-control" required>
         </div>
