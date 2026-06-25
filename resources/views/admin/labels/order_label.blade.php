@@ -16,15 +16,13 @@
 <body>
 
 <div class="box">
-    <strong>გამგზავნი:</strong><br>
-Bukinistebi.ge <br>
-მის: შოთა მიქატაძის 35 (ნაძალადევის რაიონი)
-ტელ: 593922217
+   <span style="font-size: 16px;">  <strong>გამგზავნი:</strong> 
+ BUKINISTEBI.GE </span> <br> 
 <br>
 
     <strong>მიმღები:</strong> <br>
     {{ $order->name }}<br><br>
-    {{ $order->city }}, {{ $order->address }}<br>
+   <strong> {{ $order->city }}, </strong> {{ $order->address }}<br>
 @php
     // Normalize the phone number
     $phone = preg_replace('/\D+/', '', $order->phone); // remove non-digits
@@ -48,8 +46,12 @@ Bukinistebi.ge <br>
 
 <strong>ტელ:</strong> {{ $formatted }}<br><br>
 
-<strong>ღირებულება:</strong> {{ number_format($order->total, 2, '.', '') + 0 }} GEL
-</div>
+@if($order->payment_method === 'bank_transfer')
+    <strong>სტატუსი:</strong> გადახდილი
+@else
+    <strong>გადახდის ტიპი:</strong> კურიერთან გადახდა<br>
+    <strong>ღირებულება:</strong> {{ number_format($order->total, 2, '.', '') + 0 }} GEL
+@endif</div>
 
 <div class="barcode">
     <div style="display:inline-block;">

@@ -76,15 +76,18 @@ Route::get('/clear-all-cache', function () {
 
 
 
-use App\Http\Controllers\Admin\PublishingController as AdminPublishing;
-
+ 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
-    Route::get('/publishing', [AdminPublishing::class,'index'])->name('admin.publishing.index');
+    Route::get('/publishing', [PublishingController::class,'index'])->name('admin.publishing.index');
 
-    Route::get('/publishing/create', [AdminPublishing::class,'create'])->name('admin.publishing.create');
+    Route::get('/publishing/create', [PublishingController::class,'create'])->name('admin.publishing.create');
 
-    Route::post('/publishing/store', [AdminPublishing::class,'store'])->name('admin.publishing.store');
+    Route::post('/publishing/store', [PublishingController::class,'store'])->name('admin.publishing.store');
+
+    Route::get('/publishing/edit/{id}', [PublishingController::class,'edit'])->name('admin.publishing.edit');
+
+    Route::post('/publishing/update/{id}', [PublishingController::class,'update'])->name('admin.publishing.update');
 
 });
 
