@@ -77,7 +77,7 @@ Route::get('/clear-all-cache', function () {
 
 
 
- 
+
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
@@ -142,7 +142,7 @@ Route::get('/track-open/{email}', function ($email) {
 Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
 
-// 
+//
 Route::get('lang/{locale}', [App\Http\Controllers\BookController::class, 'setLocale'])->name('setLocale');
 Route::get('/locale/{locale}', [BookController::class, 'setLocale'])
     ->name('locale.switch');
@@ -179,8 +179,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])
     ->name('auction.show');
 
- 
-        
+
+
 
 
 
@@ -399,7 +399,7 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
 
-   Route::post('/admin/auctions/{auction}/approve', 
+   Route::post('/admin/auctions/{auction}/approve',
     [AuctionController::class, 'approve']
 )->name('admin.auctions.approve');
 
@@ -449,7 +449,7 @@ Route::delete('/admin/books/{book}', [
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
     Route::delete('/auctions/{auction}', [AuctionController::class, 'destroy'])
         ->name('admin.auctions.destroy');
-        Route::put('/admin/auctions/{auction}', 
+        Route::put('/admin/auctions/{auction}',
     [AuctionController::class, 'updateFull']
 )->name('admin.auctions.update.full');
 
@@ -457,7 +457,7 @@ Route::delete('/admin/books/{book}', [
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
     Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
     Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
- 
+
 
     // Books CRUD routes (Admin)
     Route::resource('books', AdminBookController::class, ['as' => 'admin']);
@@ -535,7 +535,7 @@ Route::post('/users/admin-note', [AdminBookController::class, 'saveAdminNote'])
 
 
 
-    
+
 
     Route::get('/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
     Route::get('/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
@@ -583,5 +583,5 @@ Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class,
     ->name('cart.toggleBundle');
 
 
-    
- 
+
+
