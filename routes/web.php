@@ -14,6 +14,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PublishingController;
+use App\Http\Controllers\Admin\PublishingController as AdminPublishingController;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AiChatController;
@@ -76,15 +77,20 @@ Route::get('/clear-all-cache', function () {
 
 
 
-use App\Http\Controllers\Admin\PublishingController as AdminPublishing;
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
-    Route::get('/publishing', [AdminPublishing::class,'index'])->name('admin.publishing.index');
+    Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
 
-    Route::get('/publishing/create', [AdminPublishing::class,'create'])->name('admin.publishing.create');
+    Route::get('/publishing/create', [AdminPublishingController::class, 'create'])->name('admin.publishing.create');
 
-    Route::post('/publishing/store', [AdminPublishing::class,'store'])->name('admin.publishing.store');
+    Route::post('/publishing/store', [AdminPublishingController::class, 'store'])->name('admin.publishing.store');
+
+    Route::get('/publishing/edit/{publishing}', [AdminPublishingController::class, 'edit'])->name('admin.publishing.edit');
+
+    Route::put('/publishing/update/{publishing}', [AdminPublishingController::class, 'update'])->name('admin.publishing.update');
+
+    Route::delete('/publishing/{publishing}', [AdminPublishingController::class, 'destroy'])->name('admin.publishing.destroy');
 
 });
 
@@ -103,7 +109,8 @@ Route::get('/', function () {
     return app(BookController::class)->welcome();
 })->name('welcome');
 
-Route::get('/publishing/{id}', [PublishingController::class, 'show'])->name('publishing.show');
+Route::get('/publishing', [PublishingController::class, 'landing'])->name('publishing.landing');
+Route::get('/publishing/{publishing}', [PublishingController::class, 'show'])->name('publishing.show');
 Route::post('/publishing/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
 Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_news.show');
@@ -135,7 +142,7 @@ Route::get('/track-open/{email}', function ($email) {
 Route::post('/rate-article/{bookId}', [BookController::class, 'rateArticle'])->name('article.rate');
 
 
-// 
+//
 Route::get('lang/{locale}', [App\Http\Controllers\BookController::class, 'setLocale'])->name('setLocale');
 Route::get('/locale/{locale}', [BookController::class, 'setLocale'])
     ->name('locale.switch');
@@ -172,8 +179,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])
     ->name('auction.show');
 
- 
-        
+
+
 
 
 
@@ -392,7 +399,7 @@ Route::middleware(['auth', 'role:publisher'])->group(function () {
 Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
 
-   Route::post('/admin/auctions/{auction}/approve', 
+   Route::post('/admin/auctions/{auction}/approve',
     [AuctionController::class, 'approve']
 )->name('admin.auctions.approve');
 
@@ -442,7 +449,7 @@ Route::delete('/admin/books/{book}', [
     Route::get('/auctions/{auction}/edit', [AuctionController::class, 'edit'])->name('admin.auctions.edit');
     Route::delete('/auctions/{auction}', [AuctionController::class, 'destroy'])
         ->name('admin.auctions.destroy');
-        Route::put('/admin/auctions/{auction}', 
+        Route::put('/admin/auctions/{auction}',
     [AuctionController::class, 'updateFull']
 )->name('admin.auctions.update.full');
 
@@ -450,7 +457,7 @@ Route::delete('/admin/books/{book}', [
     Route::put('/auctions/{auction}', [AuctionController::class, 'update'])->name('admin.auctions.update');
     Route::get('/auction/{id}/bids', [AuctionController::class, 'bidsPartial'])->name('auction.bids');
     Route::get('/dashboard/auctions', [AuctionController::class, 'userDashboard'])->middleware('auth')->name('auction.dashboard');
- 
+
 
     // Books CRUD routes (Admin)
     Route::resource('books', AdminBookController::class, ['as' => 'admin']);
@@ -528,7 +535,7 @@ Route::post('/users/admin-note', [AdminBookController::class, 'saveAdminNote'])
 
 
 
-    
+
 
     Route::get('/users/{id}', [AdminBookController::class, 'showUserDetails'])->name('admin.user.details')->middleware('auth', 'admin');
     Route::get('/users/transactions/export', [AdminBookController::class, 'exportUserTransactions'])
@@ -576,5 +583,5 @@ Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class,
     ->name('cart.toggleBundle');
 
 
-    
- 
+
+
