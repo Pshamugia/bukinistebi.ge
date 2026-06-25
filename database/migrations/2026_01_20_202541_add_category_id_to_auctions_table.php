@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('auctions', function (Blueprint $table) {
-            $table->foreignId('auction_category_id')
-                ->nullable()
-                ->constrained('auction_categories')
-                ->nullOnDelete();
-        });
+        if (! Schema::hasColumn('auctions', 'auction_category_id')) {
+            Schema::table('auctions', function (Blueprint $table) {
+                $table->foreignId('auction_category_id')
+                    ->nullable()
+                    ->constrained('auction_categories')
+                    ->nullOnDelete();
+            });
+        }
     }
 
     /**

@@ -1,5 +1,12 @@
 @php use Illuminate\Support\Str; @endphp
 @php $isHomePage = $isHomePage ?? false; @endphp
+@php
+    $defaultDescription = 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში';
+    $pageDescription = $isHomePage
+        ? $defaultDescription
+        : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : $defaultDescription));
+    $plainPageDescription = Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($pageDescription))), 160, '');
+@endphp
 
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
@@ -74,11 +81,11 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
 <meta name="language" content="{{ app()->getLocale() }}">
 
         <meta name="description"
-            content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
+            content="{{ $plainPageDescription }}">
         <meta property="og:title"
             content="{{ $isHomePage ? 'ბუკინისტები' : (isset($book) ? $book->title : (isset($booknews) ? $booknews->title : 'ბუკინისტები')) }}">
         <meta property="og:description"
-            content="{{ $isHomePage ? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' : (isset($book) ? $book->description : (isset($booknews) ? $booknews->description : 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში')) }}">
+            content="{{ $plainPageDescription }}">
         <meta property="og:url" content="{{ Request::fullUrl() }}">
         <meta property="og:image"
             content="{{ $isHomePage ? asset('default.webp') : (isset($book) ? asset('storage/' . $book->photo) : (isset($booknews) ? asset('storage/' . $booknews->image) : asset('default.webp'))) }}">
@@ -109,7 +116,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $book->title ?? 'bukinistebi - ბუკინისტური მაღაზია' }}">
     <meta name="twitter:description"
-        content="{{ $book->description ?? 'პირველი ბუკინისტური ონლაინ მაღაზია საქართველოში' }}">
+        content="{{ $plainPageDescription }}">
     <meta name="twitter:image"
         content="{{ isset($book) && $book->photo
             ? asset('storage/' . $book->photo)
@@ -207,7 +214,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
           "@type": "Product",
           "name": "{{ $book->title }}",
           "image": "{{ asset('storage/' . $book->photo) }}",
-          "description": "{{ $book->description }}",
+          "description": @json($plainPageDescription),
           "sku": "{{ $book->id }}",
           "brand": {
             "@type": "Brand",
@@ -227,6 +234,62 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
 
      
      <link rel="preload" href="/fonts/noto.woff2" as="font" type="font/woff2" crossorigin>
+
+    <style>
+        .auction-top-item {
+            margin: 0 12px 0 4px;
+        }
+
+        .auction-top-link {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 5px 12px !important;
+            border: 1px solid rgba(212, 175, 55, .58);
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255, 249, 222, .98), rgba(255, 255, 255, .86));
+            box-shadow: 0 5px 16px rgba(128, 98, 19, .13);
+            color: #473919 !important;
+            font-weight: 800;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .auction-top-link:hover {
+            border-color: rgba(212, 175, 55, .95);
+            background: linear-gradient(135deg, #fff3b8, #fffdf2);
+            color: #2f260f !important;
+            transform: translateY(-1px);
+        }
+
+        .auction-top-link .auction-gold-icon {
+            width: 26px;
+            height: 26px;
+            margin-right: 0;
+        }
+
+        .auction-top-link .auction-gold-icon i {
+            font-size: 24px;
+        }
+
+        .auction-top-copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auction-top-label {
+            color: inherit !important;
+        }
+
+        .auction-top-badge {
+            font-size: 10px;
+            line-height: 1;
+            padding: 4px 6px;
+            border-radius: 999px;
+        }
+    </style>
 
  
 </head>
@@ -300,16 +363,17 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
 
 
 
- <li class="nav-item forum-highlight" id="forumMenuItem">
-    <a class="nav-link" href="https://forum.bukinistebi.ge/" target="_blank">
-        <i class="bi bi-chat-dots"></i>
-
-        <span class="d-none d-md-inline">
-            ფორუმი
-            <span class="badge bg-danger ms-1 forum-new-badge">NEW</span>
+<li class="nav-item auction-top-item">
+    <a class="nav-link auction-top-link" href="@langurl(route('auction.index'))">
+        <span class="auction-gold-icon">
+            <i class="bi bi-coin"></i>
+        </span>
+        <span class="auction-top-copy">
+            <span class="auction-top-label">{{ __('messages.auctions') }}</span>
+            <span class="badge bg-danger auction-top-badge">NEW</span>
         </span>
     </a>
-</li> 
+</li>
 
 
 

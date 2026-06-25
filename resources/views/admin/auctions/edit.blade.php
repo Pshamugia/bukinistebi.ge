@@ -178,12 +178,13 @@
     </form>
 </div>
 
-{{-- ===============================
-    CKEDITOR
-=============================== --}}
+@endsection
+
+@push('scripts')
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 <script>
-    if (typeof CKEDITOR !== 'undefined') {
+    if (typeof CKEDITOR !== 'undefined' && document.getElementById('description') && !CKEDITOR.instances.description) {
         CKEDITOR.replace('description');
     }
 </script>
-@endsection
+@endpush

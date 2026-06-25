@@ -7,15 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('iban')->nullable()->after('address');
-        });
+        if (! Schema::hasColumn('users', 'iban')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('iban')->nullable()->after('address');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('iban');
-        });
+        if (Schema::hasColumn('users', 'iban')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('iban');
+            });
+        }
     }
 };

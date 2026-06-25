@@ -9,17 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+public function up()
 {
-    Schema::table('genres', function (Blueprint $table) {
-        $table->string('name_ru')->nullable()->after('name_en');
-    });
+    if (! Schema::hasColumn('genres', 'name_ru')) {
+        Schema::table('genres', function (Blueprint $table) {
+            $table->string('name_ru')->nullable()->after('name_en');
+        });
+    }
 }
 
 public function down()
 {
-    Schema::table('genres', function (Blueprint $table) {
-        $table->dropColumn('name_ru');
-    });
+    if (Schema::hasColumn('genres', 'name_ru')) {
+        Schema::table('genres', function (Blueprint $table) {
+            $table->dropColumn('name_ru');
+        });
+    }
 }
 };

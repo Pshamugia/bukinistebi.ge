@@ -12,9 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::table('book_news', function (Blueprint $table) {
-            $table->string('title_en')->nullable();
-            $table->text('description_en')->nullable();
-            $table->longText('full_en')->nullable();
+            if (! Schema::hasColumn('book_news', 'title_en')) {
+                $table->string('title_en')->nullable();
+            }
+
+            if (! Schema::hasColumn('book_news', 'description_en')) {
+                $table->text('description_en')->nullable();
+            }
+
+            if (! Schema::hasColumn('book_news', 'full_en')) {
+                $table->longText('full_en')->nullable();
+            }
         });
     }
 

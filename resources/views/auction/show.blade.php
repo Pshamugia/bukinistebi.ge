@@ -59,6 +59,7 @@
 
         $lastBid = $auction->bids->max('amount');
         $basePrice = $lastBid ?? $auction->start_price;
+        $formatPrice = fn ($price) => rtrim(rtrim(number_format((float) $price, 2, '.', ''), '0'), '.');
     @endphp
 
 
@@ -241,23 +242,23 @@
                         <hr>
 
                         <p><i class="bi bi-currency-exchange"></i> <strong>საწყისი ფასი:</strong>
-                            {{ number_format($auction->start_price, 2) }} ₾</p>
+                            {{ $formatPrice($auction->start_price) }} ₾</p>
                         <p><i class="bi bi-graph-up-arrow"></i> <strong>მიმდინარე ფასი:</strong>
-{{ number_format($auction->effective_current_price, 2) }} ₾
+{{ $formatPrice($auction->effective_current_price) }} ₾
                         </p>
                         @if($auction->buy_now_price && $auction->is_active)
                             <div class="alert alert-warning border-0 shadow-sm">
                                 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
                                     <div>
                                         <strong>⚡ ბლიც-ფასი:</strong>
-                                        {{ number_format($auction->buy_now_price, 2) }} ₾
-                                        <div class="small text-muted">ვინც პირველი იყიდის ბლიც-ფასად, აუქციონი მაშინვე დასრულდება.</div>
+                                        {{ $formatPrice($auction->buy_now_price) }} ₾
+                                        <div class="small text-muted">ბლიც-ფასის გადახდის შემთხვევაში, აუქციონი მომენტალურად სრულდება და ფასის გადამხდელი ცხადდება გამარჯვებულად ვადაზე ადრე.</div>
                                     </div>
                                     @auth
                                         <form method="POST" action="{{ route('auction.buy-now', $auction) }}" onsubmit="return confirm('დარწმუნებული ხარ, რომ გსურს ბლიც-ფასად ყიდვა?')">
                                             @csrf
                                             <button type="submit" class="btn btn-warning fw-semibold">
-                                                ⚡ ბლიც-ფასად ყიდვა
+                                                ⚡ მყისიერი ყიდვა
                                             </button>
                                         </form>
                                     @else

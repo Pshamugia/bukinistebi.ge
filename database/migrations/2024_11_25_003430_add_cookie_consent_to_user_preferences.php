@@ -11,15 +11,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user_preferences', function (Blueprint $table) {
-            $table->string('cookie_consent')->default('not_given');
-        });
+        if (Schema::hasTable('user_preferences') && ! Schema::hasColumn('user_preferences', 'cookie_consent')) {
+            Schema::table('user_preferences', function (Blueprint $table) {
+                $table->string('cookie_consent')->default('not_given');
+            });
+        }
     }
     
     public function down()
     {
-        Schema::table('user_preferences', function (Blueprint $table) {
-            $table->dropColumn('cookie_consent');
-        });
+        if (Schema::hasTable('user_preferences') && Schema::hasColumn('user_preferences', 'cookie_consent')) {
+            Schema::table('user_preferences', function (Blueprint $table) {
+                $table->dropColumn('cookie_consent');
+            });
+        }
     }
 };

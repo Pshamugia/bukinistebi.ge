@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         // database/migrations/xxxx_add_admin_note_to_users_table.php
-Schema::table('users', function (Blueprint $table) {
-    $table->text('admin_note')->nullable()->after('phone');
-});
+if (! Schema::hasColumn('users', 'admin_note')) {
+    Schema::table('users', function (Blueprint $table) {
+        $table->text('admin_note')->nullable()->after('phone');
+    });
+}
 
     }
 

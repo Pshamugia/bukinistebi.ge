@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('auctions', function (Blueprint $table) {
-            $table->boolean('is_paid')->default(false);
-        });
+        if (! Schema::hasColumn('auctions', 'is_paid')) {
+            Schema::table('auctions', function (Blueprint $table) {
+                $table->boolean('is_paid')->default(false);
+            });
+        }
         
     }
 

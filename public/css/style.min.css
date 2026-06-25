@@ -1812,6 +1812,60 @@ body.dark-mode .chosen-container-single .chosen-single {
     transform-origin: center
 }
 
+.auction-top-item {
+    margin: 0 12px 0 4px;
+}
+
+.auction-top-link {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 5px 12px !important;
+    border: 1px solid rgba(212, 175, 55, .58);
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 249, 222, .98), rgba(255, 255, 255, .86));
+    box-shadow: 0 5px 16px rgba(128, 98, 19, .13);
+    color: #473919 !important;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.auction-top-link:hover {
+    border-color: rgba(212, 175, 55, .95);
+    background: linear-gradient(135deg, #fff3b8, #fffdf2);
+    color: #2f260f !important;
+    transform: translateY(-1px);
+}
+
+.auction-top-link .auction-gold-icon {
+    width: 26px;
+    height: 26px;
+    margin-right: 0;
+}
+
+.auction-top-link .auction-gold-icon i {
+    font-size: 24px;
+}
+
+.auction-top-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.auction-top-label {
+    color: inherit !important;
+}
+
+.auction-top-badge {
+    font-size: 10px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 999px;
+}
+
 @keyframes slow-coin-rotate {
     0% {
         transform: rotateY(0deg)

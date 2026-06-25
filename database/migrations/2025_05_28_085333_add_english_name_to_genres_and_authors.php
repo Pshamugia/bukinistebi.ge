@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('genres', function (Blueprint $table) {
-            $table->string('name_en')->nullable();
-        });
+        if (! Schema::hasColumn('genres', 'name_en')) {
+            Schema::table('genres', function (Blueprint $table) {
+                $table->string('name_en')->nullable();
+            });
+        }
     
-        Schema::table('authors', function (Blueprint $table) {
-            $table->string('name_en')->nullable();
-        });
+        if (! Schema::hasColumn('authors', 'name_en')) {
+            Schema::table('authors', function (Blueprint $table) {
+                $table->string('name_en')->nullable();
+            });
+        }
     }
     
 

@@ -15,7 +15,13 @@ return new class extends Migration
         Schema::create('user_preferences', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('guest_id')->nullable();
             $table->string('preference')->nullable();
+            $table->integer('time_spent')->nullable();
+            $table->string('page')->nullable();
+            $table->string('cookie_consent')->default('not_given');
+            $table->string('user_name')->nullable();
+            $table->date('date')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

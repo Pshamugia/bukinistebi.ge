@@ -11,16 +11,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->boolean('auction_only')->default(false);
-        });
+        if (! Schema::hasColumn('books', 'auction_only')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->boolean('auction_only')->default(false);
+            });
+        }
     }
     
     public function down()
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->dropColumn('auction_only');
-        });
+        if (Schema::hasColumn('books', 'auction_only')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->dropColumn('auction_only');
+            });
+        }
     }
     
 };

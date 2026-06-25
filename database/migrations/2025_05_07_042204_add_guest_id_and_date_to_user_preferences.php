@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user_preferences', function (Blueprint $table) {
-            $table->string('guest_id')->nullable()->after('user_id');
-            $table->date('date')->nullable()->after('user_name');
-        });
+        if (Schema::hasTable('user_preferences')) {
+            Schema::table('user_preferences', function (Blueprint $table) {
+                if (! Schema::hasColumn('user_preferences', 'guest_id')) {
+                    $table->string('guest_id')->nullable()->after('user_id');
+                }
+
+                if (! Schema::hasColumn('user_preferences', 'date')) {
+                    $table->date('date')->nullable()->after('user_name');
+                }
+            });
+        }
     }
     
 

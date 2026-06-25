@@ -11,19 +11,33 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user_preferences', function (Blueprint $table) {
-            // Adding columns for tracking user behavior
-            $table->integer('time_spent')->nullable(); // Store time spent on a page
-            $table->string('page')->nullable(); // Store the page URL
-        });
+        if (Schema::hasTable('user_preferences')) {
+            Schema::table('user_preferences', function (Blueprint $table) {
+                if (! Schema::hasColumn('user_preferences', 'time_spent')) {
+                    $table->integer('time_spent')->nullable();
+                }
+
+                if (! Schema::hasColumn('user_preferences', 'page')) {
+                    $table->string('page')->nullable();
+                }
+            });
+        }
     }
     
     public function down()
     {
-        Schema::table('user_preferences', function (Blueprint $table) {
-            // Remove the columns if we roll back the migration
-            $table->dropColumn(['time_spent', 'page']);
-        });
+        if (Schema::hasTable('user_preferences')) {
+            $columns = array_filter([
+                Schema::hasColumn('user_preferences', 'time_spent') ? 'time_spent' : null,
+                Schema::hasColumn('user_preferences', 'page') ? 'page' : null,
+            ]);
+
+            if ($columns !== []) {
+                Schema::table('user_preferences', function (Blueprint $table) use ($columns) {
+                    $table->dropColumn($columns);
+                });
+            }
+        }
     }
     
 };

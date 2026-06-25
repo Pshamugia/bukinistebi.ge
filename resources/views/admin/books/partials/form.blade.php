@@ -450,8 +450,13 @@
     <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 
     <script>
-        // Replace the <textarea> with a CKEditor instance
-        CKEDITOR.replace('full');
+        if (typeof CKEDITOR !== 'undefined') {
+            ['description', 'full'].forEach(function (fieldId) {
+                if (document.getElementById(fieldId) && !CKEDITOR.instances[fieldId]) {
+                    CKEDITOR.replace(fieldId);
+                }
+            });
+        }
     </script>
 
     <!-- Initialize Chosen -->

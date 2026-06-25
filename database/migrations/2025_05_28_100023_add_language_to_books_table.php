@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->string('language', 2)->default('ka')->after('id');
-        });
+        if (! Schema::hasColumn('books', 'language')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->string('language', 2)->default('ka')->after('id');
+            });
+        }
     }
     
 
