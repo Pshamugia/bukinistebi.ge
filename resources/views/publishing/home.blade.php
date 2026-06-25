@@ -9,10 +9,26 @@
 @endphp
 
 <style>
-    .pub-page {
+    :root {
+        --pub-ink: #171b1f;
+        --pub-graphite: #23282d;
+        --pub-charcoal: #111417;
+        --pub-muted: #68717b;
+        --pub-line: #dfe3e7;
+        --pub-soft: #f4f5f6;
+        --pub-white: #ffffff;
+        --pub-shadow: 0 24px 70px rgba(17, 20, 23, .12);
+        --pub-radius-lg: 32px;
+        --pub-radius-md: 20px;
+    }
+
+    .pub-site {
         margin: 0 calc(50% - 50vw);
-        background: #f7f4ef;
-        color: #25201b;
+        background:
+            radial-gradient(circle at top left, rgba(35, 40, 45, .08), transparent 34rem),
+            linear-gradient(180deg, #fff 0%, #f6f7f8 44%, #fff 100%);
+        color: var(--pub-ink);
+        overflow: hidden;
     }
 
     .pub-wrap {
@@ -21,320 +37,451 @@
     }
 
     .pub-hero {
+        position: relative;
         display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
-        min-height: 560px;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+        gap: 44px;
         align-items: center;
-        gap: 42px;
-        padding: 52px 0 44px;
+        min-height: 680px;
+        padding: 70px 0;
     }
 
-    .pub-eyebrow {
+    .pub-hero::after {
+        content: '';
+        position: absolute;
+        right: calc(50% - 50vw);
+        top: 72px;
+        width: min(43vw, 560px);
+        height: calc(100% - 144px);
+        border-radius: 48px 0 0 48px;
+        background: linear-gradient(145deg, #20252a, #0f1215);
+        z-index: 0;
+    }
+
+    .pub-hero-copy,
+    .pub-hero-visual {
+        position: relative;
+        z-index: 1;
+    }
+
+    .pub-kicker {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 18px;
-        color: #8f5b22;
+        margin-bottom: 22px;
+        padding: 9px 14px;
+        border: 1px solid var(--pub-line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .82);
+        color: var(--pub-muted);
+        font-size: 14px;
         font-weight: 800;
-        letter-spacing: 0;
+        letter-spacing: .02em;
+        backdrop-filter: blur(12px);
     }
 
-    .pub-eyebrow span {
-        width: 38px;
-        height: 1px;
-        background: #b8863b;
+    .pub-kicker i {
+        color: var(--pub-ink);
     }
 
     .pub-title {
-        max-width: 720px;
-        margin: 0 0 20px;
-        font-size: 56px;
-        line-height: 1.08;
-        font-weight: 900;
+        max-width: 760px;
+        margin: 0 0 24px;
+        font-size: clamp(44px, 6.6vw, 88px);
+        line-height: .95;
+        font-weight: 950;
+        letter-spacing: -.06em;
+        color: var(--pub-charcoal);
     }
 
     .pub-lead {
-        max-width: 650px;
-        margin: 0 0 28px;
-        font-size: 18px;
+        max-width: 690px;
+        margin: 0 0 18px;
+        color: #4f5963;
+        font-size: 20px;
         line-height: 1.85;
-        color: #5a5148;
+    }
+
+    .pub-lead strong {
+        color: var(--pub-ink);
+        font-weight: 900;
     }
 
     .pub-actions {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+        margin-top: 34px;
     }
 
     .pub-btn {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        min-height: 46px;
-        padding: 11px 18px;
-        border-radius: 4px;
-        border: 1px solid #25201b;
-        font-weight: 800;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 13px 22px;
+        border: 1px solid var(--pub-ink);
+        border-radius: 999px;
+        font-weight: 900;
         text-decoration: none;
-        transition: .2s ease;
+        transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
     }
 
-    .pub-btn-primary {
-        background: #25201b;
-        color: #fff;
+    .pub-btn:hover {
+        transform: translateY(-2px);
     }
 
-    .pub-btn-primary:hover {
-        color: #fff;
-        background: #8f2d22;
-        border-color: #8f2d22;
+    .pub-btn-dark {
+        background: var(--pub-ink);
+        color: var(--pub-white);
+        box-shadow: 0 14px 34px rgba(23, 27, 31, .22);
     }
 
-    .pub-btn-outline {
-        color: #25201b;
-        background: transparent;
+    .pub-btn-dark:hover {
+        background: #000;
+        border-color: #000;
+        color: var(--pub-white);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, .26);
     }
 
-    .pub-btn-outline:hover {
-        color: #8f2d22;
-        border-color: #8f2d22;
+    .pub-btn-light {
+        background: var(--pub-white);
+        color: var(--pub-ink);
+        border-color: var(--pub-line);
     }
 
-    .pub-visual {
+    .pub-btn-light:hover {
+        border-color: var(--pub-ink);
+        color: var(--pub-ink);
+    }
+
+    .pub-visual-card {
         position: relative;
-        min-height: 430px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: var(--pub-radius-lg);
+        background: rgba(255, 255, 255, .08);
+        box-shadow: var(--pub-shadow);
+        backdrop-filter: blur(10px);
     }
 
-    .pub-visual-main {
+    .pub-visual-card::before {
+        content: '';
         position: absolute;
-        inset: 0 42px 38px 0;
-        border-radius: 4px;
-        background: #211d19;
-        box-shadow: 22px 24px 0 #e4d5bd;
-        overflow: hidden;
+        inset: 34px -18px -18px 48px;
+        border-radius: 28px;
+        background: rgba(255,255,255,.12);
+        z-index: -1;
     }
 
-    .pub-visual-main img {
+    .pub-visual-card img {
+        display: block;
         width: 100%;
-        height: 100%;
+        aspect-ratio: 4 / 5;
         object-fit: cover;
-        opacity: .88;
-    }
-
-    .pub-note {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        max-width: 310px;
-        padding: 22px;
-        border-radius: 4px;
+        border-radius: 24px;
         background: #fff;
-        border: 1px solid #eadfce;
-        box-shadow: 0 16px 34px rgba(58, 43, 25, .14);
     }
 
-    .pub-note strong {
+    .pub-floating-note {
+        position: absolute;
+        left: -34px;
+        bottom: 34px;
+        width: min(280px, 72%);
+        padding: 22px;
+        border: 1px solid var(--pub-line);
+        border-radius: 22px;
+        background: rgba(255,255,255,.94);
+        box-shadow: 0 20px 48px rgba(17, 20, 23, .14);
+        color: var(--pub-ink);
+    }
+
+    .pub-floating-note strong {
         display: block;
         margin-bottom: 8px;
         font-size: 18px;
+        font-weight: 950;
     }
 
-    .pub-note p {
-        margin: 0;
-        color: #6a5f54;
+    .pub-floating-note span {
+        color: var(--pub-muted);
         line-height: 1.7;
     }
 
-    .pub-band {
-        padding: 54px 0;
-        background: #fff;
+    .pub-section {
+        padding: 74px 0;
+    }
+
+    .pub-section-alt {
+        background: var(--pub-soft);
+        border-block: 1px solid var(--pub-line);
     }
 
     .pub-section-head {
+        display: grid;
+        grid-template-columns: minmax(240px, .75fr) minmax(0, 1.25fr);
+        gap: 34px;
+        align-items: end;
+        margin-bottom: 34px;
+    }
+
+    .pub-section-title {
+        margin: 0;
+        color: var(--pub-charcoal);
+        font-size: clamp(34px, 4vw, 56px);
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: -.045em;
+    }
+
+    .pub-section-copy {
+        margin: 0;
+        color: var(--pub-muted);
+        font-size: 17px;
+        line-height: 1.9;
+    }
+
+    .pub-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .pub-feature {
+        position: relative;
+        min-height: 250px;
+        padding: 28px;
+        border: 1px solid var(--pub-line);
+        border-radius: var(--pub-radius-md);
+        background: var(--pub-white);
+        box-shadow: 0 12px 34px rgba(17, 20, 23, .05);
+        overflow: hidden;
+    }
+
+    .pub-feature::after {
+        content: '';
+        position: absolute;
+        right: -44px;
+        top: -44px;
+        width: 120px;
+        height: 120px;
+        border-radius: 999px;
+        background: #eef0f2;
+    }
+
+    .pub-feature i {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        width: 52px;
+        height: 52px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+        border-radius: 16px;
+        background: var(--pub-ink);
+        color: #fff;
+        font-size: 24px;
+    }
+
+    .pub-feature h3 {
+        margin: 0 0 12px;
+        font-size: 22px;
+        font-weight: 950;
+        color: var(--pub-charcoal);
+    }
+
+    .pub-feature p {
+        margin: 0;
+        color: var(--pub-muted);
+        line-height: 1.8;
+    }
+
+    .pub-showcase-top {
         display: flex;
         justify-content: space-between;
         gap: 24px;
         align-items: end;
-        margin-bottom: 24px;
+        margin-bottom: 30px;
     }
 
-    .pub-section-head h2 {
-        margin: 0;
-        font-size: 34px;
-        font-weight: 900;
-    }
-
-    .pub-section-head p {
-        max-width: 520px;
-        margin: 0;
-        color: #665d55;
-        line-height: 1.7;
-    }
-
-    .pub-services {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1px;
-        background: #e7ddd0;
-        border: 1px solid #e7ddd0;
-    }
-
-    .pub-service {
-        min-height: 210px;
-        padding: 26px;
-        background: #fff;
-    }
-
-    .pub-service i {
-        display: inline-flex;
-        margin-bottom: 18px;
-        font-size: 30px;
-        color: #9f6426;
-    }
-
-    .pub-service h3 {
-        margin: 0 0 10px;
-        font-size: 19px;
-        font-weight: 900;
-    }
-
-    .pub-service p {
-        margin: 0;
-        color: #6a5f54;
-        line-height: 1.7;
-    }
-
-    .pub-showcase {
-        padding: 58px 0;
+    .pub-showcase-top .pub-section-copy {
+        max-width: 560px;
     }
 
     .pub-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 22px;
+        gap: 24px;
     }
 
-    .pub-item {
-        background: #fff;
-        border: 1px solid #e8decf;
-        border-radius: 4px;
+    .pub-book-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        border: 1px solid var(--pub-line);
+        border-radius: 26px;
+        background: var(--pub-white);
+        box-shadow: 0 14px 40px rgba(17, 20, 23, .07);
         overflow: hidden;
+        transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
     }
 
-    .pub-item-image {
+    .pub-book-card:hover {
+        transform: translateY(-7px);
+        border-color: #c6ccd2;
+        box-shadow: 0 26px 70px rgba(17, 20, 23, .13);
+    }
+
+    .pub-book-image {
         display: block;
         aspect-ratio: 4 / 3;
-        background: #eee4d6;
+        background: linear-gradient(135deg, #eceff1, #fff);
         overflow: hidden;
     }
 
-    .pub-item-image img {
+    .pub-book-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform .25s ease;
+        transition: transform .28s ease;
     }
 
-    .pub-item:hover .pub-item-image img {
-        transform: scale(1.04);
+    .pub-book-card:hover .pub-book-image img {
+        transform: scale(1.045);
     }
 
-    .pub-item-body {
-        padding: 20px;
+    .pub-book-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 24px;
     }
 
-    .pub-category {
+    .pub-book-category {
         display: inline-flex;
-        margin-bottom: 10px;
-        color: #8f5b22;
-        font-size: 13px;
-        font-weight: 800;
+        width: fit-content;
+        margin-bottom: 12px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: #edf0f2;
+        color: #4d5660;
+        font-size: 12px;
+        font-weight: 950;
     }
 
-    .pub-item h3 {
+    .pub-book-body h3 {
         margin: 0 0 10px;
-        font-size: 20px;
-        font-weight: 900;
+        color: var(--pub-charcoal);
+        font-size: 23px;
+        font-weight: 950;
+        letter-spacing: -.02em;
     }
 
-    .pub-item p {
-        min-height: 76px;
-        margin: 0 0 14px;
-        color: #625850;
-        line-height: 1.65;
+    .pub-book-body p {
+        margin: 0 0 22px;
+        color: var(--pub-muted);
+        line-height: 1.75;
+    }
+
+    .pub-shop-btn {
+        width: fit-content;
+        margin-top: auto;
     }
 
     .pub-empty {
-        padding: 28px;
-        border: 1px dashed #cdbb9e;
-        background: rgba(255,255,255,.65);
-        color: #6a5f54;
+        padding: 34px;
+        border: 1px dashed #b9c0c7;
+        border-radius: var(--pub-radius-md);
+        background: #fff;
+        color: var(--pub-muted);
     }
 
     .pub-contact {
-        padding: 56px 0 64px;
-        background: #27211c;
-        color: #fff;
+        padding: 78px 0 86px;
+        background:
+            radial-gradient(circle at 12% 20%, rgba(255,255,255,.08), transparent 24rem),
+            linear-gradient(135deg, #171b1f, #0d0f11);
+        color: var(--pub-white);
     }
 
     .pub-contact-grid {
         display: grid;
-        grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr);
-        gap: 38px;
+        grid-template-columns: minmax(260px, .85fr) minmax(320px, 1.15fr);
+        gap: 42px;
         align-items: start;
     }
 
-    .pub-contact h2 {
-        margin: 0 0 16px;
-        font-size: 34px;
-        font-weight: 900;
+    .pub-contact .pub-section-title {
+        color: var(--pub-white);
     }
 
     .pub-contact p {
-        color: rgba(255,255,255,.74);
-        line-height: 1.8;
+        color: rgba(255,255,255,.72);
+        font-size: 17px;
+        line-height: 1.85;
     }
 
     .pub-contact a {
-        color: #f2c46d;
+        color: var(--pub-white);
+        text-decoration: underline;
+        text-underline-offset: 4px;
     }
 
     .pub-form {
-        padding: 26px;
-        border: 1px solid rgba(255,255,255,.16);
-        background: rgba(255,255,255,.06);
-        border-radius: 4px;
+        padding: 30px;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 28px;
+        background: rgba(255,255,255,.07);
+        box-shadow: 0 24px 64px rgba(0,0,0,.22);
+        backdrop-filter: blur(12px);
     }
 
     .pub-form .form-label {
         color: rgba(255,255,255,.86);
-        font-weight: 700;
+        font-weight: 850;
     }
 
     .pub-form .form-control {
-        min-height: 45px;
-        border-radius: 4px;
-        border: 0;
+        min-height: 48px;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 14px;
+        background: rgba(255,255,255,.94);
+        color: var(--pub-ink);
     }
 
     .pub-form textarea.form-control {
-        min-height: 150px;
+        min-height: 156px;
     }
 
     @media (max-width: 991px) {
         .pub-hero,
+        .pub-section-head,
         .pub-contact-grid {
             grid-template-columns: 1fr;
         }
 
-        .pub-title {
-            font-size: 42px;
+        .pub-hero::after {
+            display: none;
         }
 
-        .pub-services,
+        .pub-visual-card {
+            max-width: 520px;
+            background: var(--pub-ink);
+        }
+
+        .pub-feature-grid,
         .pub-grid {
             grid-template-columns: 1fr 1fr;
+        }
+
+        .pub-showcase-top {
+            display: block;
+        }
+
+        .pub-showcase-top .pub-section-title {
+            margin-bottom: 14px;
         }
     }
 
@@ -345,107 +492,95 @@
 
         .pub-hero {
             min-height: 0;
-            padding-top: 32px;
+            padding: 46px 0;
         }
 
         .pub-title {
-            font-size: 34px;
+            letter-spacing: -.04em;
         }
 
-        .pub-visual {
-            min-height: 330px;
+        .pub-floating-note {
+            position: static;
+            width: auto;
+            margin-top: 12px;
         }
 
-        .pub-visual-main {
-            inset: 0 18px 42px 0;
-            box-shadow: 14px 16px 0 #e4d5bd;
-        }
-
-        .pub-section-head {
-            display: block;
-        }
-
-        .pub-section-head h2 {
-            margin-bottom: 12px;
-            font-size: 28px;
-        }
-
-        .pub-services,
+        .pub-feature-grid,
         .pub-grid {
             grid-template-columns: 1fr;
         }
     }
 </style>
 
-<div class="pub-page">
+<div class="pub-site">
     <section class="pub-wrap pub-hero">
-        <div>
-            <div class="pub-eyebrow"><span></span> გამომცემლობა ბუკინისტები</div>
-            <h1 class="pub-title">წიგნის მომზადება, გამოცემა და მკითხველამდე მიტანა</h1>
+        <div class="pub-hero-copy">
+            <div class="pub-kicker"><i class="bi bi-book-half"></i> გამომცემლობა ბუკინისტები</div>
+            <h1 class="pub-title">ძველი გამოცემების ახალი სიცოცხლე</h1>
             <p class="pub-lead">
-                ავტორებთან, მთარგმნელებთან და ორგანიზაციებთან ერთად ვამზადებთ წიგნს იდეიდან დაბეჭდილ გამოცემამდე:
-                ტექსტი, დიზაინი, დაკაბადონება, ბეჭდვა და გავრცელება.
+                <strong>გამომცემლობა „ბუკინისტები“</strong> არის ძველი გამოცემების ახალი სიცოცხლე.
+                ჩვენი მთავარი ნიშა ბუკინისტური წიგნების გამოცემაა.
+            </p>
+            <p class="pub-lead">
+                ამავდროულად, „ბუკინისტების“ ლოგოს ქვეშ თანამედროვე ავტორებიც გამოჩნდებიან — მკაფიო, სუფთა და თანამედროვე ვიზუალით.
             </p>
             <div class="pub-actions">
-                <a href="#about-publishing" class="pub-btn pub-btn-primary">
-                    <i class="bi bi-envelope"></i> დაგვიკავშირდით
+                <a href="#about-publishing" class="pub-btn pub-btn-dark">
+                    <i class="bi bi-feather"></i> ტექსტის გამოგზავნა
                 </a>
                 @if($items->isNotEmpty())
-                    <a href="#publishing-works" class="pub-btn pub-btn-outline">
-                        <i class="bi bi-grid"></i> ნამუშევრები
+                    <a href="#publishing-works" class="pub-btn pub-btn-light">
+                        <i class="bi bi-grid-3x3-gap"></i> გამოცემები
                     </a>
                 @endif
             </div>
         </div>
 
-        <div class="pub-visual" aria-hidden="true">
-            <div class="pub-visual-main">
-                <img src="{{ $heroImage }}" alt="">
-            </div>
-            <div class="pub-note">
-                <strong>სრული საგამომცემლო პროცესი</strong>
-                <p>ერთი სივრცე ტექსტისთვის, ვიზუალისთვის, ბეჭდვისთვის და წიგნის მაღაზიამდე მისატანად.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="pub-band">
-        <div class="pub-wrap">
-            <div class="pub-section-head">
-                <h2>რას ვაკეთებთ</h2>
-                <p>შიდა ბლოკები ცალკე ნაწილებადაა დალაგებული, რომ გვერდი publishing-ის გვერდს ჰგავდეს და არა ჩვეულებრივ წიგნების სიას.</p>
-            </div>
-
-            <div class="pub-services">
-                <article class="pub-service">
-                    <i class="bi bi-pencil-square"></i>
-                    <h3>რედაქტირება</h3>
-                    <p>ტექსტის წაკითხვა, კორექტურა და გამოცემისთვის საჭირო სტრუქტურის მოწესრიგება.</p>
-                </article>
-                <article class="pub-service">
-                    <i class="bi bi-layout-text-window-reverse"></i>
-                    <h3>დაკაბადონება</h3>
-                    <p>შიდა გვერდების გამართული ფორმატი, სათაურები, თავები და ბეჭდვისთვის მზადება.</p>
-                </article>
-                <article class="pub-service">
-                    <i class="bi bi-palette"></i>
-                    <h3>ყდის დიზაინი</h3>
-                    <p>წიგნის ხასიათზე მორგებული ვიზუალი, რომელსაც თაროზეც დამოუკიდებლად უჭირავს ადგილი.</p>
-                </article>
-                <article class="pub-service">
-                    <i class="bi bi-printer"></i>
-                    <h3>ბეჭდვა</h3>
-                    <p>ფაილების მომზადება, ბეჭდვის პროცესის კოორდინაცია და საბოლოო ტირაჟის მიღება.</p>
-                </article>
+        <div class="pub-hero-visual">
+            <div class="pub-visual-card">
+                <img src="{{ $heroImage }}" alt="გამომცემლობა ბუკინისტები">
+                <div class="pub-floating-note">
+                    <strong>სუფთა, თანამედროვე, მკითხველზე ორიენტირებული</strong>
+                    <span>გამოცემები, რომლებიც bukinistebi.ge-ს ვიზუალურ ხასიათს აგრძელებს.</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="pub-showcase" id="publishing-works">
+    <section class="pub-section pub-section-alt">
         <div class="pub-wrap">
             <div class="pub-section-head">
-                <h2>ადმინიდან ატვირთული მასალები</h2>
-                <p>აქ ავტომატურად გამოჩნდება ის ჩანაწერები და სურათები, რასაც ბუკინისტების ადმინში publishing-ისთვის ტვირთავ.</p>
+                <h2 class="pub-section-title">რას აკეთებს გამომცემლობა?</h2>
+                <p class="pub-section-copy">
+                    აქ შეგიძლიათ წარადგინოთ ტექსტები, მიიღოთ გამოცემის მიმართულებით პირველი კონსულტაცია და წიგნი საფუძვლიანად განიხილოთ. სივრცე აგებულია მარტივ, სუფთა და მკითხველისთვის კომფორტულ გამოცდილებაზე.
+                </p>
+            </div>
+
+            <div class="pub-feature-grid">
+                <article class="pub-feature">
+                    <i class="bi bi-journal-text"></i>
+                    <h3>ტექსტის წარდგენა</h3>
+                    <p>გამოგვიგზავნეთ ნაწარმოები, იდეა ან მოკლე აღწერა და ერთად განვიხილოთ გამოცემის გზა.</p>
+                </article>
+                <article class="pub-feature">
+                    <i class="bi bi-chat-square-text"></i>
+                    <h3>პირველი კონსულტაცია</h3>
+                    <p>თუ ჯერ მხოლოდ გეგმა გაქვთ, მოგვწერეთ — დაგეხმარებით შემდეგი ნაბიჯების განსაზღვრაში.</p>
+                </article>
+                <article class="pub-feature">
+                    <i class="bi bi-stars"></i>
+                    <h3>ძველი და ახალი</h3>
+                    <p>ვაბრუნებთ ძველ ტექსტებს მკითხველთან და ადგილს ვუთმობთ თანამედროვე ავტორებსაც.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="pub-section" id="publishing-works">
+        <div class="pub-wrap">
+            <div class="pub-showcase-top">
+                <h2 class="pub-section-title">გამოცემები</h2>
+                <p class="pub-section-copy">ადმინიდან დამატებული წიგნები აქ გამოჩნდება თანამედროვე ბარათებით და პირდაპირი გადასვლით მაღაზიის გვერდზე.</p>
             </div>
 
             @if($items->isNotEmpty())
@@ -453,23 +588,24 @@
                     @foreach($items as $item)
                         @php
                             $cover = collect([$item->image_1, $item->image_2, $item->image_3, $item->image_4])->filter()->first();
+                            $shopUrl = $item->shop_url ?: route('publishing.show', $item);
                         @endphp
-                        <article class="pub-item">
-                            <a class="pub-item-image" href="{{ route('publishing.show', $item->id) }}">
+                        <article class="pub-book-card">
+                            <a class="pub-book-image" href="{{ $shopUrl }}" @if($item->shop_url) target="_blank" rel="noopener" @endif>
                                 @if($cover)
                                     <img src="{{ asset('storage/' . $cover) }}" alt="{{ $item->title }}">
                                 @else
                                     <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" alt="{{ $item->title }}">
                                 @endif
                             </a>
-                            <div class="pub-item-body">
+                            <div class="pub-book-body">
                                 @if($item->category)
-                                    <span class="pub-category">{{ $item->category }}</span>
+                                    <span class="pub-book-category">{{ $item->category }}</span>
                                 @endif
                                 <h3>{{ $item->title }}</h3>
                                 <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->description), 135) }}</p>
-                                <a href="{{ route('publishing.show', $item->id) }}" class="pub-btn pub-btn-outline">
-                                    ნახვა <i class="bi bi-arrow-right"></i>
+                                <a href="{{ $shopUrl }}" class="pub-btn pub-btn-light pub-shop-btn" @if($item->shop_url) target="_blank" rel="noopener" @endif>
+                                    მაღაზიაში ნახვა <i class="bi bi-arrow-up-right"></i>
                                 </a>
                             </div>
                         </article>
@@ -477,7 +613,7 @@
                 </div>
             @else
                 <div class="pub-empty">
-                    მასალები ჯერ არ ჩანს. როცა ადმინიდან publishing ჩანაწერს დაამატებ, ეს ბლოკი ავტომატურად შეივსება.
+                    მასალები ჯერ არ არის დამატებული. ჩანაწერების დამატების შემდეგ ისინი აქ გამოჩნდება.
                 </div>
             @endif
         </div>
@@ -486,9 +622,9 @@
     <section class="pub-contact" id="about-publishing">
         <div class="pub-wrap pub-contact-grid">
             <div>
-                <h2>დაგვიკავშირდით</h2>
+                <h2 class="pub-section-title">გამოგვიგზავნეთ ტექსტი</h2>
                 <p>
-                    მოგვწერეთ წიგნის იდეა, მოკლე აღწერა ან გამოგვიგზავნეთ ფაილი. დეტალებს დაგიბრუნებთ publishing@bukinistebi.ge-დან.
+                    შეავსეთ ფორმა, ატვირთეთ ფაილი ან დაგვიტოვეთ შეტყობინება — თანამშრომლობის დეტალებით დაგიკავშირდებით.
                 </p>
                 <p class="mb-0"><strong>Email:</strong> <a href="mailto:publishing@bukinistebi.ge">publishing@bukinistebi.ge</a></p>
             </div>
@@ -524,7 +660,7 @@
                     @error('attachment') <div class="text-warning small mt-1">{{ $message }}</div> @enderror
                 </div>
 
-                <button type="submit" class="pub-btn pub-btn-primary">
+                <button type="submit" class="pub-btn pub-btn-dark">
                     გაგზავნა <i class="bi bi-send"></i>
                 </button>
             </form>
