@@ -13,9 +13,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="shop_url" class="form-label">URL / ლინკი</label>
-            <input type="text" name="shop_url" id="shop_url" value="{{ old('shop_url', $item->shop_url) }}" class="form-control @error('shop_url') is-invalid @enderror" placeholder="https://bukinistebi.ge/...">
-            <div class="form-text">აქ ჩასვით ის ლინკი, რომელზეც publishing-ის ჩანაწერიდან უნდა გადავიდეს მომხმარებელი.</div>
+            <label for="shop_url" class="form-label">მაღაზიის ბმული</label>
+            <input type="url" name="shop_url" id="shop_url" value="{{ old('shop_url', $item->shop_url) }}" class="form-control @error('shop_url') is-invalid @enderror" placeholder="https://bukinistebi.ge/...">
             @error('shop_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 

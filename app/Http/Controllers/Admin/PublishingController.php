@@ -61,15 +61,13 @@ class PublishingController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:255'],
-            'shop_url' => ['nullable', 'string', 'max:255'],
+            'shop_url' => ['nullable', 'url', 'max:255'],
             'description' => ['nullable', 'string'],
             'image_1' => ['nullable', 'image', 'max:4096'],
             'image_2' => ['nullable', 'image', 'max:4096'],
             'image_3' => ['nullable', 'image', 'max:4096'],
             'image_4' => ['nullable', 'image', 'max:4096'],
         ]);
-
-        $data['shop_url'] = $this->normalizeUrl($data['shop_url'] ?? null);
 
         foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $image) {
             if ($request->hasFile($image)) {
@@ -84,20 +82,5 @@ class PublishingController extends Controller
         }
 
         return $data;
-    }
-
-    private function normalizeUrl(?string $url): ?string
-    {
-        $url = trim((string) $url);
-
-        if ($url === '') {
-            return null;
-        }
-
-        if (! preg_match('/^https?:\/\//i', $url)) {
-            return 'https://' . $url;
-        }
-
-        return $url;
     }
 }
