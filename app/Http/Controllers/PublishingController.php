@@ -15,7 +15,7 @@ class PublishingController extends Controller
             ? Publishing::latest()->get()
             : collect();
 
-        return view('publishing.home', compact('items'));
+        return view('publishing.redesign', compact('items'));
     }
 
     public function show(Publishing $publishing)
