@@ -9,466 +9,485 @@
 @endphp
 
 <style>
-    .pub-page {
+    .publishing-old-page {
         margin: 0 calc(50% - 50vw);
-        background: #f7f4ef;
-        color: #25201b;
+        background: #f6efe4;
+        color: #2b2118;
+        font-family: inherit;
     }
 
-    .pub-wrap {
+    .publishing-old-wrap {
         width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
     }
 
-    .pub-hero {
+    .publishing-old-hero {
+        position: relative;
         display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
-        min-height: 560px;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 430px);
+        gap: 48px;
         align-items: center;
-        gap: 42px;
-        padding: 52px 0 44px;
+        min-height: 640px;
+        padding: 70px 0 64px;
+        overflow: hidden;
     }
 
-    .pub-eyebrow {
+    .publishing-old-hero::before {
+        content: '';
+        position: absolute;
+        top: 54px;
+        right: calc(50% - 50vw);
+        width: 42vw;
+        height: calc(100% - 108px);
+        background: #e7d3b2;
+        z-index: 0;
+    }
+
+    .publishing-old-copy,
+    .publishing-old-cover {
+        position: relative;
+        z-index: 1;
+    }
+
+    .publishing-old-kicker {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        color: #8f5b22;
+        gap: 12px;
+        margin-bottom: 20px;
+        color: #9c6124;
         font-weight: 800;
-        letter-spacing: 0;
     }
 
-    .pub-eyebrow span {
-        width: 38px;
-        height: 1px;
-        background: #b8863b;
+    .publishing-old-kicker::before {
+        content: '';
+        width: 48px;
+        height: 2px;
+        background: #9c6124;
     }
 
-    .pub-title {
-        max-width: 720px;
-        margin: 0 0 20px;
-        font-size: 56px;
-        line-height: 1.08;
+    .publishing-old-title {
+        max-width: 760px;
+        margin: 0 0 24px;
+        font-size: clamp(42px, 6vw, 78px);
+        line-height: .98;
         font-weight: 900;
+        letter-spacing: -.04em;
     }
 
-    .pub-lead {
-        max-width: 650px;
-        margin: 0 0 28px;
-        font-size: 18px;
+    .publishing-old-lead {
+        max-width: 720px;
+        margin: 0 0 18px;
+        font-size: 20px;
         line-height: 1.85;
-        color: #5a5148;
+        color: #5d5044;
     }
 
-    .pub-actions {
+    .publishing-old-lead strong {
+        color: #2b2118;
+    }
+
+    .publishing-old-actions {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+        margin-top: 30px;
     }
 
-    .pub-btn {
+    .publishing-old-btn {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        min-height: 46px;
-        padding: 11px 18px;
-        border-radius: 4px;
-        border: 1px solid #25201b;
+        justify-content: center;
+        gap: 10px;
+        min-height: 48px;
+        padding: 12px 20px;
+        border: 1px solid #2b2118;
+        border-radius: 0;
         font-weight: 800;
         text-decoration: none;
         transition: .2s ease;
     }
 
-    .pub-btn-primary {
-        background: #25201b;
+    .publishing-old-btn-primary {
+        background: #2b2118;
         color: #fff;
     }
 
-    .pub-btn-primary:hover {
-        color: #fff;
+    .publishing-old-btn-primary:hover {
         background: #8f2d22;
         border-color: #8f2d22;
+        color: #fff;
     }
 
-    .pub-btn-outline {
-        color: #25201b;
+    .publishing-old-btn-light {
         background: transparent;
+        color: #2b2118;
     }
 
-    .pub-btn-outline:hover {
-        color: #8f2d22;
+    .publishing-old-btn-light:hover {
         border-color: #8f2d22;
+        color: #8f2d22;
     }
 
-    .pub-visual {
+    .publishing-old-cover-frame {
         position: relative;
-        min-height: 430px;
+        padding: 18px;
+        background: #fffaf2;
+        border: 1px solid #d8c19e;
+        box-shadow: 20px 22px 0 rgba(43, 33, 24, .12);
     }
 
-    .pub-visual-main {
-        position: absolute;
-        inset: 0 42px 38px 0;
-        border-radius: 4px;
-        background: #211d19;
-        box-shadow: 22px 24px 0 #e4d5bd;
-        overflow: hidden;
-    }
-
-    .pub-visual-main img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: .88;
-    }
-
-    .pub-note {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        max-width: 310px;
-        padding: 22px;
-        border-radius: 4px;
-        background: #fff;
-        border: 1px solid #eadfce;
-        box-shadow: 0 16px 34px rgba(58, 43, 25, .14);
-    }
-
-    .pub-note strong {
+    .publishing-old-cover-frame img {
         display: block;
-        margin-bottom: 8px;
-        font-size: 18px;
-    }
-
-    .pub-note p {
-        margin: 0;
-        color: #6a5f54;
-        line-height: 1.7;
-    }
-
-    .pub-band {
-        padding: 54px 0;
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
         background: #fff;
     }
 
-    .pub-section-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: end;
-        margin-bottom: 24px;
+    .publishing-old-stamp {
+        position: absolute;
+        left: -28px;
+        bottom: 34px;
+        max-width: 220px;
+        padding: 18px;
+        background: #2b2118;
+        color: #fff;
+        font-weight: 800;
+        line-height: 1.5;
     }
 
-    .pub-section-head h2 {
-        margin: 0;
-        font-size: 34px;
-        font-weight: 900;
+    .publishing-old-about {
+        padding: 64px 0;
+        background: #fffaf2;
+        border-top: 1px solid #eadbc4;
+        border-bottom: 1px solid #eadbc4;
     }
 
-    .pub-section-head p {
-        max-width: 520px;
-        margin: 0;
-        color: #665d55;
-        line-height: 1.7;
-    }
-
-    .pub-services {
+    .publishing-old-about-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1px;
-        background: #e7ddd0;
-        border: 1px solid #e7ddd0;
+        grid-template-columns: minmax(240px, .65fr) minmax(0, 1.35fr);
+        gap: 42px;
+        align-items: start;
     }
 
-    .pub-service {
-        min-height: 210px;
-        padding: 26px;
-        background: #fff;
-    }
-
-    .pub-service i {
-        display: inline-flex;
-        margin-bottom: 18px;
-        font-size: 30px;
-        color: #9f6426;
-    }
-
-    .pub-service h3 {
-        margin: 0 0 10px;
-        font-size: 19px;
+    .publishing-old-section-title {
+        margin: 0;
+        font-size: clamp(32px, 4vw, 48px);
+        line-height: 1.08;
         font-weight: 900;
     }
 
-    .pub-service p {
-        margin: 0;
-        color: #6a5f54;
-        line-height: 1.7;
+    .publishing-old-text {
+        color: #5d5044;
+        font-size: 18px;
+        line-height: 1.9;
     }
 
-    .pub-showcase {
-        padding: 58px 0;
+    .publishing-old-text p:last-child {
+        margin-bottom: 0;
     }
 
-    .pub-grid {
+    .publishing-old-cards {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 22px;
+        gap: 1px;
+        margin-top: 34px;
+        background: #e2cfb1;
+        border: 1px solid #e2cfb1;
     }
 
-    .pub-item {
-        background: #fff;
-        border: 1px solid #e8decf;
-        border-radius: 4px;
-        overflow: hidden;
+    .publishing-old-card {
+        min-height: 210px;
+        padding: 28px;
+        background: #f6efe4;
     }
 
-    .pub-item-image {
+    .publishing-old-card span {
+        display: block;
+        margin-bottom: 18px;
+        color: #9c6124;
+        font-size: 34px;
+        line-height: 1;
+    }
+
+    .publishing-old-card h3 {
+        margin: 0 0 12px;
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .publishing-old-card p {
+        margin: 0;
+        color: #66584a;
+        line-height: 1.75;
+    }
+
+    .publishing-old-works {
+        padding: 68px 0;
+    }
+
+    .publishing-old-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 28px;
+        align-items: end;
+        margin-bottom: 28px;
+    }
+
+    .publishing-old-head p {
+        max-width: 560px;
+        margin: 0;
+        color: #66584a;
+        line-height: 1.75;
+    }
+
+    .publishing-old-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .publishing-old-item {
+        background: #fffaf2;
+        border: 1px solid #e4d2b8;
+    }
+
+    .publishing-old-item-image {
         display: block;
         aspect-ratio: 4 / 3;
-        background: #eee4d6;
         overflow: hidden;
+        background: #e7d3b2;
     }
 
-    .pub-item-image img {
+    .publishing-old-item-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform .25s ease;
     }
 
-    .pub-item:hover .pub-item-image img {
+    .publishing-old-item:hover img {
         transform: scale(1.04);
     }
 
-    .pub-item-body {
-        padding: 20px;
+    .publishing-old-item-body {
+        padding: 22px;
     }
 
-    .pub-category {
+    .publishing-old-category {
         display: inline-flex;
         margin-bottom: 10px;
-        color: #8f5b22;
+        color: #9c6124;
         font-size: 13px;
-        font-weight: 800;
-    }
-
-    .pub-item h3 {
-        margin: 0 0 10px;
-        font-size: 20px;
         font-weight: 900;
     }
 
-    .pub-item p {
-        min-height: 76px;
-        margin: 0 0 14px;
-        color: #625850;
-        line-height: 1.65;
+    .publishing-old-item h3 {
+        margin: 0 0 10px;
+        font-size: 21px;
+        font-weight: 900;
     }
 
-    .pub-empty {
-        padding: 28px;
-        border: 1px dashed #cdbb9e;
-        background: rgba(255,255,255,.65);
-        color: #6a5f54;
+    .publishing-old-item p {
+        min-height: 78px;
+        margin: 0 0 16px;
+        color: #66584a;
+        line-height: 1.7;
     }
 
-    .pub-contact {
-        padding: 56px 0 64px;
-        background: #27211c;
+    .publishing-old-empty {
+        padding: 30px;
+        border: 1px dashed #cdb58f;
+        background: rgba(255, 250, 242, .65);
+        color: #66584a;
+    }
+
+    .publishing-old-contact {
+        padding: 68px 0 74px;
+        background: #2b2118;
         color: #fff;
     }
 
-    .pub-contact-grid {
+    .publishing-old-contact-grid {
         display: grid;
-        grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr);
-        gap: 38px;
+        grid-template-columns: minmax(260px, .8fr) minmax(320px, 1.2fr);
+        gap: 42px;
         align-items: start;
     }
 
-    .pub-contact h2 {
-        margin: 0 0 16px;
-        font-size: 34px;
-        font-weight: 900;
-    }
-
-    .pub-contact p {
+    .publishing-old-contact p {
         color: rgba(255,255,255,.74);
-        line-height: 1.8;
+        font-size: 17px;
+        line-height: 1.85;
     }
 
-    .pub-contact a {
-        color: #f2c46d;
+    .publishing-old-contact a {
+        color: #f1c676;
     }
 
-    .pub-form {
-        padding: 26px;
+    .publishing-old-form {
+        padding: 28px;
         border: 1px solid rgba(255,255,255,.16);
         background: rgba(255,255,255,.06);
-        border-radius: 4px;
     }
 
-    .pub-form .form-label {
+    .publishing-old-form .form-label {
         color: rgba(255,255,255,.86);
         font-weight: 700;
     }
 
-    .pub-form .form-control {
-        min-height: 45px;
-        border-radius: 4px;
+    .publishing-old-form .form-control {
+        min-height: 46px;
         border: 0;
+        border-radius: 0;
     }
 
-    .pub-form textarea.form-control {
-        min-height: 150px;
+    .publishing-old-form textarea.form-control {
+        min-height: 152px;
     }
 
     @media (max-width: 991px) {
-        .pub-hero,
-        .pub-contact-grid {
+        .publishing-old-hero,
+        .publishing-old-about-grid,
+        .publishing-old-contact-grid {
             grid-template-columns: 1fr;
         }
 
-        .pub-title {
-            font-size: 42px;
+        .publishing-old-hero::before {
+            display: none;
         }
 
-        .pub-services,
-        .pub-grid {
-            grid-template-columns: 1fr 1fr;
+        .publishing-old-cover-frame {
+            max-width: 430px;
+        }
+
+        .publishing-old-cards,
+        .publishing-old-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .publishing-old-head {
+            display: block;
+        }
+
+        .publishing-old-head .publishing-old-section-title {
+            margin-bottom: 14px;
         }
     }
 
     @media (max-width: 575px) {
-        .pub-wrap {
+        .publishing-old-wrap {
             width: min(100% - 24px, 1180px);
         }
 
-        .pub-hero {
+        .publishing-old-hero {
             min-height: 0;
-            padding-top: 32px;
+            padding: 42px 0;
         }
 
-        .pub-title {
-            font-size: 34px;
-        }
-
-        .pub-visual {
-            min-height: 330px;
-        }
-
-        .pub-visual-main {
-            inset: 0 18px 42px 0;
-            box-shadow: 14px 16px 0 #e4d5bd;
-        }
-
-        .pub-section-head {
-            display: block;
-        }
-
-        .pub-section-head h2 {
-            margin-bottom: 12px;
-            font-size: 28px;
-        }
-
-        .pub-services,
-        .pub-grid {
-            grid-template-columns: 1fr;
+        .publishing-old-stamp {
+            position: static;
+            max-width: none;
         }
     }
 </style>
 
-<div class="pub-page">
-    <section class="pub-wrap pub-hero">
-        <div>
-            <div class="pub-eyebrow"><span></span> გამომცემლობა ბუკინისტები</div>
-            <h1 class="pub-title">წიგნის მომზადება, გამოცემა და მკითხველამდე მიტანა</h1>
-            <p class="pub-lead">
-                ავტორებთან, მთარგმნელებთან და ორგანიზაციებთან ერთად ვამზადებთ წიგნს იდეიდან დაბეჭდილ გამოცემამდე:
-                ტექსტი, დიზაინი, დაკაბადონება, ბეჭდვა და გავრცელება.
+<div class="publishing-old-page">
+    <section class="publishing-old-wrap publishing-old-hero">
+        <div class="publishing-old-copy">
+            <div class="publishing-old-kicker">გამომცემლობა ბუკინისტები</div>
+            <h1 class="publishing-old-title">ძველი გამოცემების ახალი სიცოცხლე</h1>
+            <p class="publishing-old-lead">
+                <strong>გამომცემლობა „ბუკინისტები“</strong> არის ძველი გამოცემების ახალი სიცოცხლე.
+                ჩვენი მთავარი ნიშა ბუკინისტური წიგნების გამოცემაა.
             </p>
-            <div class="pub-actions">
-                <a href="#about-publishing" class="pub-btn pub-btn-primary">
-                    <i class="bi bi-envelope"></i> დაგვიკავშირდით
+            <p class="publishing-old-lead">
+                ამავდროულად, „ბუკინისტების“ ლოგოს ქვეშ თანამედროვე ავტორებიც გამოჩნდებიან.
+            </p>
+            <div class="publishing-old-actions">
+                <a href="#about-publishing" class="publishing-old-btn publishing-old-btn-primary">
+                    <i class="bi bi-feather"></i> ტექსტის გამოგზავნა
                 </a>
                 @if($items->isNotEmpty())
-                    <a href="#publishing-works" class="pub-btn pub-btn-outline">
-                        <i class="bi bi-grid"></i> ნამუშევრები
+                    <a href="#publishing-works" class="publishing-old-btn publishing-old-btn-light">
+                        <i class="bi bi-book"></i> გამოცემები
                     </a>
                 @endif
             </div>
         </div>
 
-        <div class="pub-visual" aria-hidden="true">
-            <div class="pub-visual-main">
-                <img src="{{ $heroImage }}" alt="">
-            </div>
-            <div class="pub-note">
-                <strong>სრული საგამომცემლო პროცესი</strong>
-                <p>ერთი სივრცე ტექსტისთვის, ვიზუალისთვის, ბეჭდვისთვის და წიგნის მაღაზიამდე მისატანად.</p>
+        <div class="publishing-old-cover">
+            <div class="publishing-old-cover-frame">
+                <img src="{{ $heroImage }}" alt="გამომცემლობა ბუკინისტები">
+                <div class="publishing-old-stamp">წიგნებს მხოლოდ ტექსტებად არა, ცოცხალ ისტორიებად ვხედავთ.</div>
             </div>
         </div>
     </section>
 
-    <section class="pub-band">
-        <div class="pub-wrap">
-            <div class="pub-section-head">
-                <h2>რას ვაკეთებთ</h2>
-                <p>შიდა ბლოკები ცალკე ნაწილებადაა დალაგებული, რომ გვერდი publishing-ის გვერდს ჰგავდეს და არა ჩვეულებრივ წიგნების სიას.</p>
+    <section class="publishing-old-about">
+        <div class="publishing-old-wrap">
+            <div class="publishing-old-about-grid">
+                <h2 class="publishing-old-section-title">რას აკეთებს გამომცემლობა?</h2>
+                <div class="publishing-old-text">
+                    <p>
+                        აქ შეგიძლიათ წარადგინოთ ტექსტები, გამოცემის მიმართულებით პირველი კონსულტაცია მიიღოთ
+                        და წიგნი საფუძვლიანად განიხილოთ.
+                    </p>
+                    <p>
+                        ეს სივრცე შექმნილია იმისთვის, რომ ავტორს ჰქონდეს მკაფიო, თანამედროვე და ადამიანური ურთიერთობა გამომცემლობასთან.
+                        სახელს ჩაწერთ, ტექსტს ატვირთავთ ან შეტყობინებას დატოვებთ — ჩვენ კი დაგიბრუნდებით.
+                    </p>
+                </div>
             </div>
 
-            <div class="pub-services">
-                <article class="pub-service">
-                    <i class="bi bi-pencil-square"></i>
-                    <h3>რედაქტირება</h3>
-                    <p>ტექსტის წაკითხვა, კორექტურა და გამოცემისთვის საჭირო სტრუქტურის მოწესრიგება.</p>
+            <div class="publishing-old-cards">
+                <article class="publishing-old-card">
+                    <span><i class="bi bi-journal-text"></i></span>
+                    <h3>ტექსტის წარდგენა</h3>
+                    <p>გამოგვიგზავნეთ ნაწარმოები, იდეა ან მოკლე აღწერა და ერთად განვიხილოთ გამოცემის გზა.</p>
                 </article>
-                <article class="pub-service">
-                    <i class="bi bi-layout-text-window-reverse"></i>
-                    <h3>დაკაბადონება</h3>
-                    <p>შიდა გვერდების გამართული ფორმატი, სათაურები, თავები და ბეჭდვისთვის მზადება.</p>
+                <article class="publishing-old-card">
+                    <span><i class="bi bi-chat-square-text"></i></span>
+                    <h3>პირველი კონსულტაცია</h3>
+                    <p>თუ ჯერ მხოლოდ გეგმა გაქვთ, მოგვწერეთ — დაგეხმარებით შემდეგი ნაბიჯების განსაზღვრაში.</p>
                 </article>
-                <article class="pub-service">
-                    <i class="bi bi-palette"></i>
-                    <h3>ყდის დიზაინი</h3>
-                    <p>წიგნის ხასიათზე მორგებული ვიზუალი, რომელსაც თაროზეც დამოუკიდებლად უჭირავს ადგილი.</p>
-                </article>
-                <article class="pub-service">
-                    <i class="bi bi-printer"></i>
-                    <h3>ბეჭდვა</h3>
-                    <p>ფაილების მომზადება, ბეჭდვის პროცესის კოორდინაცია და საბოლოო ტირაჟის მიღება.</p>
+                <article class="publishing-old-card">
+                    <span><i class="bi bi-stars"></i></span>
+                    <h3>ძველი და ახალი</h3>
+                    <p>ვაბრუნებთ ძველ ტექსტებს მკითხველთან და ადგილს ვუთმობთ თანამედროვე ავტორებსაც.</p>
                 </article>
             </div>
         </div>
     </section>
 
-    <section class="pub-showcase" id="publishing-works">
-        <div class="pub-wrap">
-            <div class="pub-section-head">
-                <h2>ადმინიდან ატვირთული მასალები</h2>
-                <p>აქ ავტომატურად გამოჩნდება ის ჩანაწერები და სურათები, რასაც ბუკინისტების ადმინში publishing-ისთვის ტვირთავ.</p>
+    <section class="publishing-old-works" id="publishing-works">
+        <div class="publishing-old-wrap">
+            <div class="publishing-old-head">
+                <h2 class="publishing-old-section-title">გამოცემები</h2>
+                <p>აქ გამოჩნდება publishing-ის ჩანაწერები და სურათები, რომლებიც ადმინიდან დაემატება.</p>
             </div>
 
             @if($items->isNotEmpty())
-                <div class="pub-grid">
+                <div class="publishing-old-grid">
                     @foreach($items as $item)
                         @php
                             $cover = collect([$item->image_1, $item->image_2, $item->image_3, $item->image_4])->filter()->first();
                         @endphp
-                        <article class="pub-item">
-                            <a class="pub-item-image" href="{{ route('publishing.show', $item->id) }}">
+                        <article class="publishing-old-item">
+                            <a class="publishing-old-item-image" href="{{ route('publishing.show', $item) }}">
                                 @if($cover)
                                     <img src="{{ asset('storage/' . $cover) }}" alt="{{ $item->title }}">
                                 @else
                                     <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" alt="{{ $item->title }}">
                                 @endif
                             </a>
-                            <div class="pub-item-body">
+                            <div class="publishing-old-item-body">
                                 @if($item->category)
-                                    <span class="pub-category">{{ $item->category }}</span>
+                                    <span class="publishing-old-category">{{ $item->category }}</span>
                                 @endif
                                 <h3>{{ $item->title }}</h3>
                                 <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->description), 135) }}</p>
-                                <a href="{{ route('publishing.show', $item->id) }}" class="pub-btn pub-btn-outline">
+                                <a href="{{ route('publishing.show', $item) }}" class="publishing-old-btn publishing-old-btn-light">
                                     ნახვა <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -476,24 +495,24 @@
                     @endforeach
                 </div>
             @else
-                <div class="pub-empty">
-                    მასალები ჯერ არ ჩანს. როცა ადმინიდან publishing ჩანაწერს დაამატებ, ეს ბლოკი ავტომატურად შეივსება.
+                <div class="publishing-old-empty">
+                    მასალები ჯერ არ არის დამატებული. ჩანაწერების დამატების შემდეგ ისინი აქ, ძველ publishing დიზაინში გამოჩნდება.
                 </div>
             @endif
         </div>
     </section>
 
-    <section class="pub-contact" id="about-publishing">
-        <div class="pub-wrap pub-contact-grid">
+    <section class="publishing-old-contact" id="about-publishing">
+        <div class="publishing-old-wrap publishing-old-contact-grid">
             <div>
-                <h2>დაგვიკავშირდით</h2>
+                <h2 class="publishing-old-section-title">გამოგვიგზავნეთ ტექსტი</h2>
                 <p>
-                    მოგვწერეთ წიგნის იდეა, მოკლე აღწერა ან გამოგვიგზავნეთ ფაილი. დეტალებს დაგიბრუნებთ publishing@bukinistebi.ge-დან.
+                    შეავსეთ ფორმა, ატვირთეთ ფაილი ან დაგვიტოვეთ შეტყობინება — თანამშრომლობის დეტალებით დაგიკავშირდებით.
                 </p>
                 <p class="mb-0"><strong>Email:</strong> <a href="mailto:publishing@bukinistebi.ge">publishing@bukinistebi.ge</a></p>
             </div>
 
-            <form class="pub-form" method="POST" action="{{ route('publishing.contact') }}" enctype="multipart/form-data">
+            <form class="publishing-old-form" method="POST" action="{{ route('publishing.contact') }}" enctype="multipart/form-data">
                 @csrf
 
                 @if(session('publishing_success'))
@@ -524,7 +543,7 @@
                     @error('attachment') <div class="text-warning small mt-1">{{ $message }}</div> @enderror
                 </div>
 
-                <button type="submit" class="pub-btn pub-btn-primary">
+                <button type="submit" class="publishing-old-btn publishing-old-btn-primary">
                     გაგზავნა <i class="bi bi-send"></i>
                 </button>
             </form>
