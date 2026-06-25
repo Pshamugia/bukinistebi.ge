@@ -249,6 +249,10 @@
                             {{-- status  --}}
                             @auth
                                 @if (Auth::user()->paidAuction($auction->id))
+@php
+    $lastBid = $auction->bids->max('amount');
+    $basePrice = $lastBid ?? $auction->start_price;
+@endphp
 <form method="POST" action="{{ route('auction.bid', $auction->id) }}" class="mt-3" id="bidForm">
     @csrf
     <input type="hidden" name="allow_bid" id="allowBid" value="0">
@@ -256,12 +260,7 @@
     <input type="number" step="0.01" name="bid_amount" class="form-control mb-2" id="bidAmount" min="{{ $basePrice + 0.01 }}" required>
     <input type="hidden" id="minBid" value="{{ $auction->min_bid }}">
     <input type="hidden" id="maxBid" value="{{ $auction->max_bid }}">
-@php
-    $lastBid = $auction->bids->max('amount');
-    $basePrice = $lastBid ?? $auction->start_price;
-@endphp
-
-<input type="hidden" id="currentPrice" value="{{ $basePrice }}">
+    <input type="hidden" id="currentPrice" value="{{ $basePrice }}">
 
     <div class="form-check mt-2">
         <input class="form-check-input" type="checkbox" name="is_anonymous" value="1" id="isAnonymous">
