@@ -279,6 +279,95 @@ class PaymentCallbackController extends Controller
         }
     }
 
+
+    public function handleAuctionBought(Request $request)
+    {
+        $paymentId = $request->input('PaymentId');
+
+        Log::info('Got paymentID from auction payment callback:', [
+            'paymentID' => $paymentId,
+        ]);
+
+        if (!$paymentId) {
+            Log::warning('Auction payment callback received without PaymentId');
+            return response()->json(['error' => 'Missing PaymentId'], 400);
+        }
+
+        $token = $this->getAccessToken();
+        if (!$token) {
+            Log::error('Failed to get access token in auction payment callback');
+            return response()->json(['error' => 'Auth error'], 500);
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'apikey' => env('TBC_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])->get(env('TBC_BASE_URL') . "/v1/tpay/payments/$paymentId");
+
+        if (!$response->ok()) {
+            Log::error('Failed to fetch auction payment info from TBC', [
+                'paymentId' => $paymentId,
+                'response' => $response->body(),
+            ]);
+            return response()->json(['error' => 'Payment fetch failed'], 500);
+        }
+
+        $data = $response->json();
+
+        if (($data['status'] ?? '') !== $this->success_status) {
+            Log::info('Auction payment not finalized yet or not successful', [
+                'paymentId' => $paymentId,
+                'status' => $data['status'] ?? null,
+            ]);
+            return response()->json(['status' => 'not finalized'], 200);
+        }
+
+        $parts = explode('-', $data['merchantPaymentId'] ?? '');
+        if (count($parts) < 5 || $parts[0] !== 'AUC' || $parts[1] !== 'PAY') {
+            Log::warning('Invalid auction merchantPaymentId format', [
+                'merchantPaymentId' => $data['merchantPaymentId'] ?? 'null',
+            ]);
+            return response()->json(['error' => 'Invalid format'], 400);
+        }
+
+        $userId = (int) $parts[2];
+        $auctionId = (int) $parts[3];
+
+        DB::transaction(function () use ($auctionId, $userId) {
+            $auction = \App\Models\Auction::with('book')
+                ->whereKey($auctionId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($auction->is_paid) {
+                return;
+            }
+
+            if ((int) $auction->winner_id !== $userId) {
+                Log::warning('Auction payment winner mismatch', [
+                    'auction_id' => $auctionId,
+                    'winner_id' => $auction->winner_id,
+                    'paid_user_id' => $userId,
+                ]);
+                return;
+            }
+
+            $auction->update([
+                'is_paid' => true,
+                'is_active' => false,
+            ]);
+
+            if ($auction->book && $auction->book->quantity > 0) {
+                $auction->book->decrement('quantity');
+            }
+        });
+
+        Log::info('Auction payment marked as paid', compact('userId', 'auctionId'));
+
+        return response()->json(['status' => 'ok'], 200);
+    }
+
     private function getAccessToken()
     {
         $response = Http::asForm()->withHeaders([
