@@ -140,7 +140,7 @@
 
 
                     @php
-$priceUp = $auction->effective_current_price > $auction->starting_price;
+$priceUp = $auction->effective_current_price > $auction->start_price;
                     @endphp
 
                     <div class="auction-price">
@@ -157,6 +157,13 @@ $priceUp = $auction->effective_current_price > $auction->starting_price;
     {{ number_format($auction->effective_current_price, 2) }} ₾
                         </strong>
                     </div>
+
+                    @if($auction->buy_now_price)
+                        <div class="auction-price mt-2">
+                            <span>⚡ ბლიც-ფასი</span>
+                            <strong>{{ number_format($auction->buy_now_price, 2) }} ₾</strong>
+                        </div>
+                    @endif
 
 
                     <a href="{{ route('auction.show', $auction->id) }}"

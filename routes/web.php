@@ -140,6 +140,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/auction/{auction}/bid', [AuctionFrontController::class, 'bid'])
         ->middleware(['auth', 'profile.complete'])
         ->name('auction.bid');
+
+    Route::post('/auction/{auction}/buy-now', [AuctionFrontController::class, 'buyNow'])
+        ->middleware(['auth', 'profile.complete'])
+        ->name('auction.buy-now');
 });
 
 // ✅ public show route must be AFTER submit

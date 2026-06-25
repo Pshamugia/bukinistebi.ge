@@ -76,6 +76,17 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Blitz / Buy Now Price (₾)</label>
+            <input type="number"
+                   step="0.01"
+                   min="0"
+                   name="buy_now_price"
+                   class="form-control"
+                   value="{{ old('buy_now_price', $auction->buy_now_price) }}">
+            <small class="text-muted">Leave empty to disable instant buy. The price must be greater than the start price.</small>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Start Time</label>
             <input type="datetime-local"
                    name="start_time"
