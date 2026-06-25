@@ -5,56 +5,99 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Publishing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PublishingController extends Controller
 {
     public function index()
     {
-        $items = Publishing::latest()->get();
+        $items = Publishing::latest()->paginate(20);
+
         return view('admin.publishing.index', compact('items'));
     }
 
     public function create()
     {
-        return view('admin.publishing.create');
+        return view('admin.publishing.create', ['item' => new Publishing()]);
     }
 
     public function store(Request $request)
     {
-        $data = $request->all();
+        Publishing::create($this->validatedData($request));
 
-        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
-            if ($request->hasFile($img)) {
-                $data[$img] = $request->file($img)->store('publishing', 'public');
+        return redirect()->route('admin.publishing.index')
+            ->with('success', 'Publishing ჩანაწერი წარმატებით დაემატა.');
+    }
+
+    public function edit(Publishing $publishing)
+    {
+        return view('admin.publishing.edit', ['item' => $publishing]);
+    }
+
+    public function update(Request $request, Publishing $publishing)
+    {
+        $publishing->update($this->validatedData($request, $publishing));
+
+        return redirect()->route('admin.publishing.index')
+            ->with('success', 'Publishing ჩანაწერი წარმატებით განახლდა.');
+    }
+
+    public function destroy(Publishing $publishing)
+    {
+        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $image) {
+            if ($publishing->{$image}) {
+                Storage::disk('public')->delete($publishing->{$image});
             }
         }
 
-        Publishing::create($data);
+        $publishing->delete();
 
-        return redirect()->route('admin.publishing.index');
+        return redirect()->route('admin.publishing.index')
+            ->with('success', 'Publishing ჩანაწერი წაიშალა.');
     }
 
-    public function edit($id)
+    private function validatedData(Request $request, ?Publishing $publishing = null): array
     {
-        $item = Publishing::findOrFail($id);
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'shop_url' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'image_1' => ['nullable', 'image', 'max:4096'],
+            'image_2' => ['nullable', 'image', 'max:4096'],
+            'image_3' => ['nullable', 'image', 'max:4096'],
+            'image_4' => ['nullable', 'image', 'max:4096'],
+        ]);
 
-        return view('admin.publishing.edit', compact('item'));
-    }
+        $data['shop_url'] = $this->normalizeUrl($data['shop_url'] ?? null);
 
-    public function update(Request $request, $id)
-    {
-        $item = Publishing::findOrFail($id);
+        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $image) {
+            if ($request->hasFile($image)) {
+                if ($publishing?->{$image}) {
+                    Storage::disk('public')->delete($publishing->{$image});
+                }
 
-        $data = $request->all();
-
-        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
-            if ($request->hasFile($img)) {
-                $data[$img] = $request->file($img)->store('publishing', 'public');
+                $data[$image] = $request->file($image)->store('publishing', 'public');
+            } else {
+                unset($data[$image]);
             }
         }
 
-        $item->update($data);
+        return $data;
+    }
 
-        return redirect()->route('admin.publishing.index');
+    private function normalizeUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (! preg_match('/^https?:\/\//i', $url)) {
+            return 'https://' . $url;
+        }
+
+        return $url;
     }
 }
