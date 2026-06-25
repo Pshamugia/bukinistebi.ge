@@ -15,12 +15,14 @@ class PublishingController extends Controller
             ? Publishing::latest()->get()
             : collect();
 
-        return view('publishing.redesign', compact('items'));
+        return view('publishing.landing', compact('items'));
     }
 
-    public function show(Publishing $publishing)
+    public function show($id)
     {
-        return view('publishing.show', ['item' => $publishing]);
+        $item = Publishing::findOrFail($id);
+
+        return view('publishing.show', compact('item'));
     }
 
     public function sendContact(Request $request)
@@ -49,7 +51,7 @@ class PublishingController extends Controller
             'mail.from.name' => env('PUBLISHING_MAIL_FROM_NAME'),
         ]);
 
-        $file = $request->file('attachment');
+$file = $request->hasFile('attachment') ? $request->file('attachment') : null;
 
         Mail::send([], [], function ($mail) use ($validated, $file) {
             $mail->to('publishing@bukinistebi.ge')
@@ -62,14 +64,13 @@ class PublishingController extends Controller
                     <p><strong>ელფოსტა:</strong> ' . e($validated['email']) . '</p>
                     <p><strong>შეტყობინება:</strong><br>' . nl2br(e($validated['message'])) . '</p>'
                 );
-
-            if ($file) {
-                $mail->attach($file->getRealPath(), [
-                    'as' => $file->getClientOriginalName(),
-                    'mime' => $file->getMimeType(),
-                ]);
-            }
-        });
+                if ($file) {
+        $mail->attach($file->getRealPath(), [
+            'as' => $file->getClientOriginalName(),
+            'mime' => $file->getMimeType(),
+        ]);
+    }
+});
 
         return back()
             ->with('publishing_success', 'თქვენი შეტყობინება წარმატებით გაიგზავნა.')

@@ -100,16 +100,24 @@ Route::get('/bundles/{slug}', [BundleFrontController::class, 'show'])->name('bun
         //Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(name: 'auction.show');
 
 
+$publishingLanding = function () {
+    $items = Schema::hasTable('publishing')
+        ? \App\Models\Publishing::latest()->get()
+        : collect();
+
+    return view('publishing.redesign', compact('items'));
+};
+
 // Home Route - Display publishing landing on publishing subdomain, books elsewhere.
-Route::get('/', function () {
+Route::get('/', function () use ($publishingLanding) {
     if (request()->getHost() === 'publishing.bukinistebi.ge') {
-        return app(PublishingController::class)->landing();
+        return $publishingLanding();
     }
 
     return app(BookController::class)->welcome();
 })->name('welcome');
 
-Route::get('/publishing', [PublishingController::class, 'landing'])->name('publishing.landing');
+Route::get('/publishing', $publishingLanding)->name('publishing.landing');
 Route::get('/publishing/{publishing}', [PublishingController::class, 'show'])->name('publishing.show');
 Route::post('/publishing/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
