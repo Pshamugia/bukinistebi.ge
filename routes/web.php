@@ -14,7 +14,6 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PublishingController;
-use App\Http\Controllers\Admin\PublishingController as AdminPublishingController;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AiChatController;
@@ -77,20 +76,15 @@ Route::get('/clear-all-cache', function () {
 
 
 
- 
+use App\Http\Controllers\Admin\PublishingController as AdminPublishing;
+
 Route::prefix('admin')->middleware(['auth'])->group(function () {
 
-    Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
+    Route::get('/publishing', [AdminPublishing::class,'index'])->name('admin.publishing.index');
 
-    Route::get('/publishing/create', [AdminPublishingController::class, 'create'])->name('admin.publishing.create');
+    Route::get('/publishing/create', [AdminPublishing::class,'create'])->name('admin.publishing.create');
 
-    Route::post('/publishing/store', [AdminPublishingController::class, 'store'])->name('admin.publishing.store');
-
-    Route::get('/publishing/edit/{publishing}', [AdminPublishingController::class, 'edit'])->name('admin.publishing.edit');
-
-    Route::put('/publishing/update/{publishing}', [AdminPublishingController::class, 'update'])->name('admin.publishing.update');
-
-    Route::delete('/publishing/{publishing}', [AdminPublishingController::class, 'destroy'])->name('admin.publishing.destroy');
+    Route::post('/publishing/store', [AdminPublishing::class,'store'])->name('admin.publishing.store');
 
 });
 
@@ -100,25 +94,16 @@ Route::get('/bundles/{slug}', [BundleFrontController::class, 'show'])->name('bun
         //Route::get('/auction/{auction}', [AuctionFrontController::class, 'show'])->name(name: 'auction.show');
 
 
-$publishingLanding = function () {
-    $items = Schema::hasTable('publishing')
-        ? \App\Models\Publishing::latest()->get()
-        : collect();
-
-    return view('publishing.redesign', compact('items'));
-};
-
 // Home Route - Display publishing landing on publishing subdomain, books elsewhere.
-Route::get('/', function () use ($publishingLanding) {
+Route::get('/', function () {
     if (request()->getHost() === 'publishing.bukinistebi.ge') {
-        return $publishingLanding();
+        return app(PublishingController::class)->landing();
     }
 
     return app(BookController::class)->welcome();
 })->name('welcome');
 
-Route::get('/publishing', $publishingLanding)->name('publishing.landing');
-Route::get('/publishing/{publishing}', [PublishingController::class, 'show'])->name('publishing.show');
+Route::get('/publishing/{id}', [PublishingController::class, 'show'])->name('publishing.show');
 Route::post('/publishing/contact', [PublishingController::class, 'sendContact'])->name('publishing.contact');
 Route::get('/book-news', [BookNewsController::class, 'index'])->name('book_news.index');
 Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_news.show');

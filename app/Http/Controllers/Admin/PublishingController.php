@@ -5,82 +5,56 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Publishing;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PublishingController extends Controller
 {
     public function index()
     {
-        $items = Publishing::latest()->paginate(20);
-
+        $items = Publishing::latest()->get();
         return view('admin.publishing.index', compact('items'));
     }
 
     public function create()
     {
-        return view('admin.publishing.create', ['item' => new Publishing()]);
+        return view('admin.publishing.create');
     }
 
     public function store(Request $request)
     {
-        Publishing::create($this->validatedData($request));
+        $data = $request->all();
 
-        return redirect()->route('admin.publishing.index')
-            ->with('success', 'Publishing ჩანაწერი წარმატებით დაემატა.');
-    }
-
-    public function edit(Publishing $publishing)
-    {
-        return view('admin.publishing.edit', ['item' => $publishing]);
-    }
-
-    public function update(Request $request, Publishing $publishing)
-    {
-        $publishing->update($this->validatedData($request, $publishing));
-
-        return redirect()->route('admin.publishing.index')
-            ->with('success', 'Publishing ჩანაწერი წარმატებით განახლდა.');
-    }
-
-    public function destroy(Publishing $publishing)
-    {
-        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $image) {
-            if ($publishing->{$image}) {
-                Storage::disk('public')->delete($publishing->{$image});
+        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
+            if ($request->hasFile($img)) {
+                $data[$img] = $request->file($img)->store('publishing', 'public');
             }
         }
 
-        $publishing->delete();
+        Publishing::create($data);
 
-        return redirect()->route('admin.publishing.index')
-            ->with('success', 'Publishing ჩანაწერი წაიშალა.');
+        return redirect()->route('admin.publishing.index');
     }
 
-    private function validatedData(Request $request, ?Publishing $publishing = null): array
+    public function edit($id)
     {
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'category' => ['nullable', 'string', 'max:255'],
-            'shop_url' => ['nullable', 'url', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'image_1' => ['nullable', 'image', 'max:4096'],
-            'image_2' => ['nullable', 'image', 'max:4096'],
-            'image_3' => ['nullable', 'image', 'max:4096'],
-            'image_4' => ['nullable', 'image', 'max:4096'],
-        ]);
+        $item = Publishing::findOrFail($id);
 
-        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $image) {
-            if ($request->hasFile($image)) {
-                if ($publishing?->{$image}) {
-                    Storage::disk('public')->delete($publishing->{$image});
-                }
+        return view('admin.publishing.edit', compact('item'));
+    }
 
-                $data[$image] = $request->file($image)->store('publishing', 'public');
-            } else {
-                unset($data[$image]);
+    public function update(Request $request, $id)
+    {
+        $item = Publishing::findOrFail($id);
+
+        $data = $request->all();
+
+        foreach (['image_1', 'image_2', 'image_3', 'image_4'] as $img) {
+            if ($request->hasFile($img)) {
+                $data[$img] = $request->file($img)->store('publishing', 'public');
             }
         }
 
-        return $data;
+        $item->update($data);
+
+        return redirect()->route('admin.publishing.index');
     }
 }
