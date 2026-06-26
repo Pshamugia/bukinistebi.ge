@@ -5,6 +5,7 @@
 @section('content')
 @php
     $featured = $items->first();
+    $heroImage = $featured?->image_1 ? asset('storage/' . $featured->image_1) : asset('uploads/logo/bukinistebi.ge.png');
 @endphp
 
 <style>
@@ -28,321 +29,39 @@
             linear-gradient(180deg, #fff 0%, #f6f7f8 44%, #fff 100%);
         color: var(--pub-ink);
         overflow: hidden;
-        font-family: liFont, sans-serif !important;
-    }
-
-    h1,
-    h2,
-    h5 {
-        font-family: h1Font, sans-serif !important;
-    }
-
-    h4 {
-        font-family: h4Font, sans-serif !important;
-    }
-
-    body,
-    button,
-    input,
-    li,
-    select,
-    span,
-    p,
-    .pub-lead,
-    .pub-section-copy,
-    .pub-section-title,
-    .pub-feature p,
-    .pub-book-body p,
-    .pub-book-body h3,
-    .pub-book-category,
-    .pub-btn,
-    .pub-kicker,
-    .pub-hero-copy,
-    .pub-section-title,
-    .pub-contact p,
-    .pub-form .form-label,
-    .pub-form .form-control {
-        font-family: liFont, sans-serif !important;
-    }
-
-    .pub-title,
-    .pub-section-title,
-    .pub-hero-copy h1 {
-        font-family: h1Font, sans-serif !important;
     }
 
     .pub-wrap {
-        width: min(1140px, calc(100% - 40px));
-        max-width: 1140px;
-        padding: 0 20px;
+        width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
-        box-sizing: border-box;
     }
 
     .pub-hero {
         position: relative;
-        padding: 70px 0 50px;
-    }
-
-    .pub-hero-copy {
-        max-width: 760px;
-    }
-
-    .pub-hero-copy {
-        position: relative;
-        z-index: 1;
-    }
-
-    .pub-hero {
-        position: relative;
-        padding: 110px 0 80px;
-        overflow: hidden;
-        background: linear-gradient(180deg, #fbfbfb 0%, #f3ede5 100%);
-    }
-
-    .pub-hero::before {
-        content: '';
-        position: absolute;
-        top: 8%;
-        left: 8%;
-        width: 260px;
-        height: 260px;
-        background: radial-gradient(circle, rgba(156,58,58,.12), transparent 62%);
-        border-radius: 50%;
-        z-index: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+        gap: 44px;
+        align-items: center;
+        min-height: 680px;
+        padding: 70px 0;
     }
 
     .pub-hero::after {
         content: '';
         position: absolute;
-        bottom: 0;
-        right: -70px;
-        width: 260px;
-        height: 260px;
-        background: radial-gradient(circle, rgba(23,27,31,.06), transparent 58%);
-        border-radius: 50%;
+        right: calc(50% - 50vw);
+        top: 72px;
+        width: min(43vw, 560px);
+        height: calc(100% - 144px);
+        border-radius: 48px 0 0 48px;
+        background: linear-gradient(145deg, #20252a, #0f1215);
         z-index: 0;
     }
 
-    .pub-hero-inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(360px, 420px);
-        gap: 42px;
-        align-items: center;
+    .pub-hero-copy,
+    .pub-hero-visual {
         position: relative;
         z-index: 1;
-    }
-
-    .pub-hero-copy {
-        max-width: 740px;
-        position: relative;
-    }
-
-    .pub-hero-copy::before {
-        content: '';
-        position: absolute;
-        top: -18px;
-        left: -22px;
-        width: 92px;
-        height: 92px;
-        border-radius: 50%;
-        background: rgba(156,58,58,.08);
-        z-index: -1;
-    }
-
-    .pub-hero-panel {
-        position: relative;
-        width: 100%;
-        min-height: 520px;
-        border-radius: 48px;
-        padding: 36px;
-        background: linear-gradient(180deg, #ffffff 0%, #f8f3eb 100%);
-        border: 1px solid rgba(17, 20, 23, .08);
-        box-shadow: 0 44px 120px rgba(17, 20, 23, .14);
-        overflow: hidden;
-        display: grid;
-        grid-template-rows: auto 1fr;
-        gap: 26px;
-    }
-
-    .pub-hero-panel::before {
-        content: '';
-        position: absolute;
-        top: -32px;
-        right: -32px;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        background: rgba(156,58,58,.12);
-    }
-
-    .pub-hero-panel::after {
-        content: '';
-        position: absolute;
-        bottom: -28px;
-        left: -28px;
-        width: 240px;
-        height: 240px;
-        border-radius: 50%;
-        background: rgba(23,27,31,.06);
-    }
-
-    .pub-hero-panel-top {
-        display: flex;
-        justify-content: flex-end;
-        width: 100%;
-    }
-
-    .pub-hero-panel-chip {
-        padding: 11px 18px;
-        border-radius: 999px;
-        background: rgba(156,58,58,.12);
-        color: var(--pub-ink);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: .12em;
-        text-transform: uppercase;
-    }
-
-    .pub-hero-panel-card {
-        width: 100%;
-        max-width: 380px;
-        border-radius: 36px;
-        background: linear-gradient(180deg, #fdfbf8 0%, #fff 100%);
-        border: 1px solid rgba(17, 20, 23, .06);
-        box-shadow: 0 32px 78px rgba(17, 20, 23, .10);
-        overflow: hidden;
-        padding: 30px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .pub-hero-panel-card::before {
-        content: '';
-        position: absolute;
-        top: 18px;
-        right: 18px;
-        width: 80px;
-        height: 80px;
-        border-radius: 24px;
-        background: rgba(156,58,58,.12);
-    }
-
-    .pub-hero-panel-card-header {
-        min-height: 170px;
-        border-radius: 30px;
-        background: linear-gradient(180deg, rgba(156,58,58,.14), rgba(255,255,255,.98));
-        margin-bottom: 28px;
-        position: relative;
-    }
-
-    .pub-hero-panel-card-header::before {
-        content: '';
-        position: absolute;
-        bottom: 18px;
-        left: 18px;
-        width: 90px;
-        height: 90px;
-        border-radius: 24px;
-        background: rgba(23,27,31,.06);
-    }
-
-    .pub-hero-panel-card-body {
-        display: grid;
-        gap: 16px;
-    }
-
-    .pub-hero-panel-card-line {
-        height: 14px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, rgba(35,40,45,.08), rgba(35,40,45,.02));
-    }
-
-    .pub-hero-panel-card-line.long {
-        width: 100%;
-    }
-
-    .pub-hero-panel-card-line.medium {
-        width: 80%;
-    }
-
-    .pub-hero-panel-card-line.short {
-        width: 56%;
-    }
-
-    .pub-hero-panel-card-footer {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 32px;
-    }
-
-    .pub-hero-panel-card-tag {
-        min-height: 14px;
-        border-radius: 999px;
-        background: rgba(156,58,58,.16);
-    }
-
-    .pub-hero-panel-card-tag.light {
-        background: rgba(23,27,31,.08);
-    }
-
-    #topStickyNavbar,
-    #topStickyNavbar.scrolled,
-    #mainNavbar {
-        position: static !important;
-        top: auto !important;
-        transform: none !important;
-        width: 100% !important;
-    }
-
-    .pub-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 24px;
-        padding: 11px 16px;
-        border: 1px solid rgba(17, 20, 23, .08);
-        border-radius: 999px;
-        background: rgba(255,255,255,.92);
-        color: var(--pub-muted);
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: .03em;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 12px 28px rgba(17,20,23,.04);
-    }
-
-    .pub-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        margin-top: 40px;
-    }
-
-    .pub-btn {
-        min-width: 190px;
-        padding: 14px 24px;
-        border-radius: 999px;
-        font-weight: 900;
-        letter-spacing: .01em;
-    }
-
-    .pub-btn-dark {
-        background: #16181b;
-        color: #fff;
-        border-color: transparent;
-        box-shadow: 0 18px 38px rgba(23,27,31,.18);
-    }
-
-    .pub-btn-light {
-        background: #fff;
-        color: var(--pub-ink);
-        border-color: rgba(17,20,23,.12);
-    }
-
-    .pub-btn-light:hover {
-        background: rgba(255,255,255,.96);
     }
 
     .pub-kicker {
@@ -794,52 +513,42 @@
 </style>
 
 <div class="pub-site">
-    <section class="pub-hero">
-        <div class="container pub-hero-inner">
-            <div class="pub-hero-copy">
-                <div class="pub-kicker"><i class="bi bi-book-half"></i> გამომცემლობა ბუკინისტები</div>
-                <h1 class="pub-title">ძველი გამოცემების ახალი სიცოცხლე</h1>
-                <p class="pub-lead">
-                    <strong>გამომცემლობა „ბუკინისტები“</strong> არის ძველი გამოცემების ახალი სიცოცხლე.
-                    ჩვენი მთავარი ნიშა ბუკინისტური წიგნების გამოცემა და ბუკინისტური გამოცემების მშენებლობაა.
-                </p>
-                <p class="pub-lead">
-                    ამავდროულად, „ბუკინისტების“ ლოგოს ქვეშ თანამედროვე ავტორებიც გამოჩნდებიან.
-                </p>
-                <div class="pub-actions">
-                    <a href="#about-publishing" class="pub-btn pub-btn-dark">
-                        <i class="bi bi-feather"></i> ტექსტის გამოგზავნა
+    <section class="pub-wrap pub-hero">
+        <div class="pub-hero-copy">
+            <div class="pub-kicker"><i class="bi bi-book-half"></i> გამომცემლობა ბუკინისტები</div>
+            <h1 >ძველი გამოცემების ახალი სიცოცხლე</h1>
+            <p class="pub-lead">
+                <strong>გამომცემლობა „ბუკინისტები“</strong> არის ძველი გამოცემების ახალი სიცოცხლე.
+                ჩვენი მთავარი ნიშა ბუკინისტური წიგნების გამოცემაა.
+            </p>
+            <p class="pub-lead">
+                ამავდროულად, „ბუკინისტების“ ლოგოს ქვეშ თანამედროვე ავტორებიც გამოჩნდებიან.
+            </p>
+            <div class="pub-actions">
+                <a href="#about-publishing" class="pub-btn pub-btn-dark">
+                    <i class="bi bi-feather"></i> ტექსტის გამოგზავნა
+                </a>
+                @if($items->isNotEmpty())
+                    <a href="#publishing-works" class="pub-btn pub-btn-light">
+                        <i class="bi bi-grid-3x3-gap"></i> გამოცემები
                     </a>
-                    @if($items->isNotEmpty())
-                        <a href="#publishing-works" class="pub-btn pub-btn-light">
-                            <i class="bi bi-grid-3x3-gap"></i> გამოცემები
-                        </a>
-                    @endif
-                </div>
+                @endif
             </div>
-            <div class="pub-hero-panel">
-                <div class="pub-hero-panel-top">
-                    <span class="pub-hero-panel-chip">გამომცემლობა</span>
-                </div>
-                <div class="pub-hero-panel-card">
-                    <div class="pub-hero-panel-card-header"></div>
-                    <div class="pub-hero-panel-card-body">
-                        <div class="pub-hero-panel-card-line long"></div>
-                        <div class="pub-hero-panel-card-line medium"></div>
-                        <div class="pub-hero-panel-card-line short"></div>
-                        <div class="pub-hero-panel-card-line medium"></div>
-                    </div>
-                    <div class="pub-hero-panel-card-footer">
-                        <span class="pub-hero-panel-card-tag"></span>
-                        <span class="pub-hero-panel-card-tag light"></span>
-                    </div>
+        </div>
+
+        <div class="pub-hero-visual">
+            <div class="pub-visual-card">
+                <img src="{{ $heroImage }}" alt="გამომცემლობა ბუკინისტები">
+                <div class="pub-floating-note">
+                    <strong>გემოვნებიან მკითხველზე ორიენტირებული</strong>
+                    <span>გამოცემები, რომლებიც bukinistebi.ge-ს ვიზუალურ ხასიათს აგრძელებს.</span>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="pub-section pub-section-alt">
-        <div class="container pub-wrap">
+        <div class="pub-wrap">
             <div class="pub-section-head">
                 <h2 class="pub-section-title">რას აკეთებს გამომცემლობა?</h2>
                 <p class="pub-section-copy">
@@ -868,7 +577,7 @@
     </section>
 
     <section class="pub-section" id="publishing-works">
-        <div class="container pub-wrap">
+        <div class="pub-wrap">
             <div class="pub-showcase-top">
                 <h2 class="pub-section-title">გამოცემები</h2>
              </div>
@@ -910,7 +619,7 @@
     </section>
 
     <section class="pub-contact" id="about-publishing">
-        <div class="container pub-wrap pub-contact-grid">
+        <div class="pub-wrap pub-contact-grid">
             <div>
                 <h2 class="pub-section-title">გამოგვიგზავნეთ ტექსტი</h2>
                 <p>
@@ -957,93 +666,4 @@
         </div>
     </section>
 </div>
-
-
-<style>
-    /* Publishing home redesign override: appended intentionally to avoid merge conflicts with the existing view markup. */
-    .pub-page {
-        margin: 0 calc(50% - 50vw) !important;
-        overflow: hidden;
-        background:
-            radial-gradient(circle at 8% 8%, rgba(141, 27, 31, .08), transparent 26%),
-            linear-gradient(180deg, #fff 0%, #f4f5f6 42%, #fff 100%) !important;
-        color: #17191c !important;
-        font-family: liFont, sans-serif !important;
-    }
-
-    .pub-page * { box-sizing: border-box; }
-    .pub-wrap { width: min(1180px, calc(100% - 32px)) !important; }
-    .pub-hero { position: relative; display: grid !important; grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr) !important; min-height: 620px !important; align-items: center; gap: 54px !important; padding: 70px 0 64px !important; }
-    .pub-eyebrow { display: inline-flex !important; align-items: center; gap: 12px !important; margin-bottom: 22px !important; padding: 9px 14px !important; border: 1px solid #dfe2e6 !important; border-radius: 999px !important; background: rgba(255,255,255,.82) !important; color: #626972 !important; font-size: 14px !important; font-weight: 800 !important; box-shadow: 0 14px 35px rgba(18, 22, 28, .06) !important; }
-    .pub-eyebrow span { width: 8px !important; height: 8px !important; border-radius: 50% !important; background: #8d1b1f !important; box-shadow: 0 0 0 6px rgba(141, 27, 31, .09) !important; }
-
-    .pub-title, .pub-section-head h2, .pub-contact h2 { font-family: h1Font, liFont, sans-serif !important; letter-spacing: -.03em; }
-    .pub-title { max-width: 780px !important; margin: 0 0 22px !important; font-size: clamp(42px, 6vw, 76px) !important; line-height: 1.02 !important; font-weight: 900 !important; color: #111315 !important; }
-    .pub-lead { max-width: 670px !important; margin: 0 0 34px !important; font-size: 18px !important; line-height: 1.9 !important; color: #5f6670 !important; }
-
-    .pub-btn { display: inline-flex !important; align-items: center; justify-content: center; gap: 10px !important; min-height: 48px !important; padding: 12px 20px !important; border-radius: 999px !important; border: 1px solid #151719 !important; font-weight: 900 !important; text-decoration: none !important; transition: transform .22s ease, box-shadow .22s ease, background .22s ease, color .22s ease, border-color .22s ease !important; }
-    .pub-btn:hover { transform: translateY(-2px); text-decoration: none !important; }
-    .pub-btn-primary { background: #151719 !important; color: #fff !important; box-shadow: 0 18px 34px rgba(17, 19, 21, .18) !important; }
-    .pub-btn-primary:hover { background: #8d1b1f !important; border-color: #8d1b1f !important; box-shadow: 0 20px 38px rgba(141, 27, 31, .23) !important; }
-    .pub-btn-outline { color: #151719 !important; background: #fff !important; border-color: #d8dce1 !important; }
-    .pub-btn-outline:hover { color: #8d1b1f !important; border-color: rgba(141, 27, 31, .34) !important; box-shadow: 0 16px 30px rgba(25, 29, 35, .08) !important; }
-
-    .pub-visual { min-height: 500px !important; border-radius: 34px !important; background: linear-gradient(145deg, #22262c 0%, #111315 100%) !important; box-shadow: 0 28px 70px rgba(17, 19, 21, .22) !important; overflow: hidden !important; }
-    .pub-visual-main { inset: 48px 46px 132px 46px !important; border-radius: 24px !important; background: rgba(255,255,255,.94) !important; box-shadow: 0 26px 55px rgba(0,0,0,.22) !important; }
-    .pub-visual-main::before { content: 'Publishing Studio'; position: absolute; left: 24px; top: 24px; z-index: 2; color: #8d1b1f; font-weight: 900; font-family: liFont, sans-serif; }
-    .pub-visual-main::after { content: 'იდეიდან დასრულებულ წიგნამდე'; position: absolute; left: 24px; right: 24px; top: 58px; z-index: 2; color: #17191c; font-family: h1Font, liFont, sans-serif; font-size: 28px; line-height: 1.25; font-weight: 900; }
-    .pub-visual-main img { width: 118px !important; height: 188px !important; object-fit: cover !important; position: absolute; left: 58px; bottom: -104px; opacity: 1 !important; border-radius: 8px 16px 16px 8px; box-shadow: 122px -18px 0 #8d1b1f, 244px 10px 0 #f6f7f8, 0 24px 35px rgba(0,0,0,.22) !important; filter: grayscale(.12) contrast(.96); transform: rotate(-8deg); }
-    .pub-note { right: 34px !important; bottom: 28px !important; max-width: 270px !important; padding: 18px 20px !important; border-radius: 18px !important; background: rgba(255,255,255,.1) !important; border: 1px solid rgba(255,255,255,.14) !important; color: #fff !important; backdrop-filter: blur(12px); }
-    .pub-note p { color: rgba(255,255,255,.72) !important; }
-
-    .pub-band { padding: 72px 0 !important; background: #fff !important; border-top: 1px solid #eceff2; border-bottom: 1px solid #eceff2; }
-    .pub-section-head { gap: 24px !important; margin-bottom: 30px !important; }
-    .pub-section-head h2 { font-size: clamp(30px, 4vw, 48px) !important; font-weight: 900 !important; color: #151719 !important; }
-    .pub-section-head p { color: #68707a !important; line-height: 1.75 !important; }
-    .pub-services { gap: 16px !important; background: transparent !important; border: 0 !important; }
-    .pub-service { min-height: 224px !important; padding: 28px !important; border: 1px solid #e3e7eb !important; border-radius: 24px !important; background: linear-gradient(180deg, #fff, #f8f9fa) !important; box-shadow: 0 18px 45px rgba(16, 24, 40, .06) !important; }
-    .pub-service i, .pub-category { color: #8d1b1f !important; }
-    .pub-service h3, .pub-item h3 { color: #17191c !important; font-weight: 900 !important; }
-    .pub-service p, .pub-item p { color: #69717b !important; }
-    .pub-showcase { padding: 76px 0 !important; }
-    .pub-grid { gap: 24px !important; }
-    .pub-item { border: 1px solid #e2e6ea !important; border-radius: 26px !important; box-shadow: 0 20px 55px rgba(16, 24, 40, .08) !important; transition: transform .22s ease, box-shadow .22s ease !important; }
-    .pub-item:hover { transform: translateY(-6px); box-shadow: 0 28px 70px rgba(16, 24, 40, .14) !important; }
-    .pub-item-image { background: #eef0f2 !important; }
-    .pub-item-body { padding: 22px !important; }
-    .pub-contact { padding: 76px 0 84px !important; background: #111315 !important; color: #fff !important; }
-    .pub-form { padding: 28px !important; border: 1px solid rgba(255,255,255,.12) !important; background: rgba(255,255,255,.06) !important; border-radius: 26px !important; box-shadow: 0 24px 60px rgba(0,0,0,.22) !important; }
-    .pub-form .form-control { min-height: 48px !important; border-radius: 14px !important; border: 1px solid rgba(255,255,255,.12) !important; background: rgba(255,255,255,.96) !important; }
-
-    @media (max-width: 991px) { .pub-hero { grid-template-columns: 1fr !important; } .pub-services, .pub-grid { grid-template-columns: 1fr 1fr !important; } .pub-visual { min-height: 470px !important; } }
-    @media (max-width: 575px) { .pub-hero { min-height: 0 !important; padding: 38px 0 48px !important; gap: 30px !important; } .pub-services, .pub-grid { grid-template-columns: 1fr !important; } .pub-visual { min-height: 420px !important; border-radius: 24px !important; } .pub-visual-main { left: 22px !important; right: 22px !important; top: 24px !important; } .pub-note { left: 22px !important; right: 22px !important; max-width: none !important; } }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const shopUrls = {
-            @foreach($items as $item)
-                "{{ route('publishing.show', $item->id) }}": @json($item->shop_url ?: null),
-            @endforeach
-        };
-
-        document.querySelectorAll('.pub-item').forEach(function (card) {
-            const imageLink = card.querySelector('.pub-item-image');
-            const button = card.querySelector('.pub-item-body .pub-btn');
-            if (!button) return;
-
-            button.childNodes.forEach(function (node) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    node.nodeValue = 'მაღაზიაში ნახვა ';
-                }
-            });
-
-            const shopUrl = shopUrls[button.href] || null;
-            if (shopUrl) {
-                button.href = shopUrl;
-                if (imageLink) imageLink.href = shopUrl;
-            }
-        });
-    });
-</script>
 @endsection
