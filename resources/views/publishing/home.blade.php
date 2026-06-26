@@ -9,525 +9,738 @@
 @endphp
 
 <style>
-    :root {
-        --pub-ink: #171b1f;
-        --pub-graphite: #23282d;
-        --pub-charcoal: #111417;
-        --pub-muted: #68717b;
-        --pub-line: #dfe3e7;
-        --pub-soft: #f4f5f6;
-        --pub-white: #ffffff;
-        --pub-shadow: 0 24px 70px rgba(17, 20, 23, .12);
-        --pub-radius-lg: 32px;
-        --pub-radius-md: 20px;
-    }
+@font-face {
+    font-family: h1Font;
+    src: url('/fonts/alk-tommaso-webfont.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
 
-    .pub-site {
-        margin: 0 calc(50% - 50vw);
-        background:
-            radial-gradient(circle at top left, rgba(35, 40, 45, .08), transparent 34rem),
-            linear-gradient(180deg, #fff 0%, #f6f7f8 44%, #fff 100%);
-        color: var(--pub-ink);
-        overflow: hidden;
+@font-face {
+    font-family: liFont;
+    src: url('/fonts/bpg_boxo-boxo.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: h4Font;
+    src: url('/fonts/bpg-glaho-web-caps-webfont.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --pub-bg: #f5efe4;
+    --pub-paper: #fffaf2;
+    --pub-ink: #15120e;
+    --pub-muted: #6d6256;
+    --pub-gold: #b58a3a;
+    --pub-gold-dark: #8d6827;
+    --pub-line: rgba(21, 18, 14, .14);
+    --pub-dark: #17120d;
+    --pub-white: #ffffff;
+    --pub-shadow: 0 28px 80px rgba(28, 22, 14, .14);
+}
+
+/* layout fixes only for publishing */
+body:has(.pub-site) {
+    padding-top: 0 !important;
+    background: var(--pub-bg);
+}
+
+body:has(.pub-site) > .container.mt-5 {
+    margin-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+body:has(.pub-site) hr {
+    display: none !important;
+}
+
+/* publishing navbar recolor + right menu */
+body:has(.pub-site) #topStickyNavbar {
+    position: relative !important;
+    top: auto !important;
+    background: #1b1712 !important;
+    min-height: 54px !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body:has(.pub-site) #mainNavbar {
+    position: relative !important;
+    top: auto !important;
+    background: #fffaf2 !important;
+    border-bottom: 1px solid rgba(181, 138, 58, .22) !important;
+    box-shadow: 0 12px 34px rgba(28, 22, 14, .05) !important;
+    min-height: 74px !important;
+    padding: 12px 0 !important;
+}
+
+body:has(.pub-site) #mainNavbar > .container {
+    max-width: 1420px !important;
+    width: min(1420px, calc(100% - 80px)) !important;
+    padding: 0 !important;
+}
+
+body:has(.pub-site) #navbarNav {
+    justify-content: flex-end !important;
+}
+
+body:has(.pub-site) #navbarNav > nav.navbar {
+    width: auto !important;
+    margin-left: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+body:has(.pub-site) #navbarNav > nav.navbar > .container {
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+}
+
+body:has(.pub-site) #navbarNav .btn-light {
+    background: rgba(181, 138, 58, .10) !important;
+    border: 1px solid rgba(181, 138, 58, .20) !important;
+    color: #3a2b15 !important;
+}
+
+body:has(.pub-site) #navbarNav .btn-dark {
+    background: #17120d !important;
+    border: 1px solid #17120d !important;
+    color: #fffaf2 !important;
+}
+
+.pub-site {
+    margin: 0 !important;
+    width: 100% !important;
+    background:
+        radial-gradient(circle at 82% 8%, rgba(181, 138, 58, .13), transparent 34rem),
+        radial-gradient(circle at 12% 90%, rgba(21, 18, 14, .08), transparent 30rem),
+        linear-gradient(180deg, var(--pub-bg), #fffaf2 46%, #f7f1e7);
+    color: var(--pub-ink);
+    overflow: hidden;
+}
+
+.pub-wrap {
+    width: min(1420px, calc(100% - 80px));
+    margin: 0 auto;
+}
+
+.pub-hero {
+    min-height: 760px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(420px, .96fr);
+    gap: 76px;
+    align-items: center;
+    padding: 44px 0 96px;
+    position: relative;
+}
+
+.pub-hero::before {
+    content: "BUKINISTEBI";
+    position: absolute;
+    top: 8px;
+    left: -8px;
+    font-size: clamp(70px, 12vw, 170px);
+    line-height: 1;
+    font-weight: 950;
+    letter-spacing: -.08em;
+    color: rgba(21, 18, 14, .035);
+    pointer-events: none;
+}
+
+.pub-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    padding: 10px 16px;
+    border: 1px solid rgba(181, 138, 58, .28);
+    border-radius: 999px;
+    background: rgba(255, 250, 242, .82);
+    color: var(--pub-gold-dark);
+    font-family: liFont, sans-serif !important;
+    font-size: 14px;
+    font-weight: 900;
+    box-shadow: 0 12px 34px rgba(28, 22, 14, .05);
+}
+
+.pub-hero h1,
+.pub-section-title {
+    font-family: h1Font, sans-serif !important;
+    font-weight: 400 !important;
+    color: #111;
+}
+
+.pub-hero h1 {
+    max-width: 820px;
+    margin: 0 0 28px;
+    font-size: clamp(68px, 7.6vw, 116px);
+    line-height: .88;
+    letter-spacing: -1px;
+}
+
+.pub-lead {
+    font-family: liFont, sans-serif !important;
+    max-width: 780px;
+    margin: 0 0 16px;
+    color: #3a332d;
+    font-size: 23px;
+    line-height: 1.82;
+}
+
+.pub-lead strong {
+    font-weight: 950;
+}
+
+.pub-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 40px;
+}
+
+.pub-btn {
+    min-height: 54px;
+    padding: 14px 22px;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: liFont, sans-serif !important;
+    font-weight: 900;
+    text-decoration: none;
+    transition: .22s ease;
+    border: 1px solid var(--pub-ink);
+}
+
+.pub-btn:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.pub-btn-dark {
+    background: var(--pub-ink);
+    color: var(--pub-white);
+    box-shadow: 0 18px 42px rgba(21, 18, 14, .2);
+}
+
+.pub-btn-dark:hover {
+    background: #000;
+    color: var(--pub-white);
+}
+
+.pub-btn-light {
+    background: transparent;
+    color: var(--pub-ink);
+}
+
+.pub-btn-light:hover {
+    background: var(--pub-ink);
+    color: var(--pub-white);
+}
+
+.pub-hero-visual {
+    position: relative;
+}
+
+.pub-visual-card {
+    position: relative;
+    padding: 18px;
+    background: rgba(255,255,255,.36);
+    border: 1px solid var(--pub-line);
+    box-shadow: var(--pub-shadow);
+}
+
+.pub-visual-card::before {
+    content: "";
+    position: absolute;
+    inset: 34px -28px -28px 42px;
+    border: 1px solid rgba(181, 138, 58, .42);
+    z-index: 0;
+}
+
+.pub-visual-card img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    filter: saturate(.92) contrast(1.03);
+}
+
+.pub-section {
+    padding: 92px 0;
+}
+
+.pub-section-alt {
+    background:
+        radial-gradient(circle at 12% 20%, rgba(181, 138, 58, .10), transparent 28rem),
+        linear-gradient(135deg, #17120d, #0d0a07);
+    color: var(--pub-white);
+}
+
+.pub-section-head,
+.pub-showcase-top {
+    display: grid;
+    grid-template-columns: minmax(320px, .85fr) minmax(0, 1.15fr);
+    gap: 42px;
+    align-items: end;
+    margin-bottom: 42px;
+}
+
+.pub-section-title {
+    margin: 0;
+    font-size: clamp(52px, 5.4vw, 82px);
+    line-height: .95;
+    letter-spacing: -1px;
+}
+
+.pub-section-copy {
+    margin: 0;
+    color: var(--pub-muted);
+    font-family: liFont, sans-serif !important;
+    font-size: 18px;
+    line-height: 1.9;
+}
+
+.pub-section-alt .pub-section-copy {
+    color: rgba(255,255,255,.70);
+}
+
+.pub-feature-grid,
+.pub-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.pub-feature {
+    padding: 32px;
+    min-height: 260px;
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.13);
+    transition: .22s ease;
+}
+
+.pub-feature:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,.085);
+}
+
+.pub-feature i {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(181, 138, 58, .58);
+    color: var(--pub-gold);
+    font-size: 25px;
+}
+
+.pub-feature h3,
+.pub-book-body h3 {
+    font-family: h4Font, liFont, sans-serif !important;
+}
+
+.pub-feature h3 {
+    margin: 0 0 12px;
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.pub-feature p {
+    margin: 0;
+    color: rgba(255,255,255,.66);
+    font-family: liFont, sans-serif !important;
+    line-height: 1.8;
+}
+
+.pub-book-card {
+    background: rgba(255,250,242,.82);
+    border: 1px solid var(--pub-line);
+    box-shadow: 0 20px 60px rgba(28, 22, 14, .08);
+    overflow: hidden;
+    transition: .22s ease;
+}
+
+.pub-book-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 30px 86px rgba(28, 22, 14, .15);
+}
+
+.pub-book-image {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #eadfce;
+}
+
+.pub-book-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .3s ease;
+}
+
+.pub-book-card:hover .pub-book-image img {
+    transform: scale(1.045);
+}
+
+.pub-book-body {
+    min-height: 280px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+}
+
+.pub-book-category {
+    width: fit-content;
+    margin-bottom: 14px;
+    padding: 7px 11px;
+    border: 1px solid rgba(181, 138, 58, .36);
+    color: var(--pub-gold-dark);
+    font-family: liFont, sans-serif !important;
+    font-size: 12px;
+    font-weight: 950;
+}
+
+.pub-book-body h3 {
+    margin: 0 0 12px;
+    color: var(--pub-ink);
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 950;
+}
+
+.pub-book-body p {
+    margin: 0 0 24px;
+    color: var(--pub-muted);
+    font-family: liFont, sans-serif !important;
+    line-height: 1.75;
+}
+
+.pub-shop-btn {
+    width: fit-content;
+    margin-top: auto;
+}
+
+.pub-empty {
+    padding: 34px;
+    border: 1px dashed rgba(21, 18, 14, .24);
+    background: rgba(255,250,242,.82);
+    color: var(--pub-muted);
+    font-family: liFont, sans-serif !important;
+}
+
+.pub-contact {
+    background:
+        radial-gradient(circle at 18% 20%, rgba(181, 138, 58, .16), transparent 26rem),
+        linear-gradient(135deg, #15120e, #080706);
+    color: var(--pub-white);
+    padding: 94px 0 108px;
+}
+
+.pub-contact-grid {
+    display: grid;
+    grid-template-columns: minmax(330px, .84fr) minmax(420px, 1.16fr);
+    gap: 54px;
+    align-items: start;
+}
+
+.pub-contact p {
+    color: rgba(255,255,255,.68);
+    font-family: liFont, sans-serif !important;
+    font-size: 18px;
+    line-height: 1.85;
+}
+
+.pub-contact a {
+    color: #e4c17c;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.pub-form {
+    padding: 34px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    box-shadow: 0 28px 80px rgba(0,0,0,.24);
+    backdrop-filter: blur(12px);
+}
+
+.pub-form .form-label {
+    color: rgba(255,255,255,.86);
+    font-family: liFont, sans-serif !important;
+    font-weight: 850;
+}
+
+.pub-form .form-control {
+    min-height: 50px;
+    border-radius: 0;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.94);
+    color: var(--pub-ink);
+    font-family: liFont, sans-serif !important;
+}
+
+.pub-form textarea.form-control {
+    min-height: 156px;
+}
+
+@media (max-width: 991px) {
+    body:has(.pub-site) #mainNavbar > .container {
+        width: min(100% - 28px, 1420px) !important;
     }
 
     .pub-wrap {
-        width: min(1180px, calc(100% - 32px));
-        margin: 0 auto;
+        width: min(100% - 32px, 1420px);
+    }
+
+    .pub-hero,
+    .pub-section-head,
+    .pub-showcase-top,
+    .pub-contact-grid {
+        grid-template-columns: 1fr;
     }
 
     .pub-hero {
-        position: relative;
-        display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
-        gap: 44px;
-        align-items: center;
-        min-height: 680px;
-        padding: 70px 0;
+        min-height: 0;
+        gap: 42px;
     }
 
-    .pub-hero::after {
-        content: '';
-        position: absolute;
-        right: calc(50% - 50vw);
-        top: 72px;
-        width: min(43vw, 560px);
-        height: calc(100% - 144px);
-        border-radius: 48px 0 0 48px;
-        background: linear-gradient(145deg, #20252a, #0f1215);
-        z-index: 0;
-    }
-
-    .pub-hero-copy,
-    .pub-hero-visual {
-        position: relative;
-        z-index: 1;
-    }
-
-    .pub-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 22px;
-        padding: 9px 14px;
-        border: 1px solid var(--pub-line);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, .82);
-        color: var(--pub-muted);
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: .02em;
-        backdrop-filter: blur(12px);
-    }
-
-    .pub-kicker i {
-        color: var(--pub-ink);
-    }
-
-    .pub-title {
-        max-width: 760px;
-        margin: 0 0 24px;
-        font-size: clamp(44px, 6.6vw, 88px);
-        line-height: .95;
-        font-weight: 950;
-        letter-spacing: -.06em;
-        color: var(--pub-charcoal);
-    }
-
-    .pub-lead {
-        max-width: 690px;
-        margin: 0 0 18px;
-        color: #4f5963;
-        font-size: 20px;
-        line-height: 1.85;
-    }
-
-    .pub-lead strong {
-        color: var(--pub-ink);
-        font-weight: 900;
-    }
-
-    .pub-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 34px;
-    }
-
-    .pub-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        min-height: 52px;
-        padding: 13px 22px;
-        border: 1px solid var(--pub-ink);
-        border-radius: 999px;
-        font-weight: 900;
-        text-decoration: none;
-        transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
-    }
-
-    .pub-btn:hover {
-        transform: translateY(-2px);
-    }
-
-    .pub-btn-dark {
-        background: var(--pub-ink);
-        color: var(--pub-white);
-        box-shadow: 0 14px 34px rgba(23, 27, 31, .22);
-    }
-
-    .pub-btn-dark:hover {
-        background: #000;
-        border-color: #000;
-        color: var(--pub-white);
-        box-shadow: 0 18px 42px rgba(0, 0, 0, .26);
-    }
-
-    .pub-btn-light {
-        background: var(--pub-white);
-        color: var(--pub-ink);
-        border-color: var(--pub-line);
-    }
-
-    .pub-btn-light:hover {
-        border-color: var(--pub-ink);
-        color: var(--pub-ink);
+    .pub-feature-grid,
+    .pub-grid {
+        grid-template-columns: 1fr 1fr;
     }
 
     .pub-visual-card {
-        position: relative;
-        padding: 18px;
-        border: 1px solid rgba(255, 255, 255, .16);
-        border-radius: var(--pub-radius-lg);
-        background: rgba(255, 255, 255, .08);
-        box-shadow: var(--pub-shadow);
-        backdrop-filter: blur(10px);
+        max-width: 580px;
+    }
+}
+
+@media (max-width: 575px) {
+    .pub-wrap {
+        width: min(100% - 24px, 1420px);
     }
 
-    .pub-visual-card::before {
-        content: '';
-        position: absolute;
-        inset: 34px -18px -18px 48px;
-        border-radius: 28px;
-        background: rgba(255,255,255,.12);
-        z-index: -1;
+    .pub-hero {
+        padding: 42px 0 64px;
     }
 
-    .pub-visual-card img {
-        display: block;
+    .pub-hero h1 {
+        font-size: 56px;
+    }
+
+    .pub-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pub-btn {
         width: 100%;
-        aspect-ratio: 4 / 5;
-        object-fit: cover;
-        border-radius: 24px;
-        background: #fff;
     }
 
-    .pub-floating-note {
-        position: absolute;
-        left: -34px;
-        bottom: 34px;
-        width: min(280px, 72%);
-        padding: 22px;
-        border: 1px solid var(--pub-line);
-        border-radius: 22px;
-        background: rgba(255,255,255,.94);
-        box-shadow: 0 20px 48px rgba(17, 20, 23, .14);
-        color: var(--pub-ink);
-    }
-
-    .pub-floating-note strong {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 18px;
-        font-weight: 950;
-    }
-
-    .pub-floating-note span {
-        color: var(--pub-muted);
-        line-height: 1.7;
-    }
-
-    .pub-section {
-        padding: 74px 0;
-    }
-
-    .pub-section-alt {
-        background: var(--pub-soft);
-        border-block: 1px solid var(--pub-line);
-    }
-
-    .pub-section-head {
-        display: grid;
-        grid-template-columns: minmax(240px, .75fr) minmax(0, 1.25fr);
-        gap: 34px;
-        align-items: end;
-        margin-bottom: 34px;
-    }
-
-    .pub-section-title {
-        margin: 0;
-        color: var(--pub-charcoal);
-        font-size: clamp(34px, 4vw, 56px);
-        line-height: 1;
-        font-weight: 950;
-        letter-spacing: -.045em;
-    }
-
-    .pub-section-copy {
-        margin: 0;
-        color: var(--pub-muted);
-        font-size: 17px;
-        line-height: 1.9;
-    }
-
-    .pub-feature-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
-    }
-
-    .pub-feature {
-        position: relative;
-        min-height: 250px;
-        padding: 28px;
-        border: 1px solid var(--pub-line);
-        border-radius: var(--pub-radius-md);
-        background: var(--pub-white);
-        box-shadow: 0 12px 34px rgba(17, 20, 23, .05);
-        overflow: hidden;
-    }
-
-    .pub-feature::after {
-        content: '';
-        position: absolute;
-        right: -44px;
-        top: -44px;
-        width: 120px;
-        height: 120px;
-        border-radius: 999px;
-        background: #eef0f2;
-    }
-
-    .pub-feature i {
-        position: relative;
-        z-index: 1;
-        display: inline-flex;
-        width: 52px;
-        height: 52px;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 22px;
-        border-radius: 16px;
-        background: var(--pub-ink);
-        color: #fff;
-        font-size: 24px;
-    }
-
-    .pub-feature h3 {
-        margin: 0 0 12px;
-        font-size: 22px;
-        font-weight: 950;
-        color: var(--pub-charcoal);
-    }
-
-    .pub-feature p {
-        margin: 0;
-        color: var(--pub-muted);
-        line-height: 1.8;
-    }
-
-    .pub-showcase-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: end;
-        margin-bottom: 30px;
-    }
-
-    .pub-showcase-top .pub-section-copy {
-        max-width: 560px;
-    }
-
+    .pub-feature-grid,
     .pub-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 24px;
+        grid-template-columns: 1fr;
+    }
+}
+
+.pub-site {
+    background:
+        radial-gradient(circle at 80% 8%, rgba(181,138,58,.16), transparent 34rem),
+        radial-gradient(circle at 10% 85%, rgba(21,18,14,.10), transparent 30rem),
+        linear-gradient(135deg, #f5efe4 0%, #fffaf2 48%, #e9dfcf 100%) !important;
+}
+
+.pub-hero {
+    perspective: 1200px;
+}
+
+.pub-visual-card {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.pub-visual-card::before {
+    display: none !important;
+}
+
+.pub-book-stack {
+    position: relative;
+    width: min(560px, 100%);
+    height: 620px;
+    margin-left: auto;
+}
+
+.pub-stack-book {
+    position: absolute;
+    width: 340px;
+    height: 470px;
+    background: #fffaf2;
+    border: 1px solid rgba(181,138,58,.28);
+    box-shadow: 0 34px 90px rgba(21,18,14,.22);
+    transform-style: preserve-3d;
+    transition: transform .35s ease, box-shadow .35s ease;
+    overflow: hidden;
+}
+
+.pub-stack-book img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pub-stack-book.main {
+    right: 60px;
+    top: 34px;
+    z-index: 3;
+}
+
+.pub-stack-book.back-one {
+    right: 120px;
+    top: 82px;
+    z-index: 2;
+    transform: rotate(-7deg) translateZ(-40px);
+    opacity: .92;
+}
+
+.pub-stack-book.back-two {
+    right: 12px;
+    top: 112px;
+    z-index: 1;
+    transform: rotate(8deg) translateZ(-80px);
+    opacity: .72;
+}
+
+.pub-book-stack:hover .pub-stack-book.main {
+    transform: translateY(-12px) rotateY(-6deg);
+    box-shadow: 0 46px 120px rgba(21,18,14,.30);
+}
+
+.pub-book-stack:hover .pub-stack-book.back-one {
+    transform: translate(-22px, 8px) rotate(-10deg);
+}
+
+.pub-book-stack:hover .pub-stack-book.back-two {
+    transform: translate(22px, 14px) rotate(11deg);
+}
+
+.pub-paper-texture {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .18;
+    background-image:
+        linear-gradient(rgba(21,18,14,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21,18,14,.025) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mix-blend-mode: multiply;
+}
+
+.pub-reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .75s ease, transform .75s ease;
+}
+
+.pub-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pub-book-card {
+    position: relative;
+}
+
+.pub-book-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(181,138,58,.22), transparent 42%);
+    transition: opacity .25s ease;
+}
+
+.pub-book-card:hover::after {
+    opacity: 1;
+}
+
+.pub-book-image img {
+    transform-origin: left center;
+}
+
+.pub-book-card:hover .pub-book-image img {
+    transform: scale(1.045) rotateY(-3deg);
+}
+
+@media (max-width: 991px) {
+    .pub-book-stack {
+        height: 520px;
+        margin: 0;
     }
 
-    .pub-book-card {
-        display: flex;
-        flex-direction: column;
-        min-height: 100%;
-        border: 1px solid var(--pub-line);
-        border-radius: 26px;
-        background: var(--pub-white);
-        box-shadow: 0 14px 40px rgba(17, 20, 23, .07);
-        overflow: hidden;
-        transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    .pub-stack-book {
+        width: 290px;
+        height: 410px;
+    }
+}
+
+@media (max-width: 575px) {
+    .pub-book-stack {
+        height: 420px;
     }
 
-    .pub-book-card:hover {
-        transform: translateY(-7px);
-        border-color: #c6ccd2;
-        box-shadow: 0 26px 70px rgba(17, 20, 23, .13);
+    .pub-stack-book {
+        width: 230px;
+        height: 330px;
     }
 
-    .pub-book-image {
-        display: block;
-        aspect-ratio: 4 / 3;
-        background: linear-gradient(135deg, #eceff1, #fff);
-        overflow: hidden;
+    .pub-stack-book.main {
+        right: 34px;
     }
-
-    .pub-book-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform .28s ease;
-    }
-
-    .pub-book-card:hover .pub-book-image img {
-        transform: scale(1.045);
-    }
-
-    .pub-book-body {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        padding: 24px;
-    }
-
-    .pub-book-category {
-        display: inline-flex;
-        width: fit-content;
-        margin-bottom: 12px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        background: #edf0f2;
-        color: #4d5660;
-        font-size: 12px;
-        font-weight: 950;
-    }
-
-    .pub-book-body h3 {
-        margin: 0 0 10px;
-        color: var(--pub-charcoal);
-        font-size: 23px;
-        font-weight: 950;
-        letter-spacing: -.02em;
-    }
-
-    .pub-book-body p {
-        margin: 0 0 22px;
-        color: var(--pub-muted);
-        line-height: 1.75;
-    }
-
-    .pub-shop-btn {
-        width: fit-content;
-        margin-top: auto;
-    }
-
-    .pub-empty {
-        padding: 34px;
-        border: 1px dashed #b9c0c7;
-        border-radius: var(--pub-radius-md);
-        background: #fff;
-        color: var(--pub-muted);
-    }
-
-    .pub-contact {
-        padding: 78px 0 86px;
-        background:
-            radial-gradient(circle at 12% 20%, rgba(255,255,255,.08), transparent 24rem),
-            linear-gradient(135deg, #171b1f, #0d0f11);
-        color: var(--pub-white);
-    }
-
-    .pub-contact-grid {
-        display: grid;
-        grid-template-columns: minmax(260px, .85fr) minmax(320px, 1.15fr);
-        gap: 42px;
-        align-items: start;
-    }
-
-    .pub-contact .pub-section-title {
-        color: var(--pub-white);
-    }
-
-    .pub-contact p {
-        color: rgba(255,255,255,.72);
-        font-size: 17px;
-        line-height: 1.85;
-    }
-
-    .pub-contact a {
-        color: var(--pub-white);
-        text-decoration: underline;
-        text-underline-offset: 4px;
-    }
-
-    .pub-form {
-        padding: 30px;
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 28px;
-        background: rgba(255,255,255,.07);
-        box-shadow: 0 24px 64px rgba(0,0,0,.22);
-        backdrop-filter: blur(12px);
-    }
-
-    .pub-form .form-label {
-        color: rgba(255,255,255,.86);
-        font-weight: 850;
-    }
-
-    .pub-form .form-control {
-        min-height: 48px;
-        border: 1px solid rgba(255,255,255,.18);
-        border-radius: 14px;
-        background: rgba(255,255,255,.94);
-        color: var(--pub-ink);
-    }
-
-    .pub-form textarea.form-control {
-        min-height: 156px;
-    }
-
-    @media (max-width: 991px) {
-        .pub-hero,
-        .pub-section-head,
-        .pub-contact-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .pub-hero::after {
-            display: none;
-        }
-
-        .pub-visual-card {
-            max-width: 520px;
-            background: var(--pub-ink);
-        }
-
-        .pub-feature-grid,
-        .pub-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .pub-showcase-top {
-            display: block;
-        }
-
-        .pub-showcase-top .pub-section-title {
-            margin-bottom: 14px;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .pub-wrap {
-            width: min(100% - 24px, 1180px);
-        }
-
-        .pub-hero {
-            min-height: 0;
-            padding: 46px 0;
-        }
-
-        .pub-title {
-            letter-spacing: -.04em;
-        }
-
-        .pub-floating-note {
-            position: static;
-            width: auto;
-            margin-top: 12px;
-        }
-
-        .pub-feature-grid,
-        .pub-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+}
 </style>
 
 <div class="pub-site">
     <section class="pub-wrap pub-hero">
         <div class="pub-hero-copy">
-            <div class="pub-kicker"><i class="bi bi-book-half"></i> გამომცემლობა ბუკინისტები</div>
-            <h1 >ძველი გამოცემების ახალი სიცოცხლე</h1>
+            <div class="pub-kicker"><i class="bi bi-book-half"></i> publishing.bukinistebi.ge</div>
+
+            <h1>გამომცემლობა ბუკინისტები</h1>
+
             <p class="pub-lead">
                 <strong>გამომცემლობა „ბუკინისტები“</strong> არის ძველი გამოცემების ახალი სიცოცხლე.
                 ჩვენი მთავარი ნიშა ბუკინისტური წიგნების გამოცემაა.
             </p>
+
             <p class="pub-lead">
                 ამავდროულად, „ბუკინისტების“ ლოგოს ქვეშ თანამედროვე ავტორებიც გამოჩნდებიან.
             </p>
+
             <div class="pub-actions">
                 <a href="#about-publishing" class="pub-btn pub-btn-dark">
                     <i class="bi bi-feather"></i> ტექსტის გამოგზავნა
                 </a>
+
                 @if($items->isNotEmpty())
                     <a href="#publishing-works" class="pub-btn pub-btn-light">
                         <i class="bi bi-grid-3x3-gap"></i> გამოცემები
@@ -536,15 +749,23 @@
             </div>
         </div>
 
-        <div class="pub-hero-visual">
-            <div class="pub-visual-card">
-                <img src="{{ $heroImage }}" alt="გამომცემლობა ბუკინისტები">
-                <div class="pub-floating-note">
-                    <strong>გემოვნებიან მკითხველზე ორიენტირებული</strong>
-                    <span>გამოცემები, რომლებიც bukinistebi.ge-ს ვიზუალურ ხასიათს აგრძელებს.</span>
-                </div>
-            </div>
+        <div class="pub-hero-visual pub-reveal">
+    <div class="pub-book-stack">
+        <div class="pub-paper-texture"></div>
+
+        <div class="pub-stack-book back-one">
+            <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
         </div>
+
+        <div class="pub-stack-book back-two">
+            <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
+        </div>
+
+        <div class="pub-stack-book main">
+            <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
+        </div>
+    </div>
+</div>
     </section>
 
     <section class="pub-section pub-section-alt">
@@ -562,11 +783,13 @@
                     <h3>ტექსტის წარდგენა</h3>
                     <p>გამოგვიგზავნეთ ნაწარმოები, იდეა ან მოკლე აღწერა და ერთად განვიხილოთ გამოცემის გზა.</p>
                 </article>
+
                 <article class="pub-feature">
                     <i class="bi bi-chat-square-text"></i>
                     <h3>პირველი კონსულტაცია</h3>
                     <p>თუ ჯერ მხოლოდ გეგმა გაქვთ, მოგვწერეთ — დაგეხმარებით შემდეგი ნაბიჯების განსაზღვრაში.</p>
                 </article>
+
                 <article class="pub-feature">
                     <i class="bi bi-stars"></i>
                     <h3>ძველი და ახალი</h3>
@@ -580,7 +803,7 @@
         <div class="pub-wrap">
             <div class="pub-showcase-top">
                 <h2 class="pub-section-title">გამოცემები</h2>
-             </div>
+            </div>
 
             @if($items->isNotEmpty())
                 <div class="pub-grid">
@@ -589,6 +812,7 @@
                             $cover = collect([$item->image_1, $item->image_2, $item->image_3, $item->image_4])->filter()->first();
                             $shopUrl = $item->shop_url ?: route('publishing.show', $item);
                         @endphp
+
                         <article class="pub-book-card">
                             <a class="pub-book-image" href="{{ $shopUrl }}" @if($item->shop_url) target="_blank" rel="noopener" @endif>
                                 @if($cover)
@@ -597,12 +821,16 @@
                                     <img src="{{ asset('uploads/logo/bukinistebi.ge.png') }}" alt="{{ $item->title }}">
                                 @endif
                             </a>
+
                             <div class="pub-book-body">
                                 @if($item->category)
                                     <span class="pub-book-category">{{ $item->category }}</span>
                                 @endif
+
                                 <h3>{{ $item->title }}</h3>
+
                                 <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->description), 135) }}</p>
+
                                 <a href="{{ $shopUrl }}" class="pub-btn pub-btn-light pub-shop-btn" @if($item->shop_url) target="_blank" rel="noopener" @endif>
                                     მაღაზიაში ნახვა <i class="bi bi-arrow-up-right"></i>
                                 </a>
@@ -625,7 +853,10 @@
                 <p>
                     შეავსეთ ფორმა, ატვირთეთ ფაილი ან დაგვიტოვეთ შეტყობინება — თანამშრომლობის დეტალებით დაგიკავშირდებით.
                 </p>
-                <p class="mb-0"><strong>Email:</strong> <a href="mailto:publishing@bukinistebi.ge">publishing@bukinistebi.ge</a></p>
+                <p class="mb-0">
+                    <strong>Email:</strong>
+                    <a href="mailto:publishing@bukinistebi.ge">publishing@bukinistebi.ge</a>
+                </p>
             </div>
 
             <form class="pub-form" method="POST" action="{{ route('publishing.contact') }}" enctype="multipart/form-data">
@@ -666,4 +897,33 @@
         </div>
     </section>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.pub-hero-copy, .pub-section, .pub-book-card, .pub-contact-grid').forEach(function (el) {
+        el.classList.add('pub-reveal');
+    });
+
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.pub-reveal').forEach(function (el) {
+        observer.observe(el);
+    });
+
+    window.addEventListener('scroll', function () {
+        const stack = document.querySelector('.pub-book-stack');
+        if (!stack) return;
+
+        const move = window.scrollY * 0.035;
+        stack.style.transform = 'translateY(' + move + 'px)';
+    }, { passive: true });
+});
+</script>
 @endsection
