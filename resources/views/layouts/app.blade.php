@@ -155,7 +155,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
     <!-- Custom CSS -->
     <link rel="icon" href="https://bukinistebi.ge/uploads/favicon/favicon.png" type="image/x-icon">
 
-<link href="https://bukinistebi.ge/css/style.min.css" rel="stylesheet">
+<link href="/css/style.min.css" rel="stylesheet">
 
 
     @if (app()->getLocale() === 'en')
@@ -880,6 +880,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
 
     <!-- Footer -->
+    @unless($isPublishing)
     <footer class="bg-dark text-white text-center text-lg-start mt-5" style="position: relative; padding-top: 30px;">
         <div class="container p-4">
             <div class="row">
@@ -1061,6 +1062,7 @@ aria-label="Search" style="position: relative;  "></i></button>
 
             </div>
     </footer><!-- Script -->
+    @endunless
 
 
 
