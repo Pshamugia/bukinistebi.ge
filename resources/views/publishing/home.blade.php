@@ -957,4 +957,93 @@
         </div>
     </section>
 </div>
+
+
+<style>
+    /* Publishing home redesign override: appended intentionally to avoid merge conflicts with the existing view markup. */
+    .pub-page {
+        margin: 0 calc(50% - 50vw) !important;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 8% 8%, rgba(141, 27, 31, .08), transparent 26%),
+            linear-gradient(180deg, #fff 0%, #f4f5f6 42%, #fff 100%) !important;
+        color: #17191c !important;
+        font-family: liFont, sans-serif !important;
+    }
+
+    .pub-page * { box-sizing: border-box; }
+    .pub-wrap { width: min(1180px, calc(100% - 32px)) !important; }
+    .pub-hero { position: relative; display: grid !important; grid-template-columns: minmax(0, 1.04fr) minmax(320px, .96fr) !important; min-height: 620px !important; align-items: center; gap: 54px !important; padding: 70px 0 64px !important; }
+    .pub-eyebrow { display: inline-flex !important; align-items: center; gap: 12px !important; margin-bottom: 22px !important; padding: 9px 14px !important; border: 1px solid #dfe2e6 !important; border-radius: 999px !important; background: rgba(255,255,255,.82) !important; color: #626972 !important; font-size: 14px !important; font-weight: 800 !important; box-shadow: 0 14px 35px rgba(18, 22, 28, .06) !important; }
+    .pub-eyebrow span { width: 8px !important; height: 8px !important; border-radius: 50% !important; background: #8d1b1f !important; box-shadow: 0 0 0 6px rgba(141, 27, 31, .09) !important; }
+
+    .pub-title, .pub-section-head h2, .pub-contact h2 { font-family: h1Font, liFont, sans-serif !important; letter-spacing: -.03em; }
+    .pub-title { max-width: 780px !important; margin: 0 0 22px !important; font-size: clamp(42px, 6vw, 76px) !important; line-height: 1.02 !important; font-weight: 900 !important; color: #111315 !important; }
+    .pub-lead { max-width: 670px !important; margin: 0 0 34px !important; font-size: 18px !important; line-height: 1.9 !important; color: #5f6670 !important; }
+
+    .pub-btn { display: inline-flex !important; align-items: center; justify-content: center; gap: 10px !important; min-height: 48px !important; padding: 12px 20px !important; border-radius: 999px !important; border: 1px solid #151719 !important; font-weight: 900 !important; text-decoration: none !important; transition: transform .22s ease, box-shadow .22s ease, background .22s ease, color .22s ease, border-color .22s ease !important; }
+    .pub-btn:hover { transform: translateY(-2px); text-decoration: none !important; }
+    .pub-btn-primary { background: #151719 !important; color: #fff !important; box-shadow: 0 18px 34px rgba(17, 19, 21, .18) !important; }
+    .pub-btn-primary:hover { background: #8d1b1f !important; border-color: #8d1b1f !important; box-shadow: 0 20px 38px rgba(141, 27, 31, .23) !important; }
+    .pub-btn-outline { color: #151719 !important; background: #fff !important; border-color: #d8dce1 !important; }
+    .pub-btn-outline:hover { color: #8d1b1f !important; border-color: rgba(141, 27, 31, .34) !important; box-shadow: 0 16px 30px rgba(25, 29, 35, .08) !important; }
+
+    .pub-visual { min-height: 500px !important; border-radius: 34px !important; background: linear-gradient(145deg, #22262c 0%, #111315 100%) !important; box-shadow: 0 28px 70px rgba(17, 19, 21, .22) !important; overflow: hidden !important; }
+    .pub-visual-main { inset: 48px 46px 132px 46px !important; border-radius: 24px !important; background: rgba(255,255,255,.94) !important; box-shadow: 0 26px 55px rgba(0,0,0,.22) !important; }
+    .pub-visual-main::before { content: 'Publishing Studio'; position: absolute; left: 24px; top: 24px; z-index: 2; color: #8d1b1f; font-weight: 900; font-family: liFont, sans-serif; }
+    .pub-visual-main::after { content: 'იდეიდან დასრულებულ წიგნამდე'; position: absolute; left: 24px; right: 24px; top: 58px; z-index: 2; color: #17191c; font-family: h1Font, liFont, sans-serif; font-size: 28px; line-height: 1.25; font-weight: 900; }
+    .pub-visual-main img { width: 118px !important; height: 188px !important; object-fit: cover !important; position: absolute; left: 58px; bottom: -104px; opacity: 1 !important; border-radius: 8px 16px 16px 8px; box-shadow: 122px -18px 0 #8d1b1f, 244px 10px 0 #f6f7f8, 0 24px 35px rgba(0,0,0,.22) !important; filter: grayscale(.12) contrast(.96); transform: rotate(-8deg); }
+    .pub-note { right: 34px !important; bottom: 28px !important; max-width: 270px !important; padding: 18px 20px !important; border-radius: 18px !important; background: rgba(255,255,255,.1) !important; border: 1px solid rgba(255,255,255,.14) !important; color: #fff !important; backdrop-filter: blur(12px); }
+    .pub-note p { color: rgba(255,255,255,.72) !important; }
+
+    .pub-band { padding: 72px 0 !important; background: #fff !important; border-top: 1px solid #eceff2; border-bottom: 1px solid #eceff2; }
+    .pub-section-head { gap: 24px !important; margin-bottom: 30px !important; }
+    .pub-section-head h2 { font-size: clamp(30px, 4vw, 48px) !important; font-weight: 900 !important; color: #151719 !important; }
+    .pub-section-head p { color: #68707a !important; line-height: 1.75 !important; }
+    .pub-services { gap: 16px !important; background: transparent !important; border: 0 !important; }
+    .pub-service { min-height: 224px !important; padding: 28px !important; border: 1px solid #e3e7eb !important; border-radius: 24px !important; background: linear-gradient(180deg, #fff, #f8f9fa) !important; box-shadow: 0 18px 45px rgba(16, 24, 40, .06) !important; }
+    .pub-service i, .pub-category { color: #8d1b1f !important; }
+    .pub-service h3, .pub-item h3 { color: #17191c !important; font-weight: 900 !important; }
+    .pub-service p, .pub-item p { color: #69717b !important; }
+    .pub-showcase { padding: 76px 0 !important; }
+    .pub-grid { gap: 24px !important; }
+    .pub-item { border: 1px solid #e2e6ea !important; border-radius: 26px !important; box-shadow: 0 20px 55px rgba(16, 24, 40, .08) !important; transition: transform .22s ease, box-shadow .22s ease !important; }
+    .pub-item:hover { transform: translateY(-6px); box-shadow: 0 28px 70px rgba(16, 24, 40, .14) !important; }
+    .pub-item-image { background: #eef0f2 !important; }
+    .pub-item-body { padding: 22px !important; }
+    .pub-contact { padding: 76px 0 84px !important; background: #111315 !important; color: #fff !important; }
+    .pub-form { padding: 28px !important; border: 1px solid rgba(255,255,255,.12) !important; background: rgba(255,255,255,.06) !important; border-radius: 26px !important; box-shadow: 0 24px 60px rgba(0,0,0,.22) !important; }
+    .pub-form .form-control { min-height: 48px !important; border-radius: 14px !important; border: 1px solid rgba(255,255,255,.12) !important; background: rgba(255,255,255,.96) !important; }
+
+    @media (max-width: 991px) { .pub-hero { grid-template-columns: 1fr !important; } .pub-services, .pub-grid { grid-template-columns: 1fr 1fr !important; } .pub-visual { min-height: 470px !important; } }
+    @media (max-width: 575px) { .pub-hero { min-height: 0 !important; padding: 38px 0 48px !important; gap: 30px !important; } .pub-services, .pub-grid { grid-template-columns: 1fr !important; } .pub-visual { min-height: 420px !important; border-radius: 24px !important; } .pub-visual-main { left: 22px !important; right: 22px !important; top: 24px !important; } .pub-note { left: 22px !important; right: 22px !important; max-width: none !important; } }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const shopUrls = {
+            @foreach($items as $item)
+                "{{ route('publishing.show', $item->id) }}": @json($item->shop_url ?: null),
+            @endforeach
+        };
+
+        document.querySelectorAll('.pub-item').forEach(function (card) {
+            const imageLink = card.querySelector('.pub-item-image');
+            const button = card.querySelector('.pub-item-body .pub-btn');
+            if (!button) return;
+
+            button.childNodes.forEach(function (node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.nodeValue = 'მაღაზიაში ნახვა ';
+                }
+            });
+
+            const shopUrl = shopUrls[button.href] || null;
+            if (shopUrl) {
+                button.href = shopUrl;
+                if (imageLink) imageLink.href = shopUrl;
+            }
+        });
+    });
+</script>
 @endsection
