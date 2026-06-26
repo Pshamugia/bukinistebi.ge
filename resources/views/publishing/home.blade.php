@@ -531,4 +531,322 @@
         </div>
     </section>
 </div>
+
+
+<style>
+    /* Publishing home redesign override: compact, centered, and limited to this active view. */
+    .pub-page {
+        margin: 0 calc(50% - 50vw) !important;
+        overflow: hidden;
+        background: #f6f7f8 !important;
+        color: #17191c !important;
+        font-family: liFont, sans-serif !important;
+    }
+
+    .pub-page * { box-sizing: border-box; }
+
+    .pub-wrap {
+        width: min(1040px, calc(100% - 32px)) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .pub-hero {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 360px !important;
+        gap: 48px !important;
+        align-items: center !important;
+        min-height: auto !important;
+        padding: 72px 0 64px !important;
+    }
+
+    .pub-title,
+    .pub-section-head h2,
+    .pub-contact h2 {
+        font-family: h1Font, liFont, sans-serif !important;
+        letter-spacing: -.02em !important;
+    }
+
+    .pub-eyebrow {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin-bottom: 18px !important;
+        padding: 8px 12px !important;
+        border: 1px solid #e3e5e8 !important;
+        border-radius: 999px !important;
+        background: #fff !important;
+        color: #5d646d !important;
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 10px 30px rgba(18, 22, 28, .04) !important;
+    }
+
+    .pub-eyebrow span {
+        width: 7px !important;
+        height: 7px !important;
+        border-radius: 50% !important;
+        background: #8d1b1f !important;
+    }
+
+    .pub-title {
+        max-width: 640px !important;
+        margin: 0 0 18px !important;
+        color: #16191d !important;
+        font-size: clamp(36px, 4.8vw, 58px) !important;
+        line-height: 1.08 !important;
+        font-weight: 900 !important;
+    }
+
+    .pub-lead {
+        max-width: 620px !important;
+        margin: 0 0 28px !important;
+        color: #5c6470 !important;
+        font-size: 16px !important;
+        line-height: 1.85 !important;
+    }
+
+    .pub-actions { gap: 12px !important; }
+
+    .pub-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 9px !important;
+        min-height: 44px !important;
+        padding: 10px 18px !important;
+        border-radius: 999px !important;
+        border: 1px solid #15191d !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        text-decoration: none !important;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease !important;
+    }
+
+    .pub-btn:hover { transform: translateY(-1px); text-decoration: none !important; }
+    .pub-btn-primary { background: #15191d !important; color: #fff !important; box-shadow: 0 14px 26px rgba(21, 25, 29, .16) !important; }
+    .pub-btn-primary:hover { background: #8d1b1f !important; border-color: #8d1b1f !important; color: #fff !important; }
+    .pub-btn-outline { background: #fff !important; color: #15191d !important; border-color: #d9dde2 !important; }
+    .pub-btn-outline:hover { color: #8d1b1f !important; border-color: rgba(141, 27, 31, .35) !important; box-shadow: 0 12px 24px rgba(18, 22, 28, .07) !important; }
+
+    .pub-visual {
+        position: relative !important;
+        min-height: 360px !important;
+        border-radius: 28px !important;
+        overflow: hidden !important;
+        background: linear-gradient(145deg, #1b1f24 0%, #101214 100%) !important;
+        box-shadow: 0 24px 54px rgba(17, 19, 21, .18) !important;
+    }
+
+    .pub-visual::before {
+        content: 'Publishing Studio';
+        position: absolute;
+        left: 26px;
+        top: 24px;
+        z-index: 3;
+        color: rgba(255,255,255,.76);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+
+    .pub-visual::after {
+        content: '';
+        position: absolute;
+        right: -62px;
+        top: -62px;
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        background: rgba(141, 27, 31, .42);
+        filter: blur(2px);
+    }
+
+    .pub-visual-main {
+        position: absolute !important;
+        left: 52px !important;
+        right: 52px !important;
+        top: 82px !important;
+        bottom: 54px !important;
+        border-radius: 20px !important;
+        overflow: visible !important;
+        background: #f8f9fa !important;
+        box-shadow: 0 22px 45px rgba(0,0,0,.24) !important;
+    }
+
+    .pub-visual-main img {
+        position: absolute !important;
+        left: 34px !important;
+        bottom: 28px !important;
+        width: 92px !important;
+        height: 142px !important;
+        object-fit: cover !important;
+        border-radius: 7px 14px 14px 7px !important;
+        opacity: .92 !important;
+        filter: grayscale(.18) contrast(.98) !important;
+        transform: rotate(-7deg) !important;
+        box-shadow: 88px -18px 0 #8d1b1f, 176px 8px 0 #e9ecef, 0 18px 28px rgba(0,0,0,.18) !important;
+    }
+
+    .pub-visual-main::before {
+        content: 'იდეა → რედაქტურა → წიგნი';
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        top: 26px;
+        color: #17191c;
+        font-family: h1Font, liFont, sans-serif;
+        font-size: 25px;
+        font-weight: 900;
+        line-height: 1.25;
+    }
+
+    .pub-visual-main::after {
+        content: '';
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        top: 96px;
+        height: 7px;
+        border-radius: 999px;
+        background: #dfe3e7;
+        box-shadow: 0 18px 0 #eef0f2, 0 36px 0 #eef0f2;
+    }
+
+    .pub-note {
+        left: 26px !important;
+        right: 26px !important;
+        bottom: 22px !important;
+        max-width: none !important;
+        padding: 14px 16px !important;
+        border: 1px solid rgba(255,255,255,.12) !important;
+        border-radius: 16px !important;
+        background: rgba(255,255,255,.08) !important;
+        color: #fff !important;
+        backdrop-filter: blur(12px) !important;
+    }
+
+    .pub-note strong { font-size: 15px !important; }
+    .pub-note p { margin: 3px 0 0 !important; color: rgba(255,255,255,.68) !important; font-size: 13px !important; line-height: 1.55 !important; }
+
+    .pub-band {
+        padding: 62px 0 !important;
+        border-top: 1px solid #e5e8ec !important;
+        border-bottom: 1px solid #e5e8ec !important;
+        background: #eef0f2 !important;
+    }
+
+    .pub-section-head {
+        align-items: flex-end !important;
+        gap: 28px !important;
+        margin-bottom: 26px !important;
+    }
+
+    .pub-section-head h2 {
+        margin: 0 !important;
+        color: #17191c !important;
+        font-size: clamp(30px, 3.4vw, 44px) !important;
+        line-height: 1.1 !important;
+        font-weight: 900 !important;
+    }
+
+    .pub-section-head p {
+        max-width: 560px !important;
+        color: #606873 !important;
+        font-size: 15px !important;
+        line-height: 1.75 !important;
+    }
+
+    .pub-services {
+        gap: 18px !important;
+        background: transparent !important;
+        border: 0 !important;
+    }
+
+    .pub-service {
+        min-height: 190px !important;
+        padding: 24px !important;
+        border: 1px solid #dfe3e8 !important;
+        border-radius: 20px !important;
+        background: #fff !important;
+        box-shadow: 0 18px 40px rgba(18, 22, 28, .06) !important;
+    }
+
+    .pub-service i {
+        width: 38px !important;
+        height: 38px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-bottom: 18px !important;
+        border-radius: 12px !important;
+        background: #15191d !important;
+        color: #fff !important;
+        font-size: 18px !important;
+    }
+
+    .pub-service h3,
+    .pub-item h3 { color: #17191c !important; font-weight: 900 !important; }
+    .pub-service p,
+    .pub-item p { color: #68707a !important; }
+
+    .pub-showcase { padding: 70px 0 !important; background: #f8f9fa !important; }
+    .pub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 22px !important; }
+    .pub-item { border: 1px solid #e0e4e8 !important; border-radius: 20px !important; background: #fff !important; box-shadow: 0 18px 42px rgba(18, 22, 28, .07) !important; transition: transform .18s ease, box-shadow .18s ease !important; }
+    .pub-item:hover { transform: translateY(-4px); box-shadow: 0 24px 54px rgba(18, 22, 28, .11) !important; }
+    .pub-item-image { background: #edf0f2 !important; }
+    .pub-item-body { padding: 20px !important; }
+    .pub-category { color: #8d1b1f !important; font-weight: 900 !important; }
+    .pub-contact { padding: 70px 0 78px !important; background: #101214 !important; color: #fff !important; }
+    .pub-form { padding: 26px !important; border: 1px solid rgba(255,255,255,.12) !important; border-radius: 20px !important; background: rgba(255,255,255,.07) !important; box-shadow: 0 20px 50px rgba(0,0,0,.2) !important; }
+    .pub-form .form-control { min-height: 46px !important; border: 0 !important; border-radius: 12px !important; background: #f5f6f7 !important; }
+
+    @media (max-width: 991px) {
+        .pub-hero { grid-template-columns: 1fr !important; padding-top: 42px !important; }
+        .pub-visual { max-width: 420px; width: 100%; }
+        .pub-services,
+        .pub-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+
+    @media (max-width: 575px) {
+        .pub-wrap { width: min(100% - 24px, 1040px) !important; }
+        .pub-hero { gap: 28px !important; padding: 34px 0 46px !important; }
+        .pub-title { font-size: 34px !important; }
+        .pub-visual { min-height: 330px !important; border-radius: 22px !important; }
+        .pub-visual-main { left: 24px !important; right: 24px !important; top: 72px !important; bottom: 64px !important; }
+        .pub-visual-main::before { font-size: 21px; }
+        .pub-services,
+        .pub-grid { grid-template-columns: 1fr !important; }
+        .pub-section-head { display: block !important; }
+        .pub-section-head h2 { margin-bottom: 12px !important; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const shopUrls = {
+            @foreach($items as $item)
+                "{{ route('publishing.show', $item->id) }}": @json($item->shop_url ?: null),
+            @endforeach
+        };
+
+        document.querySelectorAll('.pub-item').forEach(function (card) {
+            const imageLink = card.querySelector('.pub-item-image');
+            const button = card.querySelector('.pub-item-body .pub-btn');
+            if (!button) return;
+
+            button.childNodes.forEach(function (node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node.nodeValue = 'მაღაზიაში ნახვა ';
+                }
+            });
+
+            const shopUrl = shopUrls[button.href] || null;
+            if (shopUrl) {
+                button.href = shopUrl;
+                if (imageLink) imageLink.href = shopUrl;
+            }
+        });
+    });
+</script>
 @endsection
