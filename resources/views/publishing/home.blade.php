@@ -10,372 +10,489 @@
 
 <style>
     .pub-page {
-        margin: 0 calc(50% - 50vw);
-        background: #f7f4ef;
-        color: #25201b;
+        margin:0 calc(50% - 50vw);
+        overflow:hidden;
+        background:#f5f6f7;
+        color:#17191c;
+        font-family:liFont,sans-serif;
+    }
+
+    .pub-page * {
+        box-sizing:border-box;
     }
 
     .pub-wrap {
-        width: min(1180px, calc(100% - 32px));
-        margin: 0 auto;
+        width:min(1120px,calc(100% - 32px));
+        margin:0 auto;
     }
 
     .pub-hero {
-        display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
-        min-height: 560px;
-        align-items: center;
-        gap: 42px;
-        padding: 52px 0 44px;
+        display:grid;
+        grid-template-columns:minmax(0,1.02fr) minmax(320px,.98fr);
+        min-height:620px;
+        align-items:center;
+        gap:56px;
+        padding:68px 0 64px;
     }
 
     .pub-eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        color: #8f5b22;
-        font-weight: 800;
-        letter-spacing: 0;
+        display:inline-flex;
+        align-items:center;
+        gap:10px;
+        margin-bottom:20px;
+        padding:8px 13px;
+        border:1px solid #e2e5e8;
+        border-radius:999px;
+        background:#fff;
+        color:#5b626b;
+        font-size:13px;
+        font-weight:800;
+        box-shadow:0 12px 30px rgba(20,24,28,.04);
     }
 
     .pub-eyebrow span {
-        width: 38px;
-        height: 1px;
-        background: #b8863b;
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:#8d1b1f;
+    }
+
+    .pub-title,.pub-section-head h2,.pub-contact h2 {
+        font-family:h1Font,liFont,sans-serif;
+        letter-spacing:-.02em;
     }
 
     .pub-title {
-        max-width: 720px;
-        margin: 0 0 20px;
-        font-size: 56px;
-        line-height: 1.08;
-        font-weight: 900;
+        max-width:690px;
+        margin:0 0 18px;
+        color:#15181c;
+        font-size:clamp(38px,5vw,64px);
+        line-height:1.05;
+        font-weight:900;
     }
 
     .pub-lead {
-        max-width: 650px;
-        margin: 0 0 28px;
-        font-size: 18px;
-        line-height: 1.85;
-        color: #5a5148;
+        max-width:640px;
+        margin:0 0 30px;
+        color:#5d6570;
+        font-size:17px;
+        line-height:1.85;
     }
 
     .pub-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:12px;
     }
 
     .pub-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        min-height: 46px;
-        padding: 11px 18px;
-        border-radius: 4px;
-        border: 1px solid #25201b;
-        font-weight: 800;
-        text-decoration: none;
-        transition: .2s ease;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:9px;
+        min-height:46px;
+        padding:11px 19px;
+        border-radius:999px;
+        border:1px solid #17191c;
+        font-size:14px;
+        font-weight:900;
+        text-decoration:none;
+        transition:.18s ease;
+    }
+
+    .pub-btn:hover {
+        transform:translateY(-1px);
+        text-decoration:none;
     }
 
     .pub-btn-primary {
-        background: #25201b;
-        color: #fff;
+        background:#15191d;
+        color:#fff;
+        box-shadow:0 16px 30px rgba(21,25,29,.16);
     }
 
     .pub-btn-primary:hover {
-        color: #fff;
-        background: #8f2d22;
-        border-color: #8f2d22;
+        color:#fff;
+        background:#8d1b1f;
+        border-color:#8d1b1f;
     }
 
     .pub-btn-outline {
-        color: #25201b;
-        background: transparent;
+        color:#15191d;
+        background:#fff;
+        border-color:#d8dde2;
     }
 
     .pub-btn-outline:hover {
-        color: #8f2d22;
-        border-color: #8f2d22;
+        color:#8d1b1f;
+        border-color:rgba(141,27,31,.36);
+        box-shadow:0 12px 24px rgba(18,22,28,.07);
     }
 
     .pub-visual {
-        position: relative;
-        min-height: 430px;
+        position:relative;
+        min-height:430px;
+        border-radius:32px;
+        background:radial-gradient(circle at 82% 10%,rgba(141,27,31,.42),transparent 28%),linear-gradient(145deg,#20252b 0%,#101214 100%);
+        box-shadow:0 30px 70px rgba(16,18,20,.22);
+        overflow:hidden;
+    }
+
+    .pub-visual:before {
+        content:'Publishing Studio';
+        position:absolute;
+        left:28px;
+        top:26px;
+        z-index:3;
+        color:rgba(255,255,255,.72);
+        font-size:12px;
+        font-weight:900;
+        letter-spacing:.08em;
+        text-transform:uppercase;
     }
 
     .pub-visual-main {
-        position: absolute;
-        inset: 0 42px 38px 0;
-        border-radius: 4px;
-        background: #211d19;
-        box-shadow: 22px 24px 0 #e4d5bd;
-        overflow: hidden;
+        position:absolute;
+        left:54px;
+        right:54px;
+        top:86px;
+        bottom:72px;
+        border-radius:24px;
+        background:#f8f9fa;
+        box-shadow:0 24px 48px rgba(0,0,0,.25);
+        overflow:visible;
     }
 
-    .pub-visual-main img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: .88;
+    .pub-visual-main:before {
+        content:'იდეა → რედაქტურა → წიგნი';
+        position:absolute;
+        left:30px;
+        right:30px;
+        top:28px;
+        color:#17191c;
+        font-family:h1Font,liFont,sans-serif;
+        font-size:27px;
+        font-weight:900;
+        line-height:1.22;
+    }
+
+    .pub-visual-main:after {
+        content:'';
+        position:absolute;
+        left:30px;
+        right:30px;
+        top:106px;
+        height:7px;
+        border-radius:999px;
+        background:#dfe3e7;
+        box-shadow:0 19px 0 #edf0f2,0 38px 0 #edf0f2;
+    }
+
+    .pub-book-stack {
+        position:absolute;
+        left:34px;
+        bottom:28px;
+        width:94px;
+        height:142px;
+        border-radius:8px 16px 16px 8px;
+        background:#15191d;
+        box-shadow:86px -18px 0 #8d1b1f,172px 8px 0 #dfe3e7,0 18px 28px rgba(0,0,0,.18);
+        transform:rotate(-7deg);
     }
 
     .pub-note {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        max-width: 310px;
-        padding: 22px;
-        border-radius: 4px;
-        background: #fff;
-        border: 1px solid #eadfce;
-        box-shadow: 0 16px 34px rgba(58, 43, 25, .14);
+        position:absolute;
+        left:28px;
+        right:28px;
+        bottom:24px;
+        padding:16px 18px;
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,.12);
+        background:rgba(255,255,255,.08);
+        color:#fff;
+        backdrop-filter:blur(12px);
     }
 
     .pub-note strong {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 18px;
+        display:block;
+        margin-bottom:5px;
+        font-size:15px;
     }
 
     .pub-note p {
-        margin: 0;
-        color: #6a5f54;
-        line-height: 1.7;
+        margin:0;
+        color:rgba(255,255,255,.68);
+        font-size:13px;
+        line-height:1.55;
     }
 
     .pub-band {
-        padding: 54px 0;
-        background: #fff;
+        padding:64px 0;
+        border-top:1px solid #e3e7eb;
+        border-bottom:1px solid #e3e7eb;
+        background:#eef0f2;
     }
 
     .pub-section-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: end;
-        margin-bottom: 24px;
+        display:flex;
+        justify-content:space-between;
+        gap:28px;
+        align-items:flex-end;
+        margin-bottom:26px;
     }
 
     .pub-section-head h2 {
-        margin: 0;
-        font-size: 34px;
-        font-weight: 900;
+        margin:0;
+        color:#17191c;
+        font-size:clamp(30px,3.4vw,44px);
+        line-height:1.1;
+        font-weight:900;
     }
 
     .pub-section-head p {
-        max-width: 520px;
-        margin: 0;
-        color: #665d55;
-        line-height: 1.7;
+        max-width:560px;
+        margin:0;
+        color:#606873;
+        font-size:15px;
+        line-height:1.75;
     }
 
     .pub-services {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1px;
-        background: #e7ddd0;
-        border: 1px solid #e7ddd0;
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:18px;
     }
 
     .pub-service {
-        min-height: 210px;
-        padding: 26px;
-        background: #fff;
+        min-height:190px;
+        padding:24px;
+        border:1px solid #dfe3e8;
+        border-radius:22px;
+        background:#fff;
+        box-shadow:0 18px 40px rgba(18,22,28,.06);
     }
 
     .pub-service i {
-        display: inline-flex;
-        margin-bottom: 18px;
-        font-size: 30px;
-        color: #9f6426;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:40px;
+        height:40px;
+        margin-bottom:18px;
+        border-radius:13px;
+        background:#15191d;
+        color:#fff;
+        font-size:18px;
     }
 
     .pub-service h3 {
-        margin: 0 0 10px;
-        font-size: 19px;
-        font-weight: 900;
+        margin:0 0 10px;
+        color:#17191c;
+        font-size:19px;
+        font-weight:900;
     }
 
     .pub-service p {
-        margin: 0;
-        color: #6a5f54;
-        line-height: 1.7;
+        margin:0;
+        color:#68707a;
+        line-height:1.7;
     }
 
     .pub-showcase {
-        padding: 58px 0;
+        padding:70px 0;
+        background:#f8f9fa;
     }
 
     .pub-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 22px;
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:22px;
     }
 
     .pub-item {
-        background: #fff;
-        border: 1px solid #e8decf;
-        border-radius: 4px;
-        overflow: hidden;
+        overflow:hidden;
+        border:1px solid #e0e4e8;
+        border-radius:22px;
+        background:#fff;
+        box-shadow:0 18px 42px rgba(18,22,28,.07);
+        transition:.18s ease;
+    }
+
+    .pub-item:hover {
+        transform:translateY(-4px);
+        box-shadow:0 24px 54px rgba(18,22,28,.11);
     }
 
     .pub-item-image {
-        display: block;
-        aspect-ratio: 4 / 3;
-        background: #eee4d6;
-        overflow: hidden;
+        display:block;
+        aspect-ratio:4/3;
+        background:#edf0f2;
+        overflow:hidden;
     }
 
     .pub-item-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform .25s ease;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        transition:.25s ease;
     }
 
     .pub-item:hover .pub-item-image img {
-        transform: scale(1.04);
+        transform:scale(1.04);
     }
 
     .pub-item-body {
-        padding: 20px;
+        padding:20px;
     }
 
     .pub-category {
-        display: inline-flex;
-        margin-bottom: 10px;
-        color: #8f5b22;
-        font-size: 13px;
-        font-weight: 800;
+        display:inline-flex;
+        margin-bottom:10px;
+        color:#8d1b1f;
+        font-size:13px;
+        font-weight:900;
     }
 
     .pub-item h3 {
-        margin: 0 0 10px;
-        font-size: 20px;
-        font-weight: 900;
+        margin:0 0 10px;
+        color:#17191c;
+        font-size:20px;
+        font-weight:900;
     }
 
     .pub-item p {
-        min-height: 76px;
-        margin: 0 0 14px;
-        color: #625850;
-        line-height: 1.65;
+        min-height:76px;
+        margin:0 0 14px;
+        color:#68707a;
+        line-height:1.65;
     }
 
     .pub-empty {
-        padding: 28px;
-        border: 1px dashed #cdbb9e;
-        background: rgba(255,255,255,.65);
-        color: #6a5f54;
+        padding:28px;
+        border:1px dashed #cbd1d8;
+        border-radius:20px;
+        background:#fff;
+        color:#68707a;
     }
 
     .pub-contact {
-        padding: 56px 0 64px;
-        background: #27211c;
-        color: #fff;
+        padding:70px 0 78px;
+        background:#101214;
+        color:#fff;
     }
 
     .pub-contact-grid {
-        display: grid;
-        grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr);
-        gap: 38px;
-        align-items: start;
+        display:grid;
+        grid-template-columns:minmax(0,.85fr) minmax(320px,1.15fr);
+        gap:38px;
+        align-items:start;
     }
 
     .pub-contact h2 {
-        margin: 0 0 16px;
-        font-size: 34px;
-        font-weight: 900;
+        margin:0 0 16px;
+        font-size:38px;
+        font-weight:900;
     }
 
     .pub-contact p {
-        color: rgba(255,255,255,.74);
-        line-height: 1.8;
+        color:rgba(255,255,255,.72);
+        line-height:1.8;
     }
 
     .pub-contact a {
-        color: #f2c46d;
+        color:#fff;
     }
 
     .pub-form {
-        padding: 26px;
-        border: 1px solid rgba(255,255,255,.16);
-        background: rgba(255,255,255,.06);
-        border-radius: 4px;
+        padding:26px;
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:22px;
+        background:rgba(255,255,255,.07);
+        box-shadow:0 20px 50px rgba(0,0,0,.2);
     }
 
     .pub-form .form-label {
-        color: rgba(255,255,255,.86);
-        font-weight: 700;
+        color:rgba(255,255,255,.86);
+        font-weight:700;
     }
 
     .pub-form .form-control {
-        min-height: 45px;
-        border-radius: 4px;
-        border: 0;
+        min-height:46px;
+        border:0;
+        border-radius:12px;
+        background:#f5f6f7;
     }
 
     .pub-form textarea.form-control {
-        min-height: 150px;
+        min-height:150px;
     }
 
-    @media (max-width: 991px) {
-        .pub-hero,
-        .pub-contact-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .pub-title {
-            font-size: 42px;
-        }
-
-        .pub-services,
-        .pub-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .pub-wrap {
-            width: min(100% - 24px, 1180px);
+    @media(max-width:991px) {
+        .pub-hero,.pub-contact-grid {
+            grid-template-columns:1fr;
         }
 
         .pub-hero {
-            min-height: 0;
-            padding-top: 32px;
-        }
-
-        .pub-title {
-            font-size: 34px;
+            min-height:0;
+            padding-top:42px;
         }
 
         .pub-visual {
-            min-height: 330px;
+            max-width:430px;
+            width:100%;
+        }
+
+        .pub-services,.pub-grid {
+            grid-template-columns:1fr 1fr;
+        }
+
+    }
+
+    @media(max-width:575px) {
+        .pub-wrap {
+            width:min(100% - 24px,1120px);
+        }
+
+        .pub-hero {
+            gap:28px;
+            padding:34px 0 46px;
+        }
+
+        .pub-title {
+            font-size:34px;
+        }
+
+        .pub-visual {
+            min-height:340px;
+            border-radius:24px;
         }
 
         .pub-visual-main {
-            inset: 0 18px 42px 0;
-            box-shadow: 14px 16px 0 #e4d5bd;
+            left:24px;
+            right:24px;
+            top:76px;
+            bottom:68px;
+        }
+
+        .pub-visual-main:before {
+            font-size:21px;
         }
 
         .pub-section-head {
-            display: block;
+            display:block;
         }
 
         .pub-section-head h2 {
-            margin-bottom: 12px;
-            font-size: 28px;
+            margin-bottom:12px;
         }
 
-        .pub-services,
-        .pub-grid {
-            grid-template-columns: 1fr;
+        .pub-services,.pub-grid {
+            grid-template-columns:1fr;
         }
+
     }
 </style>
+
 
 <div class="pub-page">
     <section class="pub-wrap pub-hero">
@@ -400,7 +517,7 @@
 
         <div class="pub-visual" aria-hidden="true">
             <div class="pub-visual-main">
-                <img src="{{ $heroImage }}" alt="">
+                <span class="pub-book-stack"></span>
             </div>
             <div class="pub-note">
                 <strong>სრული საგამომცემლო პროცესი</strong>
@@ -455,7 +572,7 @@
                             $cover = collect([$item->image_1, $item->image_2, $item->image_3, $item->image_4])->filter()->first();
                         @endphp
                         <article class="pub-item">
-                            <a class="pub-item-image" href="{{ route('publishing.show', $item->id) }}">
+                            <a class="pub-item-image" href="{{ $item->shop_url ?: route('publishing.show', $item->id) }}">
                                 @if($cover)
                                     <img src="{{ asset('storage/' . $cover) }}" alt="{{ $item->title }}">
                                 @else
@@ -468,8 +585,8 @@
                                 @endif
                                 <h3>{{ $item->title }}</h3>
                                 <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->description), 135) }}</p>
-                                <a href="{{ route('publishing.show', $item->id) }}" class="pub-btn pub-btn-outline">
-                                    ნახვა <i class="bi bi-arrow-right"></i>
+                                <a href="{{ $item->shop_url ?: route('publishing.show', $item->id) }}" class="pub-btn pub-btn-outline">
+                                    მაღაზიაში ნახვა <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
                         </article>
