@@ -46,7 +46,10 @@
     --pub-shadow: 0 28px 80px rgba(28, 22, 14, .14);
 }
 
-/* layout fixes only for publishing */
+/* =========================
+   Layout fixes for publishing
+   ========================= */
+
 body:has(.pub-site) {
     padding-top: 0 !important;
     background: var(--pub-bg);
@@ -64,24 +67,71 @@ body:has(.pub-site) hr {
     display: none !important;
 }
 
-/* publishing navbar recolor + right menu */
+/* =========================
+   Top / Main Navbar
+   ========================= */
+
 body:has(.pub-site) #topStickyNavbar {
     position: relative !important;
     top: auto !important;
-    background: #1b1712 !important;
     min-height: 54px !important;
     border: 0 !important;
     box-shadow: none !important;
+    background:
+        radial-gradient(circle at 12% 20%, rgba(181, 138, 58, .10), transparent 28rem),
+        linear-gradient(135deg, #17120d, #0d0a07) !important;
+}
+
+body:has(.pub-site) #topStickyNavbar > .container {
+    max-width: 1420px !important;
+    width: min(1420px, calc(100% - 80px)) !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+body:has(.pub-site) #topStickyNavbar .navbar-nav {
+    margin-left: auto !important;
+}
+
+body:has(.pub-site) #topStickyNavbar .navbar-nav li {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    opacity: 1 !important;
+    color: #d8c298 !important;
+    font-family: liFont, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: .3px;
+}
+
+body:has(.pub-site) #topStickyNavbar li i,
+body:has(.pub-site) #topStickyNavbar .fb-icon-top i,
+body:has(.pub-site) #topStickyNavbar .insta-icon-top i {
+    color: #c89a46 !important;
+    font-size: 22px !important;
+    transition: color .25s ease, transform .25s ease;
+}
+
+body:has(.pub-site) #topStickyNavbar .fb-icon-top,
+body:has(.pub-site) #topStickyNavbar .insta-icon-top {
+    margin-right: 18px !important;
+}
+
+body:has(.pub-site) #topStickyNavbar a:hover i {
+    color: #f0c36b !important;
 }
 
 body:has(.pub-site) #mainNavbar {
     position: relative !important;
     top: auto !important;
+    min-height: 74px !important;
+    padding: 12px 0 !important;
     background: #fffaf2 !important;
     border-bottom: 1px solid rgba(181, 138, 58, .22) !important;
     box-shadow: 0 12px 34px rgba(28, 22, 14, .05) !important;
-    min-height: 74px !important;
-    padding: 12px 0 !important;
 }
 
 body:has(.pub-site) #mainNavbar > .container {
@@ -120,21 +170,67 @@ body:has(.pub-site) #navbarNav .btn-dark {
     color: #fffaf2 !important;
 }
 
+/* =========================
+   Base
+   ========================= */
+
 .pub-site {
     margin: 0 !important;
     width: 100% !important;
-    background:
-        radial-gradient(circle at 82% 8%, rgba(181, 138, 58, .13), transparent 34rem),
-        radial-gradient(circle at 12% 90%, rgba(21, 18, 14, .08), transparent 30rem),
-        linear-gradient(180deg, var(--pub-bg), #fffaf2 46%, #f7f1e7);
     color: var(--pub-ink);
     overflow: hidden;
+    background:
+        radial-gradient(circle at 80% 8%, rgba(181, 138, 58, .16), transparent 34rem),
+        radial-gradient(circle at 10% 85%, rgba(21, 18, 14, .10), transparent 30rem),
+        linear-gradient(135deg, #f5efe4 0%, #fffaf2 48%, #e9dfcf 100%) !important;
 }
 
 .pub-wrap {
     width: min(1420px, calc(100% - 80px));
     margin: 0 auto;
 }
+
+/* =========================
+   Typography
+   ========================= */
+
+.pub-hero h1,
+.pub-section-title {
+    font-family: h1Font, sans-serif !important;
+    font-weight: 400 !important;
+    color: #111;
+}
+
+.pub-hero h1 {
+    max-width: 820px;
+    margin: 0 0 28px;
+    font-size: clamp(68px, 7.6vw, 116px);
+    line-height: .88;
+    letter-spacing: -1px;
+}
+
+.pub-lead,
+.pub-section-copy,
+.pub-feature p,
+.pub-book-body p,
+.pub-contact p,
+.pub-empty,
+.pub-btn,
+.pub-kicker,
+.pub-book-category,
+.pub-form .form-label,
+.pub-form .form-control {
+    font-family: liFont, sans-serif !important;
+}
+
+.pub-feature h3,
+.pub-book-body h3 {
+    font-family: h4Font, liFont, sans-serif !important;
+}
+
+/* =========================
+   Hero
+   ========================= */
 
 .pub-hero {
     min-height: 760px;
@@ -144,6 +240,7 @@ body:has(.pub-site) #navbarNav .btn-dark {
     align-items: center;
     padding: 44px 0 96px;
     position: relative;
+    perspective: 1200px;
 }
 
 .pub-hero::before {
@@ -169,29 +266,12 @@ body:has(.pub-site) #navbarNav .btn-dark {
     border-radius: 999px;
     background: rgba(255, 250, 242, .82);
     color: var(--pub-gold-dark);
-    font-family: liFont, sans-serif !important;
     font-size: 14px;
     font-weight: 900;
     box-shadow: 0 12px 34px rgba(28, 22, 14, .05);
 }
 
-.pub-hero h1,
-.pub-section-title {
-    font-family: h1Font, sans-serif !important;
-    font-weight: 400 !important;
-    color: #111;
-}
-
-.pub-hero h1 {
-    max-width: 820px;
-    margin: 0 0 28px;
-    font-size: clamp(68px, 7.6vw, 116px);
-    line-height: .88;
-    letter-spacing: -1px;
-}
-
 .pub-lead {
-    font-family: liFont, sans-serif !important;
     max-width: 780px;
     margin: 0 0 16px;
     color: #3a332d;
@@ -210,6 +290,14 @@ body:has(.pub-site) #navbarNav .btn-dark {
     margin-top: 40px;
 }
 
+.pub-hero-visual {
+    position: relative;
+}
+
+/* =========================
+   Buttons
+   ========================= */
+
 .pub-btn {
     min-height: 54px;
     padding: 14px 22px;
@@ -218,7 +306,6 @@ body:has(.pub-site) #navbarNav .btn-dark {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-family: liFont, sans-serif !important;
     font-weight: 900;
     text-decoration: none;
     transition: .22s ease;
@@ -251,35 +338,120 @@ body:has(.pub-site) #navbarNav .btn-dark {
     color: var(--pub-white);
 }
 
-.pub-hero-visual {
+/* =========================
+   Hero 3D book stack
+   ========================= */
+
+.pub-book-stage {
     position: relative;
+    width: min(620px, 100%);
+    height: 640px;
+    margin-left: auto;
+    perspective: 1400px;
 }
 
-.pub-visual-card {
-    position: relative;
-    padding: 18px;
-    background: rgba(255,255,255,.36);
-    border: 1px solid var(--pub-line);
-    box-shadow: var(--pub-shadow);
+.pub-light-orb {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    right: 30px;
+    top: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(181, 138, 58, .22), transparent 68%);
+    filter: blur(10px);
+    transition: transform 1.2s ease;
 }
 
-.pub-visual-card::before {
+.pub-3d-book {
+    position: absolute;
+    width: 350px;
+    height: 500px;
+    background: #fffaf2;
+    border: 1px solid rgba(181, 138, 58, .35);
+    box-shadow: 0 34px 90px rgba(21, 18, 14, .24);
+    transform-style: preserve-3d;
+    overflow: hidden;
+    transition:
+        transform 1.1s cubic-bezier(.16, 1, .3, 1),
+        box-shadow 1.1s cubic-bezier(.16, 1, .3, 1);
+}
+
+.pub-3d-book::before {
     content: "";
     position: absolute;
-    inset: 34px -28px -28px 42px;
-    border: 1px solid rgba(181, 138, 58, .42);
-    z-index: 0;
+    top: 0;
+    right: -18px;
+    width: 18px;
+    height: 100%;
+    background: linear-gradient(90deg, #d8cbb9, #fff6e6);
+    transform: skewY(18deg);
+    transform-origin: left;
 }
 
-.pub-visual-card img {
-    position: relative;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    filter: saturate(.92) contrast(1.03);
+.pub-3d-book::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, .24) 38%, transparent 62%);
+    opacity: 0;
+    transition: opacity .8s ease;
 }
+
+.pub-3d-book img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(.95) contrast(1.02);
+}
+
+.pub-book-front {
+    right: 78px;
+    top: 36px;
+    z-index: 3;
+    transform: rotateY(-5deg) rotateZ(0);
+}
+
+.pub-book-middle {
+    right: 150px;
+    top: 88px;
+    z-index: 2;
+    opacity: .9;
+    transform: rotateZ(-7deg) translateZ(-50px);
+}
+
+.pub-book-back {
+    right: 18px;
+    top: 124px;
+    z-index: 1;
+    opacity: .72;
+    transform: rotateZ(8deg) translateZ(-90px);
+}
+
+.pub-book-stage:hover .pub-book-front {
+    transform: translateY(-16px) rotateY(-12deg) rotateZ(-1deg);
+    box-shadow: 0 52px 130px rgba(21, 18, 14, .34);
+}
+
+.pub-book-stage:hover .pub-book-middle {
+    transform: translate(-28px, 12px) rotateZ(-11deg);
+}
+
+.pub-book-stage:hover .pub-book-back {
+    transform: translate(28px, 18px) rotateZ(12deg);
+}
+
+.pub-book-stage:hover .pub-3d-book::after {
+    opacity: 1;
+}
+
+.pub-book-stage:hover .pub-light-orb {
+    transform: translate(-30px, 20px) scale(1.08);
+}
+
+/* =========================
+   Sections
+   ========================= */
 
 .pub-section {
     padding: 92px 0;
@@ -311,14 +483,17 @@ body:has(.pub-site) #navbarNav .btn-dark {
 .pub-section-copy {
     margin: 0;
     color: var(--pub-muted);
-    font-family: liFont, sans-serif !important;
     font-size: 18px;
     line-height: 1.9;
 }
 
 .pub-section-alt .pub-section-copy {
-    color: rgba(255,255,255,.70);
+    color: rgba(255, 255, 255, .70);
 }
+
+/* =========================
+   Feature cards
+   ========================= */
 
 .pub-feature-grid,
 .pub-grid {
@@ -330,14 +505,14 @@ body:has(.pub-site) #navbarNav .btn-dark {
 .pub-feature {
     padding: 32px;
     min-height: 260px;
-    background: rgba(255,255,255,.055);
-    border: 1px solid rgba(255,255,255,.13);
+    background: rgba(255, 255, 255, .055);
+    border: 1px solid rgba(255, 255, 255, .13);
     transition: .22s ease;
 }
 
 .pub-feature:hover {
     transform: translateY(-5px);
-    background: rgba(255,255,255,.085);
+    background: rgba(255, 255, 255, .085);
 }
 
 .pub-feature i {
@@ -352,11 +527,6 @@ body:has(.pub-site) #navbarNav .btn-dark {
     font-size: 25px;
 }
 
-.pub-feature h3,
-.pub-book-body h3 {
-    font-family: h4Font, liFont, sans-serif !important;
-}
-
 .pub-feature h3 {
     margin: 0 0 12px;
     font-size: 24px;
@@ -365,22 +535,40 @@ body:has(.pub-site) #navbarNav .btn-dark {
 
 .pub-feature p {
     margin: 0;
-    color: rgba(255,255,255,.66);
-    font-family: liFont, sans-serif !important;
+    color: rgba(255, 255, 255, .66);
     line-height: 1.8;
 }
 
+/* =========================
+   Book cards
+   ========================= */
+
 .pub-book-card {
-    background: rgba(255,250,242,.82);
+    position: relative;
+    background: rgba(255, 250, 242, .82);
     border: 1px solid var(--pub-line);
     box-shadow: 0 20px 60px rgba(28, 22, 14, .08);
     overflow: hidden;
     transition: .22s ease;
 }
 
+.pub-book-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(181, 138, 58, .22), transparent 42%);
+    transition: opacity .25s ease;
+}
+
 .pub-book-card:hover {
     transform: translateY(-7px);
     box-shadow: 0 30px 86px rgba(28, 22, 14, .15);
+}
+
+.pub-book-card:hover::after {
+    opacity: 1;
 }
 
 .pub-book-image {
@@ -394,11 +582,12 @@ body:has(.pub-site) #navbarNav .btn-dark {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform-origin: left center;
     transition: .3s ease;
 }
 
 .pub-book-card:hover .pub-book-image img {
-    transform: scale(1.045);
+    transform: scale(1.045) rotateY(-3deg);
 }
 
 .pub-book-body {
@@ -414,7 +603,6 @@ body:has(.pub-site) #navbarNav .btn-dark {
     padding: 7px 11px;
     border: 1px solid rgba(181, 138, 58, .36);
     color: var(--pub-gold-dark);
-    font-family: liFont, sans-serif !important;
     font-size: 12px;
     font-weight: 950;
 }
@@ -430,7 +618,6 @@ body:has(.pub-site) #navbarNav .btn-dark {
 .pub-book-body p {
     margin: 0 0 24px;
     color: var(--pub-muted);
-    font-family: liFont, sans-serif !important;
     line-height: 1.75;
 }
 
@@ -442,10 +629,13 @@ body:has(.pub-site) #navbarNav .btn-dark {
 .pub-empty {
     padding: 34px;
     border: 1px dashed rgba(21, 18, 14, .24);
-    background: rgba(255,250,242,.82);
+    background: rgba(255, 250, 242, .82);
     color: var(--pub-muted);
-    font-family: liFont, sans-serif !important;
 }
+
+/* =========================
+   Contact
+   ========================= */
 
 .pub-contact {
     background:
@@ -463,8 +653,7 @@ body:has(.pub-site) #navbarNav .btn-dark {
 }
 
 .pub-contact p {
-    color: rgba(255,255,255,.68);
-    font-family: liFont, sans-serif !important;
+    color: rgba(255, 255, 255, .68);
     font-size: 18px;
     line-height: 1.85;
 }
@@ -477,30 +666,47 @@ body:has(.pub-site) #navbarNav .btn-dark {
 
 .pub-form {
     padding: 34px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.06);
-    box-shadow: 0 28px 80px rgba(0,0,0,.24);
+    border: 1px solid rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .06);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .24);
     backdrop-filter: blur(12px);
 }
 
 .pub-form .form-label {
-    color: rgba(255,255,255,.86);
-    font-family: liFont, sans-serif !important;
+    color: rgba(255, 255, 255, .86);
     font-weight: 850;
 }
 
 .pub-form .form-control {
     min-height: 50px;
     border-radius: 0;
-    border: 1px solid rgba(255,255,255,.18);
-    background: rgba(255,255,255,.94);
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .94);
     color: var(--pub-ink);
-    font-family: liFont, sans-serif !important;
 }
 
 .pub-form textarea.form-control {
     min-height: 156px;
 }
+
+/* =========================
+   Animation
+   ========================= */
+
+.pub-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 1s ease, transform 1s cubic-bezier(.16, 1, .3, 1);
+}
+
+.pub-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================
+   Responsive
+   ========================= */
 
 @media (max-width: 991px) {
     body:has(.pub-site) #mainNavbar > .container {
@@ -528,8 +734,14 @@ body:has(.pub-site) #navbarNav .btn-dark {
         grid-template-columns: 1fr 1fr;
     }
 
-    .pub-visual-card {
-        max-width: 580px;
+    .pub-book-stage {
+        height: 540px;
+        margin-left: 0;
+    }
+
+    .pub-3d-book {
+        width: 300px;
+        height: 430px;
     }
 }
 
@@ -559,163 +771,18 @@ body:has(.pub-site) #navbarNav .btn-dark {
     .pub-grid {
         grid-template-columns: 1fr;
     }
-}
 
-.pub-site {
-    background:
-        radial-gradient(circle at 80% 8%, rgba(181,138,58,.16), transparent 34rem),
-        radial-gradient(circle at 10% 85%, rgba(21,18,14,.10), transparent 30rem),
-        linear-gradient(135deg, #f5efe4 0%, #fffaf2 48%, #e9dfcf 100%) !important;
-}
-
-.pub-hero {
-    perspective: 1200px;
-}
-
-.pub-visual-card {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-
-.pub-visual-card::before {
-    display: none !important;
-}
-
-.pub-book-stack {
-    position: relative;
-    width: min(560px, 100%);
-    height: 620px;
-    margin-left: auto;
-}
-
-.pub-stack-book {
-    position: absolute;
-    width: 340px;
-    height: 470px;
-    background: #fffaf2;
-    border: 1px solid rgba(181,138,58,.28);
-    box-shadow: 0 34px 90px rgba(21,18,14,.22);
-    transform-style: preserve-3d;
-    transition: transform .35s ease, box-shadow .35s ease;
-    overflow: hidden;
-}
-
-.pub-stack-book img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.pub-stack-book.main {
-    right: 60px;
-    top: 34px;
-    z-index: 3;
-}
-
-.pub-stack-book.back-one {
-    right: 120px;
-    top: 82px;
-    z-index: 2;
-    transform: rotate(-7deg) translateZ(-40px);
-    opacity: .92;
-}
-
-.pub-stack-book.back-two {
-    right: 12px;
-    top: 112px;
-    z-index: 1;
-    transform: rotate(8deg) translateZ(-80px);
-    opacity: .72;
-}
-
-.pub-book-stack:hover .pub-stack-book.main {
-    transform: translateY(-12px) rotateY(-6deg);
-    box-shadow: 0 46px 120px rgba(21,18,14,.30);
-}
-
-.pub-book-stack:hover .pub-stack-book.back-one {
-    transform: translate(-22px, 8px) rotate(-10deg);
-}
-
-.pub-book-stack:hover .pub-stack-book.back-two {
-    transform: translate(22px, 14px) rotate(11deg);
-}
-
-.pub-paper-texture {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: .18;
-    background-image:
-        linear-gradient(rgba(21,18,14,.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(21,18,14,.025) 1px, transparent 1px);
-    background-size: 34px 34px;
-    mix-blend-mode: multiply;
-}
-
-.pub-reveal {
-    opacity: 0;
-    transform: translateY(26px);
-    transition: opacity .75s ease, transform .75s ease;
-}
-
-.pub-reveal.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.pub-book-card {
-    position: relative;
-}
-
-.pub-book-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(181,138,58,.22), transparent 42%);
-    transition: opacity .25s ease;
-}
-
-.pub-book-card:hover::after {
-    opacity: 1;
-}
-
-.pub-book-image img {
-    transform-origin: left center;
-}
-
-.pub-book-card:hover .pub-book-image img {
-    transform: scale(1.045) rotateY(-3deg);
-}
-
-@media (max-width: 991px) {
-    .pub-book-stack {
-        height: 520px;
-        margin: 0;
+    .pub-book-stage {
+        height: 430px;
     }
 
-    .pub-stack-book {
-        width: 290px;
-        height: 410px;
-    }
-}
-
-@media (max-width: 575px) {
-    .pub-book-stack {
-        height: 420px;
-    }
-
-    .pub-stack-book {
+    .pub-3d-book {
         width: 230px;
         height: 330px;
     }
 
-    .pub-stack-book.main {
-        right: 34px;
+    .pub-book-front {
+        right: 42px;
     }
 }
 </style>
@@ -750,18 +817,18 @@ body:has(.pub-site) #navbarNav .btn-dark {
         </div>
 
         <div class="pub-hero-visual pub-reveal">
-    <div class="pub-book-stack">
-        <div class="pub-paper-texture"></div>
+    <div class="pub-book-stage">
+        <div class="pub-light-orb"></div>
 
-        <div class="pub-stack-book back-one">
+        <div class="pub-3d-book pub-book-back">
             <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
         </div>
 
-        <div class="pub-stack-book back-two">
+        <div class="pub-3d-book pub-book-middle">
             <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
         </div>
 
-        <div class="pub-stack-book main">
+        <div class="pub-3d-book pub-book-front">
             <img src="https://bukinistebi.ge/uploads/logo/publishing_logo.jpg" alt="გამომცემლობა ბუკინისტები">
         </div>
     </div>
@@ -771,7 +838,7 @@ body:has(.pub-site) #navbarNav .btn-dark {
     <section class="pub-section pub-section-alt">
         <div class="pub-wrap">
             <div class="pub-section-head">
-                <h2 class="pub-section-title">რას აკეთებს გამომცემლობა?</h2>
+                <h2 class="pub-section-title" style="color: #362f2f !important;">რას აკეთებს გამომცემლობა?</h2>
                 <p class="pub-section-copy">
                     აქ შეგიძლიათ წარადგინოთ ტექსტები, მიიღოთ გამოცემის მიმართულებით პირველი კონსულტაცია და წიგნი საფუძვლიანად განიხილოთ. სივრცე აგებულია მარტივ, სუფთა და მკითხველისთვის კომფორტულ გამოცდილებაზე.
                 </p>
@@ -849,7 +916,7 @@ body:has(.pub-site) #navbarNav .btn-dark {
     <section class="pub-contact" id="about-publishing">
         <div class="pub-wrap pub-contact-grid">
             <div>
-                <h2 class="pub-section-title">გამოგვიგზავნეთ ტექსტი</h2>
+                <h2 class="pub-section-title" style="color: #070707 !important;">გამოგვიგზავნეთ ტექსტი</h2>
                 <p>
                     შეავსეთ ფორმა, ატვირთეთ ფაილი ან დაგვიტოვეთ შეტყობინება — თანამშრომლობის დეტალებით დაგიკავშირდებით.
                 </p>
@@ -900,7 +967,11 @@ body:has(.pub-site) #navbarNav .btn-dark {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.pub-hero-copy, .pub-section, .pub-book-card, .pub-contact-grid').forEach(function (el) {
+    const revealTargets = document.querySelectorAll(
+        '.pub-hero-copy, .pub-hero-visual, .pub-section, .pub-book-card, .pub-contact-grid'
+    );
+
+    revealTargets.forEach(function (el) {
         el.classList.add('pub-reveal');
     });
 
@@ -918,11 +989,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     window.addEventListener('scroll', function () {
-        const stack = document.querySelector('.pub-book-stack');
-        if (!stack) return;
+        const stage = document.querySelector('.pub-book-stage');
+        if (!stage) return;
 
-        const move = window.scrollY * 0.035;
-        stack.style.transform = 'translateY(' + move + 'px)';
+        const move = window.scrollY * 0.025;
+        stage.style.transform = 'translateY(' + move + 'px)';
     }, { passive: true });
 });
 </script>

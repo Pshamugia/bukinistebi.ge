@@ -377,7 +377,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
 
                     <a href="https://www.facebook.com/publishing.bukinistebi.ge" class="fb-icon-top" target="blank" aria-label="Visit Bukinistebi on Facebook"><i
                             class="bi bi-facebook fs-5"></i></a>
-                    <a href="#" class="insta-icon-top" target="blank"  aria-label="Visit Bukinistebi on Instagram"><i
+                    <a href="https://www.instagram.com/bukinistebi_publishing/" class="insta-icon-top" target="blank"  aria-label="Visit Bukinistebi on Instagram"><i
                             class="bi bi-instagram fs-5"></i></a>
 
                 </div>
