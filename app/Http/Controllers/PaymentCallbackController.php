@@ -344,19 +344,34 @@ class PaymentCallbackController extends Controller
                 return;
             }
 
-            if ((int) $auction->winner_id !== $userId) {
-                Log::warning('Auction payment winner mismatch', [
+            $isWinnerPayment = (int) $auction->winner_id === $userId;
+            $isBuyNowPayment = (int) $auction->buy_now_user_id === $userId
+                && $auction->buy_now_price !== null
+                && $auction->winner_id === null;
+
+            if (!$isWinnerPayment && !$isBuyNowPayment) {
+                Log::warning('Auction payment buyer mismatch', [
                     'auction_id' => $auctionId,
                     'winner_id' => $auction->winner_id,
+                    'buy_now_user_id' => $auction->buy_now_user_id,
                     'paid_user_id' => $userId,
                 ]);
                 return;
             }
 
-            $auction->update([
+            $updates = [
                 'is_paid' => true,
                 'is_active' => false,
-            ]);
+                'buy_now_reserved_until' => null,
+            ];
+
+            if ($isBuyNowPayment) {
+                $updates['winner_id'] = $userId;
+                $updates['current_price'] = $auction->buy_now_price;
+                $updates['bought_now_at'] = now();
+            }
+
+            $auction->update($updates);
 
             if ($auction->book && $auction->book->quantity > 0) {
                 $auction->book->decrement('quantity');

@@ -59,6 +59,17 @@
 
         $lastBid = $auction->bids->max('amount');
         $basePrice = $lastBid ?? $auction->start_price;
+        $buyNowReservationActive = $auction->buy_now_user_id
+            && $auction->buy_now_reserved_until
+            && $auction->buy_now_reserved_until->isFuture()
+            && !$auction->is_paid;
+        $buyNowReservedByMe = Auth::check()
+            && $buyNowReservationActive
+            && (int) $auction->buy_now_user_id === Auth::id();
+        $buyNowAvailable = $auction->buy_now_price
+            && $auction->is_active
+            && !$buyNowReservationActive
+            && $basePrice < $auction->buy_now_price;
     @endphp
 
 
@@ -245,7 +256,7 @@
                         <p><i class="bi bi-graph-up-arrow"></i> <strong>მიმდინარე ფასი:</strong>
 {{ number_format($auction->effective_current_price, 2) }} ₾
                         </p>
-                        @if($auction->buy_now_price && $auction->is_active)
+                        @if($buyNowAvailable)
                             <div class="alert alert-warning border-0 shadow-sm">
                                 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
                                     <div>
@@ -266,6 +277,22 @@
                                         </a>
                                     @endauth
                                 </div>
+                            </div>
+                        @endif
+
+                        @if($buyNowReservedByMe)
+                            <div class="alert alert-info border-0 shadow-sm">
+                                <strong>⚡ ბლიც-ყიდვა დაჯავშნილია თქვენთვის.</strong>
+                                <div class="small mb-2">გადახდა დაასრულეთ {{ $auction->buy_now_reserved_until->format('Y-m-d H:i') }}-მდე.</div>
+                                <form method="POST" action="{{ route('auction.payment') }}">
+                                    @csrf
+                                    <input type="hidden" name="auction_id" value="{{ $auction->id }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">გადახდის გაგრძელება</button>
+                                </form>
+                            </div>
+                        @elseif($buyNowReservationActive)
+                            <div class="alert alert-secondary border-0 shadow-sm">
+                                ⚡ ბლიც-ყიდვა დროებით დაჯავშნილია სხვა მომხმარებლისთვის.
                             </div>
                         @endif
                         <p><i class="bi bi-clock-history"></i> <strong>დასრულების დრო:</strong> <span id="countdown"></span>
@@ -441,7 +468,7 @@
 </div>
 
 
-    @if (!$auction->is_active)
+    @if (!$auction->is_active && !$buyNowReservationActive)
         <div class="alert alert-info mt-4">
             @if ($auction->winner_id === optional(Auth::user())->id)
                 🎉 You won this auction!

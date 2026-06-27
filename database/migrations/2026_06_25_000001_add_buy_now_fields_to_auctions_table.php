@@ -15,7 +15,8 @@ return new class extends Migration
                 ->after('winner_id')
                 ->constrained('users')
                 ->nullOnDelete();
-            $table->timestamp('bought_now_at')->nullable()->after('buy_now_user_id');
+            $table->timestamp('buy_now_reserved_until')->nullable()->after('buy_now_user_id');
+            $table->timestamp('bought_now_at')->nullable()->after('buy_now_reserved_until');
         });
     }
 
@@ -23,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('auctions', function (Blueprint $table) {
             $table->dropForeign(['buy_now_user_id']);
-            $table->dropColumn(['buy_now_price', 'buy_now_user_id', 'bought_now_at']);
+            $table->dropColumn(['buy_now_price', 'buy_now_user_id', 'buy_now_reserved_until', 'bought_now_at']);
         });
     }
 };

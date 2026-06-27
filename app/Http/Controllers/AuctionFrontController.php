@@ -119,6 +119,28 @@ public function index(Request $request)
         $auction = DB::transaction(function () use ($auction) {
             $lockedAuction = Auction::whereKey($auction->id)->lockForUpdate()->firstOrFail();
 
+            if ($lockedAuction->buy_now_reserved_until && $lockedAuction->buy_now_reserved_until->isPast() && !$lockedAuction->is_paid) {
+                $lockedAuction->update([
+                    'buy_now_user_id' => null,
+                    'buy_now_reserved_until' => null,
+                    'is_active' => $lockedAuction->is_approved && $lockedAuction->start_time <= now() && $lockedAuction->end_time > now(),
+                ]);
+
+                $lockedAuction->refresh();
+            }
+
+            if ($lockedAuction->buy_now_user_id && $lockedAuction->buy_now_reserved_until && $lockedAuction->buy_now_reserved_until->isFuture()) {
+                if ((int) $lockedAuction->buy_now_user_id !== Auth::id()) {
+                    return null;
+                }
+
+                $lockedAuction->update([
+                    'buy_now_reserved_until' => now()->addMinutes(15),
+                ]);
+
+                return $lockedAuction->fresh('book');
+            }
+
             if (!$lockedAuction->is_approved || !$lockedAuction->is_active || $lockedAuction->end_time <= now()) {
                 return null;
             }
@@ -127,20 +149,28 @@ public function index(Request $request)
                 return null;
             }
 
+            $effectiveCurrentPrice = $lockedAuction->bids()->max('amount') ?? $lockedAuction->start_price;
+
+            if ($effectiveCurrentPrice >= $lockedAuction->buy_now_price) {
+                return null;
+            }
+
+            if ($lockedAuction->buy_now_user_id && (int) $lockedAuction->buy_now_user_id !== Auth::id()) {
+                return null;
+            }
+
             $lockedAuction->update([
-                'current_price' => $lockedAuction->buy_now_price,
-                'winner_id' => Auth::id(),
                 'buy_now_user_id' => Auth::id(),
-                'bought_now_at' => now(),
+                'buy_now_reserved_until' => now()->addMinutes(15),
                 'is_active' => false,
             ]);
 
             return $lockedAuction->fresh('book');
         });
 
-        if (!$auction || $auction->winner_id !== Auth::id()) {
+        if (!$auction || (int) $auction->buy_now_user_id !== Auth::id()) {
             return back()->withErrors([
-                'buy_now' => 'აუქციონი უკვე დასრულებულია ან ბლიც-ფასი აღარ არის ხელმისაწვდომი.',
+                'buy_now' => 'აუქციონი უკვე დასრულებულია, დაჯავშნილია ან ბლიც-ფასი აღარ არის ხელმისაწვდომი.',
             ]);
         }
 

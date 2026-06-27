@@ -10,6 +10,16 @@ class ActivateAuctions extends Command
 
     public function handle()
     {
+        Auction::whereNotNull('buy_now_user_id')
+            ->whereNull('winner_id')
+            ->whereNull('bought_now_at')
+            ->where('is_paid', false)
+            ->where('buy_now_reserved_until', '<=', now())
+            ->update([
+                'buy_now_user_id' => null,
+                'buy_now_reserved_until' => null,
+            ]);
+
         $count = Auction::where('is_approved', true)
             ->where('is_active', false)
             ->where('start_time', '<=', now())

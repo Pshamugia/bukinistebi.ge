@@ -197,16 +197,25 @@ class TbcCheckoutController extends Controller
         if ($request->has('auction_id')) {
             $auction = \App\Models\Auction::with('book')->find($request->auction_id);
 
-            if (!$auction || $auction->winner_id !== Auth::id()) {
+            $isWinnerPayment = $auction && (int) $auction->winner_id === Auth::id();
+            $isBuyNowReservation = $auction
+                && (int) $auction->buy_now_user_id === Auth::id()
+                && $auction->buy_now_price !== null
+                && $auction->buy_now_reserved_until
+                && $auction->buy_now_reserved_until->isFuture()
+                && !$auction->is_paid;
+
+            if (!$isWinnerPayment && !$isBuyNowReservation) {
                 return back()->with('error', 'Unauthorized auction payment.');
             }
 
+            $paymentAmount = $isBuyNowReservation ? $auction->buy_now_price : $auction->current_price;
             $paymentId = 'AUC-PAY-' . Auth::id() . '-' . $auction->id . '-' . uniqid();
 
             $payload = [
                 'amount' => [
                     'currency' => 'GEL',
-                    'total' => number_format($auction->current_price, 0, '.', ''), // real amount
+                    'total' => number_format($paymentAmount, 0, '.', ''), // real amount
                 ],
                 'returnurl' => str_replace('http://', 'https://', route('auction.show', $auction)),
                 'callbackUrl' => str_replace('http://', 'https://', route('payment.callback.auction')),

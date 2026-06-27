@@ -73,8 +73,10 @@
                 <td>
                     @if(!$auction->is_approved)
                     <span class="badge bg-warning text-dark">მოლოდინში</span>
-                    @elseif($auction->buy_now_user_id)
+                    @elseif($auction->bought_now_at || $auction->is_paid)
                     <span class="badge bg-warning text-dark">ბლიცით გაყიდული</span>
+                    @elseif($auction->buy_now_user_id && $auction->buy_now_reserved_until && $auction->buy_now_reserved_until->isFuture())
+                    <span class="badge bg-info text-dark">ბლიც-რეზერვი</span>
                     @elseif($auction->is_active)
                     <span class="badge bg-success">აქტიური</span>
                     @else

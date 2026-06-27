@@ -20,6 +20,7 @@ protected $fillable = [
     'is_active',
     'winner_id',
     'buy_now_user_id',
+    'buy_now_reserved_until',
     'bought_now_at',
     'min_bid',
     'max_bid',
@@ -61,6 +62,7 @@ public function getEffectiveCurrentPriceAttribute()
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'buy_now_reserved_until' => 'datetime',
         'bought_now_at' => 'datetime',
     ];
 

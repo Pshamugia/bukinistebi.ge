@@ -158,7 +158,7 @@ $priceUp = $auction->effective_current_price > $auction->start_price;
                         </strong>
                     </div>
 
-                    @if($auction->buy_now_price)
+                    @if($auction->buy_now_price && $auction->effective_current_price < $auction->buy_now_price && !$auction->buy_now_user_id)
                         <div class="auction-price mt-2">
                             <span>⚡ ბლიც-ფასი</span>
                             <strong>{{ number_format($auction->buy_now_price, 2) }} ₾</strong>
