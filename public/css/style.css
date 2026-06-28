@@ -303,6 +303,23 @@ body.dark-mode .suggest-title {
         margin-right: 8px;
     }
 
+    .book-detail-page .book-card .toggle-cart-btn {
+        font-size: 13px !important;
+        line-height: 1.2;
+        padding: 7px 10px !important;
+        min-height: 34px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .book-detail-page .book-card .toggle-cart-btn i {
+        font-size: 15px !important;
+        margin-right: 0;
+    }
+
     .book-detail-page .quantity-input,
     .book-detail-page .input-group .btn {
         font-size: 14px !important;

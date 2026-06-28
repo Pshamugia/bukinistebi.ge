@@ -508,7 +508,8 @@ class TbcCheckoutController extends Controller
     $book     = \App\Models\Book::with('genres')->findOrFail($validated['book_id']);
     $quantity = (int) $validated['quantity'];
 
-    $subtotal = $book->price * $quantity;
+    $unitPrice = $book->sale > 0 ? $book->sale : $book->price;
+    $subtotal = $unitPrice * $quantity;
     $shipping = ($validated['city'] === 'თბილისი') ? 5.00 : 7.00;
     $total    = $subtotal + $shipping;
 
@@ -568,7 +569,7 @@ class TbcCheckoutController extends Controller
                 'order_id' => $order->id,
                 'book_id'  => $book->id,
                 'quantity' => $quantity,
-                'price'    => $book->price,
+                'price'    => $unitPrice,
                 'size'     => $validated['size'] ?? null,
             ]);
 
@@ -624,7 +625,7 @@ class TbcCheckoutController extends Controller
         'order_id' => $order->id,
         'book_id'  => $book->id,
         'quantity' => $quantity,
-        'price'    => $book->price,
+        'price'    => $unitPrice,
         'size'     => $validated['size'] ?? null,
     ]);
 

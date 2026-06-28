@@ -909,7 +909,7 @@ $('.toggle-cart-btn').click(function (event) {
                         const bubble    = document.getElementById('cart-bubble');
                         if (countEl && bubble) {
                             countEl.textContent = cartCount;
-                            bubble.style.display = cartCount > 0 ? 'inline-block' : 'none';
+                            bubble.style.display = cartCount > 0 ? 'inline-grid' : 'none';
                         }
                         document.cookie = cartCount > 0
                             ? "abandoned_cart=true; max-age=86400; path=/"

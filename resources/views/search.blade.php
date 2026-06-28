@@ -1,5 +1,10 @@
 @extends('layouts.app')
 @section('title', 'ბუკინისტები | ძიება')
+@push('head')
+<link rel="preload" href="/css/chosen.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/css/chosen.min.css"></noscript>
+@endpush
+
 @section('content')
 
 @if(request('lang'))
@@ -410,6 +415,7 @@
 
  
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
 <script>
 $(function() {
 

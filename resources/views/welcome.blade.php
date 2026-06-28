@@ -2,6 +2,10 @@
 
 @section('title', 'Bukinistebi.ge - ონლაინ მაღაზია')
 
+@push('head')
+<link rel="preload" as="image" href="{{ asset('uploads/book9.webp') }}" fetchpriority="high">
+@endpush
+
 @section('content')
 
 <style>
@@ -72,8 +76,57 @@
         color: #777;
     }
 
+    body.dark-mode .news-item {
+        border-bottom-color: rgba(255, 255, 255, 0.42);
+    }
+
+    body.dark-mode .news-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    body.dark-mode .news-title {
+        color: #f1f3f5 !important;
+        font-weight: 600 !important;
+    }
+
+    body.dark-mode .news-meta {
+        color: #c5c9cf !important;
+    }
+
+    body.dark-mode .news-thumb {
+        background: #2f3034;
+    }
+
+    body.dark-mode .section-title {
+        color: #f1f3f5 !important;
+    }
+
+    body.dark-mode .btn-light,
+    body.dark-mode .btn-outline-secondary {
+        background: #2f3034 !important;
+        border-color: #555962 !important;
+        color: #f1f3f5 !important;
+    }
+
+    body.dark-mode .btn-light:hover,
+    body.dark-mode .btn-outline-secondary:hover {
+        background: #3a3c42 !important;
+        border-color: #6a6f78 !important;
+        color: #fff !important;
+    }
+
     /* MOBILE POLISH */
     @media (max-width: 575.98px) {
+        .hero-section,
+        .fixed-background {
+            background-attachment: scroll !important;
+        }
+
+        .hero-section .hero-content {
+            top: 10px !important;
+            padding-top: 0 !important;
+        }
+
         .news-thumb {
             width: 70px;
             height: 105px;
@@ -88,9 +141,9 @@
 </style>
 
 <!-- Hero Section -->
-<div class="hero-section lazybg"
-    data-bg="{{ asset('uploads/book9.webp') }}"
+<div class="hero-section"
     style="
+        background-image: url('{{ asset('uploads/book9.webp') }}');
         background-attachment: fixed;
         background-size: cover;
         background-position: center center;
@@ -131,7 +184,7 @@
                             alt="{{ $book->title }}"
                             class="cover img-fluid"
                             style="border-radius: 8px 8px 0 0; object-fit: cover;"
-                            @if($index < 4)
+                            @if($index === 0)
                             loading="eager"
                             fetchpriority="high"
                             @else
@@ -298,7 +351,8 @@
                         @if($item->image)
                         <img src="{{ asset('storage/' . $item->image) }}"
                             alt="{{ $item->title }}"
-                            loading="lazy">
+                            loading="lazy"
+                            decoding="async">
                         @endif
                     </div>
 
@@ -357,7 +411,8 @@
             ? asset('storage/' . $mainImage)
             : asset('images/default-book.jpg') }}"
                             alt="{{ $auction->book?->title }}"
-                            loading="lazy">
+                            loading="lazy"
+                            decoding="async">
                     </div>
 
                     <div class="news-content">
@@ -407,6 +462,10 @@
                             @if (isset($book->photo))
                             <img src="{{ asset('storage/' . $book->photo) }}" alt="წიგნის სურათი"
                                 class="cover img-fluid"
+                                loading="lazy"
+                                decoding="async"
+                                width="50"
+                                height="50"
                                 style="border-radius: 4px; object-fit: cover; height: 50px; width: 50px; float:left; padding-right: 10px">
                             @endif
 
@@ -479,6 +538,10 @@ shuffle($partners);
         <div class="col-6 col-md-3 mb-4">
             <a href="{{ $partner['url'] }}" target="blank">
                 <img src="{{ $partner['image'] }}" alt="{{ $partner['alt'] }}" class="img-fluid partners"
+                    loading="lazy"
+                    decoding="async"
+                    width="180"
+                    height="60"
                     style="max-height: 60px;">
             </a>
         </div>

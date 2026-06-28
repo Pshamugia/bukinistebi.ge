@@ -15,6 +15,19 @@
             background-color: blue !important;
             color: white !important;
         }
+
+        @media (max-width: 767.98px) {
+            .site-content:has(.book-detail-page) {
+                margin-top: 18px !important;
+                padding-top: 10px !important;
+            }
+
+            .book-detail-page {
+                margin-top: 16px !important;
+                top: 12px !important;
+                padding-top: 0 !important;
+            }
+        }
     </style>
     <div class="container mt-5 book-detail-page" style="position: relative; padding-bottom: 5%; top:50px;">
         <div class="row">
@@ -1092,7 +1105,7 @@ $('.toggle-cart-btn').click(function(event) {
 
                             if (countEl && bubble) {
                                 countEl.textContent = cartCount;
-                                bubble.style.display = cartCount > 0 ? 'inline-block' : 'none';
+                                bubble.style.display = cartCount > 0 ? 'inline-grid' : 'none';
                             }
 
                             if (cartCount > 0) {

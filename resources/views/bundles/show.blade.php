@@ -419,7 +419,7 @@ style="z-index: 9999999999 !important">
         const bubble  = document.getElementById('cart-bubble');
         if (countEl && bubble) {
           countEl.textContent = resp.cart_count;
-          bubble.style.display = resp.cart_count > 0 ? 'inline-block' : 'none';
+          bubble.style.display = resp.cart_count > 0 ? 'inline-grid' : 'none';
         }
       })
       .fail(function (xhr) {
