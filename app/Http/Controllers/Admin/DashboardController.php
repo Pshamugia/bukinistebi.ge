@@ -22,24 +22,27 @@ class DashboardController extends Controller
                     return $query->whereBetween('created_at', [$startDate, $endDate]);
                 })
                 ->selectRaw('COALESCE(SUM(price * quantity), 0) as total_value')
+                ->selectRaw('COALESCE(SUM((price - COALESCE(acquisition_price, 0)) * quantity), 0) as potential_profit')
                 ->selectRaw('COALESCE(AVG(price), 0) as average_price')
                 ->selectRaw('COALESCE(SUM(quantity), 0) as total_quantity')
                 ->first();
         });
 
         $totalValueOfProducts = (float) $bookTotals->total_value;
+        $potentialProfit = (float) $bookTotals->potential_profit;
         $averagePriceOfProducts = (float) $bookTotals->average_price;
         $totalQuantityOfProducts = (int) $bookTotals->total_quantity;
     
-        // Cache the total sales profit
+        // Profit is revenue minus acquisition cost. Missing acquisition cost means zero cost.
         $totalSalesProfit = Cache::remember("total_sales_profit_{$cacheSuffix}", 60, function () use ($startDate, $endDate) {
             return DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->leftJoin('books', 'books.id', '=', 'order_items.book_id')
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 })
-                ->where('orders.status', 'delivered')
-                ->sum(DB::raw('order_items.price * order_items.quantity * 0.3'));
+                ->whereIn('orders.status', ['delivered', 'Succeeded'])
+                ->sum(DB::raw('(order_items.price - COALESCE(books.acquisition_price, 0)) * order_items.quantity'));
         });
     
         // Cache the average profit per unit
@@ -48,13 +51,14 @@ class DashboardController extends Controller
         $averageProfitPerUnit = Cache::remember("average_profit_per_unit_{$cacheSuffix}", 60, function () use ($startDate, $endDate) {
             $query = DB::table('order_items')
                 ->join('orders', 'order_items.order_id', '=', 'orders.id')
-                ->where('orders.status', 'delivered') // ✅ Change this!
+                ->leftJoin('books', 'books.id', '=', 'order_items.book_id')
+                ->whereIn('orders.status', ['delivered', 'Succeeded'])
                 ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                     return $query->whereBetween('orders.created_at', [$startDate, $endDate]);
                 });
         
             $totals = $query
-                ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity * 0.3), 0) as total_profit')
+                ->selectRaw('COALESCE(SUM((order_items.price - COALESCE(books.acquisition_price, 0)) * order_items.quantity), 0) as total_profit')
                 ->selectRaw('COALESCE(SUM(order_items.quantity), 0) as total_quantity')
                 ->first();
         
@@ -147,6 +151,7 @@ class DashboardController extends Controller
     
         return view('admin.dashboard', compact(
             'totalValueOfProducts',
+            'potentialProfit',
             'averagePriceOfProducts',
             'totalQuantityOfProducts',
             'totalSalesProfit',
@@ -162,3 +167,4 @@ class DashboardController extends Controller
     
 
 }
+

@@ -199,28 +199,6 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
     font-weight: 700;
     text-decoration: underline;
 }
-
-
-.book-card {
-    position: relative;
-}
-
-.book-hover-title {
-    min-height: 28px;
-    line-height: 1.25;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .book-hover-title {
-        min-height: auto !important;
-        white-space: normal !important;
-        overflow: visible !important;
-    }
-}
-
-
-
             
         </style>
     @endif
@@ -250,6 +228,56 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
     @endif
 
     <style>
+        .book-card {
+            position: relative;
+        }
+
+        .book-hover-title {
+            min-height: 28px;
+            line-height: 1.25;
+            position: relative;
+        }
+
+        @media (min-width: 769px) {
+            .has-collapsed-title .book-hover-title {
+                cursor: pointer;
+            }
+
+            .has-collapsed-title .book-hover-title::after {
+                content: attr(title);
+                display: none;
+                position: absolute;
+                top: -8px;
+                right: -12px;
+                left: -12px;
+                z-index: 20;
+                padding: 8px 12px;
+                box-sizing: border-box;
+                background: #fff;
+                border-radius: 6px;
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+                color: inherit;
+                font: inherit;
+                line-height: inherit;
+                white-space: normal;
+                overflow: visible;
+                overflow-wrap: anywhere;
+                pointer-events: none;
+            }
+
+            .has-collapsed-title:hover .book-hover-title::after {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .book-hover-title {
+                min-height: auto !important;
+                white-space: normal !important;
+                overflow: visible !important;
+            }
+        }
+
         .auction-top-item {
             margin: 0 12px 0 4px;
         }
@@ -2389,15 +2417,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // მხოლოდ desktop-ზე ვამუშავებთ hover-ს
         if (window.innerWidth > 768) {
-            title.textContent = title.getAttribute('data-short');
+            const shortTitle = title.getAttribute('data-short') || '';
+            const fullTitle = title.getAttribute('title') || '';
 
-            card.addEventListener('mouseenter', function () {
-                title.textContent = title.getAttribute('data-full');
-            });
+            title.textContent = shortTitle;
+            title.style.height = title.offsetHeight + 'px';
 
-            card.addEventListener('mouseleave', function () {
-                title.textContent = title.getAttribute('data-short');
-            });
+            if (shortTitle !== fullTitle) {
+                card.classList.add('has-collapsed-title');
+            }
         }
     });
 });

@@ -31,7 +31,7 @@
              <div class="card-body">
 <h4 class="font-weight-bold book-hover-title"
     data-short="{{ \Illuminate\Support\Str::limit($book->title, 22) }}"
-    data-full="{{ e($book->title) }}">
+    title="{{ $book->title }}">
     {{ $book->title }}
 </h4>                                      {{-- Author --}}
                             <p class="text-muted mb-2" style="font-size: 14px;">
