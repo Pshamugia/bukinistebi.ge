@@ -217,4 +217,6 @@
   .card, .table { box-shadow: none !important; }
 }
 </style>
+
+@include('partials.ga-purchase', ['order' => $order])
 @endsection

@@ -364,6 +364,8 @@
               </div>
             </div>
 
+            @include('partials.delivery-map-picker')
+
             <div class="d-grid">
               <button type="submit" class="btn btn-primary">
                 <i class="bi bi-check-circle"></i> {{ __('messages.orderProduct') }}

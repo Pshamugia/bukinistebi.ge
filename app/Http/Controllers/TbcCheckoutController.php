@@ -28,6 +28,8 @@ class TbcCheckoutController extends Controller
             'name'           => 'required|string|max:255',
             'phone'          => ['required', 'digits:9'],
             'address'        => 'required|string|max:255',
+            'delivery_latitude'  => 'nullable|numeric|between:-90,90',
+            'delivery_longitude' => 'nullable|numeric|between:-180,180',
             'city'           => 'required|string',
         ]);
 
@@ -89,6 +91,8 @@ class TbcCheckoutController extends Controller
             'phone'          => $validated['phone'],          // keep your original format
             'email'          => optional(Auth::user())->email, // NEW
             'address'        => $validated['address'],
+            'delivery_latitude'  => $validated['delivery_latitude'] ?? null,
+            'delivery_longitude' => $validated['delivery_longitude'] ?? null,
             'city'           => $validated['city'],
         ]);
 
@@ -484,6 +488,8 @@ class TbcCheckoutController extends Controller
         'phone'   => ['required', 'digits:9'],
         'email'   => Auth::check() ? 'nullable|email' : 'required|email',
         'address' => 'required|string|max:255',
+        'delivery_latitude'  => 'nullable|numeric|between:-90,90',
+        'delivery_longitude' => 'nullable|numeric|between:-180,180',
         'city'    => 'required|string',
 
         'size' => 'nullable|string|in:XS,S,M,L,XL,XXL,XXXL',
@@ -561,6 +567,8 @@ class TbcCheckoutController extends Controller
                 'phone'   => '+995' . $validated['phone'],
                 'email'   => $customerEmail,
                 'address' => $validated['address'],
+                'delivery_latitude'  => $validated['delivery_latitude'] ?? null,
+                'delivery_longitude' => $validated['delivery_longitude'] ?? null,
                 'city'    => $validated['city'],
             ]);
 
@@ -618,6 +626,8 @@ class TbcCheckoutController extends Controller
         'phone'   => '+995' . $validated['phone'],
         'email'   => $customerEmail,
         'address' => $validated['address'],
+        'delivery_latitude'  => $validated['delivery_latitude'] ?? null,
+        'delivery_longitude' => $validated['delivery_longitude'] ?? null,
         'city'    => $validated['city'],
     ]);
 
@@ -654,6 +664,8 @@ class TbcCheckoutController extends Controller
             'phone'          => ['required', 'regex:/^5\d{8}$/'],  // 9 digits starting with 5
             'city'           => 'required|string',
             'address'        => 'required|string|max:255',
+            'delivery_latitude'  => 'nullable|numeric|between:-90,90',
+            'delivery_longitude' => 'nullable|numeric|between:-180,180',
             'quantity'       => 'required|integer|min:1',
             // if you added an email field in the form:
             'email'          => Auth::check() ? 'nullable|email' : 'nullable|email',
@@ -693,6 +705,8 @@ class TbcCheckoutController extends Controller
             'email'          => $customerEmail, // NEW
             'city'           => $data['city'],
             'address'        => $data['address'],
+            'delivery_latitude'  => $data['delivery_latitude'] ?? null,
+            'delivery_longitude' => $data['delivery_longitude'] ?? null,
             'subtotal'       => $subtotal,
             'shipping'       => $shipping,
             'total'          => $total,

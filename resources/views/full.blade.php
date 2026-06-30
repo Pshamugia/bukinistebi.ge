@@ -16,6 +16,221 @@
             color: white !important;
         }
 
+        .book-detail-page .purchase-panel {
+            --purchase-control-width: 312px;
+            width: fit-content;
+            max-width: 100%;
+            height: 100%;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .book-detail-page .product-price {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+
+        .book-detail-page .product-price #price {
+            font-size: 30px !important;
+            font-weight: 800 !important;
+            line-height: 1;
+        }
+
+        .book-detail-page .product-price .price-currency {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .book-detail-page .product-price .old-price {
+            color: #8a94a6;
+            font-size: 15px;
+            text-decoration: line-through;
+        }
+
+        .book-detail-page .quantity-control {
+            margin-bottom: 14px;
+        }
+
+        .book-detail-page .quantity-control .input-group {
+            width: var(--purchase-control-width) !important;
+            max-width: 100%;
+            height: 42px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .book-detail-page .quantity-control .btn,
+        .book-detail-page .quantity-control .form-control {
+            border: 0;
+            height: 40px;
+            box-shadow: none !important;
+        }
+
+        .book-detail-page .quantity-control .btn {
+            width: 44px;
+            color: #334155;
+            background: #f8fafc;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .book-detail-page .quantity-control .btn:hover {
+            background: #eef2f7;
+        }
+
+        .book-detail-page .quantity-input {
+            color: #111827;
+            font-weight: 700;
+            background: #fff !important;
+        }
+
+        .book-detail-page .purchase-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1.28fr) minmax(0, 0.9fr);
+            gap: 10px;
+            width: var(--purchase-control-width);
+            max-width: 100%;
+        }
+
+        .book-detail-page .purchase-actions .btn {
+            width: 100% !important;
+            min-width: 0;
+            min-height: 42px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 10px;
+            font-size: 13px !important;
+            font-weight: 700;
+            letter-spacing: 0;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: visible;
+            border: 0;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+
+        .book-detail-page .purchase-actions .btn i,
+        .book-detail-page .purchase-actions .btn span {
+            min-width: 0;
+        }
+
+        .book-detail-page .purchase-actions .btn:only-child {
+            grid-column: 1 / -1;
+        }
+
+        .book-detail-page .purchase-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+        }
+
+        .book-detail-page .purchase-actions .btn-success {
+            background: #15803d !important;
+        }
+
+        .book-detail-page .purchase-actions .direct-play-btn {
+            margin-top: 0 !important;
+            background: #f5b700 !important;
+            color: #111827 !important;
+        }
+
+        .book-detail-page .deliveryFull .delivery-card {
+            width: 100%;
+            height: 100%;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        .book-detail-page .delivery-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .book-detail-page .delivery-card p {
+            margin: 0;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .book-detail-page .delivery-card p:first-child {
+            margin-bottom: 12px;
+            color: #111827;
+            font-size: 16px;
+        }
+
+        .book-detail-page .delivery-card p + p {
+            padding-top: 11px;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .book-detail-page .delivery-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 11px 0;
+            border-top: 1px solid #eef2f7;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .book-detail-page .delivery-row strong {
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        .book-detail-page #direct-pay-form form {
+            border-radius: 8px !important;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+        }
+
+        .book-detail-page .purchase-summary-row {
+            align-items: stretch !important;
+        }
+
+        .book-detail-page .purchase-summary-row > .col-md-6 {
+            display: flex;
+        }
+
+        .book-detail-page .description-card {
+            padding: 26px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+            color: #1f2937;
+            line-height: 1.75;
+        }
+
+        .book-detail-page .description-card span,
+        .book-detail-page .description-card p {
+            color: inherit;
+        }
+
+        .book-detail-page #thumbnailImage,
+        .book-detail-page #modalImage {
+            touch-action: pan-y;
+        }
+
         @media (max-width: 767.98px) {
             .site-content:has(.book-detail-page) {
                 margin-top: 18px !important;
@@ -27,6 +242,42 @@
                 top: 12px !important;
                 padding-top: 0 !important;
             }
+
+            .book-detail-page .purchase-panel {
+                --purchase-control-width: min(312px, 100%);
+                max-width: none;
+                padding: 18px;
+            }
+
+            .book-detail-page .purchase-actions .btn {
+                font-size: 11px !important;
+                gap: 4px;
+                padding-inline: 5px;
+            }
+
+            .book-detail-page .purchase-actions .btn i {
+                font-size: 13px;
+            }
+
+            .book-detail-page .purchase-actions {
+                grid-template-columns: minmax(0, 1.38fr) minmax(0, 0.88fr);
+                gap: 8px;
+                justify-self: start;
+            }
+
+            .book-detail-page .purchase-actions .bi-cart-plus {
+                font-size: 18px;
+                line-height: 1;
+            }
+
+            .book-detail-page .product-price #price {
+                font-size: 26px !important;
+            }
+
+            .book-detail-page .description-card {
+                padding: 20px;
+            }
+
         }
     </style>
     <div class="container mt-5 book-detail-page" style="position: relative; padding-bottom: 5%; top:50px;">
@@ -235,27 +486,28 @@
                         <span> {{ $book->author->getLocalizedName() }} </span>
                     </a>
                 </p>
-                <div class="row align-items-start" style="padding-bottom:20px">
+                <div class="row align-items-start purchase-summary-row" style="padding-bottom:20px">
                     <!-- Left side -->
                     <div class="col-md-6">
+                        <div class="purchase-panel">
                         @if ($book->quantity > 0)
-                            <p>
+                            <div class="product-price">
 @if ($book->sale > 0)
-        <span id="price" style="font-size: 22px; font-weight:bold;">
+        <span id="price">
             {{ number_format($book->sale) }}
         </span>
-        <span>{{ __('messages.lari') }}</span>
+        <span class="price-currency">{{ __('messages.lari') }}</span>
 
-        <span style="text-decoration: line-through; color:#888; margin-left:10px;">
+        <span class="old-price">
             {{ number_format($book->price) }} {{ __('messages.lari') }}
         </span>
     @else
-        <span id="price" style="font-size: 20px;">
+        <span id="price">
             {{ number_format($book->price) }}
         </span>
-        <span>{{ __('messages.lari') }}</span>
+        <span class="price-currency">{{ __('messages.lari') }}</span>
     @endif
-</p>
+</div>
                         @else
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-x-circle text-danger"></i>
@@ -266,8 +518,8 @@
                         @endif
 
                         <!-- Quantity Selector -->
-                        <div class="mb-3">
-                            <div class="input-group" style="width: 200px;">
+                        <div class="quantity-control">
+                            <div class="input-group">
                                 <button class="btn btn-outline-secondary decrease-quantity btn-sm"
                                     type="button">-</button>
                                 <input type="text" class="form-control form-control-sm text-center quantity-input"
@@ -284,13 +536,14 @@
                             </div>
                         </div>
 
+                        <div class="purchase-actions">
                         <!-- Add to Cart Button -->
                         @if ($book->quantity >= 1)
                             @if (!auth()->check() || auth()->user()->role !== 'publisher')
                                 @if (in_array($book->id, $cartItemIds))
                                     <button class="btn btn-success toggle-cart-btn" data-product-id="{{ $book->id }}"
                                         data-in-cart="true" data-book-title="{{ $book->title }}"
-data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}" style="width: 200px; font-size: 15px">
+data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}">
                                         <i class="bi bi-check-circle"></i> <span
                                             class="cart-btn-text">{{ __('messages.added') }}</span>
                                     </button>
@@ -299,7 +552,7 @@ data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}" style="widt
 data-product-id="{{ $book->id }}"
 data-book-title="{{ $book->title }}"
 data-book-price="{{ $book->sale > 0 ? $book->sale : $book->price }}"
-data-in-cart="false"                                        style="width: 200px; font-size: 14px">
+data-in-cart="false">
                                         <i class="bi bi-cart-plus"></i> <span
                                             class="cart-btn-text">{{ __('messages.addtocart') }}</span>
                                     </button>
@@ -311,15 +564,16 @@ data-in-cart="false"                                        style="width: 200px;
 
                         @if ($book->quantity >= 1)
                             <!-- Direct Pay Button -->
-                            <button class="btn btn-warning mt-2 direct-play-btn" id="direct-pay-toggle"
-                                style="width: 200px;">
+                            <button class="btn btn-warning direct-play-btn" id="direct-pay-toggle">
                                 <i class="bi bi-credit-card"></i> {{ __('messages.directPay') }}
                             </button>
                         @endif
+                        </div>
 
 
 
 
+                        </div>
                     </div>
 
 
@@ -535,6 +789,8 @@ data-in-cart="false"                                        style="width: 200px;
                                 <input type="text" name="address" class="form-control" required>
                             </div>
 
+                            @include('partials.delivery-map-picker')
+
                             <div class="text-center mt-3" style="padding: 20px;">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-circle"></i> {{ __('messages.directPay') }}
@@ -546,8 +802,8 @@ data-in-cart="false"                                        style="width: 200px;
 
                     <!-- Right side: Delivery info -->
                     <div class="col-md-6 deliveryFull">
-                        <div class="border rounded p-3 mt-3 mt-md-0"
-                            style=" box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+                        <div class="border rounded p-3 mt-3 mt-md-0 delivery-card"
+                            style="">
                             <span>
                                 <p>🚚 <strong>მიწოდება</strong></p>
                                 <p>თბილისი: 5 ლარი / 2 სამუშაო დღე</p>
@@ -571,7 +827,7 @@ data-in-cart="false"                                        style="width: 200px;
         {{ __('messages.description') }}
     </h4>
 
-    <div style="border:1px solid rgb(226, 226, 226); padding:20px; margin-top:20px; border-radius:3px;">
+    <div class="description-card" style="margin-top:20px;">
        <span>  {!! $book->description ?? 'აღწერა არ არის დამატებული.' !!} </span>
     </div>
 </div>
@@ -700,8 +956,9 @@ data-in-cart="false"                                        style="width: 200px;
                     @endif
 
                 </div>
-            </div>
-        </div>
+                        </div>
+                    </div>
+                    </div>
 
 
 
@@ -909,40 +1166,124 @@ document.addEventListener('DOMContentLoaded', function () {
                 let currentIndex = 0; // Track the currently displayed image index
 
                 const modalImage = document.getElementById('modalImage');
+                const mainImage = document.getElementById('thumbnailImage');
                 const prevArrow = document.getElementById('prevArrow');
                 const nextArrow = document.getElementById('nextArrow');
 
-                // Update the modal image source
-                function updateModalImage(index) {
+                function normalizeImageUrl(url) {
+                    return new URL(url, window.location.href).href;
+                }
+
+                function findImageIndex(imageUrl) {
+                    const normalizedImageUrl = normalizeImageUrl(imageUrl);
+
+                    return images.findIndex((url) => normalizeImageUrl(url) === normalizedImageUrl);
+                }
+
+                // Update the gallery image source
+                function updateGalleryImage(index, syncMainImage = false) {
+                    if (!images.length) {
+                        return;
+                    }
+
+                    if (index < 0) {
+                        index = images.length - 1;
+                    }
+
+                    if (index >= images.length) {
+                        index = 0;
+                    }
+
                     currentIndex = index;
                     modalImage.src = images[currentIndex];
+
+                    if (syncMainImage && mainImage) {
+                        mainImage.src = images[currentIndex];
+                    }
+                }
+
+                function showNextImage(syncMainImage = false) {
+                    updateGalleryImage(currentIndex + 1, syncMainImage);
+                }
+
+                function showPreviousImage(syncMainImage = false) {
+                    updateGalleryImage(currentIndex - 1, syncMainImage);
+                }
+
+                function addSwipeNavigation(element, syncMainImage = false) {
+                    if (!element || images.length < 2) {
+                        return;
+                    }
+
+                    let startX = 0;
+                    let startY = 0;
+
+                    element.addEventListener('touchstart', function(event) {
+                        if (event.touches.length !== 1) {
+                            return;
+                        }
+
+                        startX = event.touches[0].clientX;
+                        startY = event.touches[0].clientY;
+                    }, { passive: true });
+
+                    element.addEventListener('touchend', function(event) {
+                        if (!startX || !startY) {
+                            return;
+                        }
+
+                        const endTouch = event.changedTouches[0];
+                        const diffX = endTouch.clientX - startX;
+                        const diffY = endTouch.clientY - startY;
+                        const isHorizontalSwipe = Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.4;
+
+                        startX = 0;
+                        startY = 0;
+
+                        if (!isHorizontalSwipe) {
+                            return;
+                        }
+
+                        if (diffX < 0) {
+                            showNextImage(syncMainImage);
+                        } else {
+                            showPreviousImage(syncMainImage);
+                        }
+                    }, { passive: true });
                 }
 
                 // Handle clicking the left (previous) arrow
                 prevArrow.addEventListener('click', function() {
-                    if (currentIndex > 0) {
-                        updateModalImage(currentIndex - 1);
-                    } else {
-                        updateModalImage(images.length - 1); // Loop to the last image
-                    }
+                    showPreviousImage();
                 });
 
                 // Handle clicking the right (next) arrow
                 nextArrow.addEventListener('click', function() {
-                    if (currentIndex < images.length - 1) {
-                        updateModalImage(currentIndex + 1);
-                    } else {
-                        updateModalImage(0); // Loop back to the first image
-                    }
+                    showNextImage();
                 });
 
                 // Sync modal image with the main image on click
                 const thumbnails = document.querySelectorAll('.small-thumbnail');
-                thumbnails.forEach((thumbnail, index) => {
+                thumbnails.forEach((thumbnail) => {
                     thumbnail.addEventListener('click', function() {
-                        updateModalImage(index); // Update modal image to match clicked thumbnail
+                        const thumbnailIndex = findImageIndex(thumbnail.src);
+
+                        if (thumbnailIndex >= 0) {
+                            updateGalleryImage(thumbnailIndex, true);
+                        }
                     });
                 });
+
+                if (mainImage) {
+                    const initialMainImageIndex = findImageIndex(mainImage.src);
+
+                    if (initialMainImageIndex >= 0) {
+                        currentIndex = initialMainImageIndex;
+                    }
+                }
+
+                addSwipeNavigation(mainImage, true);
+                addSwipeNavigation(modalImage);
             });
 
 
@@ -1016,6 +1357,14 @@ const pricePerUnit = {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }
                     }, 500); // Match transition duration
                 }
 
+                function getStockWarningText() {
+                    if (maxQuantity <= 0) {
+                        return 'მარაგი ამოწურულია';
+                    }
+
+                    return 'მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.';
+                }
+
                 increaseButton.addEventListener('click', function() {
                     let currentQuantity = parseInt(quantityInput.value);
 
@@ -1028,7 +1377,7 @@ const pricePerUnit = {{ (float) ($book->sale > 0 ? $book->sale : $book->price) }
                         hideWarning();
                     } else {
                         // User tries to go above max
-                        showWarning('მარაგში გვაქვს მხოლოდ ' + maxQuantity + ' ეგზემპლარი.');
+                        showWarning(getStockWarningText());
                     }
                 });
 

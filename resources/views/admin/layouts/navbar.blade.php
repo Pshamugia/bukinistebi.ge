@@ -1,12 +1,37 @@
 <style>
     .admin-mobile-navbar {
         min-height: var(--admin-mobile-header-height, 64px);
-        z-index: 1040;
+        z-index: 1080;
+    }
+
+    .admin-mobile-navbar .container-fluid {
+        align-items: center;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: .75rem;
+        justify-content: space-between;
+        min-width: 0;
     }
 
     .admin-mobile-navbar .navbar-brand img {
         max-height: 38px;
+        max-width: min(190px, calc(100vw - 96px));
+        object-fit: contain;
         width: auto;
+    }
+
+    .admin-mobile-navbar .navbar-brand {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .admin-mobile-navbar .navbar-toggler {
+        display: inline-flex;
+        flex: 0 0 auto;
+        margin-left: auto;
+        position: relative;
+        z-index: 1090;
     }
 
     .sidebar {

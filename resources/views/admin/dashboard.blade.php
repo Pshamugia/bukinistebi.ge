@@ -2,199 +2,145 @@
 
 @section('title', 'Admin Dashboard')
 
-@section('content')  
+@push('styles')
+<style>
+    .dashboard-page {
+        color: #172033;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+        padding-bottom: 28px;
+    }
+    .dashboard-page * {
+        min-width: 0;
+    }
+    .dashboard-hero, .dashboard-panel, .dashboard-filter, .kpi-card {
+        background: #fff;
+        border: 1px solid #e6eaf0;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+    .dashboard-hero { padding: 22px; }
+    .dashboard-title { font-size: 1.45rem; font-weight: 800; margin: 0; overflow-wrap: anywhere; }
+    .dashboard-muted { color: #667085; font-size: .92rem; }
+    .kpi-card { padding: 18px; height: 100%; position: relative; overflow: hidden; }
+    .kpi-card::after { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: #2563eb; }
+    .kpi-label { color: #667085; font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .kpi-value { color: #0f172a; font-size: 1.42rem; font-weight: 900; line-height: 1.15; margin-top: 10px; overflow-wrap: anywhere; }
+    .kpi-sub { color: #667085; font-size: .88rem; margin-top: 8px; }
+    .dashboard-filter { background: #f8fafc; padding: 16px; box-shadow: none; }
+    .dashboard-panel { padding: 18px; height: 100%; }
+    .panel-heading { align-items: center; display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .panel-title { font-size: 1.02rem; font-weight: 800; margin: 0; }
+    .orders-chart { height: 260px; display: flex; align-items: flex-end; gap: 12px; max-width: 100%; overflow-x: auto; padding: 24px 10px 8px; border-bottom: 1px solid #e6eaf0; }
+    .chart-col { flex: 1 0 34px; text-align: center; }
+    .chart-track { height: 190px; display: flex; align-items: flex-end; }
+    .chart-bar { width: 100%; min-height: 3px; background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 6px 6px 0 0; }
+    .chart-month { color: #667085; font-size: .78rem; margin-top: 9px; }
+    .chart-value { color: #1f2937; font-size: .82rem; font-weight: 700; }
+    .dashboard-table { margin-bottom: 0; }
+    .dashboard-table thead th { background: #f8fafc; color: #475467; font-size: .78rem; letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; }
+    .dashboard-table tbody td { color: #1f2937; vertical-align: middle; }
+    .rank-badge { align-items: center; background: #eff6ff; border-radius: 999px; color: #1d4ed8; display: inline-flex; font-size: .75rem; font-weight: 800; height: 26px; justify-content: center; width: 26px; }
+    .money { color: #0f172a; font-weight: 800; white-space: nowrap; }
+    .table-name { font-weight: 700; max-width: 460px; }
+    .dashboard-scroll { overflow-x: auto; }
+    @media (max-width: 767.98px) {
+        .dashboard-hero { padding: 16px; }
+        .dashboard-title { font-size: 1.22rem; }
+        .dashboard-muted,
+        .kpi-sub {
+            overflow-wrap: anywhere;
+        }
+        .orders-chart { gap: 7px; padding-left: 2px; padding-right: 2px; }
+        .chart-col { flex-basis: 24px; }
+    }
+</style>
+@endpush
 
-@if(auth()->user()->hasAdminPermission(permission: 'orders.manage'))
+@section('content')
+@php
+    $monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    $dateRangeText = request('start_date') || request('end_date')
+        ? trim((request('start_date') ?: 'დასაწყისი') . ' - ' . (request('end_date') ?: 'დღემდე'))
+        : 'ყველა პერიოდი';
+@endphp
 
-<div style="padding: 2px 22px 22px; border-radius:5px; border:1px solid #ccc; background-color: #ccc"> 
-    <div class="row mt-4">
-        <div style="position: relative; top:-10px">
-            <h5> <i class="bi bi-calculator"></i>  ბუღალტერია</h5>
-        </div>
-        <!-- Total Value of Products -->
-        <div class="col-md-3">
-            <div class="card bg-light mb-3">
-                <div class="card-header">ჯამური პროდუქციის სრული ფასი</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ number_format($totalValueOfProducts, 2) }} ლარი </h5>
-                </div>
+<div class="dashboard-page">
+    <div class="dashboard-hero mb-4">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div>
+                <div class="dashboard-muted mb-1">ადმინისტრაციის ანალიტიკა</div>
+                <h1 class="dashboard-title">ბუღალტერია და გაყიდვების სურათი</h1>
+                <div class="dashboard-muted mt-2">სწრაფად ნახეთ მარაგის ღირებულება, რეალური გაყიდვები, საუკეთესო მომხმარებლები და ბესტსელერები.</div>
             </div>
-        </div>
-
-        <!-- Average Price of Products -->
-        <div class="col-md-3">
-            <div class="card bg-light mb-3">
-                <div class="card-header">საშუალო ფასი თითო პროდუქტზე</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ number_format($averagePriceOfProducts, 2) }} ლარი </h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Quantity of Products -->
-        <div class="col-md-3">
-            <div class="card bg-light mb-3">
-                <div class="card-header">პროდუქციის სრული რაოდენობა</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ $totalQuantityOfProducts }}</h5>
-                </div>
-            </div>
-        </div>
-
-        <!-- Total Sales Profit -->
-        <div class="col-md-3">
-            <div class="card bg-light mb-3">
-                <div class="card-header">პოტენციური მოგება ჯამურად </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ number_format($totalValueOfProducts * 0.3, 2) }} ლარი </h5>
-                </div>
-            </div>
+            <span class="badge text-bg-light border px-3 py-2">{{ $dateRangeText }}</span>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <!-- Average Profit per Unit -->
-        <div class="col-md-3">
-            <div class="card bg-light mb-3">
-                <div class="card-header">საშუალო მოგება თითო პროდუქტზე</div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ number_format($averageProfitPerUnit, 2) }} ლარი</h5>
+    @if(auth()->user()->hasAdminPermission(permission: 'orders.manage'))
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">პროდუქციის სრული ფასი</div><div class="kpi-value">{{ number_format($totalValueOfProducts, 2) }} ლარი</div><div class="kpi-sub">მარაგის სრული ღირებულება</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">საშუალო ფასი</div><div class="kpi-value">{{ number_format($averagePriceOfProducts, 2) }} ლარი</div><div class="kpi-sub">ერთ პროდუქტზე</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">პროდუქციის რაოდენობა</div><div class="kpi-value">{{ number_format($totalQuantityOfProducts) }}</div><div class="kpi-sub">საწყობში არსებული ერთეული</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">პოტენციური მოგება</div><div class="kpi-value">{{ number_format($totalValueOfProducts * 0.3, 2) }} ლარი</div><div class="kpi-sub">30% მარჟით დათვლილი</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">საშუალო მოგება</div><div class="kpi-value">{{ number_format($averageProfitPerUnit, 2) }} ლარი</div><div class="kpi-sub">ერთ გაყიდულ ერთეულზე</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">გაყიდული პროდუქცია</div><div class="kpi-value">{{ number_format($totalPurchasedPrice, 2) }} ლარი</div><div class="kpi-sub">დადასტურებული შეკვეთებიდან</div></div></div>
+            <div class="col-sm-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">რეალური მოგება</div><div class="kpi-value">{{ number_format($totalSalesProfit, 2) }} ლარი</div><div class="kpi-sub">გაყიდული პროდუქციიდან</div></div></div>
+        </div>
+    @endif
+
+    @if(auth()->user()->hasAdminPermission(permission: 'exports.manage'))
+        <form action="{{ route('admin') }}" method="GET" class="dashboard-filter mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="start_date" class="form-label fw-semibold">თარიღიდან</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}">
+                </div>
+                <div class="col-md-5">
+                    <label for="end_date" class="form-label fw-semibold">თარიღამდე</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> გაფილტვრა</button>
                 </div>
             </div>
-        </div>
-
-
-  <!-- Purchased number -->
-  <div class="col-md-3">
-    <div class="card bg-light mb-3">
-        <div class="card-header">გაყიდული პროდუქციის ჯამური ფასი</div>
-        <div class="card-body">
-            <h5 class="card-title">{{ number_format($totalPurchasedPrice, 2) }} ლარი</h5>
-        </div>
-    </div>
-</div>
-
- <!-- Actual profit -->
- <div class="col-md-3">
-    <div class="card bg-light mb-3">
-        <div class="card-header">სუფთა მოგება უკვე გაყიდულიდან</div>
-        <div class="card-body">
-            <h5 class="card-title">{{ number_format($totalSalesProfit, 2) }} ლარი</h5>
-        </div>
-    </div>
-</div>
-
-    </div>
-@endif
-
-    
-
-<!-- Date Filter -->
-
-@if(auth()->user()->hasAdminPermission(permission: 'exports.manage'))
-
-<form action="{{ route('admin') }}" method="GET" class="mt-4">
-    <div class="row">
-        <div class="col-md-4">
-            <label for="start_date">Start Date:</label>
-            <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}">
-        </div>
-        <div class="col-md-4">
-            <label for="end_date">End Date:</label>
-            <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}">
-        </div>
-        <div class="col-md-4 mt-4">
-            <button type="submit" class="btn btn-primary mt-2" style="position: relative; top:-8px">გაფილტრე</button>
-        </div>
-    </div>
- 
-
-
-
-</form>
-
-@endif
-</div>
-
-
-    <!-- Purchased Products Section -->
+        </form>
+    @endif
 
     @if(auth()->user()->hasAdminPermission(permission: 'analytics.view'))
-
-
-    <div class="mt-5" style="border:1px solid #ccc; border-radius: 5px; padding:33px">
-        <h5><i class="bi bi-bar-chart-fill"></i> გაყიდვების ჩარტი</h5>
-
-      
-          
-            <canvas id="ordersChart" width="400" height="200"></canvas>
-      
-        
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('ordersChart').getContext('2d');
-        
-                const chartData = @json($ordersData); // Inject data from the controller
-        
-                new Chart(ctx, {
-                    type: 'line', // Line chart type
-                    data: {
-                        labels: ['იან', 'თებ', 'მარ', 'აპრ', 'მაი', 'ივნ', 'ივლ', 'აგვ', 'სექ', 'ოქტ', 'ნოე', 'დეკ'],
-                        datasets: [{
-                            label: 'გაყიდვების რიცხვი',
-                            data: chartData,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue fill
-                            borderColor: 'rgba(54, 162, 235, 1)', // Dark blue line
-                            borderWidth: 2,
-                            tension: 0.4, // Curve line
-                            fill: true // Fill under the line
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true // Start the y-axis at 0
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-
-
-         
-      </div>
-
-    
-
-    <br><br>
-
-
-    <div >
-        <div class="row">
-            <!-- Top Customers -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5> <i class="bi bi-fire"></i> Top 10 მხარჯველი</h5>
+        <div class="dashboard-panel mb-4">
+            <div class="panel-heading">
+                <h2 class="panel-title"><i class="bi bi-bar-chart-fill text-primary"></i> გაყიდვების ჩარტი</h2>
+                <span class="dashboard-muted">{{ date('Y') }}</span>
+            </div>
+            <div class="orders-chart">
+                @foreach($ordersData as $index => $ordersCount)
+                    <div class="chart-col">
+                        <div class="chart-track" title="{{ $monthLabels[$index] }}: {{ $ordersCount }}">
+                            <div class="chart-bar" style="height: {{ max(3, round(($ordersCount / $maxOrders) * 190)) }}px;"></div>
+                        </div>
+                        <div class="chart-month">{{ $monthLabels[$index] }}</div>
+                        <div class="chart-value">{{ $ordersCount }}</div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>სახელი</th>
-                                    <th>შეკვეთის რიცხვი</th>
-                                    <th>ჯამური დანახარჯი</th>
-                                </tr>
-                            </thead>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-xl-6">
+                <div class="dashboard-panel">
+                    <div class="panel-heading"><h2 class="panel-title"><i class="bi bi-people-fill text-primary"></i> Top 10 მომხმარებელი</h2></div>
+                    <div class="dashboard-scroll">
+                        <table class="table dashboard-table table-hover">
+                            <thead><tr><th>#</th><th>სახელი</th><th>შეკვეთები</th><th>ჯამური დანახარჯი</th></tr></thead>
                             <tbody>
                                 @foreach ($topCustomers as $customer)
                                     <tr>
-                                        <td>{{ optional(App\Models\User::find($customer->user_id))->name ?? 'Unknown' }}</td>
-                                        <td>{{ $customer->total_orders }}</td>
-                                        <td>{{ number_format($customer->total_spent, 2) }} ლარი</td>
+                                        <td><span class="rank-badge">{{ $loop->iteration }}</span></td>
+                                        <td class="table-name">{{ $customer->name ?? 'Unknown' }}</td>
+                                        <td>{{ number_format($customer->total_orders) }}</td>
+                                        <td class="money">{{ number_format($customer->total_spent, 2) }} ლარი</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -202,26 +148,18 @@
                     </div>
                 </div>
             </div>
-    
-            <!-- Top Products -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-trophy-fill"></i> Top 10 ბესტსელერი</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>სახელწოდება</th>
-                                    <th>რაოდენობა</th>
-                                </tr>
-                            </thead>
+            <div class="col-xl-6">
+                <div class="dashboard-panel">
+                    <div class="panel-heading"><h2 class="panel-title"><i class="bi bi-trophy-fill text-primary"></i> Top 10 ბესტსელერი</h2></div>
+                    <div class="dashboard-scroll">
+                        <table class="table dashboard-table table-hover">
+                            <thead><tr><th>#</th><th>დასახელება</th><th>რაოდენობა</th></tr></thead>
                             <tbody>
                                 @foreach ($topBooks as $book)
                                     <tr>
-                                        <td>{{ $book->author->name }} - {{ $book?->title ?? 'No title available' }}</td>
-                                        <td>{{ $book->total_sold }}</td>
+                                        <td><span class="rank-badge">{{ $loop->iteration }}</span></td>
+                                        <td class="table-name">{{ optional($book->author)->name ?? 'Unknown' }} - {{ $book?->title ?? 'No title available' }}</td>
+                                        <td class="money">{{ number_format($book->total_sold) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -230,50 +168,25 @@
                 </div>
             </div>
         </div>
- 
 
-
-
-
-
-
- 
-        <div class="card" style="margin-top:33px; margin-bottom:29px">
-            <div class="card-header">
-                <h5> <i class="bi bi-fire"></i> Top 10 რეიტინგული წიგნი</h5>
-            </div>
-            <div class="card-body">
-                <table class="table table-hover table-bordered">
-                    <thead>
-                        <tr>
-                            <th>სათაური</th>
-                            <th>ხმის მიმცემთა რიცხვი</th>
-                            <th>საერთო</th>
-                        </tr>
-                    </thead>
+        <div class="dashboard-panel mb-4">
+            <div class="panel-heading"><h2 class="panel-title"><i class="bi bi-star-fill text-primary"></i> Top 10 რეიტინგული წიგნი</h2></div>
+            <div class="dashboard-scroll">
+                <table class="table dashboard-table table-hover">
+                    <thead><tr><th>#</th><th>სათაური</th><th>ხმების რაოდენობა</th><th>საერთო ქულა</th></tr></thead>
                     <tbody>
                         @foreach($topRatedArticles as $topRated)
-                        <tr>
-                            <td>{{ optional($topRated['book'])->title ?? 'No title' }}</td>
-                            <td>{{ $topRated['rating_count'] }}</td>
-                            <td>
-                                {{ optional($topRated['book']?->ratings)->sum('rating') ?? 0 }}
-                            </td>
-                        </tr>
-                    @endforeach
+                            <tr>
+                                <td><span class="rank-badge">{{ $loop->iteration }}</span></td>
+                                <td class="table-name">{{ $topRated->title ?? 'No title' }}</td>
+                                <td>{{ number_format($topRated->rating_count) }}</td>
+                                <td class="money">{{ number_format($topRated->total_rating ?? 0) }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-        </div> 
-
-
-        @endif
-
-    </div>
-     
-
-     
-  
-    <!-- Footer -->
-   
+        </div>
+    @endif
+</div>
 @endsection

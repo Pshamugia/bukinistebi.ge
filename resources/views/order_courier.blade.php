@@ -183,6 +183,8 @@
 </div>
 
 {{-- Pixel (kept as-is) --}}
+@include('partials.ga-purchase', ['order' => $order])
+
 <script>
   fbq('track', 'Purchase', { value: {{ $order->total ?? 0 }}, currency: 'GEL' });
 </script>

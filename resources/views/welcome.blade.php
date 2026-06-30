@@ -115,6 +115,71 @@
         color: #fff !important;
     }
 
+    .welcome-books-more {
+        display: flex;
+        justify-content: center;
+        margin: 0 0 30px;
+    }
+
+    .welcome-books-more-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 225px;
+        min-height: 60px;
+        padding: 15px 34px;
+        border-radius: 999px;
+        background: #ef3348;
+        color: #fff !important;
+        font-size: 20px;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 18px 34px rgba(239, 51, 72, 0.28);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .welcome-books-more-btn:hover,
+    .welcome-books-more-btn:focus {
+        background: #dc263c;
+        color: #fff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 22px 40px rgba(239, 51, 72, 0.34);
+        text-decoration: none;
+    }
+
+    .welcome-books-more-icon {
+        position: relative;
+        width: 21px;
+        height: 21px;
+        flex: 0 0 21px;
+    }
+
+    .welcome-books-more-icon span {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 1px;
+    }
+
+    .welcome-books-more-icon span:nth-child(1) {
+        left: 1px;
+        top: 1px;
+        background: #64c86d;
+    }
+
+    .welcome-books-more-icon span:nth-child(2) {
+        left: 8px;
+        top: 8px;
+        background: #24a7df;
+    }
+
+    .welcome-books-more-icon span:nth-child(3) {
+        left: 12px;
+        top: 13px;
+        background: #8a55cb;
+    }
+
     /* MOBILE POLISH */
     @media (max-width: 575.98px) {
         .hero-section,
@@ -134,6 +199,13 @@
 
         .news-title {
             font-size: 15px;
+        }
+
+        .welcome-books-more-btn {
+            min-width: 205px;
+            min-height: 56px;
+            padding: 13px 30px;
+            font-size: 18px;
         }
     }
 
@@ -292,6 +364,18 @@
         @endforeach
 
 
+    </div>
+
+    <div class="welcome-books-more">
+        <a href="{{ route('books') }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
+            class="welcome-books-more-btn">
+            <span class="welcome-books-more-icon" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+            <span>{{ __('messages.seemore') }}</span>
+        </a>
     </div>
 
 </div>

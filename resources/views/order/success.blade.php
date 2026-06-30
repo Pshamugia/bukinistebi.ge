@@ -45,4 +45,8 @@
     </button>
   </div>
 </div>
+
+@if(isset($order))
+  @include('partials.ga-purchase', ['order' => $order])
+@endif
 @endsection

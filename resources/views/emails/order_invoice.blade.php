@@ -6,6 +6,9 @@
 **Phone:** <a href="tel:{{ $order->phone }}">{{ $order->phone }}</a>  
 **City:** {{ $order->city }}  
 **Address:** {{ $order->address }}
+@if($order->delivery_latitude && $order->delivery_longitude)
+**Map:** https://www.openstreetmap.org/?mlat={{ $order->delivery_latitude }}&mlon={{ $order->delivery_longitude }}#map=18/{{ $order->delivery_latitude }}/{{ $order->delivery_longitude }}
+@endif
 
 ---
 

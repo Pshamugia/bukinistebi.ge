@@ -50,6 +50,18 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
 
     </p>
     <p>{{ __('მისამართი:') }} {{ $latestOrder->city }}, {{ $latestOrder->address }}</p>
+    @if($latestOrder->delivery_latitude && $latestOrder->delivery_longitude)
+    <p>
+        <strong>Map:</strong>
+        <a href="https://www.openstreetmap.org/?mlat={{ $latestOrder->delivery_latitude }}&mlon={{ $latestOrder->delivery_longitude }}#map=18/{{ $latestOrder->delivery_latitude }}/{{ $latestOrder->delivery_longitude }}"
+            target="_blank" rel="noopener">
+            {{ __('messages.openMap') }}
+        </a>
+        <small class="text-muted">
+            ({{ $latestOrder->delivery_latitude }}, {{ $latestOrder->delivery_longitude }})
+        </small>
+    </p>
+    @endif
     @else
     <p>{{ __('ტელეფონი:') }} {{ __('არ არის ხელმისაწვდომი') }}</p>
     <p>{{ __('მისამართი:') }} {{ __('არ არის ხელმისაწვდომი') }}</p>
@@ -66,6 +78,7 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
         <thead>
             <tr>
                 <th>{{ __('შეკვეთების ID') }}</th>
+                <th>Map</th>
                 <th>{{ __('ჯამი') }}</th>
                 <th>{{ __('თარიღი') }}</th>
                 <th>{{ __('სტატუსი') }}</th>
@@ -86,13 +99,28 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
                     </a>
 
                 </td>
+                <td>
+                    @if($order->delivery_latitude && $order->delivery_longitude)
+                    <a href="https://www.openstreetmap.org/?mlat={{ $order->delivery_latitude }}&mlon={{ $order->delivery_longitude }}#map=18/{{ $order->delivery_latitude }}/{{ $order->delivery_longitude }}"
+                        class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
+                        Map
+                    </a>
+                    <div class="small text-muted mt-1">
+                        {{ $order->delivery_latitude }}, {{ $order->delivery_longitude }}
+                    </div>
+                    @else
+                    <span class="text-muted">-</span>
+                    @endif
+                </td>
 
 
                 <td class="{{ $order->created_at?->gte(now()->subMinutes(5)) ? 'text-danger' : '' }}">
                     {{ $order->total }} {{ __('ლარი') }}
                 </td>
                 <td>{{ $order->created_at?->format('M d, Y | H:i:s') }}</td>
-                <td>{{ $order->status }}</td>
+                <td>
+                    {{ $order->payment_method === 'courier' ? 'კურიერთან გადახდა' : $order->status }}
+                </td>
                 <td>
                     @if($order->orderItems->isEmpty())
                     <em>—</em>
@@ -154,7 +182,7 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
             @endforeach
             @else
             <tr>
-                <td colspan="5">— {{ __('შეკვეთები არ მოიძებნა') }} —</td>
+                <td colspan="6">— {{ __('შეკვეთები არ მოიძებნა') }} —</td>
             </tr>
             @endif
         </tbody>

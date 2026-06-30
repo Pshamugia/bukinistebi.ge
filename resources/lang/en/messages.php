@@ -255,4 +255,9 @@ return [
     'didyoumean' => 'Did you mean this? - ',
 
 
+    'mapLocation' => 'Precise location on map (optional)',
+    'useMyLocation' => 'Use my location',
+    'clearMapLocation' => 'Clear map point',
+    'mapLocationHint' => 'Click the map or drag the marker if the courier needs a more precise delivery point.',
+    'openMap' => 'Open map',
 ];

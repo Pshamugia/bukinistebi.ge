@@ -6,9 +6,12 @@ use App\Models\Book;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Bundle;
+use App\Models\UserPreference;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 class CartController extends Controller
@@ -266,6 +269,7 @@ class CartController extends Controller
     }
 
     $cartCount = $cart->cartItems()->count();
+    $this->trackCartEvent($request, $action, 'book', $book->id, $book->title);
 
     return response()->json([
         'success' => true,
@@ -362,11 +366,46 @@ class CartController extends Controller
         $action = 'added';
     }
 
+    $this->trackCartEvent($request, $action, 'bundle', $bundle->id, $bundle->title);
+
     return response()->json([
         'success'     => true,
         'action'      => $action,
         'cart_count'  => $cart->cartItems()->count(),
     ]);
+}
+
+private function trackCartEvent(Request $request, string $action, string $itemType, int $itemId, ?string $title = null): void
+{
+    try {
+        $user = Auth::user();
+
+        if (!$user) {
+            return;
+        }
+
+        UserPreference::create([
+            'user_id' => $user->id,
+            'guest_id' => session()->getId(),
+            'cookie_consent' => $request->cookie('cookie_consent', 'not_given'),
+            'time_spent' => 0,
+            'page' => url('/cart') . '?' . http_build_query([
+                'event' => 'cart_' . $action,
+                'item_type' => $itemType,
+                'item_id' => $itemId,
+                'title' => Str::limit((string) $title, 80, ''),
+            ]),
+            'user_name' => $user->name ?? $user->email,
+            'date' => now()->toDateString(),
+        ]);
+    } catch (\Throwable $exception) {
+        Log::warning('Cart analytics event was not stored.', [
+            'message' => $exception->getMessage(),
+            'action' => $action,
+            'item_type' => $itemType,
+            'item_id' => $itemId,
+        ]);
+    }
 }
 
 }

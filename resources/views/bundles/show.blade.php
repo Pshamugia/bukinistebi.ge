@@ -281,6 +281,8 @@
             <label><h4><strong>{{ __('messages.address') }}</strong></h4></label>
             <input type="text" name="address" class="form-control" required>
           </div>
+
+          @include('partials.delivery-map-picker')
     
           
           {{-- delivery --}}

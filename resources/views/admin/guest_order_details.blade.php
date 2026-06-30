@@ -35,6 +35,15 @@
     <p><strong>E-mail:</strong> {{ $order->email }}</p>
 
         <p><strong>Address:</strong> {{ $order->address }}</p>
+    @if($order->delivery_latitude && $order->delivery_longitude)
+        <p>
+            <strong>Map:</strong>
+            <a href="https://www.openstreetmap.org/?mlat={{ $order->delivery_latitude }}&mlon={{ $order->delivery_longitude }}#map=18/{{ $order->delivery_latitude }}/{{ $order->delivery_longitude }}"
+               target="_blank" rel="noopener">
+                {{ __('messages.openMap') }}
+            </a>
+        </p>
+    @endif
     <p><strong>City:</strong> {{ $order->city }}</p>
     <p><strong>Total:</strong> {{ $order->total }} ლარი </p>
     <p><strong>Status:</strong> {{ $order->status }}</p>

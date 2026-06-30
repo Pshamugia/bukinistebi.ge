@@ -394,6 +394,8 @@
                                 <input type="text" name="address" class="form-control" required>
                             </div>
 
+                            @include('partials.delivery-map-picker')
+
                             <div class="text-center mt-3" style="padding: 20px;">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-check-circle"></i> {{ __('messages.directPay') }}

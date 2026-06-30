@@ -41,6 +41,8 @@
 @endphp
 
 @if($isSuccess && isset($order))
+@include('partials.ga-purchase', ['order' => $order])
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof fbq === 'function') {
