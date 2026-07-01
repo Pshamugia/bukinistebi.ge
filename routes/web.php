@@ -528,6 +528,9 @@ Route::delete('/order/delete/{id}', [AdminBookController::class, 'deleteOrder'])
     ->name('admin.order.delete');
 
 // ✅ ADMIN NOTE (FIXED)
+Route::delete('/orders/{order}/failed', [AdminBookController::class, 'deleteFailedOrder'])
+    ->name('admin.orders.failed.delete');
+
 Route::post('/users/admin-note', [AdminBookController::class, 'saveAdminNote'])
     ->name('admin.users.admin_note');
 
@@ -581,7 +584,6 @@ Route::post('/book-orders/{order}/done', [\App\Http\Controllers\Admin\BookContro
 
 Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class, 'toggleBundle'])
     ->name('cart.toggleBundle');
-
 
 
 

@@ -5,15 +5,74 @@
 @section('content')
 <style>
   .cart-page      { position:relative; top:30px; padding-bottom:5%; }
-  .card-soft      { border-radius:18px; }
+  .card-soft      { border-radius:8px; }
   .sticky-summary { position: sticky; top: 90px; }
-  .thumb          { width:72px; height:96px; object-fit:cover; border-radius:8px; }
+  .thumb          { width:84px; height:116px; object-fit:cover; border-radius:8px; background:#f4f5f7; }
+  .cart-product .thumb { box-shadow:0 8px 20px rgba(17, 24, 39, .12) !important; }
   .table > :not(caption) > * > * { vertical-align: middle; }
-  .qty-btn        { width:32px; }
+  .qty-btn        { width:40px; height:40px; border-color:#cfd6df; color:#273241; font-weight:700; }
   .small-muted    { font-size:12px; color:#6c757d; }
   .summary-row    { display:flex; justify-content:space-between; align-items:center; }
   .summary-row + .summary-row { margin-top:.25rem; }
   .summary-total  { font-size:1.15rem; font-weight:700; }
+  .cart-page-heading { display:flex; align-items:center; justify-content:center; gap:14px; margin:0 0 34px; padding:18px 0 22px; color:#1f2937; border-bottom:1px solid #edf1f5; }
+  .cart-page-heading::before { display:none !important; }
+  .cart-page-heading .cart-heading-icon { width:42px; height:42px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #dce3ea; border-radius:8px; background:#fff; color:#64748b; box-shadow:0 8px 18px rgba(17, 24, 39, .07); }
+  .cart-page-heading .cart-heading-icon i { margin:0; font-size:20px; color:#64748b; }
+  .cart-page-heading strong { font-size:26px; line-height:1.2; font-weight:800; color:#1f2937; }
+  .cart-empty-card { min-height:320px; display:flex; align-items:center; justify-content:center; padding:54px 28px; border:1px solid #e2e7ee; border-radius:8px; background:#fff; box-shadow:0 12px 28px rgba(18, 38, 63, .08); }
+  .cart-empty-content { width:100%; max-width:560px; margin:auto; text-align:center; }
+  .cart-empty-icon { width:76px; height:76px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:22px; border:1px solid #fee2e2; border-radius:8px; background:#fff5f5; color:#dc3545; }
+  .cart-empty-icon i { font-size:38px; line-height:1; color:#dc3545; }
+  .cart-empty-title { margin:0 0 8px; font-size:30px; line-height:1.25; font-weight:800; color:#1f2937; }
+  .cart-empty-text { margin:0 auto 24px; color:#6b7280; font-size:16px; line-height:1.6; }
+  .cart-empty-action { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:260px; min-height:46px; padding:11px 22px; border:1px solid #273241; border-radius:8px; background:#273241; color:#fff; font-weight:500; text-decoration:none; box-shadow:0 10px 20px rgba(39, 50, 65, .16); transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease; }
+  .cart-empty-action:hover { border-color:#1f2937; background:#1f2937; color:#fff; text-decoration:none; transform:translateY(-2px); box-shadow:0 14px 26px rgba(39, 50, 65, .22); }
+  .cart-empty-action:focus { color:#fff; text-decoration:none; }
+  .cart-toolbar   { display:flex; justify-content:flex-start; margin-bottom:18px; }
+  .cart-clear-btn { border-radius:8px; padding:10px 14px; font-weight:600; background:#fff; }
+  .cart-items-card { border:1px solid #e2e7ee; border-radius:8px; overflow:hidden; background:#fff; box-shadow:0 12px 28px rgba(18, 38, 63, .08); }
+  .cart-items-header { display:flex; align-items:center; gap:10px; padding:16px 20px; background:#fbfcfd; border-bottom:1px solid #e5eaf0; color:#1f2937; }
+  .cart-items-header i { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #dce3ea; border-radius:8px; background:#fff; color:#273241; }
+  .cart-table { color:#111827; }
+  .cart-table thead th { padding:14px 20px; background:#f7f9fb; border-bottom:1px solid #d9e0e8; color:#111827; font-size:14px; font-weight:800; white-space:nowrap; }
+  .cart-table tbody td { padding:18px 20px; border-color:#edf1f5; }
+  .cart-table tbody tr:hover { background:#fcfdff; }
+  .cart-product { display:flex; align-items:center; gap:18px; min-width:330px; }
+  .cart-product-title { color:#0d6efd; font-size:18px; line-height:1.45; font-weight:800; }
+  .cart-product-title:hover { color:#0a58ca; }
+  .cart-author { margin-top:4px; color:#6b7280; font-size:13px; }
+  .cart-stock { color:#6b7280; font-size:13px; }
+  .cart-qty-control { width:132px; max-width:132px; margin:auto; display:inline-flex; flex-wrap:nowrap; align-items:stretch; justify-content:center; border:1px solid #cfd6df; border-radius:8px; overflow:hidden; background:#fff; }
+  .cart-qty-control .btn { flex:0 0 40px; border:0; border-radius:0; background:#f8fafc; }
+  .cart-qty-control .btn:hover { background:#edf2f7; color:#111827; }
+  .cart-qty-control .quantity-input { flex:0 0 50px; width:50px; min-width:50px; height:40px; border:0; border-left:1px solid #d8dee6; border-right:1px solid #d8dee6; font-weight:800; color:#111827; background:#fff; box-shadow:none; }
+  .cart-price { font-size:18px; font-weight:800; color:#111827; white-space:nowrap; }
+  .cart-price span { display:block; margin-top:2px; font-size:13px; font-weight:700; color:#111827; }
+  .cart-remove-btn { min-width:156px; border-radius:8px; padding:9px 12px; font-weight:700; background:#fff; }
+  .cart-remove-btn i { margin-right:6px; }
+  .bundle-list { padding-left:18px; }
+  @media (max-width: 767.98px) {
+    .cart-page { top:18px; }
+    .cart-page-heading { justify-content:flex-start; margin-bottom:22px; padding:12px 0 16px; gap:10px; }
+    .cart-page-heading .cart-heading-icon { width:36px; height:36px; }
+    .cart-page-heading strong { font-size:21px; }
+    .cart-empty-card { min-height:280px; padding:36px 18px; }
+    .cart-empty-icon { width:64px; height:64px; margin-bottom:18px; }
+    .cart-empty-icon i { font-size:32px; }
+    .cart-empty-title { font-size:23px; }
+    .cart-empty-text { font-size:15px; }
+    .cart-empty-action { width:100%; min-width:0; }
+    .cart-items-header { padding:14px 16px; }
+    .cart-table thead { display:none; }
+    .cart-table tbody tr { display:block; padding:16px; border-bottom:1px solid #edf1f5; }
+    .cart-table tbody td { display:block; padding:8px 0; border:0; text-align:left !important; }
+    .cart-product { min-width:0; align-items:flex-start; gap:14px; }
+    .thumb { width:72px; height:100px; }
+    .cart-product-title { font-size:16px; }
+    .cart-qty-control { margin:0; }
+    .cart-price { font-size:17px; }
+  }
   @media print {
     .btn, .alert, .sticky-summary, .payment-card { display:none !important; }
     .card, .table { box-shadow:none !important; }
@@ -27,8 +86,8 @@
 
 <div class="container cart-page">
 
-  <h5 class="section-title d-flex align-items-center gap-2 mb-4">
-    <i class="bi bi-cart-check-fill"></i>
+  <h5 class="section-title cart-page-heading">
+    <span class="cart-heading-icon"><i class="bi bi-cart-check-fill"></i></span>
     <strong>{{ __('messages.yourCart') }}</strong>
   </h5>
 
@@ -39,19 +98,24 @@
 
   {{-- Empty cart --}}
   @if (!$cart || $cart->cartItems->isEmpty())
-    <div class="text-center p-5 card card-soft shadow-sm">
-      <div class="mb-2"><i class="bi bi-cart-x-fill" style="font-size:64px; color:#ff6b6b;"></i></div>
-      <h3 class="mb-2">{{ __('messages.emptyCart') }}</h3>
-      <p class="text-muted">{{ __('messages.canAdd') }}</p>
-      <a href="{{ route('books') }}" class="btn btn-primary">{{ __('messages.seeBooks') }}</a>
+    <div class="cart-empty-card">
+      <div class="cart-empty-content">
+        <div class="cart-empty-icon"><i class="bi bi-cart-x-fill"></i></div>
+        <h3 class="cart-empty-title">{{ __('messages.emptyCart') }}</h3>
+        <p class="cart-empty-text">{{ __('messages.canAdd') }}</p>
+        <a href="{{ route('books') }}" class="cart-empty-action">
+          <i class="bi bi-book-half"></i>
+          <span>{{ __('messages.seeBooks') }}</span>
+        </a>
+      </div>
     </div>
   @else
 
   {{-- Clear cart --}}
-  <form action="{{ route('cart.clear') }}" method="POST" class="mb-3"
+  <form action="{{ route('cart.clear') }}" method="POST" class="cart-toolbar"
         onsubmit="return confirm('{{ __('messages.confirmClearCart') }}')">
     @csrf
-    <button type="submit" class="btn btn-outline-danger btn-sm">
+    <button type="submit" class="btn btn-outline-danger btn-sm cart-clear-btn">
       <i class="bi bi-trash-fill"></i> {{ __('messages.cleaCart') }}
     </button>
   </form>
@@ -59,18 +123,16 @@
   <div class="row g-4">
     {{-- Left: items --}}
     <div class="col-lg-8">
-      <div class="card card-soft shadow-sm">
-        <div class="card-header bg-light" style="border-top-left-radius:18px; border-top-right-radius:18px;">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-bag"></i>
-            <span class="fw-semibold">{{ __('messages.product') }}</span>
-          </div>
+      <div class="cart-items-card">
+        <div class="cart-items-header">
+          <i class="bi bi-bag"></i>
+          <span class="fw-semibold">{{ __('messages.product') }}</span>
         </div>
 
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table align-middle mb-0">
-              <thead class="table-light">
+            <table class="table align-middle mb-0 cart-table">
+              <thead>
                 <tr>
                   <th>{{ __('messages.product') }}</th>
                   <th class="text-center">{{ __('messages.quantity') }}</th>
@@ -89,16 +151,16 @@
                   {{-- Product --}}
                   <td>
                     @if ($isBundle && $item->bundle)
-                      <div class="d-flex gap-3">
+                      <div class="cart-product">
                         @if ($item->bundle->image_url)
                           <img src="{{ $item->bundle->image_url }}" class="thumb shadow" alt="სტატიის სურათი">
                         @endif
                         <div>
                           <a href="{{ route('bundles.show', $item->bundle->slug) }}" class="text-decoration-none">
                             <span class="badge bg-info me-1">Bundle</span>
-                            <span class="fw-semibold">{{ $item->bundle->title }}</span>
+                            <span class="cart-product-title">{{ $item->bundle->title }}</span>
                           </a>
-                          <ul class="small mb-0 mt-2 text-muted">
+                          <ul class="small mb-0 mt-2 text-muted bundle-list">
                             @foreach ($item->bundle->books as $b)
                               <li>{{ $b->title }} × {{ $b->pivot->qty }}</li>
                             @endforeach
@@ -109,7 +171,7 @@
                             <form action="{{ route('cart.removeBundle', ['bundle' => $item->bundle_id]) }}" method="POST"
                                   onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                               @csrf
-                              <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
+                              <button type="submit" class="btn btn-outline-danger btn-sm cart-remove-btn"><i class="bi bi-trash3"></i>{{ __('messages.RemoveFomCart') }}</button>
                             </form>
                           </div>
                         </div>
@@ -117,23 +179,23 @@
 
                     @else
                       @if ($item->book)
-                        <div class="d-flex gap-3">
+                        <div class="cart-product">
                           @if ($item->book->photo)
                             <img src="{{ asset('storage/'.$item->book->photo) }}"
                                  onerror="this.onerror=null;this.src='{{ asset('images/default_image.png') }}';"
-                                 class="thumb shadow" alt="{{ $item->book->title }}">
+                                 class="thumb shadow-sm" alt="{{ $item->book->title }}">
                           @endif
                           <div>
                             <a href="{{ route('full', ['title' => Str::slug($item->book->title), 'id' => $item->book->id]) }}"
-                               class="fw-semibold text-decoration-none">{{ $item->book->title }}</a>
-                            <div class="small-muted">{{ $item->book->author->name ?? '' }}</div>
+                               class="cart-product-title text-decoration-none">{{ $item->book->title }}</a>
+                            <div class="cart-author">{{ $item->book->author->name ?? '' }}</div>
 
                             {{-- mobile delete --}}
                             <div class="d-md-none mt-2">
                               <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}" method="POST"
                                     onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm cart-remove-btn"><i class="bi bi-trash3"></i>{{ __('messages.RemoveFomCart') }}</button>
                               </form>
                             </div>
                           </div>
@@ -146,7 +208,7 @@
 
                   {{-- Quantity --}}
                   <td class="text-center">
-                    <div class="small-muted mb-2">
+                    <div class="cart-stock mb-2">
                       @if ($maxQty <= 0)
                         <span class="text-danger"><i class="bi bi-x-circle"></i> {{ __('messages.outofstock') }}</span>
                       @elseif ($maxQty === 1)
@@ -158,7 +220,7 @@
 
                     @if ($rowId)
                     <input type="hidden" class="max-quantity" value="{{ $maxQty }}">
-                    <div class="input-group input-group-sm justify-content-center" style="max-width:130px; margin:auto;">
+                    <div class="input-group input-group-sm justify-content-center cart-qty-control">
                       <button class="btn btn-outline-secondary qty-btn decrease-quantity"
                               data-type="{{ $isBundle ? 'bundle':'book' }}"
                               data-id="{{ $rowId }}" type="button">−</button>
@@ -177,8 +239,9 @@
                   </td>
 
                   {{-- Price --}}
-                  <td class="text-center fw-semibold">
-                    {{ number_format($item->price * $item->quantity) }} {{ __('messages.lari') }}
+                  <td class="text-center fw-semibold cart-price">
+                    {{ number_format($item->price * $item->quantity) }}
+                    <span>{{ __('messages.lari') }}</span>
                   </td>
 
                   {{-- Desktop delete --}}
@@ -187,13 +250,13 @@
                       <form action="{{ route('cart.removeBundle', ['bundle' => $item->bundle_id]) }}" method="POST"
                             onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                         @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm cart-remove-btn"><i class="bi bi-trash3"></i>{{ __('messages.RemoveFomCart') }}</button>
                       </form>
                     @elseif($item->book_id)
                       <form action="{{ route('cart.remove', ['book' => $item->book_id]) }}" method="POST"
                             onsubmit="return confirm('ნამდვილად გსურს წაშლა?');">
                         @csrf
-                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('messages.RemoveFomCart') }}</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm cart-remove-btn"><i class="bi bi-trash3"></i>{{ __('messages.RemoveFomCart') }}</button>
                       </form>
                     @endif
                   </td>

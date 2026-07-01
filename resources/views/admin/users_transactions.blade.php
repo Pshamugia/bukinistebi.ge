@@ -35,6 +35,17 @@
     text-decoration: underline; /* optional: show on hover */
 }
 
+.delivery-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.delivery-filter-bar .btn {
+    border-radius: 8px;
+    font-weight: 700;
+}
+
 
 </style>
 
@@ -85,12 +96,31 @@
         </div>
     </form>
 
-    <form method="GET" action="{{ route('admin.users_transactions') }}" class="mb-3">
-        @if(request('delivery_filter') === 'not_delivered')
-        <button type="submit" class="btn btn-secondary" name="delivery_filter" value="">ყველა</button>
-        @else
-        <button type="submit" class="btn btn-primary" name="delivery_filter" value="not_delivered">მხოლოდ დაუსრულებელი</button>
+    <form method="GET" action="{{ route('admin.users_transactions') }}" class="delivery-filter-bar mb-3">
+        @if(request('q'))
+            <input type="hidden" name="q" value="{{ request('q') }}">
         @endif
+
+        @php
+            $activeDeliveryFilter = request('delivery_filter');
+            $deliveryFilters = [
+                '' => ['label' => 'ყველა', 'icon' => 'bi-list-ul'],
+                'not_delivered' => ['label' => 'დაუსრულებელი', 'icon' => 'bi-hourglass-split'],
+                'courier_picked_up' => ['label' => 'კურიერმა აიღო', 'icon' => 'bi-truck'],
+                'delivered' => ['label' => 'ჩაბარებულია', 'icon' => 'bi-check-circle'],
+            ];
+        @endphp
+
+        @foreach($deliveryFilters as $filterValue => $filter)
+            <button
+                type="submit"
+                class="btn {{ $activeDeliveryFilter === $filterValue || (!$activeDeliveryFilter && $filterValue === '') ? 'btn-primary' : 'btn-outline-primary' }}"
+                name="delivery_filter"
+                value="{{ $filterValue }}">
+                <i class="bi {{ $filter['icon'] }}"></i>
+                {{ $filter['label'] }}
+            </button>
+        @endforeach
     </form>
 
 
@@ -157,17 +187,16 @@
                     <!-- Show 0 if last_order_total is null -->
                 </td>
 
-                <td>{{ $user->orders->sum('total') }} {{ __('ლარი') }}</td>
+                <td>{{ $user->total_spent ?? 0 }} {{ __('ლარი') }}</td>
                 <td>
                     @if ($user->orders->isNotEmpty())
                     @php
                     $lastOrder = $user->orders->first();
-                    $statusMap = array_change_key_case(\App\Models\Order::$statusesMap, CASE_LOWER);
-                    $translatedStatus =
-                    $statusMap[strtolower($lastOrder->status)] ?? $lastOrder->status;
+                    $statusKey = strtolower((string) $lastOrder->status);
+                    $translatedStatus = \App\Models\Order::statusLabel($lastOrder->status);
                     @endphp
 
-                    @if ($lastOrder->payment_method === 'courier')
+                    @if ($lastOrder->payment_method === 'courier' && !in_array($statusKey, [\App\Models\Order::STATUS_COURIER_PICKED_UP, \App\Models\Order::STATUS_DELIVERED], true))
                     <span style="color: red"> გადახდა კურიერთან </span>
                     @elseif ($lastOrder->payment_method === 'bank_transfer' && $lastOrder->status === 'paid')
                     გადახდილია (ბანკით)
@@ -183,18 +212,10 @@
                     @if ($user->orders->isNotEmpty())
                     @php
                     $lastOrder = $user->orders->first();
+                    $deliveryStatus = strtolower((string) $lastOrder->status);
                     @endphp
 
-                    @if ($lastOrder->status !== 'delivered')
-                    <form action="{{ route('admin.markAsDelivered', $lastOrder->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit"
-                            class="btn btn-sm btn-danger d-flex align-items-center gap-2">
-                            <i class="bi bi-x"></i> დაუსრულებელი
-                        </button>
-                    </form>
-                    @else
+                    @if ($deliveryStatus === \App\Models\Order::STATUS_DELIVERED)
                     <div class="d-flex align-items-center">
 
                         <form action="{{ route('admin.undoDelivered', $lastOrder->id) }}" method="POST"
@@ -203,13 +224,31 @@
                             @method('PUT')
                             <button type="submit"
                                 class="btn btn-sm btn-warning d-flex align-items-center gap-2">
-                                <i class="bi bi-check-lg text-success"></i> დასრულებული
+                                <i class="bi bi-check-lg text-success"></i> ჩაბარებულია
                             </button>
                         </form>
 
 
 
                     </div>
+                    @elseif ($deliveryStatus === \App\Models\Order::STATUS_COURIER_PICKED_UP)
+                    <form action="{{ route('admin.markAsDelivered', $lastOrder->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit"
+                            class="btn btn-sm btn-info d-flex align-items-center gap-2">
+                            <i class="bi bi-truck"></i> კურიერმა აიღო
+                        </button>
+                    </form>
+                    @else
+                    <form action="{{ route('admin.markAsDelivered', $lastOrder->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit"
+                            class="btn btn-sm btn-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-x"></i> დაუსრულებელი
+                        </button>
+                    </form>
                     @endif
                     @else
                     {{ __('არ არის შეკვეთა') }}

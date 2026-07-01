@@ -173,6 +173,10 @@ function applyFilters(resetPage = true) {
                 initCartButtons(document.getElementById('book-results'));
             }
 
+            if (typeof window.initBookHoverTitles === 'function') {
+                window.initBookHoverTitles(document.getElementById('book-results'));
+            }
+
             // Reset Load More
             const btn = document.getElementById('load-more');
             if (btn) btn.dataset.nextPage = 2;
@@ -215,6 +219,10 @@ $('#excludeSoldOut').on('change', () => applyFilters());
 
         if (typeof initCartButtons === 'function') {
             initCartButtons(container);
+        }
+
+        if (typeof window.initBookHoverTitles === 'function') {
+            window.initBookHoverTitles(container);
         }
 
         btn.dataset.nextPage = parseInt(page) + 1;

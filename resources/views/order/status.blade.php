@@ -27,6 +27,8 @@
     'success'     => ['key' => 'success', 'label' => 'დადასტურდა'],
     'pending'     => ['key' => 'pending', 'label' => 'მუშავდება'],
     'processing'  => ['key' => 'pending', 'label' => 'მუშავდება'],
+    'courier_picked_up' => ['key' => 'pending', 'label' => 'კურიერმა აიღო'],
+    'delivered'   => ['key' => 'success', 'label' => 'პროდუქტი ჩაიბარა მყიდველმა'],
     'failed'      => ['key' => 'failed',  'label' => 'ჩაიშალა'],
     'error'       => ['key' => 'failed',  'label' => 'შეცდომა'],
   ];

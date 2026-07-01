@@ -537,7 +537,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
     public function usersTransactions(Request $request)
     {
-        $filterNotDelivered = $request->delivery_filter === 'not_delivered';
+        $deliveryFilter = $request->delivery_filter;
         $search = trim($request->q);
 
         /* ======================
@@ -563,10 +563,11 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
         $users = $usersQuery->get();
 
-        if ($filterNotDelivered) {
-            $users = $users->filter(function ($u) {
+        if ($deliveryFilter) {
+            $users = $users->filter(function ($u) use ($deliveryFilter) {
                 $last = $u->orders->first();
-                return $last && strtolower($last->status) !== 'delivered';
+
+                return $last && $this->matchesDeliveryFilter($last, $deliveryFilter);
             })->values();
         }
 
@@ -574,6 +575,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
             $last = $user->orders->first();
             $user->last_order_date  = $last?->created_at;
             $user->last_order_total = $last?->total ?? 0;
+            $user->total_spent = $this->successfulTransactionOrders($user->orders)->sum('total');
             return $user;
         });
 
@@ -584,8 +586,8 @@ $query = Book::with(['author', 'genres', 'publisher'])
             ->with('orderItems.book')
             ->orderBy('created_at', 'desc');
 
-        if ($filterNotDelivered) {
-            $guestQuery->where('status', '!=', 'delivered');
+        if ($deliveryFilter) {
+            $this->applyDeliveryFilter($guestQuery, $deliveryFilter);
         }
 
         if ($search) {
@@ -606,6 +608,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
                 'name'             => $order->name ?? 'Guest',
                 'orders'           => collect([$order]),
                 'last_order_total' => $order->total ?? 0,
+                'total_spent'      => $this->successfulTransactionOrders(collect([$order]))->sum('total'),
                 'last_order_date'  => $order->created_at,
             ];
         });
@@ -640,6 +643,55 @@ $query = Book::with(['author', 'genres', 'publisher'])
         return view('admin.users_transactions', [
             'users' => $allUsers
         ]);
+    }
+
+    private function successfulTransactionOrders($orders)
+    {
+        $successfulStatuses = ['paid', 'succeeded', 'delivered', Order::STATUS_COURIER_PICKED_UP];
+
+        return $orders->filter(function ($order) use ($successfulStatuses) {
+            if ($order->payment_method === 'courier') {
+                return true;
+            }
+
+            return in_array(strtolower((string) $order->status), $successfulStatuses, true);
+        });
+    }
+
+    private function matchesDeliveryFilter(Order $order, string $deliveryFilter): bool
+    {
+        $status = strtolower((string) $order->status);
+
+        return match ($deliveryFilter) {
+            'not_delivered' => $status !== Order::STATUS_DELIVERED,
+            'courier_picked_up' => $status === Order::STATUS_COURIER_PICKED_UP,
+            'delivered' => $status === Order::STATUS_DELIVERED,
+            default => true,
+        };
+    }
+
+    private function applyDeliveryFilter($query, string $deliveryFilter): void
+    {
+        match ($deliveryFilter) {
+            'not_delivered' => $query->where(function ($q) {
+                $q->where('status', '!=', Order::STATUS_DELIVERED)
+                    ->orWhereNull('status');
+            }),
+            'courier_picked_up' => $query->where('status', Order::STATUS_COURIER_PICKED_UP),
+            'delivered' => $query->where('status', Order::STATUS_DELIVERED),
+            default => null,
+        };
+    }
+
+    private function isFailedOrder(Order $order): bool
+    {
+        return in_array(strtolower((string) $order->status), [
+            'failed',
+            'declined',
+            'canceled',
+            'cancelled',
+            'expired',
+        ], true);
     }
 
 
@@ -682,10 +734,24 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
 
 
+    public function deleteFailedOrder(Order $order)
+    {
+        abort_unless($this->isFailedOrder($order), 403);
+
+        $order->delete();
+
+        return back()->with('success', 'Failed შეკვეთა წაიშალა.');
+    }
+
+
+
     public function guestOrderDetails(Order $order)
     {
         // load order items and books for display
-        $order->load('orderItems.book');
+        $order->load([
+            'orderItems.book.publisher',
+            'orderItems.bundle.books',
+        ]);
 
         return view('admin.guest_order_details', compact('order'));
     }
@@ -695,10 +761,18 @@ $query = Book::with(['author', 'genres', 'publisher'])
     public function markAsDelivered($orderId)
     {
         $order = Order::findOrFail($orderId);
-        $order->status = 'delivered';   // delivery complete
+
+        $currentStatus = strtolower((string) $order->status);
+
+        if ($currentStatus === Order::STATUS_COURIER_PICKED_UP) {
+            $order->status = Order::STATUS_DELIVERED;
+        } elseif ($currentStatus !== Order::STATUS_DELIVERED) {
+            $order->status = Order::STATUS_COURIER_PICKED_UP;
+        }
+
         $order->save();
 
-        return back()->with('success', 'შეკვეთა დასრულებულია!');
+        return back()->with('success', 'შეკვეთის მიტანის სტატუსი განახლებულია!');
     }
 
     public function undoDelivered($orderId)
@@ -725,7 +799,8 @@ $query = Book::with(['author', 'genres', 'publisher'])
             'orders' => function ($query) {
                 $query->orderBy('created_at', 'desc');
             },
-            'orders.orderItems.book.publisher'
+            'orders.orderItems.book.publisher',
+            'orders.orderItems.bundle.books',
         ])->findOrFail($id);
 
         // Calculate totals
@@ -733,8 +808,9 @@ $query = Book::with(['author', 'genres', 'publisher'])
         $oldTotal = 0;
 
         if ($user->orders->isNotEmpty()) {
-            $newPurchaseTotal = $user->orders->first()->total;
-            $oldTotal = $user->orders->sum('total') - $newPurchaseTotal;
+            $successfulOrders = $this->successfulTransactionOrders($user->orders);
+            $newPurchaseTotal = $successfulOrders->first()?->total ?? 0;
+            $oldTotal = $successfulOrders->sum('total') - $newPurchaseTotal;
         }
 
         // (Optional) You can still load all publishers for another use if needed

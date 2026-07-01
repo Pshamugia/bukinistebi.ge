@@ -1,6 +1,6 @@
 @foreach ($books as $index => $book)
                 <div class="col-lg-3 col-md-4 col-sm-6 col-12" style="position: relative; padding-bottom: 25px;">
-                    <div class="card book-card shadow-sm" style="border: 1px solid #f0f0f0; border-radius: 8px;">
+                    <div class="card book-card shadow-sm {{ \Illuminate\Support\Str::limit($book->title, 18) !== $book->title ? 'has-collapsed-title' : '' }}" style="border: 1px solid #f0f0f0; border-radius: 8px;">
                         <a href="{{ route('full', ['title' => Str::slug($book->title), 'id' => $book->id]) }}{{ request('lang') ? '?lang=' . request('lang') : '' }}"
                             class="card-link">
                             <div class="image-container">
@@ -27,7 +27,10 @@
                             </div>
                         </a>
                         <div class="card-body">
-                            <h4 class="font-weight-bold">{{ \Illuminate\Support\Str::limit($book->title, 18) }}</h4>
+                            <h4 class="font-weight-bold book-hover-title"
+                                title="{{ $book->title }}">
+                                {{ $book->title }}
+                            </h4>
                             {{-- Author --}}
                             <p class="text-muted mb-2" style="font-size: 14px;">
                                 <i class="bi bi-person"></i>

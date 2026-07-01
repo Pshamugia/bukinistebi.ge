@@ -9,6 +9,9 @@ class Order extends Model
 {
     use HasFactory;
 
+    public const STATUS_COURIER_PICKED_UP = 'courier_picked_up';
+    public const STATUS_DELIVERED = 'delivered';
+
     public static $statusesMap = [
         'Created' => "შექმნილი",
         'Pending' => "მუშავდება",
@@ -16,10 +19,25 @@ class Order extends Model
         'Succeeded' => "წარმატებული",
         'Returned' => "თანხა დაბრუნებულია",
         'Delivered' => "მიწოდებულია",
+        'paid' => 'გადახდილია',
+        'processing' => 'მუშავდება',
+        self::STATUS_COURIER_PICKED_UP => 'კურიერმა აიღო',
+        self::STATUS_DELIVERED => 'პროდუქტი ჩაიბარა მყიდველმა',
     ];
 
     // Define the fillable properties
     protected $fillable = ['user_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'address', 'delivery_latitude', 'delivery_longitude', 'name', 'phone', 'email', 'payment_method', 'city',  'failed_payment_reminder_sent_at',];
+
+    public static function statusLabel(?string $status): string
+    {
+        if (!$status) {
+            return '';
+        }
+
+        $statusMap = array_change_key_case(self::$statusesMap, CASE_LOWER);
+
+        return $statusMap[strtolower($status)] ?? $status;
+    }
 
     // Relationship with OrderItem model
     public function orderItems()

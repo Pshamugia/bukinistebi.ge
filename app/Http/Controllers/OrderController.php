@@ -303,7 +303,7 @@ class OrderController extends Controller
         ->firstOrFail();
 
     $statusKey = $order->status;
-    $translatedStatus = Order::$statusesMap[$statusKey] ?? $statusKey;
+    $translatedStatus = Order::statusLabel($statusKey);
 
     $status = new \stdClass();
     $status->key = $statusKey;

@@ -236,9 +236,16 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
             min-height: 28px;
             line-height: 1.25;
             position: relative;
+            display: block;
         }
 
         @media (min-width: 769px) {
+            .book-hover-title {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
             .has-collapsed-title .book-hover-title {
                 cursor: pointer;
             }
@@ -250,7 +257,7 @@ src="https://www.facebook.com/tr?id=1716189809797389&ev=PageView&noscript=1"/>
                 top: -8px;
                 right: -12px;
                 left: -12px;
-                z-index: 20;
+                z-index: 30;
                 padding: 8px 12px;
                 box-sizing: border-box;
                 background: #fff;
@@ -2411,23 +2418,26 @@ document.addEventListener("DOMContentLoaded", function () {
     
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.book-card').forEach(function (card) {
-        const title = card.querySelector('.book-hover-title');
-        if (!title) return;
+    window.initBookHoverTitles = function (root) {
+        const scope = root || document;
 
-        // მხოლოდ desktop-ზე ვამუშავებთ hover-ს
-        if (window.innerWidth > 768) {
-            const shortTitle = title.getAttribute('data-short') || '';
-            const fullTitle = title.getAttribute('title') || '';
+        scope.querySelectorAll('.book-card').forEach(function (card) {
+            const title = card.querySelector('.book-hover-title');
+            if (!title || title.dataset.hoverTitleReady === 'true') return;
 
-            title.textContent = shortTitle;
-            title.style.height = title.offsetHeight + 'px';
+            // მხოლოდ desktop-ზე ვამუშავებთ hover-ს
+            if (window.innerWidth > 768) {
+                const isCollapsed = title.scrollWidth > title.clientWidth + 1;
 
-            if (shortTitle !== fullTitle) {
-                card.classList.add('has-collapsed-title');
+                title.style.height = title.offsetHeight + 'px';
+                card.classList.toggle('has-collapsed-title', isCollapsed);
             }
-        }
-    });
+
+            title.dataset.hoverTitleReady = 'true';
+        });
+    };
+
+    window.initBookHoverTitles(document);
 });
 </script>
 

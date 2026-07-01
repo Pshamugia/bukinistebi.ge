@@ -12,7 +12,7 @@
 @endif
 
 
-<div class="container" style="position: relative;top:50px; ">
+<div class="container search-page-wrap">
     
     <style>.filter-modern .form-control,
 .filter-modern .form-select {
@@ -67,39 +67,205 @@
 .filter-modern .form-check-label {
     font-weight: 600;
 }
+
+.search-page-wrap {
+    position: relative;
+    top: 50px;
+}
+
+.search-filter-panel {
+    background: #fff;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 30px rgba(16, 24, 40, 0.06);
+}
+
+.search-filter-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 22px;
+    color: #101828;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.search-filter-title::before {
+    content: "\F3E1";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #f2f4f7;
+    color: #d92d20;
+    font-family: "bootstrap-icons";
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.search-filter-form {
+    align-items: end;
+}
+
+.search-filter-panel .material-field {
+    margin-bottom: 10px;
+}
+
+.search-filter-panel .material-field input,
+.search-filter-panel .material-field select,
+.search-filter-panel .material-field .chosen-single {
+    height: 56px !important;
+    border: 1px solid #d9dee7 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04) !important;
+}
+
+.search-filter-panel .material-field input {
+    padding: 18px 15px 8px;
+    color: #101828;
+    font-weight: 700;
+}
+
+.search-filter-panel .material-field label {
+    color: #667085;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.search-filter-panel .material-field input:focus,
+.search-filter-panel .material-field select:focus {
+    border-color: #d92d20 !important;
+    box-shadow: 0 0 0 4px rgba(217, 45, 32, 0.12) !important;
+}
+
+.search-filter-panel .material-field input:focus + label,
+.search-filter-panel .material-field input:not(:placeholder-shown) + label,
+.search-filter-panel .material-field select:focus + label,
+.search-filter-panel .material-field.chosen-field.chosen-active label,
+.search-filter-panel .material-field.chosen-field.has-value label {
+    color: #d92d20 !important;
+}
+
+.search-filter-panel .chosen-container-single .chosen-single {
+    padding: 15px 16px !important;
+    line-height: 24px !important;
+}
+
+.search-filter-panel .chosen-container-single .chosen-single span {
+    color: #475467 !important;
+    font-weight: 700;
+}
+
+.inventory-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 9px 14px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.inventory-toggle .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border-color: #cbd5e1;
+    box-shadow: none;
+}
+
+.inventory-toggle .form-check-input:checked {
+    background-color: #12b76a;
+    border-color: #12b76a;
+}
+
+.search-filter-panel .btn-filter {
+    min-width: 168px;
+    height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: #d92d20;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(217, 45, 32, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.search-filter-panel .btn-filter:hover,
+.search-filter-panel .btn-filter:focus {
+    background: #b42318;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(217, 45, 32, 0.28);
+}
+
 .search-status-box{
-    background:#ffffff;
-    border:1px solid #ddd;
-    border-radius:10px;
-    padding:16px 18px;
-    margin-bottom: 15px;
-    margin-top: -12px;
+    background:#fff;
+    border:1px solid #e4e7ec;
+    border-radius:16px;
+    padding:18px 22px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 22px rgba(16, 24, 40, 0.045);
  }
 
 .search-status-text{
-    font-size:18px;
-    font-weight:600;
+    font-size:20px;
+    font-weight:800;
     margin:0;
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
+    color:#101828;
+    flex-wrap: wrap;
 }
 
 .search-badge{
-    background:#dc3545;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width: 38px;
+    height: 38px;
+    background:#d92d20;
     color:#fff;
-    padding:5px 10px;
-    border-radius:8px;
-    font-size:16px;
-    font-weight:700;
+    padding:0 12px;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:900;
 }
 
 .search-term{
-    background:#b11414;
+    background:#fff1f0;
+    border:1px solid #ffd5d2;
+    color:#b42318;
+    padding:6px 12px;
+    border-radius:10px;
+    font-weight:800;
+}
+
+.search-load-btn {
+    min-width: 180px;
+    min-height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: #101828;
     color:#fff;
-    padding:5px 10px;
-    border-radius:8px;
-    font-weight:600;
+    font-size: 17px;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.18);
+}
+
+.search-load-btn:hover,
+.search-load-btn:focus {
+    background: #1d2939;
+    color: #fff;
 }
 
 .material-field{
@@ -212,6 +378,27 @@
 
     /* FORCE load more button style on mobile */
 @media (max-width: 768px) {
+    .search-page-wrap {
+        top: 25px;
+    }
+
+    .search-filter-panel {
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+
+    .search-filter-title {
+        font-size: 19px;
+    }
+
+    .search-filter-panel .btn-filter {
+        width: 100%;
+    }
+
+    .search-status-text {
+        font-size: 17px;
+    }
+
     button.search-load-btn,
     button.load-more-btn,
     #load-more,
@@ -244,12 +431,11 @@
 
 
 </style>
-    <div class="filter filter-modern" 
-     style="background-color: #f8f9fa; border-radius: 8px; border:1px solid rgb(202, 200, 200);border-radius:12px;border:1px solid #ddd;padding:25px 25px 0px 25px;margin-bottom:26px;">
+    <div class="filter filter-modern search-filter-panel">
     
-    <h4 style="margin-bottom:18px;">{{ __('messages.filtersearch')}}</h4>
+    <h4 class="search-filter-title">{{ __('messages.filtersearch')}}</h4>
 
-    <form action="@langurl(route('search'))" method="GET" class="row g-3 mb-4">
+    <form action="@langurl(route('search'))" method="GET" class="row g-3 mb-0 search-filter-form">
 
    <div class="col-md-2 material-field">
     <input name="title" class="form-control"
@@ -295,7 +481,7 @@
 
 
         <div class="col-md-12">
-            <div class="form-check mt-2">
+            <div class="form-check mt-2 inventory-toggle">
                 <input class="form-check-input" type="checkbox" name="exclude_sold"
                        value="1" id="excludeSoldOut" {{ request('exclude_sold') ? 'checked' : '' }}>
                 <label class="form-check-label" for="excludeSoldOut">
@@ -398,6 +584,9 @@
 
         // Init cart again
         initCartButtons(container);
+        if (typeof window.initBookHoverTitles === 'function') {
+            window.initBookHoverTitles(container);
+        }
 
         btn.dataset.nextPage = parseInt(page) + 1;
 
