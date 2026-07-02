@@ -57,6 +57,7 @@
             'book_news.manage' => 'Book news',
             'orders.manage' => 'Orders',
             'transactions.manage' => 'Transactions',
+            'courier.orders' => 'Courier orders',
             'auctions.manage' => 'Auctions',
             'users.manage' => 'Users',
             'qookies.manage' => 'Qookies',

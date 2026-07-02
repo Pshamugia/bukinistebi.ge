@@ -537,6 +537,8 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
     public function usersTransactions(Request $request)
     {
+        abort_unless(auth()->user()->hasAdminPermission('transactions.manage'), 403);
+
         $deliveryFilter = $request->delivery_filter;
         $search = trim($request->q);
 
@@ -640,8 +642,75 @@ $query = Book::with(['author', 'genres', 'publisher'])
             ]
         );
 
+        $couriers = User::where('role', 'subadmin')
+            ->get()
+            ->filter(fn ($user) => $user->hasAdminPermission('courier.orders'))
+            ->values();
+
         return view('admin.users_transactions', [
-            'users' => $allUsers
+            'users' => $allUsers,
+            'couriers' => $couriers,
+        ]);
+    }
+
+    public function courierTransactions(Request $request)
+    {
+        abort_unless(auth()->user()->hasAdminPermission('courier.orders'), 403);
+
+        $deliveryFilter = $request->delivery_filter;
+        $search = trim((string) $request->q);
+        $fromDate = $request->filled('from_date')
+            ? Carbon::parse($request->from_date)->startOfDay()
+            : null;
+        $toDate = $request->filled('to_date')
+            ? Carbon::parse($request->to_date)->endOfDay()
+            : null;
+
+        $query = Order::with([
+            'user',
+            'courier',
+            'orderItems.book.publisher',
+            'orderItems.bundle.books',
+        ])
+            ->orderBy('created_at', 'desc');
+
+        if (!auth()->user()->isAdmin()) {
+            $query->where('courier_id', auth()->id());
+        } else {
+            $query->whereNotNull('courier_id');
+        }
+
+        if ($deliveryFilter) {
+            $this->applyDeliveryFilter($query, $deliveryFilter);
+        }
+
+        if ($fromDate) {
+            $query->where('created_at', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query->where('created_at', '<=', $toDate);
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('orderItems.book', function ($bookQuery) use ($search) {
+                        $bookQuery->where('title', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return view('admin.courier_transactions', [
+            'orders' => $query->paginate(20)->appends($request->query()),
         ]);
     }
 
@@ -751,9 +820,15 @@ $query = Book::with(['author', 'genres', 'publisher'])
         $order->load([
             'orderItems.book.publisher',
             'orderItems.bundle.books',
+            'courier',
         ]);
 
-        return view('admin.guest_order_details', compact('order'));
+        $couriers = User::where('role', 'subadmin')
+            ->get()
+            ->filter(fn ($user) => $user->hasAdminPermission('courier.orders'))
+            ->values();
+
+        return view('admin.guest_order_details', compact('order', 'couriers'));
     }
 
 
@@ -762,12 +837,17 @@ $query = Book::with(['author', 'genres', 'publisher'])
     {
         $order = Order::findOrFail($orderId);
 
+        abort_unless($this->canManageOrderDelivery($order), 403);
+
         $currentStatus = strtolower((string) $order->status);
 
         if ($currentStatus === Order::STATUS_COURIER_PICKED_UP) {
             $order->status = Order::STATUS_DELIVERED;
+            $order->delivered_at = now();
         } elseif ($currentStatus !== Order::STATUS_DELIVERED) {
             $order->status = Order::STATUS_COURIER_PICKED_UP;
+            $order->courier_picked_up_at = now();
+            $order->delivered_at = null;
         }
 
         $order->save();
@@ -779,14 +859,71 @@ $query = Book::with(['author', 'genres', 'publisher'])
     {
         $order = Order::findOrFail($orderId);
 
+        abort_unless($this->canManageOrderDelivery($order), 403);
+
         // Revert to a sensible *pre-delivery* status, not "pending"
         $order->status = $order->payment_method === 'courier'
             ? 'processing'  // courier: still to be delivered/handled
             : 'paid';       // bank transfer/direct pay: already paid
+        $order->courier_picked_up_at = null;
+        $order->delivered_at = null;
 
         $order->save();
 
         return back()->with('success', 'შეკვეთის სტატუსი შეცვლილია!');
+    }
+
+    public function assignCourier(Request $request, Order $order)
+    {
+        abort_unless(auth()->user()->hasAdminPermission('transactions.manage'), 403);
+
+        $validated = $request->validate([
+            'courier_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $courierId = $validated['courier_id'] ?? null;
+
+        if ($courierId) {
+            $courier = User::findOrFail($courierId);
+
+            abort_unless(
+                $courier->role === 'subadmin' && $courier->hasAdminPermission('courier.orders'),
+                422
+            );
+        }
+
+        $order->courier_id = $courierId;
+        $order->save();
+
+        return back()->with('success', 'კურიერი განახლდა.');
+    }
+
+    public function saveCourierNote(Request $request, Order $order)
+    {
+        abort_unless($this->canManageOrderDelivery($order), 403);
+
+        $validated = $request->validate([
+            'note' => ['nullable', 'string'],
+        ]);
+
+        $order->courier_note = $validated['note'] ?? null;
+        $order->save();
+
+        return response()->json([
+            'ok' => true,
+        ]);
+    }
+
+    private function canManageOrderDelivery(Order $order): bool
+    {
+        $user = auth()->user();
+
+        if ($user->hasAdminPermission('transactions.manage')) {
+            return true;
+        }
+
+        return $user->hasAdminPermission('courier.orders')
+            && (int) $order->courier_id === (int) $user->id;
     }
 
 
@@ -801,6 +938,7 @@ $query = Book::with(['author', 'genres', 'publisher'])
             },
             'orders.orderItems.book.publisher',
             'orders.orderItems.bundle.books',
+            'orders.courier',
         ])->findOrFail($id);
 
         // Calculate totals
@@ -815,8 +953,12 @@ $query = Book::with(['author', 'genres', 'publisher'])
 
         // (Optional) You can still load all publishers for another use if needed
         $publishers = User::where('role', 'publisher')->with('books')->paginate(10);
+        $couriers = User::where('role', 'subadmin')
+            ->get()
+            ->filter(fn ($user) => $user->hasAdminPermission('courier.orders'))
+            ->values();
 
-        return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal', 'publishers'));
+        return view('admin.user_details', compact('user', 'newPurchaseTotal', 'oldTotal', 'publishers', 'couriers'));
     }
 
 

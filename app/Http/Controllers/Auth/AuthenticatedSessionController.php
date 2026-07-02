@@ -40,6 +40,10 @@ class AuthenticatedSessionController extends Controller
             Cache::put('admin_online', true, now()->addMinutes(5)); // Set admin online status
         }
 
+        if ($user && $user->isCourierOnlySubadmin()) {
+            return redirect()->route('admin.courier_transactions');
+        }
+
         // Redirect to the desired page (e.g., homepage)
         return redirect()->route('welcome');
     }

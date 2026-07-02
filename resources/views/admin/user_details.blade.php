@@ -61,6 +61,16 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
         overflow-wrap: anywhere;
     }
 
+    .admin-user-value a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .admin-user-value a:hover {
+        color: #0d6efd;
+        text-decoration: underline;
+    }
+
     .admin-user-value.money {
         font-size: 18px;
     }
@@ -164,10 +174,10 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
         $raw = substr($raw, 3);
         }
 
-        // Format to 599-99-99-99 if it’s 9 digits, else fallback to original
+        // Show the local number without separators.
         $displayPhone = preg_match('/^\d{9}$/', $raw)
-        ? preg_replace('/^(\d{3})(\d{2})(\d{2})(\d{2})$/', '$1-$2-$3-$4', $raw)
-        : ($latestOrder->phone ?? ''); // or $order->phone
+        ? $raw
+        : str_replace('-', '', ($latestOrder->phone ?? '')); // or $order->phone
 
         // For the clickable link, E.164 is safest (keeps +995 inside tel:),
         // but if you truly want the link without +995, set $telPhone = $raw instead.
@@ -210,7 +220,7 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
             <div class="admin-user-label">Phone</div>
             <div class="admin-user-value">
                 @if($hasOrders && $latestOrder?->phone)
-                {{ $displayPhone }}
+                <a href="tel:{{ $telPhone }}">{{ $displayPhone }}</a>
                 @else
                 -
                 @endif
@@ -260,6 +270,7 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
                 <th>Map</th>
                 <th>{{ __('ჯამი') }}</th>
                 <th>{{ __('თარიღი') }}</th>
+                <th>კურიერი</th>
                 <th>{{ __('სტატუსი') }}</th>
                 <th>{{ __('პროდუქტი') }}</th>
             </tr>
@@ -312,6 +323,19 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
                     {{ $order->total }} {{ __('ლარი') }}
                 </td>
                 <td>{{ $order->created_at?->format('M d, Y | H:i:s') }}</td>
+                <td>
+                    <form action="{{ route('admin.orders.assign_courier', $order->id) }}" method="POST" style="min-width: 190px;">
+                        @csrf
+                        <select name="courier_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">არ არის მინიჭებული</option>
+                            @foreach($couriers as $courier)
+                                <option value="{{ $courier->id }}" {{ (int) $order->courier_id === (int) $courier->id ? 'selected' : '' }}>
+                                    {{ $courier->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </td>
                 <td>
                     <span class="badge bg-{{ $statusClass }}">
                         {{ $order->payment_method === 'courier' ? 'კურიერთან გადახდა' : ($order->status ?: '-') }}
@@ -390,7 +414,7 @@ $latestOrder = $hasOrders ? $user->orders->first() : null; // newest first if co
             @endforeach
             @else
             <tr>
-                <td colspan="6">— {{ __('შეკვეთები არ მოიძებნა') }} —</td>
+                <td colspan="7">— {{ __('შეკვეთები არ მოიძებნა') }} —</td>
             </tr>
             @endif
         </tbody>

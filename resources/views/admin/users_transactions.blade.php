@@ -6,8 +6,174 @@
 
 @section('content')
 
-<div class="container">
+<div class="container-fluid admin-transactions-page">
 <style>
+.admin-transactions-page {
+    color: #172033;
+    padding-bottom: 32px;
+}
+
+.admin-transactions-page .page-title,
+.admin-transactions-page > h2 {
+    color: #111827;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin: 0 0 18px;
+}
+
+.admin-transactions-toolbar {
+    background: #fff;
+    border: 1px solid #e5eaf0;
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(17, 24, 39, .05);
+    margin-bottom: 18px;
+    padding: 18px;
+}
+
+.admin-transactions-toolbar .form-label {
+    color: #667085;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.admin-transactions-toolbar .form-control {
+    border-color: #d9e1ea;
+    border-radius: 8px;
+    min-height: 42px;
+}
+
+.admin-transactions-search {
+    align-items: center;
+}
+
+.admin-transactions-search .form-control {
+    min-width: min(100%, 360px);
+}
+
+.admin-transactions-export {
+    align-items: end;
+}
+
+.transactions-table-card {
+    background: #fff;
+    border: 1px solid #e5eaf0;
+    border-radius: 8px;
+    box-shadow: 0 14px 32px rgba(17, 24, 39, .06);
+    overflow: hidden;
+}
+
+.admin-transactions-table {
+    margin-bottom: 0;
+    min-width: 980px;
+}
+
+.admin-transactions-table thead th {
+    background: #f7f9fb;
+    border-bottom: 1px solid #dbe3ec;
+    color: #475467;
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    padding: 14px 16px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.admin-transactions-table tbody td {
+    border-color: #edf1f5;
+    color: #1f2937;
+    padding: 16px;
+    vertical-align: middle;
+}
+
+.admin-transactions-table tbody tr:hover {
+    background: #fcfdff;
+}
+
+.transaction-user-link {
+    color: #111827;
+    font-weight: 800;
+}
+
+.transaction-money,
+.admin-transactions-table td.transaction-money {
+    color: #111827;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.transaction-status-text {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: .82rem;
+    font-weight: 800;
+    gap: 7px;
+    line-height: 1.2;
+    padding: 8px 11px;
+}
+
+.transaction-status-text::before {
+    border-radius: 50%;
+    content: "";
+    height: 8px;
+    width: 8px;
+}
+
+.transaction-status-text.is-courier-pay {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+}
+
+.transaction-status-text.is-courier-pay::before {
+    background: #f97316;
+}
+
+.transaction-status-text.is-paid {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+.transaction-status-text.is-paid::before {
+    background: #3b82f6;
+}
+
+.transaction-status-text.is-neutral {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.transaction-status-text.is-neutral::before {
+    background: #94a3b8;
+}
+
+.transaction-action-form {
+    display: inline-block;
+}
+
+.transaction-action-btn {
+    border-radius: 8px;
+    font-weight: 800;
+    min-width: 132px;
+}
+
+.transaction-courier-form {
+    display: flex;
+    gap: 8px;
+    min-width: 230px;
+}
+
+.transaction-courier-form .form-select {
+    border-radius: 8px;
+    min-height: 36px;
+}
+
     .admin-note-box {
     width: 14px;
     height: 14px;
@@ -39,17 +205,31 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 18px;
 }
 
 .delivery-filter-bar .btn {
     border-radius: 8px;
     font-weight: 700;
+    min-height: 40px;
 }
 
+@media (max-width: 767.98px) {
+    .admin-transactions-toolbar {
+        padding: 14px;
+    }
+
+    .admin-transactions-page .page-title {
+        font-size: 1.45rem;
+    }
+}
 
 </style>
 
-    <form method="GET" action="{{ route('admin.users_transactions') }}" class="row g-3 mb-4">
+    <h2>{{ __('ტრანზაქციები') }}</h2>
+
+    <div class="admin-transactions-toolbar">
+    <form method="GET" action="{{ route('admin.users_transactions') }}" class="row g-3 mb-0 admin-transactions-search">
         <div class="col-md-4">
             <input type="text"
                 name="q"
@@ -76,11 +256,10 @@
         <input type="hidden" name="delivery_filter" value="{{ request('delivery_filter') }}">
         @endif
     </form>
-
-
-    <h2>{{ __('ტრანზაქციები') }}</h2>
+    </div>
     <!-- Add the download button -->
-    <form method="GET" action="{{ route('admin.users.transactions.export') }}" class="row g-3 mb-3">
+    <div class="admin-transactions-toolbar">
+    <form method="GET" action="{{ route('admin.users.transactions.export') }}" class="row g-3 mb-0 admin-transactions-export">
         <div class="col-md-3">
             <label for="from_date" class="form-label">დან</label>
             <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request('from_date') }}">
@@ -95,8 +274,9 @@
             <button type="submit" class="btn btn-primary">ტრანზაქციების გადმოწერა</button>
         </div>
     </form>
+    </div>
 
-    <form method="GET" action="{{ route('admin.users_transactions') }}" class="delivery-filter-bar mb-3">
+    <form method="GET" action="{{ route('admin.users_transactions') }}" class="delivery-filter-bar">
         @if(request('q'))
             <input type="hidden" name="q" value="{{ request('q') }}">
         @endif
@@ -124,7 +304,8 @@
     </form>
 
 
-    <table class="table table-bordered table-hover">
+    <div class="transactions-table-card">
+    <table class="table table-hover admin-transactions-table">
         <thead>
             <tr>
                 <th>{{ __('მომხმარებელი') }}</th>
@@ -132,6 +313,7 @@
                 <th>{{ __('საერთო ნავაჭრი') }}</th>
                 <th>{{ __('სტატუსი') }}</th>
                 <th>{{ __('მიტანა') }}</th> <!-- New column for the button -->
+                <th>კურიერი</th>
                 <th>{{ __('შეძენის თარიღი') }}</th>
                 <th>წაშლა</th>
 
@@ -169,11 +351,11 @@
 
 {{-- USER / GUEST NAME --}}
 @if ($user instanceof \App\Models\User)
-    <a href="{{ route('admin.user.details', $user->id) }}">
+    <a class="transaction-user-link" href="{{ route('admin.user.details', $user->id) }}">
         {{ $user->name }}
     </a>
 @else
-    <a href="{{ route('admin.guest.order.details', $user->orders->first()->id) }}">
+    <a class="transaction-user-link" href="{{ route('admin.guest.order.details', $user->orders->first()->id) }}">
         {{ $user->name ?? 'Guest' }}
     </a>
     <span class="text-muted ms-1">Direct pay</span>
@@ -182,12 +364,12 @@
                     </div>
                 </td>
 
-                <td class="{{ $user->last_order_total >= 0 ? 'text-danger' : '' }}">
+                <td class="transaction-money {{ $user->last_order_total >= 0 ? 'text-danger' : '' }}">
                     {{ $user->last_order_total ?? 0 }} {{ __('ლარი') }}
                     <!-- Show 0 if last_order_total is null -->
                 </td>
 
-                <td>{{ $user->total_spent ?? 0 }} {{ __('ლარი') }}</td>
+                <td class="transaction-money">{{ $user->total_spent ?? 0 }} {{ __('ლარი') }}</td>
                 <td>
                     @if ($user->orders->isNotEmpty())
                     @php
@@ -197,11 +379,11 @@
                     @endphp
 
                     @if ($lastOrder->payment_method === 'courier' && !in_array($statusKey, [\App\Models\Order::STATUS_COURIER_PICKED_UP, \App\Models\Order::STATUS_DELIVERED], true))
-                    <span style="color: red"> გადახდა კურიერთან </span>
+                    <span class="transaction-status-text is-courier-pay"> გადახდა კურიერთან </span>
                     @elseif ($lastOrder->payment_method === 'bank_transfer' && $lastOrder->status === 'paid')
-                    გადახდილია (ბანკით)
+                    <span class="transaction-status-text is-paid">გადახდილია (ბანკით)</span>
                     @else
-                    {{ $translatedStatus  }}
+                    <span class="transaction-status-text is-neutral">{{ $translatedStatus  }}</span>
                     @endif
                     @else
                     არ არის
@@ -223,7 +405,7 @@
                             @csrf
                             @method('PUT')
                             <button type="submit"
-                                class="btn btn-sm btn-warning d-flex align-items-center gap-2">
+                                class="btn btn-sm btn-warning d-flex align-items-center gap-2 transaction-action-btn">
                                 <i class="bi bi-check-lg text-success"></i> ჩაბარებულია
                             </button>
                         </form>
@@ -236,7 +418,7 @@
                         @csrf
                         @method('PUT')
                         <button type="submit"
-                            class="btn btn-sm btn-info d-flex align-items-center gap-2">
+                            class="btn btn-sm btn-info d-flex align-items-center gap-2 transaction-action-btn">
                             <i class="bi bi-truck"></i> კურიერმა აიღო
                         </button>
                     </form>
@@ -245,13 +427,33 @@
                         @csrf
                         @method('PUT')
                         <button type="submit"
-                            class="btn btn-sm btn-danger d-flex align-items-center gap-2">
+                            class="btn btn-sm btn-danger d-flex align-items-center gap-2 transaction-action-btn">
                             <i class="bi bi-x"></i> დაუსრულებელი
                         </button>
                     </form>
                     @endif
                     @else
                     {{ __('არ არის შეკვეთა') }}
+                    @endif
+                </td>
+                <td>
+                    @if ($user->orders->isNotEmpty())
+                    @php $lastOrder = $user->orders->first(); @endphp
+                    <form action="{{ route('admin.orders.assign_courier', $lastOrder->id) }}"
+                        method="POST"
+                        class="transaction-courier-form">
+                        @csrf
+                        <select name="courier_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">არ არის მინიჭებული</option>
+                            @foreach($couriers as $courier)
+                                <option value="{{ $courier->id }}" {{ (int) $lastOrder->courier_id === (int) $courier->id ? 'selected' : '' }}>
+                                    {{ $courier->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                    @else
+                    -
                     @endif
                 </td>
                 <td>{{ $user->orders->isNotEmpty() ? $user->orders->first()->created_at->format('Y-m-d') : __('არ არის') }}
@@ -281,6 +483,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
 
 
 

@@ -26,7 +26,13 @@ class Order extends Model
     ];
 
     // Define the fillable properties
-    protected $fillable = ['user_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'address', 'delivery_latitude', 'delivery_longitude', 'name', 'phone', 'email', 'payment_method', 'city',  'failed_payment_reminder_sent_at',];
+    protected $fillable = ['user_id', 'courier_id', 'order_id', 'subtotal', 'shipping', 'total', 'status', 'courier_picked_up_at', 'delivered_at', 'courier_note', 'address', 'delivery_latitude', 'delivery_longitude', 'name', 'phone', 'email', 'payment_method', 'city',  'failed_payment_reminder_sent_at',];
+
+    protected $casts = [
+        'courier_picked_up_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'failed_payment_reminder_sent_at' => 'datetime',
+    ];
 
     public static function statusLabel(?string $status): string
     {
@@ -49,6 +55,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function courier()
+    {
+        return $this->belongsTo(User::class, 'courier_id');
     }
 
     // protected static function boot()

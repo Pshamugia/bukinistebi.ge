@@ -56,7 +56,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 
 
 
-Route::get('/admin/crop-test', fn() => view('admin.crop-test'));
+Route::get('/admin/crop-test', fn() => view('admin.crop-test'))->middleware('admin');
 
 
 //FOR COOKIES
@@ -78,7 +78,7 @@ Route::get('/clear-all-cache', function () {
 
 
 
-Route::prefix('admin')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/publishing', [AdminPublishingController::class, 'index'])->name('admin.publishing.index');
 
@@ -117,7 +117,9 @@ Route::get('/book-news/{id}', [BookNewsController::class, 'show'])->name('book_n
 Route::get('/all_book_news', [BookNewsController::class, 'allbooksnews'])->name('allbooksnews');
 Route::get('/full_author/{name}/{id}', [AuthorController::class, 'full_author'])->name('full_author');
 Route::get('/terms_conditions', [BookNewsController::class, 'terms'])->name('terms_conditions');
-Route::post('/admin/send-subscriber-email', [SubscriptionController::class, 'sendEmailToSubscribers'])->name('send.subscriber.email');
+Route::post('/admin/send-subscriber-email', [SubscriptionController::class, 'sendEmailToSubscribers'])
+    ->middleware('admin')
+    ->name('send.subscriber.email');
 
 
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
@@ -523,6 +525,15 @@ Route::post('/admin/subadmins/delete/{id}', [SubAdminController::class, 'destroy
 Route::get('/users-transactions', [AdminBookController::class, 'usersTransactions'])
     ->name('admin.users_transactions');
 
+Route::get('/courier-transactions', [AdminBookController::class, 'courierTransactions'])
+    ->name('admin.courier_transactions');
+
+Route::post('/orders/{order}/assign-courier', [AdminBookController::class, 'assignCourier'])
+    ->name('admin.orders.assign_courier');
+
+Route::post('/orders/{order}/courier-note', [AdminBookController::class, 'saveCourierNote'])
+    ->name('admin.orders.courier_note');
+
 // delete order
 Route::delete('/order/delete/{id}', [AdminBookController::class, 'deleteOrder'])
     ->name('admin.order.delete');
@@ -584,6 +595,3 @@ Route::post('/book-orders/{order}/done', [\App\Http\Controllers\Admin\BookContro
 
 Route::post('/cart/toggle-bundle', [\App\Http\Controllers\CartController::class, 'toggleBundle'])
     ->name('cart.toggleBundle');
-
-
-

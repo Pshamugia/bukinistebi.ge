@@ -10,6 +10,7 @@
     $isFailedOrder = in_array($statusKey, $failedStatuses, true);
     $isSuccessfulOrder = $order->payment_method === 'courier' || in_array($statusKey, $successfulStatuses, true);
     $statusClass = $isFailedOrder ? 'danger' : ($isSuccessfulOrder ? 'success' : 'secondary');
+    $statusLabel = $order->payment_method === 'courier' ? 'კურიერთან გადახდა' : ($order->status ?: '-');
 @endphp
 
 <style>
@@ -182,8 +183,24 @@
             <div class="guest-order-label">Status</div>
             <div class="guest-order-value">
                 <span class="badge bg-{{ $statusClass }}">
-                    {{ $order->payment_method === 'courier' ? 'კურიერთან გადახდა' : ($order->status ?: '-') }}
+                    {{ $statusLabel }}
                 </span>
+            </div>
+        </div>
+        <div>
+            <div class="guest-order-label">Courier</div>
+            <div class="guest-order-value">
+                <form action="{{ route('admin.orders.assign_courier', $order->id) }}" method="POST">
+                    @csrf
+                    <select name="courier_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">არ არის მინიჭებული</option>
+                        @foreach($couriers as $courier)
+                            <option value="{{ $courier->id }}" {{ (int) $order->courier_id === (int) $courier->id ? 'selected' : '' }}>
+                                {{ $courier->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
             </div>
         </div>
     </div>
@@ -196,6 +213,7 @@
         <thead>
             <tr>
                 <th>Product</th>
+                <th class="text-center">სტატუსი</th>
                 <th class="text-center">Qty</th>
                 <th>DATE</th>
                 <th class="text-end">Unit Price</th>
@@ -230,6 +248,11 @@
 </span>
                              @endif
                 </td>
+                    <td class="text-center">
+                        <span class="badge bg-{{ $statusClass }}">
+                            {{ $statusLabel }}
+                        </span>
+                    </td>
                     <td class="text-center">{{ $item->quantity }}</td>
                     <td>{{ $order->created_at->format('d M Y H:i') }}</td>
 
@@ -239,7 +262,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-4">პროდუქტები ვერ მოიძებნა</td>
+                    <td colspan="6" class="text-center text-muted py-4">პროდუქტები ვერ მოიძებნა</td>
                 </tr>
             @endforelse
         </tbody>

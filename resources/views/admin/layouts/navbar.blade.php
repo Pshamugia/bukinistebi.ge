@@ -191,6 +191,12 @@
 
                     @endif
 
+                    @if(auth()->user()->hasAdminPermission('courier.orders'))
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ route('admin.courier_transactions') }}"><i class="bi bi-truck"></i> კურიერის შეკვეთები</a>
+                    </li>
+                    @endif
+
 
                                       <li class="nav-item">
 

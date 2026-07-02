@@ -52,6 +52,11 @@ public function auctions()
         return $this->hasMany(Order::class);
     }
 
+    public function courierOrders()
+    {
+        return $this->hasMany(Order::class, 'courier_id');
+    }
+
     public function isRole($role)
     {
         return $this->role === $role;
@@ -106,6 +111,23 @@ public function auctions()
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isCourierOnlySubadmin(): bool
+    {
+        if ($this->role !== 'subadmin') {
+            return false;
+        }
+
+        $permissions = $this->admin_permissions;
+
+        if (!is_array($permissions)) {
+            return false;
+        }
+
+        sort($permissions);
+
+        return $permissions === ['courier.orders'];
     }
 
    public function hasAdminPermission(string $permission): bool
