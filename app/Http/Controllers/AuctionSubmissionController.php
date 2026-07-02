@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Auction;
 use Illuminate\Http\Request;
 use App\Models\AuctionCategory;
+use App\Services\OwnerNotificationService;
 use Illuminate\Support\Facades\Auth;
 
 class AuctionSubmissionController extends Controller
@@ -84,7 +85,7 @@ $categories = AuctionCategory::all();
         }
 
         // Create auction (pending approval)
-        Auction::create([
+        $auction = Auction::create([
             'book_id' => $book->id,
             'user_id' => auth()->id(),
             'auction_category_id' => $request->auction_category_id,
@@ -99,6 +100,14 @@ $categories = AuctionCategory::all();
             'is_free_bid'   => $request->has('is_free_bid'),
             'is_approved' => false,
         ]);
+
+        OwnerNotificationService::notify(
+            'auction_uploaded',
+            auth()->user(),
+            'ახალი აუქციონი აიტვირთა',
+            auth()->user()->name . ' (' . auth()->user()->email . ') შექმნა აუქციონი: ' . $book->title,
+            route('auction.show', $auction)
+        );
 
         return redirect()
             ->route('auction.index')

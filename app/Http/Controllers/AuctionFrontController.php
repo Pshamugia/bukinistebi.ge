@@ -6,6 +6,7 @@ use App\Models\Bid;
 use App\Models\Auction;
 use Illuminate\Http\Request;
 use App\Models\AuctionCategory;
+use App\Services\OwnerNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -90,7 +91,7 @@ public function index(Request $request)
 
         $isAnonymous = $request->has('is_anonymous'); // ✅ define the variable
 
-        Bid::create([
+        $bid = Bid::create([
             'auction_id' => $auction->id,
             'user_id' => Auth::id(),
             'amount' => $bidAmount,
@@ -101,6 +102,16 @@ public function index(Request $request)
 
         $auction->current_price = $bidAmount;
         $auction->save();
+
+        $auction->loadMissing('book');
+
+        OwnerNotificationService::notify(
+            'auction_bid',
+            Auth::user(),
+            'ახალი ბიდი აუქციონზე',
+            Auth::user()->name . ' (' . Auth::user()->email . ') დადო ბიდი ' . $bid->amount . ' ₾: ' . optional($auction->book)->title,
+            route('auction.show', $auction)
+        );
 
         return back()->with('success', 'თქვენი ბიჯი წარმატებით დაემატა!');
     }

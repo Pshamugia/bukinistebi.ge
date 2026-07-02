@@ -36,6 +36,7 @@ use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\Admin\SubAdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\AuctionSubmissionController;
+use App\Http\Controllers\OwnerNotificationController;
 use App\Http\Controllers\Admin\AnnouncementController;
 
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -210,6 +211,12 @@ Route::get('/admin-status', function () {
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/owner-notifications', [OwnerNotificationController::class, 'index'])
+        ->name('owner-notifications.index');
+
+    Route::post('/owner-notifications/read', [OwnerNotificationController::class, 'markRead'])
+        ->name('owner-notifications.read');
+
     Route::get('/admin-login-status', function () {
         $user = Auth::user();
         if ($user && $user->role === 'admin') {

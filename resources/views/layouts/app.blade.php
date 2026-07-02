@@ -2991,6 +2991,298 @@ function initCartButtons(scope = document) {
 
 
 
+@if(Auth::check() && strtolower(Auth::user()->email) === \App\Services\OwnerNotificationService::OWNER_EMAIL)
+<style>
+    .owner-notify-widget {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 1080;
+        font-family: inherit;
+    }
+
+    .owner-notify-toggle {
+        width: 54px;
+        height: 54px;
+        border: 0;
+        border-radius: 50%;
+        background: #1f2937;
+        color: #fff;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .owner-notify-toggle i {
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .owner-notify-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #dc2626;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+    }
+
+    .owner-notify-panel {
+        position: absolute;
+        right: 0;
+        bottom: 66px;
+        width: min(360px, calc(100vw - 28px));
+        max-height: min(520px, calc(100vh - 110px));
+        background: #fff;
+        border: 1px solid rgba(15, 23, 42, .12);
+        border-radius: 8px;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, .22);
+        overflow: hidden;
+        display: none;
+    }
+
+    .owner-notify-panel.is-open {
+        display: block;
+    }
+
+    .owner-notify-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .owner-notify-title {
+        margin: 0;
+        color: #111827;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .owner-notify-close {
+        border: 0;
+        background: transparent;
+        color: #64748b;
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .owner-notify-list {
+        max-height: 430px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+
+    .owner-notify-empty {
+        padding: 22px 12px;
+        color: #64748b;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .owner-notify-item {
+        display: block;
+        text-decoration: none;
+        color: #111827;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+    }
+
+    .owner-notify-item:hover {
+        background: #f8fafc;
+        color: #111827;
+        border-color: #e5e7eb;
+    }
+
+    .owner-notify-item + .owner-notify-item {
+        margin-top: 6px;
+    }
+
+    .owner-notify-item.is-unread {
+        background: #eef6ff;
+    }
+
+    .owner-notify-item-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .owner-notify-item-message {
+        font-size: 13px;
+        color: #475569;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    .owner-notify-time {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+</style>
+
+<div class="owner-notify-widget" id="ownerNotifyWidget">
+    <div class="owner-notify-panel" id="ownerNotifyPanel" aria-live="polite">
+        <div class="owner-notify-head">
+            <p class="owner-notify-title">აქტივობის შეტყობინებები</p>
+            <button type="button" class="owner-notify-close" id="ownerNotifyClose" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="owner-notify-list" id="ownerNotifyList">
+            <div class="owner-notify-empty">შეტყობინება ჯერ არ არის.</div>
+        </div>
+    </div>
+    <button type="button" class="owner-notify-toggle" id="ownerNotifyToggle" aria-label="Notifications">
+        <i class="bi bi-chat-left-text"></i>
+        <span class="owner-notify-badge" id="ownerNotifyBadge">0</span>
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const panel = document.getElementById('ownerNotifyPanel');
+    const list = document.getElementById('ownerNotifyList');
+    const badge = document.getElementById('ownerNotifyBadge');
+    const toggle = document.getElementById('ownerNotifyToggle');
+    const closeBtn = document.getElementById('ownerNotifyClose');
+    const indexUrl = @json(route('owner-notifications.index'));
+    const readUrl = @json(route('owner-notifications.read'));
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    let lastSeenLatestId = Number(localStorage.getItem('owner_notify_latest_id') || 0);
+    let isFirstLoad = true;
+
+    function setBadge(count) {
+        if (!count) {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+            return;
+        }
+
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.style.display = 'inline-flex';
+    }
+
+    function render(items) {
+        list.innerHTML = '';
+
+        if (!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'owner-notify-empty';
+            empty.textContent = 'შეტყობინება ჯერ არ არის.';
+            list.appendChild(empty);
+            return;
+        }
+
+        items.forEach(function (item) {
+            const node = document.createElement(item.url ? 'a' : 'div');
+            node.className = 'owner-notify-item' + (item.read_at ? '' : ' is-unread');
+
+            if (item.url) {
+                node.href = item.url;
+            }
+
+            const title = document.createElement('div');
+            title.className = 'owner-notify-item-title';
+            title.textContent = item.title || 'ახალი აქტივობა';
+
+            const message = document.createElement('div');
+            message.className = 'owner-notify-item-message';
+            message.textContent = item.message || '';
+
+            const time = document.createElement('div');
+            time.className = 'owner-notify-time';
+            time.textContent = item.created_human || '';
+
+            node.append(title, message, time);
+            list.appendChild(node);
+        });
+    }
+
+    function markRead() {
+        fetch(readUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        }).then(function () {
+            setBadge(0);
+        }).catch(function () {});
+    }
+
+    function openPanel(shouldMarkRead = true) {
+        panel.classList.add('is-open');
+        if (shouldMarkRead) {
+            markRead();
+        }
+    }
+
+    function loadNotifications() {
+        fetch(indexUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Notification request failed');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                const notifications = data.notifications || [];
+                const latestId = notifications.length ? Number(notifications[0].id) : 0;
+
+                render(notifications);
+                setBadge(data.unread_count || 0);
+
+                if (!isFirstLoad && latestId > lastSeenLatestId && data.unread_count > 0) {
+                    openPanel(false);
+                }
+
+                if (latestId > lastSeenLatestId) {
+                    lastSeenLatestId = latestId;
+                    localStorage.setItem('owner_notify_latest_id', String(latestId));
+                }
+
+                isFirstLoad = false;
+            })
+            .catch(function () {});
+    }
+
+    toggle.addEventListener('click', function () {
+        const isOpen = panel.classList.toggle('is-open');
+        if (isOpen) {
+            markRead();
+        }
+    });
+
+    closeBtn.addEventListener('click', function () {
+        panel.classList.remove('is-open');
+    });
+
+    loadNotifications();
+    setInterval(loadNotifications, 20000);
+});
+</script>
+@endif
+
 @php
 $announcement = \App\Models\GlobalAnnouncement::where('is_active', 1)
 

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\SubscriptionNotification;
+use App\Services\OwnerNotificationService;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -112,6 +113,14 @@ class PublisherBookController extends Controller
     if ($request->filled('genre_id')) {
         $book->genres()->sync($request->genre_id);
     }
+
+    OwnerNotificationService::notify(
+        'book_uploaded',
+        auth()->user(),
+        'ახალი წიგნი აიტვირთა',
+        auth()->user()->name . ' (' . auth()->user()->email . ') ატვირთა წიგნი: ' . $book->title,
+        route('full', ['title' => $book->title, 'id' => $book->id])
+    );
 
     \Illuminate\Support\Facades\Cache::forget('home_books');
     \Illuminate\Support\Facades\Cache::forget('popular_books');
